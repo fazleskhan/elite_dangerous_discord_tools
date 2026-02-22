@@ -1,0 +1,4 @@
+requests
+tinydb
+pytest
+argparse
