@@ -1,6 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./src/elite_dangerous_tools"
+        "./src"
     ],
     "python.testing.pytestArgs": [
         "tests"
