@@ -5,7 +5,7 @@ import shutil
 import constants
 import os
 
-db_filename = __file__.replace(".py", "") + ".db"
+db_filename = f"{__file__.replace("src", "data").replace(".py", ".db")}"
 
 
 def main(): ...
@@ -13,7 +13,7 @@ def main(): ...
 
 def initialize_preloaded_db(source_filename):
     if not os.path.exists(db_filename):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_dir = os.path.realpath(__file__)
         source_path = os.path.join(script_dir, source_filename)
         shutil.copy(source_path, db_filename)
 
