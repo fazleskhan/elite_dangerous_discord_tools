@@ -1,23 +1,19 @@
+import ed_bfs
 import edgis_cache
 import db
-import ed_bfs
-import constants
-import shutil
-import os
+
+db_filename = f"{__file__.replace("src", "data").replace(".py", ".db")}"
 
 
 def main():
     initial_system_name = input("initial_system: ")
     number_of_systems = int(input("system_count: "))
-    initialize_preloaded_db()
     logic(initial_system_name, number_of_systems)
 
-def logic(initial_system_name, number_of_systems):
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    source_path = os.path.join(script_dir,
-                               constants.pre_initiazlied_db_filename)
 
-    database = db.DB(source_path)
+def logic(initial_system_name, number_of_systems):
+
+    database = db.DB(db_filename)
     cache = edgis_cache.Ed_Cache(database)
 
     ed_bfs.travel(

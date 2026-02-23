@@ -4,7 +4,8 @@ import test_data
 import os
 import edgis_cache
 
-test_db_filename = __file__.replace(".py", "") + ".db"
+# test_db_filename = __file__.replace(".py", "") + ".db"
+test_db_filename = f"{__file__.replace("tests", "data").replace(".py", ".db")}"
 
 
 def main(): ...
