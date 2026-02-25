@@ -2,3 +2,5 @@ requests
 tinydb
 pytest
 argparse
+discord
+python-dotenv
