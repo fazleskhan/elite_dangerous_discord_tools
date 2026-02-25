@@ -1,9 +1,10 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "Python 3",
+	"name": "Elite Dangerous Discord Tools",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/python:2-3.14-trixie",
+	 "runArgs": ["--name", "Elite_Dangerous_Discord_Tools"],
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

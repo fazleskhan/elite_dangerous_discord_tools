@@ -21,5 +21,9 @@ def test_get_all_system_names():
     assert ed_route.get_all_system_names() != None
 
 
+def test_get_system_info():
+    assert ed_route.get_system_info("Sol") != None
+
+
 if __name__ == "__main__":
     main()
