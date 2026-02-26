@@ -4,3 +4,5 @@ pytest
 argparse
 discord
 python-dotenv
+pytest-asyncio
+asyncio
