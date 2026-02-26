@@ -1,5 +1,3 @@
-Pathing in Elite Dangerous GIS
-
 # Elite Dangerous Tools
 ### Description:
 
