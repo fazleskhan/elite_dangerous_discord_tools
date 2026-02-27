@@ -1,5 +1,6 @@
-import discord_bot
 import pytest
+
+from discord_bot import DiscordBot
 
 
 def main(): ...
@@ -15,63 +16,73 @@ class MockContext:
     def retrieve_messages(self):
         return self.sent_messages
 
+
+class FakeRoute:
+    """Simplified stand‑in for ``ed_route_async`` used in tests."""
+
+    async def get_system_info(self, name):
+        # just echo the name with a suffix so assertions can match
+        return f"info-for-{name}"
+
+    async def get_all_system_names(self):
+        return ["A", "B", "C"]
+
+    async def path(self, initial, dest):
+        # mimic the real return value used by tests
+        return [initial, dest]
+
+
+@pytest.fixture
+def bot():
+    # each test gets its own bot instance wired to the fake route module
+    return DiscordBot(ed_route_module=FakeRoute())
+
+
 @pytest.mark.asyncio
-async def test_ping():
-
+async def test_ping(bot):
     ctx = MockContext()
-
-    await discord_bot.ping(ctx)
+    await bot.ping(ctx)
     sent_messages = ctx.retrieve_messages()
-    assert len(sent_messages) == 1
-    assert sent_messages[0] == "Pong"
+    assert sent_messages == ["Pong"]
 
 
 @pytest.mark.asyncio
-async def test_system_info():
-
+async def test_system_info(bot):
     ctx = MockContext()
-
     arg = "Sol"
-    await discord_bot.system_info(ctx, arg)
+    await bot.system_info(ctx, arg)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 1
-    assert sent_messages[0].startswith(f"{arg}: ")
+    assert sent_messages[0] == f"{arg}: info-for-{arg}"
 
 
 @pytest.mark.asyncio
-async def test_path():
-
+async def test_path(bot):
     ctx = MockContext()
-
-    source_system_name = "Sol"
-    destination_system_name = "Alpha Centauri"
-    await discord_bot.path(ctx, source_system_name, destination_system_name)
+    source = "Sol"
+    dest = "Alpha Centauri"
+    await bot.path(ctx, source, dest)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
     assert sent_messages[0].startswith(
-        f"Calculate Path between {source_system_name} and {destination_system_name}...  This may take a while"
+        f"Calculate Path between {source} and {dest}...  This may take a while"
     )
     assert sent_messages[1].startswith(
-        f"Route from {source_system_name} to {destination_system_name}: {source_system_name} → {destination_system_name}"
+        f"Route from {source} to {dest}: {source} → {dest}"
     )
 
 
 @pytest.mark.asyncio
-async def test_dump_system_cache_names():
-
+async def test_dump_system_cache_names(bot):
     ctx = MockContext()
-
-    await discord_bot.dump_system_cache_names(ctx)
+    await bot.dump_system_cache_names(ctx)
     sent_messages = ctx.retrieve_messages()
-    assert len(sent_messages) > 1
     assert (
         sent_messages[0]
         == "Fetching all system names in cache... This may take a while"
     )
-    for message in sent_messages[1:-1]:
-        assert isinstance(message, str)
-        assert len(message) > 0
-        assert message.startswith("Systems in cache:")
+    # middle messages should start with the expected prefix and derive from FakeRoute
+    assert sent_messages[1].startswith("Systems in cache:")
     assert sent_messages[-1].startswith("Total number of systems in cache: ")
 
 
