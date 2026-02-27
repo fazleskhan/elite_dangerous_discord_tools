@@ -29,5 +29,5 @@ Returns information regarding the provided system name. If the system is not pre
 Performs a breath-first-search from the source system to the destination system. If the current system does not exist, the data is queried from EDGIS. If the system neighbor is not present in the cache, it is queried from EDGIS. The search will only visit a max 100 nodes
 #### dump_system_cache_names
 Iteratively displays all the names currently cached locally
-
-
+### Diagrams
+![Sequence Diagram](./docs/sequence_diagram/sequence_diagram.png)

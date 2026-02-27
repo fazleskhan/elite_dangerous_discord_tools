@@ -20,7 +20,7 @@ async def test_ping():
 
     ctx = MockContext()
 
-    await discord_bot.ping_edt(ctx)
+    await discord_bot.ping(ctx)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 1
     assert sent_messages[0] == "Pong"

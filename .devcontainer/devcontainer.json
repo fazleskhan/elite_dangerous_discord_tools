@@ -22,12 +22,20 @@
 				"ms-python.python",
 				"ms-python.black-formatter",
 				"bierner.emojisense",
-				"codezombiech.gitignore"
+				"codezombiech.gitignore",
+				"jebbs.plantuml"
 			],
 			"settings": {
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
-					"editor.formatOnSave": true
+					"editor.formatOnSave": true,
+				    "python.testing.unittestEnabled": false,
+    				"python.testing.pytestEnabled": true,
+    				"plantuml.server": "https://www.plantuml.com/plantuml",
+    				"plantuml.render": "PlantUMLServer",
+    				"plantuml.exportOutDir": "/docs",
+    				"plantuml.exportFormat": "png",
+    				"plantuml.diagramsRoot": "/docs"					
 				}
 			}
 		}
