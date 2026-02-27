@@ -1,0 +1,25 @@
+@startuml
+title dump_system_cache_names — high-level sequence
+actor User
+participant Discord as "discord.py"
+participant Bot as "DiscordBot (src/discord_bot.py)"
+participant AsyncRoute as "ed_route_async"
+participant Route as "ed_route"
+database DB as "TinyDB (data/*.db)"
+
+User -> Discord: sends `!dump_system_cache_names` command
+Discord -> Bot: dispatch command handler
+Bot -> Bot: ctx.send("Fetching all system names in cache... This may take a while")
+Bot -> AsyncRoute: await get_all_system_names()
+AsyncRoute -> Route: get_all_system_names()
+Route -> DB: DB(db_filename) constructor / open
+Route -> DB: get_all_systems()
+DB --> Route: list_of_system_infos
+Route --> AsyncRoute: list_of_names
+AsyncRoute --> Bot: system_names_list
+loop for each chunk
+    Bot -> Bot: chunked_system_list(system_names)
+    Bot -> Discord: ctx.send("Systems in cache: <chunk names comma separated>")
+end
+Bot -> Discord: ctx.send("Total number of systems in cache: <count>")
+@enduml

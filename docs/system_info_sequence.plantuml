@@ -1,0 +1,31 @@
+@startuml
+title system_info — high-level sequence
+actor User
+participant Discord as "discord.py"
+participant Bot as "DiscordBot (src/discord_bot.py)"
+participant AsyncRoute as "ed_route_async"
+participant Route as "ed_route"
+participant Cache as "Ed_Cache (edgis_cache)"
+database DB as "TinyDB (data/*.db)"
+participant EDGIS as "EDGIS (external HTTP API)"
+
+User -> Discord: sends `!system_info <name>` command
+Discord -> Bot: dispatch command handler
+Bot -> AsyncRoute: await get_system_info(name)
+AsyncRoute -> Route: get_system_info(name)
+Route -> DB: DB(db_filename) constructor / open
+Route -> Cache: Ed_Cache(database)
+Route -> Cache: find_system_info(name)
+Cache -> DB: get_system(name)
+alt cached
+    DB --> Cache: return system_info
+else not cached
+    Cache -> EDGIS: HTTP GET /coords?q=<name>
+    EDGIS --> Cache: JSON system_info
+    Cache -> DB: insert_system(system_info)
+end
+Cache --> Route: system_info
+Route --> AsyncRoute: return system_info
+AsyncRoute --> Bot: system_info
+Bot -> Discord: ctx.send("<name>: <system_info>")
+@enduml
