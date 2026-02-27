@@ -10,8 +10,7 @@ class DiscordBot:
 
     Dependencies such as the routing module and configuration values are
     injected so that callers (tests, applications) can supply substitutes
-    or mocks.  A "default" bot is created at import time for backwards
-    compatibility with the previous module‑level functions.
+    or mocks.
     """
 
     def __init__(
@@ -113,39 +112,3 @@ class DiscordBot:
         want to connect to Discord shouldn't use it.
         """
         self.bot.run(self.token, log_handler=self.log_handler, log_level=self.log_level)
-
-
-# module‑level helpers for backwards compatibility
-_default_bot = DiscordBot()
-
-bot = _default_bot.bot
-token = _default_bot.token
-handler = _default_bot.log_handler
-
-# export wrappers that mirror the previous API; they simply delegate to the
-# default bot instance.  Returning the awaited value makes the API identical
-# from the caller's perspective.
-
-
-async def ping(ctx):
-    return await _default_bot.ping(ctx)
-
-
-async def system_info(ctx, arg):
-    return await _default_bot.system_info(ctx, arg)
-
-
-async def path(ctx, initial_system_name, destination_system_name):
-    return await _default_bot.path(ctx, initial_system_name, destination_system_name)
-
-
-async def dump_system_cache_names(ctx):
-    return await _default_bot.dump_system_cache_names(ctx)
-
-
-def chunked_system_list(system_list, size=5):
-    return _default_bot.chunked_system_list(system_list, size)
-
-
-# pulled bot.run() to avoid blocking the event loop during testing
-# bot.run(token, log_handler=handler, log_level=logging.DEBUG)
