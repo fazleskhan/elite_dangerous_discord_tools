@@ -30,4 +30,17 @@ Performs a breath-first-search from the source system to the destination system.
 #### dump_system_cache_names
 Iteratively displays all the names currently cached locally
 ### Diagrams
-![Sequence Diagram](./docs/sequence_diagram/sequence_diagram.png)
+
+![Ping Sequence Diagram](./docs/ping_sequence/ping_sequence.png)
+
+![System Info Cache Miss Sequence Diagram](./docs/system_info_cache_miss_sequence/system_info_cache_miss_sequence.png)
+
+![System Info Cache Hit Sequence Diagram](./docs/system_info_sequence/system_info_sequence.png)
+
+![Path Sequence Diagram](./docs/path_sequence/path_sequence.png)
+
+![Path Detailed Sequence Diagram](./docs/path_detailed_sequence/path_detailed_sequence.png)
+
+![Dump System Cache Sequence Diagram](./docs/dump_system_cache_sequence/dump_system_cache_sequence.png)
+
+![Dump System Cache Detailed Sequence Diagram](./docs/dump_system_cache_detailed_sequence/dump_system_cache_detailed_sequence.png)
