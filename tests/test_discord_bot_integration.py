@@ -14,7 +14,7 @@ from discord_bot import DiscordBot
 
 
 class FakeRoute:
-    """Simplified stand-in for ``ed_route_async`` used in tests."""
+    """Simplified stand-in for route module behavior used in tests."""
 
     async def get_system_info(self, name):
         return f"info-for-{name}"

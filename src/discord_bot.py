@@ -3,6 +3,7 @@ from discord.ext import commands
 import logging
 from dotenv import load_dotenv
 import os
+import inspect
 
 
 class DiscordBot:
@@ -24,7 +25,7 @@ class DiscordBot:
     ):
         # dependencies/configurations
         load_dotenv()
-        self.ed_route = ed_route_module or __import__("ed_route_async")
+        self.ed_route = ed_route_module or __import__("ed_route")
         self.token = token or os.getenv("DISCORD_TOKEN")
         self.log_location = log_location or os.getenv("LOG_LOCATION", "discord_bot.log")
         self.log_level = log_level
@@ -55,16 +56,23 @@ class DiscordBot:
     async def ping(self, ctx):
         await ctx.send("Pong")
 
+    async def _resolve(self, value):
+        if inspect.isawaitable(value):
+            return await value
+        return value
+
     async def system_info(self, ctx, arg):
         print(f"Received argument: {arg}")
-        system_info = await self.ed_route.get_system_info(arg)
+        system_info = await self._resolve(self.ed_route.get_system_info(arg))
         await ctx.send(f"{arg}: {system_info}")
 
     async def path(self, ctx, initial_system_name, destination_system_name):
         await ctx.send(
             f"Calculate Path between {initial_system_name} and {destination_system_name}...  This may take a while"
         )
-        route = await self.ed_route.path(initial_system_name, destination_system_name)
+        route = await self._resolve(
+            self.ed_route.path(initial_system_name, destination_system_name)
+        )
         route_message = " → ".join(route)
         message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
         await ctx.send(message)
@@ -75,7 +83,7 @@ class DiscordBot:
 
     async def dump_system_cache_names(self, ctx):
         await ctx.send("Fetching all system names in cache... This may take a while")
-        system_names = await self.ed_route.get_all_system_names()
+        system_names = await self._resolve(self.ed_route.get_all_system_names())
         for chunk in self.chunked_system_list(system_names, size=10):
             system_names_message = ", ".join(chunk)
             await ctx.send(f"Systems in cache: {system_names_message}")

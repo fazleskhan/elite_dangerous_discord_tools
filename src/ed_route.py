@@ -11,13 +11,6 @@ db_filename = f"{__file__.replace("src", "data").replace(".py", ".db")}"
 def main(): ...
 
 
-def initialize_preloaded_db(source_filename):
-    if not os.path.exists(db_filename):
-        script_dir = os.path.realpath(__file__)
-        source_path = os.path.join(script_dir, source_filename)
-        shutil.copy(source_path, db_filename)
-
-
 def fetch_system_info():
     return edgis_cache.find_system_info
 
@@ -47,8 +40,10 @@ def path(
     max_systems=100,
     preinit_db_filename=constants.pre_initiazlied_db_filename,
 ):
-
-    initialize_preloaded_db(preinit_db_filename)
+    if not os.path.exists(db_filename):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        source_path = os.path.join(script_dir, preinit_db_filename)
+        shutil.copy(source_path, db_filename)
 
     database = db.DB(db_filename)
     cache = edgis_cache.Ed_Cache(database)

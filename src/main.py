@@ -78,7 +78,6 @@ def get_all_system_names():
 
 
 def calc_route(source_system, target_system, i_max_systems):
-    ed_route.initialize_preloaded_db(constants.pre_initiazlied_db_filename)
     return ed_route.path(source_system, target_system, max_systems=i_max_systems)
 
 

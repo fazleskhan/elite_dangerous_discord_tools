@@ -18,7 +18,7 @@ class MockContext:
 
 
 class FakeRoute:
-    """Simplified stand‑in for ``ed_route_async`` used in tests."""
+    """Simplified stand‑in for route module behavior used in tests."""
 
     async def get_system_info(self, name):
         # just echo the name with a suffix so assertions can match
