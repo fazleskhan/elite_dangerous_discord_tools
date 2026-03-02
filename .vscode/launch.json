@@ -5,12 +5,35 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Main -h",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            "args": "-h"
+        },
+        {
+            "name": "Main System Info",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            "args": "system_info --system_name 'Sol'"
+        },
+        {
+            "name": "Main Path",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            "args": "path --initial 'Sol' --destination 'Sirius' --max_systems 100"
+        },        
+        {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
         }
-
     ]
 }
