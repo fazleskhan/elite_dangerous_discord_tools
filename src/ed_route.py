@@ -114,16 +114,5 @@ class EDRouteService:
         )
 
 
-_default_service = EDRouteService.create()
-
-
-def fetch_system_info():
-    return edgis_cache.find_system_info
-
-
-def fetch_neighbors():
-    return edgis_cache.find_system_neighbors
-
-
 if __name__ == "__main__":
     main()
