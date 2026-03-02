@@ -5,11 +5,13 @@ def main(): ...
 
 
 def test_small_path():
-    assert ed_route.path("Sol", "Sirius") == ["Sol", "Sirius"]
+    ed_service = ed_route.EDRouteService.create()
+    assert ed_service.path("Sol", "Sirius") == ["Sol", "Sirius"]
 
 
 def test_large_path():
-    assert ed_route.path("Sol", "Ross 248") == [
+    ed_service = ed_route.EDRouteService.create()
+    assert ed_service.path("Sol", "Ross 248") == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",
@@ -18,11 +20,13 @@ def test_large_path():
 
 
 def test_get_all_system_names():
-    assert ed_route.get_all_system_names() != None
+    ed_service = ed_route.EDRouteService.create()
+    assert ed_service.get_all_system_names() != None
 
 
 def test_get_system_info():
-    assert ed_route.get_system_info("Sol") != None
+    ed_service = ed_route.EDRouteService.create()
+    assert ed_service.get_system_info("Sol") != None
 
 
 if __name__ == "__main__":

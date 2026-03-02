@@ -47,6 +47,11 @@ class DiscordBot:
             resolved_route = ed_route_service
         elif ed_route_module:
             resolved_route = ed_route_module
+        elif hasattr(ed_route, "EDRouteService"):
+            if hasattr(ed_route.EDRouteService, "create"):
+                resolved_route = ed_route.EDRouteService.create()
+            else:
+                resolved_route = ed_route.EDRouteService()
         elif hasattr(ed_route, "EdRouteService"):
             if hasattr(ed_route.EdRouteService, "create"):
                 resolved_route = ed_route.EdRouteService.create()

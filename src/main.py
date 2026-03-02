@@ -4,6 +4,9 @@ import argparse
 import sys
 
 
+ed_service = ed_route.EDRouteService.create()
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Calculates pathing and provides information for Elite Dangers GIS data."
@@ -74,17 +77,17 @@ def main():
 
 
 def get_all_system_names():
-    return ed_route.get_all_system_names()
+    return ed_service.get_all_system_names()
 
 
 def calc_route(source_system, target_system, i_max_systems):
-    return ed_route.path(source_system, target_system, max_systems=i_max_systems)
+    return ed_service.path(source_system, target_system, max_systems=i_max_systems)
 
 
 def get_system_info(system_names):
     results = []
     for system_name in system_names:
-        results.append(ed_route.get_system_info(system_name))
+        results.append(ed_service.get_system_info(system_name))
     return results
 
 
