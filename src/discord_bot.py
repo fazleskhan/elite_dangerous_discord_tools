@@ -4,6 +4,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import inspect
+import ed_route
 
 
 class DiscordBot:
@@ -14,8 +15,26 @@ class DiscordBot:
     or mocks.
     """
 
-    def __init__(
-        self,
+    def __init__(self, ed_route_service, token, log_location, log_level, log_handler, bot):
+        self.ed_route = ed_route_service
+        self.token = token
+        self.log_location = log_location
+        self.log_level = log_level
+        self.log_handler = log_handler
+        self.bot = bot
+        self.bot.event(self.on_ready)
+        self.register_commands()
+
+    @staticmethod
+    def _default_intents():
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.members = True
+        return intents
+
+    @staticmethod
+    def create(
+        ed_route_service=None,
         ed_route_module=None,
         command_prefix="!",
         token=None,
@@ -23,32 +42,38 @@ class DiscordBot:
         intents=None,
         log_level=logging.DEBUG,
     ):
-        # dependencies/configurations
         load_dotenv()
-        self.ed_route = ed_route_module or __import__("ed_route")
-        self.token = token or os.getenv("DISCORD_TOKEN")
-        self.log_location = log_location or os.getenv("LOG_LOCATION", "discord_bot.log")
-        self.log_level = log_level
-
-        # logging handler; caller can inspect if needed
-        self.log_handler = logging.FileHandler(
-            filename=self.log_location, encoding="utf-8", mode="w"
+        if ed_route_service:
+            resolved_route = ed_route_service
+        elif ed_route_module:
+            resolved_route = ed_route_module
+        elif hasattr(ed_route, "EdRouteService"):
+            if hasattr(ed_route.EdRouteService, "create"):
+                resolved_route = ed_route.EdRouteService.create()
+            else:
+                resolved_route = ed_route.EdRouteService()
+        else:
+            # Backward-compatible fallback for module-level ed_route helpers.
+            resolved_route = ed_route
+        resolved_token = token or os.getenv("DISCORD_TOKEN")
+        resolved_log_location = log_location or os.getenv(
+            "LOG_LOCATION", "discord_bot.log"
         )
-
-        # discord bot instance
-        self.bot = commands.Bot(
-            command_prefix=command_prefix, intents=intents or self._default_intents()
+        resolved_log_handler = logging.FileHandler(
+            filename=resolved_log_location, encoding="utf-8", mode="w"
         )
-
-        # register event listeners and commands on the bot
-        self.bot.event(self.on_ready)
-        self.register_commands()
-
-    def _default_intents(self):
-        intents = discord.Intents.default()
-        intents.message_content = True
-        intents.members = True
-        return intents
+        resolved_bot = commands.Bot(
+            command_prefix=command_prefix,
+            intents=intents or DiscordBot._default_intents(),
+        )
+        return DiscordBot(
+            ed_route_service=resolved_route,
+            token=resolved_token,
+            log_location=resolved_log_location,
+            log_level=log_level,
+            log_handler=resolved_log_handler,
+            bot=resolved_bot,
+        )
 
     async def on_ready(self):
         print(f"Elite Dangerous Tools is ready!, {self.bot.user.name}")

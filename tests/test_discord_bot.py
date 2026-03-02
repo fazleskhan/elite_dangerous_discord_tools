@@ -35,7 +35,7 @@ class FakeRoute:
 @pytest.fixture
 def bot():
     # each test gets its own bot instance wired to the fake route module
-    return DiscordBot(ed_route_module=FakeRoute())
+    return DiscordBot.create(ed_route_module=FakeRoute())
 
 
 @pytest.mark.asyncio

@@ -5,7 +5,7 @@ from discord_bot import DiscordBot
 
 def main():
     load_dotenv()
-    bot = DiscordBot()
+    bot = DiscordBot.create()
     bot.run()
 
 

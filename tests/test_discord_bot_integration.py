@@ -42,7 +42,7 @@ def create_mock_context():
 @pytest.fixture
 def bot():
     """Create a bot instance with fake route for integration testing."""
-    return DiscordBot(
+    return DiscordBot.create(
         ed_route_module=FakeRoute(),
         command_prefix="!",
     )
@@ -186,7 +186,7 @@ async def test_chunked_system_list(bot):
 
 def test_default_intents_configuration():
     """Test that default intents are properly configured."""
-    bot = DiscordBot(ed_route_module=FakeRoute())
+    bot = DiscordBot.create(ed_route_module=FakeRoute())
 
     assert bot.bot.intents.message_content is True
     assert bot.bot.intents.members is True
