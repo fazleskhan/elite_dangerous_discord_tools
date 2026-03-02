@@ -25,7 +25,7 @@ def database(del_prior_database):
 
 @pytest.fixture(scope="module")
 def ed(database):
-    yield edgis_cache.Ed_Cache(database)
+    yield edgis_cache.EDGisCache.create(database)
 
 
 ################# TESTS ####################

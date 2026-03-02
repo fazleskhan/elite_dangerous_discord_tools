@@ -14,7 +14,7 @@ def main():
 def logic(initial_system_name, number_of_systems):
 
     database = db.DB(db_filename)
-    cache = edgis_cache.Ed_Cache(database)
+    cache = edgis_cache.EDGisCache.create(database)
 
     ed_bfs.travel(
         cache.find_system_info,

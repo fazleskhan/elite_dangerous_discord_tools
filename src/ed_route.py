@@ -16,7 +16,7 @@ class EDRouteService:
         self,
         db_path,
         db_factory=db.DB,
-        cache_factory=edgis_cache.Ed_Cache,
+        cache_factory=edgis_cache.EDGisCache.create,
         travel_fn=ed_bfs.travel,
         file_exists=os.path.exists,
         copy_file=shutil.copy,
@@ -36,7 +36,7 @@ class EDRouteService:
     def create(
         db_path=None,
         db_factory=db.DB,
-        cache_factory=edgis_cache.Ed_Cache,
+        cache_factory=edgis_cache.EDGisCache.create,
         travel_fn=ed_bfs.travel,
         file_exists=os.path.exists,
         copy_file=shutil.copy,

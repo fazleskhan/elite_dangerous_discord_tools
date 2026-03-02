@@ -5,10 +5,21 @@ import constants
 def main(): ...
 
 
-class Ed_Cache:
+class EDGisCache:
+    """Cache layer with injected fetchers for easier testing."""
 
-    def __init__(self, db):
+    def __init__(self, db, fetch_system_info_fn, fetch_neighbors_fn):
         self.db = db
+        self.fetch_system_info_fn = fetch_system_info_fn
+        self.fetch_neighbors_fn = fetch_neighbors_fn
+
+    @staticmethod
+    def create(
+        db_obj,
+        fetch_system_info_fn=fetch_system_info,
+        fetch_neighbors_fn=fetch_neighbors,
+    ):
+        return EDGisCache(db_obj, fetch_system_info_fn, fetch_neighbors_fn)
 
     # Provides cache abstraction layer to save system
     # information localy and reduce edgris calls
@@ -18,7 +29,7 @@ class Ed_Cache:
 
         # first time requesting the system form edgis
         if not system_info:
-            if system_info := fetch_system_info(system_name):
+            if system_info := self.fetch_system_info_fn(system_name):
                 self.db.insert_system(system_info)
 
         return system_info
@@ -42,7 +53,7 @@ class Ed_Cache:
             z = system_info[constants.system_info_coords_field][
                 constants.system_info_z_field
             ]
-            neighbors = fetch_neighbors(x, y, z)
+            neighbors = self.fetch_neighbors_fn(x, y, z)
             self.db.add_neighbors(system_info, neighbors)
         return neighbors
 

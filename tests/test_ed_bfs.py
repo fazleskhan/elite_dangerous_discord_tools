@@ -57,7 +57,7 @@ def test_larger_local_travel_Sol_Wolf_359():
     shutil.copy(source_path, db_filename)
 
     database = db.DB(db_filename)
-    cache = edgis_cache.Ed_Cache(database)
+    cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
         cache.find_system_info, cache.find_system_neighbors, "Sol", "Wolf 359"
@@ -73,7 +73,7 @@ def test_larger_travel_Sol_LTT_3572():
     shutil.copy(source_path, db_filename)
 
     database = db.DB(db_filename)
-    cache = edgis_cache.Ed_Cache(database)
+    cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
         cache.find_system_info, cache.find_system_neighbors, "Sol", "LTT 3572", 100
