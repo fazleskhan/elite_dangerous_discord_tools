@@ -4,6 +4,9 @@ import ed_bfs
 import shutil
 import constants
 import os
+import asyncio
+import threading
+from concurrent.futures import Future
 import logging
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol
@@ -130,7 +133,7 @@ class EDRouteService:
         self.logger.debug("Collected %s system names", len(results))
         return results
 
-    def path(
+    async def path(
         self, initial_system_name: str, destination_name: str, max_systems: int = 100
     ) -> list[str] | None:
         if self.cache is None:
@@ -142,13 +145,26 @@ class EDRouteService:
             destination_name,
             max_systems,
         )
-        route = self.travel_fn(
-            self.cache.find_system_info,
-            self.cache.find_system_neighbors,
-            initial_system_name,
-            destination_name,
-            max_systems,
-        )
+
+        result: Future[list[str] | None] = Future()
+
+        def _worker() -> None:
+            try:
+                route_result = self.travel_fn(
+                    self.cache.find_system_info,
+                    self.cache.find_system_neighbors,
+                    initial_system_name,
+                    destination_name,
+                    max_systems,
+                )
+                result.set_result(route_result)
+            except Exception as exc:
+                result.set_exception(exc)
+
+        threading.Thread(target=_worker, daemon=True).start()
+        while not result.done():
+            await asyncio.sleep(0.01)
+        route = result.result()
         self.logger.info("Path calculation complete found=%s", route is not None)
         return route
 

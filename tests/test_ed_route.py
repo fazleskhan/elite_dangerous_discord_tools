@@ -1,17 +1,54 @@
 import ed_route
+import pytest
 
 
 def main(): ...
 
 
-def test_small_path():
-    ed_service = ed_route.EDRouteService.create()
-    assert ed_service.path("Sol", "Sirius") == ["Sol", "Sirius"]
+class FakeDB:
+    def get_all_systems(self):
+        return [{"name": "Sol"}, {"name": "Sirius"}]
 
 
-def test_large_path():
-    ed_service = ed_route.EDRouteService.create()
-    assert ed_service.path("Sol", "Ross 248") == [
+class FakeCache:
+    def find_system_info(self, system_name: str):
+        return {"name": system_name}
+
+    def find_system_neighbors(self, system_info):
+        return []
+
+
+def fake_travel_fn(fetch_info, fetch_neighbors, source, destination, max_systems):
+    if source == "Sol" and destination == "Sirius":
+        return ["Sol", "Sirius"]
+    if source == "Sol" and destination == "Ross 248":
+        return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
+    return None
+
+
+def make_service():
+    return ed_route.EDRouteService(
+        db_path="test.db",
+        database=FakeDB(),
+        cache=FakeCache(),
+        travel_fn=fake_travel_fn,
+        file_exists=lambda _: True,
+        copy_file=lambda src, dst: dst,
+        script_file=__file__,
+        default_preload_db="edgis_bulk_load.db",
+    )
+
+
+@pytest.mark.asyncio
+async def test_small_path():
+    ed_service = make_service()
+    assert await ed_service.path("Sol", "Sirius") == ["Sol", "Sirius"]
+
+
+@pytest.mark.asyncio
+async def test_large_path():
+    ed_service = make_service()
+    assert await ed_service.path("Sol", "Ross 248") == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",
@@ -20,12 +57,12 @@ def test_large_path():
 
 
 def test_get_all_system_names():
-    ed_service = ed_route.EDRouteService.create()
+    ed_service = make_service()
     assert ed_service.get_all_system_names() != None
 
 
 def test_get_system_info():
-    ed_service = ed_route.EDRouteService.create()
+    ed_service = make_service()
     assert ed_service.get_system_info("Sol") != None
 
 
