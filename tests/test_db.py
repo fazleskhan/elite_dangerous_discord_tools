@@ -3,7 +3,6 @@ import pytest
 import test_data
 import os
 
-# test_db_filename = __file__.replace(".py", "") + ".db"
 test_db_filename = f"{__file__.replace("tests", "data").replace(".py", ".db")}"
 
 
@@ -37,6 +36,10 @@ def test_crud_system(database):
 
 def test_get_all_systems(database):
     assert database.get_all_systems() != None
+
+
+def test_get_system_when_record_not_available(database):
+    assert database.get_system("NonExistentSystem") is None
 
 
 if __name__ == "__main__":

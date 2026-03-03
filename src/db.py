@@ -38,10 +38,15 @@ class DB:
     def get_system(self, system_name: str) -> SystemInfo | None:
         System = Query()
         with TinyDB(self._database_name) as db:
-            result = db.get(System.name == system_name)
-            self.logger.debug(
-                "Lookup system=%s found=%s", system_name, result is not None
-            )
+            try:
+                if not db.contains(System.name == system_name):
+                    self.logger.debug("Lookup system=%s found=False", system_name)
+                    return None
+                result = db.get(System.name == system_name)
+            except Exception:
+                self.logger.exception("Lookup failed for system=%s", system_name)
+                return None
+            self.logger.debug("Lookup system=%s found=%s", system_name, result is not None)
             return result
 
     def add_neighbors(
