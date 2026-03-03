@@ -1,0 +1,117 @@
+@startuml
+title DiscordBot.ping()
+
+actor User
+participant "discord.py\nCommand Dispatcher" as Dispatcher
+participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "DiscordBot" as Bot
+participant "commands.Context" as Ctx
+
+User -> Dispatcher: !ping
+Dispatcher -> Wrapper: ping(ctx)
+Wrapper -> Bot: ping(ctx)
+Bot -> Ctx: send("Pong")
+Ctx --> Bot: message sent
+Bot --> Wrapper: return
+Wrapper --> Dispatcher: return
+@enduml
+
+@startuml
+title DiscordBot.system_info(ctx, arg)
+
+actor User
+participant "discord.py\nCommand Dispatcher" as Dispatcher
+participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "DiscordBot" as Bot
+participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "commands.Context" as Ctx
+
+User -> Dispatcher: !system_info <arg>
+Dispatcher -> Wrapper: system_info(ctx, arg)
+Wrapper -> Bot: system_info(ctx, arg)
+Bot -> Bot: print("Received argument: {arg}")
+Bot -> RouteService: get_system_info(arg)
+RouteService --> Bot: value or awaitable
+Bot -> Bot: _resolve(value)
+alt value is awaitable
+  Bot -> Bot: await value
+  Bot --> Bot: resolved_system_info
+else value is immediate
+  Bot --> Bot: resolved_system_info
+end
+Bot -> Ctx: send(f"{arg}: {resolved_system_info}")
+Ctx --> Bot: message sent
+Bot --> Wrapper: return
+Wrapper --> Dispatcher: return
+@enduml
+
+@startuml
+title DiscordBot.path(ctx, initial_system_name, destination_system_name)
+
+actor User
+participant "discord.py\nCommand Dispatcher" as Dispatcher
+participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "DiscordBot" as Bot
+participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "commands.Context" as Ctx
+
+User -> Dispatcher: !path <initial> <destination>
+Dispatcher -> Wrapper: path(ctx, initial, destination)
+Wrapper -> Bot: path(ctx, initial, destination)
+Bot -> Ctx: send("Calculate Path between ...")
+Ctx --> Bot: message sent
+
+Bot -> RouteService: path(initial, destination)
+RouteService --> Bot: route or awaitable
+Bot -> Bot: _resolve(route)
+alt route is awaitable
+  Bot -> Bot: await route
+  Bot --> Bot: resolved_route
+else route is immediate
+  Bot --> Bot: resolved_route
+end
+Bot -> Bot: route_message = " -> ".join(resolved_route)
+Bot -> Ctx: send(f"Route from initial to destination: {route_message}")
+Ctx --> Bot: message sent
+Bot --> Wrapper: return
+Wrapper --> Dispatcher: return
+@enduml
+
+@startuml
+title DiscordBot.dump_system_cache_names(ctx)
+
+actor User
+participant "discord.py\nCommand Dispatcher" as Dispatcher
+participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "DiscordBot" as Bot
+participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "commands.Context" as Ctx
+
+User -> Dispatcher: !dump_system_cache_names
+Dispatcher -> Wrapper: dump_system_cache_names(ctx)
+Wrapper -> Bot: dump_system_cache_names(ctx)
+
+Bot -> Ctx: send("Fetching all system names in cache...")
+Ctx --> Bot: message sent
+
+Bot -> RouteService: get_all_system_names()
+RouteService --> Bot: names or awaitable
+Bot -> Bot: _resolve(names)
+alt names is awaitable
+  Bot -> Bot: await names
+  Bot --> Bot: resolved_names
+else names is immediate
+  Bot --> Bot: resolved_names
+end
+
+loop for each chunk in chunked_system_list(resolved_names, size=10)
+  Bot -> Bot: system_names_message = ", ".join(chunk)
+  Bot -> Ctx: send(f"Systems in cache: {system_names_message}")
+  Ctx --> Bot: message sent
+end
+
+Bot -> Ctx: send(f"Total number of systems in cache: {len(resolved_names)}")
+Ctx --> Bot: message sent
+Bot --> Wrapper: return
+Wrapper --> Dispatcher: return
+@enduml
