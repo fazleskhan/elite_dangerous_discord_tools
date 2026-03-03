@@ -1,4 +1,4 @@
-requests
+aiohttp
 tinydb
 aiotinydb
 pytest
