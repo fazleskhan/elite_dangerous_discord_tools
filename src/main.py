@@ -2,6 +2,7 @@ import ed_route
 import constants
 import argparse
 import logging
+import asyncio
 import sys
 from typing import Any
 from logging_utils import resolve_log_level
@@ -107,7 +108,9 @@ def get_all_system_names() -> list[str]:
 def calc_route(
     source_system: str, target_system: str, i_max_systems: int
 ) -> list[str] | None:
-    return ed_service.path(source_system, target_system, max_systems=i_max_systems)
+    return asyncio.run(
+        ed_service.path(source_system, target_system, max_systems=i_max_systems)
+    )
 
 
 def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
