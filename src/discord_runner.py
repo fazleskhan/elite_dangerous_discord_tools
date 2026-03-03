@@ -1,7 +1,7 @@
 from discord_bot import DiscordBot
 
 
-def main():
+def main() -> None:
     bot = DiscordBot.create()
     bot.run()
 

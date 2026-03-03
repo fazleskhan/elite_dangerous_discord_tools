@@ -1,17 +1,21 @@
 from tinydb import TinyDB, Query
 import constants
+from typing import Any
 
 # https://www.tutorialspoint.com/tinydb/index.htm
 
 
-def main(): ...
+SystemInfo = dict[str, Any]
+
+
+def main() -> None: ...
 
 
 class DB:
-    def __init__(self, database_name):
+    def __init__(self, database_name: str):
         self._database_name = database_name
 
-    def insert_system(self, system_info):
+    def insert_system(self, system_info: SystemInfo) -> int | None:
         System = Query()
         with TinyDB(self._database_name) as db:
             if not db.contains(
@@ -19,13 +23,16 @@ class DB:
             ):
                 toReturn = db.insert(system_info)
                 return toReturn
+        return None
 
-    def get_system(self, system_name):
+    def get_system(self, system_name: str) -> SystemInfo | None:
         System = Query()
         with TinyDB(self._database_name) as db:
             return db.get(System.name == system_name)
 
-    def add_neighbors(self, system_info, new_neighbors):
+    def add_neighbors(
+        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
+    ) -> list[int]:
         System = Query()
         with TinyDB(self._database_name) as db:
             return db.update(
@@ -33,7 +40,7 @@ class DB:
                 System.name == system_info[constants.system_info_name_field],
             )
 
-    def get_all_systems(self):
+    def get_all_systems(self) -> list[SystemInfo]:
         with TinyDB(self._database_name) as db:
             return db.all()
 

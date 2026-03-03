@@ -5,9 +5,24 @@ import shutil
 import constants
 import os
 from dotenv import load_dotenv
+from typing import Any, Callable, Protocol
 
 
-def main(): ...
+SystemInfo = dict[str, Any]
+
+
+class DBProtocol(Protocol):
+    def get_all_systems(self) -> list[SystemInfo]: ...
+
+
+class CacheProtocol(Protocol):
+    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
+    def find_system_neighbors(
+        self, system_info: SystemInfo
+    ) -> list[SystemInfo] | None: ...
+
+
+def main() -> None: ...
 
 
 class EDRouteService:
@@ -15,15 +30,15 @@ class EDRouteService:
 
     def __init__(
         self,
-        db_path,
-        database,
-        cache,
-        travel_fn,
-        file_exists,
-        copy_file,
-        script_file,
-        default_preload_db,
-    ):
+        db_path: str,
+        database: DBProtocol | None,
+        cache: CacheProtocol | None,
+        travel_fn: Callable[..., list[str] | None],
+        file_exists: Callable[[str], bool],
+        copy_file: Callable[[str, str], str],
+        script_file: str,
+        default_preload_db: str,
+    ) -> None:
         self.db_path = db_path
         self.database = database
         self.cache = cache
@@ -35,14 +50,16 @@ class EDRouteService:
 
     @staticmethod
     def create(
-        db_factory=db.DB,
-        cache_factory=edgis_cache.EDGisCache.create,
-        travel_fn=ed_bfs.travel,
-        file_exists=os.path.exists,
-        copy_file=shutil.copy,
-        script_file=__file__,
-        default_preload_db=constants.pre_initiazlied_db_filename,
-    ):
+        db_factory: Callable[[str], DBProtocol] = db.DB,
+        cache_factory: Callable[
+            [DBProtocol], CacheProtocol
+        ] = edgis_cache.EDGisCache.create,
+        travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
+        file_exists: Callable[[str], bool] = os.path.exists,
+        copy_file: Callable[[str, str], str] = shutil.copy,
+        script_file: str = __file__,
+        default_preload_db: str = constants.pre_initiazlied_db_filename,
+    ) -> "EDRouteService":
         load_dotenv()
         default_db_path = script_file.replace("src", "data").replace(".py", ".db")
         resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
@@ -61,7 +78,7 @@ class EDRouteService:
         service.cache = cache_factory(service.database)
         return service
 
-    def _resolve_preload_source_path(self, preinit_db_filename):
+    def _resolve_preload_source_path(self, preinit_db_filename: str) -> str:
         if os.path.isabs(preinit_db_filename):
             return preinit_db_filename
 
@@ -73,7 +90,7 @@ class EDRouteService:
 
         return os.path.join(script_dir, preinit_db_filename)
 
-    def _ensure_preloaded_db(self, preinit_db_filename):
+    def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
         if self.file_exists(self.db_path):
             return
         db_dir = os.path.dirname(self.db_path)
@@ -82,17 +99,25 @@ class EDRouteService:
         source_path = self._resolve_preload_source_path(preinit_db_filename)
         self.copy_file(source_path, self.db_path)
 
-    def get_system_info(self, system_name):
+    def get_system_info(self, system_name: str) -> SystemInfo | None:
+        if self.cache is None:
+            return None
         return self.cache.find_system_info(system_name)
 
-    def get_all_system_names(self):
+    def get_all_system_names(self) -> list[str]:
+        if self.database is None:
+            return []
         results = []
         system_infos = self.database.get_all_systems()
         for system_info in system_infos:
             results.append(system_info[constants.system_info_name_field])
         return results
 
-    def path(self, initial_system_name, destination_name, max_systems=100):
+    def path(
+        self, initial_system_name: str, destination_name: str, max_systems: int = 100
+    ) -> list[str] | None:
+        if self.cache is None:
+            return None
         return self.travel_fn(
             self.cache.find_system_info,
             self.cache.find_system_neighbors,

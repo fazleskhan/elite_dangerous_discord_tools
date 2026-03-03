@@ -1,21 +1,31 @@
 from collections import deque
 import constants
+from typing import Any, Callable
 
 
-def main(): ...
+SystemInfo = dict[str, Any]
+FetchInfoFn = Callable[[str], SystemInfo | None]
+FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo]]
+
+
+def main() -> None: ...
 
 
 def travel(
-    func_fetch_info, func_fetch_neighbors, start_name, destination_name="", max_count=10
-):
+    func_fetch_info: FetchInfoFn,
+    func_fetch_neighbors: FetchNeighborsFn,
+    start_name: str,
+    destination_name: str = "",
+    max_count: int = 10,
+) -> list[str] | None:
 
     if start_name == destination_name:
         return [start_name]
 
     node_count = 0
 
-    queue = deque([[start_name]])
-    visited = set([start_name])
+    queue: deque[list[str]] = deque([[start_name]])
+    visited: set[str] = {start_name}
 
     while queue:
 
@@ -33,6 +43,8 @@ def travel(
             return path
 
         system_info = func_fetch_info(current_node)
+        if not system_info:
+            continue
 
         # retrieve adjacent systems from edgris
         for adjacent_neighbor in func_fetch_neighbors(system_info):
@@ -40,6 +52,8 @@ def travel(
                 adjacent_neighbor = func_fetch_info(
                     adjacent_neighbor[constants.system_info_name_field]
                 )
+                if not adjacent_neighbor:
+                    continue
                 visited.add(adjacent_neighbor[constants.system_info_name_field])
                 new_path = list(path)
                 new_path.append(adjacent_neighbor[constants.system_info_name_field])
