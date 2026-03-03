@@ -38,3 +38,5 @@ Iteratively displays all the names currently cached locally
 ![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-2.png)
 
 ![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-3.png)
+
+![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)

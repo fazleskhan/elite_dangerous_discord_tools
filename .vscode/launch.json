@@ -36,6 +36,22 @@
             "console": "integratedTerminal"
         },           
         {
+            "name": "EDGIS Bulk Load -h",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/edgis_bulk_load.py",
+            "console": "integratedTerminal",
+            "args": "-h"
+        },        
+        {
+            "name": "EDGIS Bulk Load Sol 10",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/edgis_bulk_load.py",
+            "console": "integratedTerminal",
+            "args": "Sol 10"
+        },         
+        {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",

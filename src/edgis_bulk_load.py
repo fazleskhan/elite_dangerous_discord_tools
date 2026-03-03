@@ -1,3 +1,4 @@
+import argparse
 import ed_bfs
 import edgis_cache
 import db
@@ -9,9 +10,20 @@ db_filename: str = f"{__file__.replace('src', 'data').replace('.py', '.db')}"
 
 
 def main() -> None:
-    initial_system_name = input("initial_system: ")
-    number_of_systems = int(input("system_count: "))
-    logic(initial_system_name, number_of_systems)
+    parser = argparse.ArgumentParser(
+        description="Pre-populate the local EDGIS cache by traversing nearby systems."
+    )
+    parser.add_argument(
+        "initial_system",
+        help="Name of the starting system (for example: Sol)",
+    )
+    parser.add_argument(
+        "system_count",
+        type=int,
+        help="Maximum number of systems to traverse",
+    )
+    args = parser.parse_args()
+    logic(args.initial_system, args.system_count)
 
 
 def logic(initial_system_name: str, number_of_systems: int) -> None:
