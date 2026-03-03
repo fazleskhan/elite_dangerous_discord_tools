@@ -21,7 +21,10 @@ class RouteServiceProtocol(Protocol):
     def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
     def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
     def path(
-        self, initial_system_name: str, destination_system_name: str
+        self,
+        initial_system_name: str,
+        destination_system_name: str,
+        max_systems: int = 100,
     ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
@@ -100,7 +103,6 @@ class DiscordBot:
         return value
 
     async def system_info(self, ctx: commands.Context, arg: str) -> None:
-        print(f"Received argument: {arg}")
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
         await ctx.send(f"{arg}: {system_info}")
 
@@ -109,12 +111,17 @@ class DiscordBot:
         ctx: commands.Context,
         initial_system_name: str,
         destination_system_name: str,
+        max_system_count: int = 100,
     ) -> None:
         await ctx.send(
-            f"Calculate Path between {initial_system_name} and {destination_system_name}...  This may take a while"
+            f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count}...  This may take a while"
         )
         route = await self._resolve(
-            self.ed_route.path(initial_system_name, destination_system_name)
+            self.ed_route.path(
+                initial_system_name,
+                destination_system_name,
+                max_systems=max_system_count,
+            )
         )
         route_message = " → ".join(route)
         message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
@@ -155,8 +162,14 @@ class DiscordBot:
             ctx: commands.Context,
             initial_system_name: str,
             destination_system_name: str,
+            max_system_count: int = 100,
         ) -> None:
-            return await self.path(ctx, initial_system_name, destination_system_name)
+            return await self.path(
+                ctx,
+                initial_system_name,
+                destination_system_name,
+                max_system_count,
+            )
 
         @self.bot.command()
         async def dump_system_cache_names(ctx: commands.Context) -> None:

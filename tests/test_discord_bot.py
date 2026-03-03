@@ -24,6 +24,9 @@ class MockContext:
 class FakeRoute:
     """Simplified stand‑in for route module behavior used in tests."""
 
+    def __init__(self):
+        self.last_path_args = None
+
     async def get_system_info(self, name):
         # just echo the name with a suffix so assertions can match
         return f"info-for-{name}"
@@ -31,7 +34,8 @@ class FakeRoute:
     async def get_all_system_names(self):
         return ["A", "B", "C"]
 
-    async def path(self, initial, dest):
+    async def path(self, initial, dest, max_systems=100):
+        self.last_path_args = (initial, dest, max_systems)
         # mimic the real return value used by tests
         return [initial, dest]
 
@@ -76,15 +80,17 @@ async def test_path(bot):
     ctx = MockContext()
     source = "Sol"
     dest = "Alpha Centauri"
-    await bot.path(ctx, source, dest)
+    max_system_count = 250
+    await bot.path(ctx, source, dest, max_system_count)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
     assert sent_messages[0].startswith(
-        f"Calculate Path between {source} and {dest}...  This may take a while"
+        f"Calculate Path between {source} and {dest} with max system count {max_system_count}...  This may take a while"
     )
     assert sent_messages[1].startswith(
         f"Route from {source} to {dest}: {source} → {dest}"
     )
+    assert bot.ed_route.last_path_args == (source, dest, max_system_count)
 
 
 @pytest.mark.asyncio

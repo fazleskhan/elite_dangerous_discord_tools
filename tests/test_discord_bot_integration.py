@@ -23,7 +23,7 @@ class FakeRoute:
     async def get_all_system_names(self):
         return ["Sol", "Alpha Centauri", "Proxima Centauri"]
 
-    async def path(self, initial, dest):
+    async def path(self, initial, dest, max_systems=100):
         return [initial, dest]
 
 
