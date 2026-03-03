@@ -8,10 +8,12 @@ import os
 import inspect
 from typing import Any, Awaitable, Iterator, Protocol, Sequence, TypeVar
 import ed_route
+from logging_utils import resolve_log_level
 
 """Discord command adapter for ED route and cache operations."""
 
 T = TypeVar("T")
+logger = logging.getLogger(__name__)
 
 
 def main() -> None: ...
@@ -51,6 +53,8 @@ class DiscordBot:
         self.log_level = log_level
         self.log_handler = log_handler
         self.bot = bot
+        self.logger = logger
+        self.logger.debug("Initializing DiscordBot with prefix=%s", self.bot.command_prefix)
         self.bot.event(self.on_ready)
         self.register_commands()
 
@@ -68,12 +72,16 @@ class DiscordBot:
         log_location_factory: str = os.getenv("LOG_LOCATION", "discord_bot.log"),
         intents_factory: discord.Intents = _default_intents(),
         command_prefix: str = "!",
-        log_level: int = logging.DEBUG,
+        log_level: int | None = None,
     ) -> DiscordBot:
         load_dotenv()
+        logger.debug("Creating DiscordBot with command_prefix=%s", command_prefix)
         resolved_route = route_factory
         resolved_token = token_factory
         resolved_log_location = log_location_factory
+        resolved_log_level = (
+            log_level if log_level is not None else resolve_log_level(logging.DEBUG)
+        )
         resolved_log_handler = logging.FileHandler(
             filename=resolved_log_location, encoding="utf-8", mode="w"
         )
@@ -85,15 +93,16 @@ class DiscordBot:
             ed_route_service=resolved_route,
             token=resolved_token,
             log_location=resolved_log_location,
-            log_level=log_level,
+            log_level=resolved_log_level,
             log_handler=resolved_log_handler,
             bot=resolved_bot,
         )
 
     async def on_ready(self) -> None:
-        print(f"Elite Dangerous Tools is ready!, {self.bot.user.name}")
+        self.logger.info("Elite Dangerous Tools is ready: user=%s", self.bot.user.name)
 
     async def ping(self, ctx: commands.Context) -> None:
+        self.logger.debug("Received ping command")
         await ctx.send("Pong")
 
     async def _resolve(self, value: T | Awaitable[T]) -> T:
@@ -103,7 +112,9 @@ class DiscordBot:
         return value
 
     async def system_info(self, ctx: commands.Context, arg: str) -> None:
+        self.logger.info("system_info command: system=%s", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
+        self.logger.debug("system_info command completed: found=%s", system_info is not None)
         await ctx.send(f"{arg}: {system_info}")
 
     async def path(
@@ -113,6 +124,12 @@ class DiscordBot:
         destination_system_name: str,
         max_system_count: int = 100,
     ) -> None:
+        self.logger.info(
+            "path command: source=%s destination=%s max_system_count=%s",
+            initial_system_name,
+            destination_system_name,
+            max_system_count,
+        )
         await ctx.send(
             f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count}...  This may take a while"
         )
@@ -124,8 +141,20 @@ class DiscordBot:
             )
         )
         if not route:
+            self.logger.warning(
+                "No route found: source=%s destination=%s max_system_count=%s",
+                initial_system_name,
+                destination_system_name,
+                max_system_count,
+            )
             message = f"No Path found between {initial_system_name} and {destination_system_name} with max system count {max_system_count}"
         else:
+            self.logger.info(
+                "Route found: source=%s destination=%s hops=%s",
+                initial_system_name,
+                destination_system_name,
+                len(route),
+            )
             route_message = " → ".join(route)
             message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
         await ctx.send(message)
@@ -137,14 +166,17 @@ class DiscordBot:
             yield system_list[i : i + size]
 
     async def dump_system_cache_names(self, ctx: commands.Context) -> None:
+        self.logger.info("dump_system_cache_names command")
         await ctx.send("Fetching all system names in cache... This may take a while")
         system_names = await self._resolve(self.ed_route.get_all_system_names())
+        self.logger.debug("Fetched %s cached system names", len(system_names))
         for chunk in self.chunked_system_list(system_names, size=10):
             system_names_message = ", ".join(chunk)
             await ctx.send(f"Systems in cache: {system_names_message}")
         await ctx.send(f"Total number of systems in cache: {len(system_names)}")
 
     def register_commands(self) -> None:
+        self.logger.debug("Registering bot commands")
         # ``discord.ext.commands`` expects plain callables whose first
         # parameter is ``ctx`` (plus any user arguments).  Using a bound
         # method would insert ``self`` as the first argument, causing
@@ -184,6 +216,7 @@ class DiscordBot:
         This call is intentionally side‑effecty, so tests in which we don't
         want to connect to Discord shouldn't use it.
         """
+        self.logger.info("Starting Discord bot run loop")
         self.bot.run(self.token, log_handler=self.log_handler, log_level=self.log_level)
 
 

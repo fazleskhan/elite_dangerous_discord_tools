@@ -4,10 +4,13 @@ import ed_bfs
 import shutil
 import constants
 import os
+import logging
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol
 
 """Service layer that composes DB/cache dependencies and route search."""
+
+logger = logging.getLogger(__name__)
 
 
 SystemInfo = dict[str, Any]
@@ -49,6 +52,7 @@ class EDRouteService:
         self.copy_file = copy_file
         self.script_file = script_file
         self.default_preload_db = default_preload_db
+        self.logger = logger
 
     @staticmethod
     def create(
@@ -66,6 +70,7 @@ class EDRouteService:
         # Keep a stable default DB path while allowing env override.
         default_db_path = script_file.replace("src", "data").replace(".py", ".db")
         resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
+        logger.debug("Creating EDRouteService with db_path=%s", resolved_db_path)
         service = EDRouteService(
             db_path=resolved_db_path,
             database=None,
@@ -79,6 +84,7 @@ class EDRouteService:
         service._ensure_preloaded_db(default_preload_db)
         service.database = db_factory(resolved_db_path)
         service.cache = cache_factory(service.database)
+        service.logger.info("EDRouteService initialized with db_path=%s", resolved_db_path)
         return service
 
     def _resolve_preload_source_path(self, preinit_db_filename: str) -> str:
@@ -97,39 +103,54 @@ class EDRouteService:
     def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
         # First run: copy preloaded DB to the configured writable target.
         if self.file_exists(self.db_path):
+            self.logger.debug("DB already exists at %s", self.db_path)
             return
         db_dir = os.path.dirname(self.db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         source_path = self._resolve_preload_source_path(preinit_db_filename)
+        self.logger.info("Copying preloaded DB from %s to %s", source_path, self.db_path)
         self.copy_file(source_path, self.db_path)
 
     def get_system_info(self, system_name: str) -> SystemInfo | None:
         if self.cache is None:
+            self.logger.warning("Route cache is not initialized for get_system_info")
             return None
+        self.logger.debug("Fetching system info via cache for system=%s", system_name)
         return self.cache.find_system_info(system_name)
 
     def get_all_system_names(self) -> list[str]:
         if self.database is None:
+            self.logger.warning("Database is not initialized for get_all_system_names")
             return []
         results = []
         system_infos = self.database.get_all_systems()
         for system_info in system_infos:
             results.append(system_info[constants.system_info_name_field])
+        self.logger.debug("Collected %s system names", len(results))
         return results
 
     def path(
         self, initial_system_name: str, destination_name: str, max_systems: int = 100
     ) -> list[str] | None:
         if self.cache is None:
+            self.logger.warning("Route cache is not initialized for path")
             return None
-        return self.travel_fn(
+        self.logger.info(
+            "Calculating path source=%s destination=%s max_systems=%s",
+            initial_system_name,
+            destination_name,
+            max_systems,
+        )
+        route = self.travel_fn(
             self.cache.find_system_info,
             self.cache.find_system_neighbors,
             initial_system_name,
             destination_name,
             max_systems,
         )
+        self.logger.info("Path calculation complete found=%s", route is not None)
+        return route
 
 
 if __name__ == "__main__":

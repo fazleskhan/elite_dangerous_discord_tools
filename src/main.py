@@ -1,10 +1,14 @@
 import ed_route
 import constants
 import argparse
+import logging
 import sys
 from typing import Any
+from logging_utils import resolve_log_level
 
 """CLI entrypoint for route search and cache inspection commands."""
+
+logger = logging.getLogger(__name__)
 
 
 ed_service = ed_route.EDRouteService.create()
@@ -49,35 +53,51 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    logger.info("CLI command received: %s", args.command)
 
     # Dispatch by sub-command and validate required args per command.
     match args.command:
         case "all_loaded_systems":
+            logger.debug("Listing all loaded systems")
             print("All Loaded Systems: ", get_all_system_names())
         case "system_info":
             if not args.system_name:
+                logger.error("Missing required --system_name for system_info command")
                 print(
                     "Error: The --system_name argument is requried with system_info command"
                 )
                 parser.print_help()
                 sys.exit(1)
+            logger.debug("Fetching system info for %s", args.system_name)
             print(args.system_name)
             print(get_system_info([args.system_name]))
         case "path":
             if not args.initial:
+                logger.error("Missing required --initial for path command")
                 print("Error: The --initial argument is requried with path command")
                 parser.print_help()
                 sys.exit(1)
             if not args.destination:
+                logger.error("Missing required --destination for path command")
                 print("Error: The --destination argument is requried with path command")
                 parser.print_help()
                 sys.exit(1)
             if args.max_systems and int(args.max_systems) > 1000:
+                logger.error("Invalid --max_systems value: %s", args.max_systems)
                 print("Error: Absolute value --max_systems argument is 1000")
                 sys.exit(1)
+            logger.info(
+                "Calculating path source=%s destination=%s max_systems=%s",
+                args.initial,
+                args.destination,
+                args.max_systems,
+            )
             route = calc_route(args.initial, args.destination, int(args.max_systems))
             if route:
+                logger.info("Route found with hop_count=%s", len(route))
                 print(" → ".join(route))
+            else:
+                logger.warning("No route found")
 
 
 def get_all_system_names() -> list[str]:
@@ -98,4 +118,5 @@ def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=resolve_log_level(logging.INFO))
     main()
