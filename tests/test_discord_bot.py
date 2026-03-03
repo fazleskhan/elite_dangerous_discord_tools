@@ -1,4 +1,8 @@
 import pytest
+import logging
+import discord
+from discord.ext import commands
+from unittest.mock import MagicMock
 
 from discord_bot import DiscordBot
 
@@ -35,7 +39,18 @@ class FakeRoute:
 @pytest.fixture
 def bot():
     # each test gets its own bot instance wired to the fake route module
-    return DiscordBot.create(ed_route_module=FakeRoute())
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    bot_instance = commands.Bot(command_prefix="!", intents=intents)
+    return DiscordBot(
+        ed_route_service=FakeRoute(),
+        token="test-token",
+        log_location="logs/discord_bot.log",
+        log_level=logging.DEBUG,
+        log_handler=MagicMock(),
+        bot=bot_instance,
+    )
 
 
 @pytest.mark.asyncio

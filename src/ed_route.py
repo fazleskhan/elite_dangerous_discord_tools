@@ -4,6 +4,7 @@ import ed_bfs
 import shutil
 import constants
 import os
+from dotenv import load_dotenv
 
 
 def main(): ...
@@ -17,11 +18,11 @@ class EDRouteService:
         db_path,
         database,
         cache,
-        travel_fn=ed_bfs.travel,
-        file_exists=os.path.exists,
-        copy_file=shutil.copy,
-        script_file=__file__,
-        default_preload_db=constants.pre_initiazlied_db_filename,
+        travel_fn,
+        file_exists,
+        copy_file,
+        script_file,
+        default_preload_db,
     ):
         self.db_path = db_path
         self.database = database
@@ -34,7 +35,6 @@ class EDRouteService:
 
     @staticmethod
     def create(
-        db_path=None,
         db_factory=db.DB,
         cache_factory=edgis_cache.EDGisCache.create,
         travel_fn=ed_bfs.travel,
@@ -43,8 +43,9 @@ class EDRouteService:
         script_file=__file__,
         default_preload_db=constants.pre_initiazlied_db_filename,
     ):
+        load_dotenv()
         default_db_path = script_file.replace("src", "data").replace(".py", ".db")
-        resolved_db_path = db_path or os.getenv("DB_LOCATION", default_db_path)
+        resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
         service = EDRouteService(
             db_path=resolved_db_path,
             database=None,

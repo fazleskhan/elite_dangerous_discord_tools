@@ -15,7 +15,9 @@ class DiscordBot:
     or mocks.
     """
 
-    def __init__(self, ed_route_service, token, log_location, log_level, log_handler, bot):
+    def __init__(
+        self, ed_route_service, token, log_location, log_level, log_handler, bot
+    ):
         self.ed_route = ed_route_service
         self.token = token
         self.log_location = log_location
@@ -34,42 +36,23 @@ class DiscordBot:
 
     @staticmethod
     def create(
-        ed_route_service=None,
-        ed_route_module=None,
+        route_factory=ed_route.EDRouteService.create(),
+        token_factory=os.getenv("DISCORD_TOKEN"),
+        log_location_factory=os.getenv("LOG_LOCATION", "discord_bot.log"),
+        intents_factory=_default_intents(),
         command_prefix="!",
-        token=None,
-        log_location=None,
-        intents=None,
         log_level=logging.DEBUG,
     ):
         load_dotenv()
-        if ed_route_service:
-            resolved_route = ed_route_service
-        elif ed_route_module:
-            resolved_route = ed_route_module
-        elif hasattr(ed_route, "EDRouteService"):
-            if hasattr(ed_route.EDRouteService, "create"):
-                resolved_route = ed_route.EDRouteService.create()
-            else:
-                resolved_route = ed_route.EDRouteService()
-        elif hasattr(ed_route, "EdRouteService"):
-            if hasattr(ed_route.EdRouteService, "create"):
-                resolved_route = ed_route.EdRouteService.create()
-            else:
-                resolved_route = ed_route.EdRouteService()
-        else:
-            # Backward-compatible fallback for module-level ed_route helpers.
-            resolved_route = ed_route
-        resolved_token = token or os.getenv("DISCORD_TOKEN")
-        resolved_log_location = log_location or os.getenv(
-            "LOG_LOCATION", "discord_bot.log"
-        )
+        resolved_route = route_factory
+        resolved_token = token_factory
+        resolved_log_location = log_location_factory
         resolved_log_handler = logging.FileHandler(
             filename=resolved_log_location, encoding="utf-8", mode="w"
         )
         resolved_bot = commands.Bot(
             command_prefix=command_prefix,
-            intents=intents or DiscordBot._default_intents(),
+            intents=intents_factory,
         )
         return DiscordBot(
             ed_route_service=resolved_route,

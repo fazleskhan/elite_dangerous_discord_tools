@@ -7,6 +7,7 @@ to test command execution and message responses.
 
 import pytest
 import discord
+import logging
 from discord.ext import commands
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -42,9 +43,20 @@ def create_mock_context():
 @pytest.fixture
 def bot():
     """Create a bot instance with fake route for integration testing."""
-    return DiscordBot.create(
-        ed_route_module=FakeRoute(),
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    bot_instance = commands.Bot(
         command_prefix="!",
+        intents=intents,
+    )
+    return DiscordBot(
+        ed_route_service=FakeRoute(),
+        token="test-token",
+        log_location="logs/discord_bot.log",
+        log_level=logging.DEBUG,
+        log_handler=MagicMock(),
+        bot=bot_instance,
     )
 
 
@@ -186,7 +198,18 @@ async def test_chunked_system_list(bot):
 
 def test_default_intents_configuration():
     """Test that default intents are properly configured."""
-    bot = DiscordBot.create(ed_route_module=FakeRoute())
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    bot_instance = commands.Bot(command_prefix="!", intents=intents)
+    bot = DiscordBot(
+        ed_route_service=FakeRoute(),
+        token="test-token",
+        log_location="logs/discord_bot.log",
+        log_level=logging.DEBUG,
+        log_handler=logging.StreamHandler(),
+        bot=bot_instance,
+    )
 
     assert bot.bot.intents.message_content is True
     assert bot.bot.intents.members is True
