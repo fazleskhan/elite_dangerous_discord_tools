@@ -25,7 +25,21 @@ def database(del_prior_database):
 
 @pytest.fixture(scope="module")
 def ed(database):
-    yield edgis_cache.EDGisCache.create(database)
+    def fetch_system_info_stub(system_name: str):
+        if system_name == "Sol":
+            return test_data.sol_data
+        return None
+
+    def fetch_neighbors_stub(x: float | int, y: float | int, z: float | int):
+        if x == 0 and y == 0 and z == 0:
+            return test_data.sol_complete_neighbors
+        return None
+
+    yield edgis_cache.EDGisCache.create(
+        database,
+        fetch_system_info_fn=fetch_system_info_stub,
+        fetch_neighbors_fn=fetch_neighbors_stub,
+    )
 
 
 ################# TESTS ####################
