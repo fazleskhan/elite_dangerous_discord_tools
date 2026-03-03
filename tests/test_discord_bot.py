@@ -94,6 +94,30 @@ async def test_path(bot):
 
 
 @pytest.mark.asyncio
+async def test_path_when_route_is_none(bot):
+    ctx = MockContext()
+    source = "Sol"
+    dest = "Beagle Point"
+    max_system_count = 75
+
+    async def no_route_path(initial, destination, max_systems=100):
+        return None
+
+    bot.ed_route.path = no_route_path
+    await bot.path(ctx, source, dest, max_system_count)
+
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert sent_messages[0].startswith(
+        f"Calculate Path between {source} and {dest} with max system count {max_system_count}...  This may take a while"
+    )
+    assert (
+        sent_messages[1]
+        == f"No Path found between {source} and {dest} with max system count {max_system_count}"
+    )
+
+
+@pytest.mark.asyncio
 async def test_dump_system_cache_names(bot):
     ctx = MockContext()
     await bot.dump_system_cache_names(ctx)

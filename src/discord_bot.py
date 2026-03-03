@@ -123,8 +123,11 @@ class DiscordBot:
                 max_systems=max_system_count,
             )
         )
-        route_message = " → ".join(route)
-        message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
+        if not route:
+            message = f"No Path found between {initial_system_name} and {destination_system_name} with max system count {max_system_count}"
+        else:
+            route_message = " → ".join(route)
+            message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
         await ctx.send(message)
 
     def chunked_system_list(
