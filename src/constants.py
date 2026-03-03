@@ -1,11 +1,15 @@
 from typing import Final
 
+"""Shared constant keys for EDGIS payloads and local data files."""
+
 
 def main() -> None: ...
 
 
+# Seed database copied into a writable location on first startup.
 pre_initiazlied_db_filename: Final[str] = "edgis_bulk_load.db"
 
+# EDGIS system payload keys.
 system_info_id64_field: Final[str] = "id64"
 system_info_name_field: Final[str] = "name"
 system_info_mainstar_field: Final[str] = "mainstar"

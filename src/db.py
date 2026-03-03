@@ -2,6 +2,8 @@ from tinydb import TinyDB, Query
 import constants
 from typing import Any
 
+"""TinyDB persistence helpers for cached system records."""
+
 # https://www.tutorialspoint.com/tinydb/index.htm
 
 
@@ -18,6 +20,7 @@ class DB:
     def insert_system(self, system_info: SystemInfo) -> int | None:
         System = Query()
         with TinyDB(self._database_name) as db:
+            # Keep one document per system name.
             if not db.contains(
                 System.name == system_info[constants.system_info_name_field]
             ):
@@ -35,6 +38,7 @@ class DB:
     ) -> list[int]:
         System = Query()
         with TinyDB(self._database_name) as db:
+            # Attach fetched neighbor payload directly to the system document.
             return db.update(
                 {constants.system_info_neighbors_field: new_neighbors},
                 System.name == system_info[constants.system_info_name_field],

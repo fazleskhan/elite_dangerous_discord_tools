@@ -9,6 +9,8 @@ import inspect
 from typing import Any, Awaitable, Iterator, Protocol, Sequence, TypeVar
 import ed_route
 
+"""Discord command adapter for ED route and cache operations."""
+
 T = TypeVar("T")
 
 
@@ -92,6 +94,7 @@ class DiscordBot:
         await ctx.send("Pong")
 
     async def _resolve(self, value: T | Awaitable[T]) -> T:
+        # Allow both sync and async service implementations.
         if inspect.isawaitable(value):
             return await value
         return value

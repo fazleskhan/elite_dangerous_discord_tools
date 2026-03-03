@@ -3,6 +3,8 @@ import edgis_cache
 import db
 from typing import Any
 
+"""Utility script to pre-populate local cache by traversing nearby systems."""
+
 db_filename: str = f"{__file__.replace('src', 'data').replace('.py', '.db')}"
 
 
@@ -17,6 +19,7 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
     database = db.DB(db_filename)
     cache = edgis_cache.EDGisCache.create(database)
 
+    # Empty destination means "walk outward" up to `number_of_systems`.
     ed_bfs.travel(
         cache.find_system_info,
         cache.find_system_neighbors,

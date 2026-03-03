@@ -2,6 +2,8 @@ from edgis import fetch_system_info, fetch_neighbors
 import constants
 from typing import Any, Callable, Protocol
 
+"""Caching wrapper around EDGIS fetchers backed by the local DB."""
+
 
 SystemInfo = dict[str, Any]
 FetchSystemInfoFn = Callable[[str], SystemInfo | None]
@@ -42,23 +44,21 @@ class EDGisCache:
     ) -> "EDGisCache":
         return EDGisCache(db_obj, fetch_system_info_fn, fetch_neighbors_fn)
 
-    # Provides cache abstraction layer to save system
-    # information localy and reduce edgris calls
+    # Cache-through read for system metadata.
     def find_system_info(self, system_name: str) -> SystemInfo | None:
-        # checking if the system has already been fetched
+        # Reuse cached entries before making a network call.
         system_info = self.db.get_system(system_name)
 
-        # first time requesting the system form edgis
+        # On a cache miss, fetch once and persist for future reads.
         if not system_info:
             if system_info := self.fetch_system_info_fn(system_name):
                 self.db.insert_system(system_info)
 
         return system_info
 
-    # Provides cache abstraction layer to save system neighbor
-    # information localy and reduce edgris calls
+    # Cache-through read for neighboring systems.
     def find_system_neighbors(self, system_info: SystemInfo) -> list[SystemInfo] | None:
-        # make sure working with that latest db system_info
+        # Always re-read from DB in case neighbors were populated by a prior call.
         db_system_info = self.db.get_system(
             system_info[constants.system_info_name_field]
         )
@@ -67,7 +67,7 @@ class EDGisCache:
             if db_system_info
             else None
         )
-        # If the neighbors have already been loaded don't load again
+        # Fetch neighbors once per system and store them in the DB cache.
         if not neighbors:
             x = system_info[constants.system_info_coords_field][
                 constants.system_info_x_field

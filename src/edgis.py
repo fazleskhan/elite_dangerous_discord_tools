@@ -1,6 +1,8 @@
 import requests
 from typing import Any
 
+"""Thin HTTP client wrappers for EDGIS system and neighbor lookups."""
+
 
 def main() -> None: ...
 
@@ -15,6 +17,7 @@ def fetch_neighbors(
 ) -> list[dict[str, Any]] | None:
     response = None
     try:
+        # EDGIS defaults to a 20ly radius when radius is omitted.
         response = requests.get(fetch_neighbors_uri, params={"x": x, "y": y, "z": z})
         response.raise_for_status()
     except requests.RequestException:
@@ -31,6 +34,7 @@ fetch_coords_uri: str = r"https://edgis.elitedangereuse.fr/coords"
 def fetch_system_info(system_name: str) -> dict[str, Any] | None:
     response = None
     try:
+        # The API expects the system name under the `q` query parameter.
         response = requests.get(fetch_coords_uri, params={"q": system_name})
         response.raise_for_status()
     except requests.RequestException:

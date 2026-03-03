@@ -2,6 +2,8 @@ from collections import deque
 import constants
 from typing import Any, Callable
 
+"""Breadth-first traversal used to build/solve routes between systems."""
+
 
 SystemInfo = dict[str, Any]
 FetchInfoFn = Callable[[str], SystemInfo | None]
@@ -29,7 +31,7 @@ def travel(
 
     while queue:
 
-        # stop traveling
+        # Bound total visited nodes to cap runtime for expensive graph walks.
         if node_count > max_count:
             print("max number of systems: ", max_count)
             break
@@ -46,7 +48,7 @@ def travel(
         if not system_info:
             continue
 
-        # retrieve adjacent systems from edgris
+        # Expand the frontier one hop at a time (standard BFS).
         for adjacent_neighbor in func_fetch_neighbors(system_info):
             if adjacent_neighbor[constants.system_info_name_field] not in visited:
                 adjacent_neighbor = func_fetch_info(

@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol
 
+"""Service layer that composes DB/cache dependencies and route search."""
+
 
 SystemInfo = dict[str, Any]
 
@@ -61,6 +63,7 @@ class EDRouteService:
         default_preload_db: str = constants.pre_initiazlied_db_filename,
     ) -> "EDRouteService":
         load_dotenv()
+        # Keep a stable default DB path while allowing env override.
         default_db_path = script_file.replace("src", "data").replace(".py", ".db")
         resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
         service = EDRouteService(
@@ -85,12 +88,14 @@ class EDRouteService:
         script_dir = os.path.dirname(os.path.realpath(self.script_file))
         data_dir = os.path.normpath(os.path.join(script_dir, "..", "data"))
         data_source_path = os.path.join(data_dir, preinit_db_filename)
+        # Prefer `<repo>/data/<filename>` and fall back to the script folder.
         if self.file_exists(data_source_path):
             return data_source_path
 
         return os.path.join(script_dir, preinit_db_filename)
 
     def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
+        # First run: copy preloaded DB to the configured writable target.
         if self.file_exists(self.db_path):
             return
         db_dir = os.path.dirname(self.db_path)

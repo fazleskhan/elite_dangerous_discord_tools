@@ -4,6 +4,8 @@ import argparse
 import sys
 from typing import Any
 
+"""CLI entrypoint for route search and cache inspection commands."""
+
 
 ed_service = ed_route.EDRouteService.create()
 
@@ -48,6 +50,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Dispatch by sub-command and validate required args per command.
     match args.command:
         case "all_loaded_systems":
             print("All Loaded Systems: ", get_all_system_names())
