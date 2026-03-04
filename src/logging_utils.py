@@ -12,6 +12,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 from loguru import logger
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
 
 DEFAULT_CONFIG_PATH = Path("config/loguru.json")
 _WATCHER: "_LoguruConfigWatcher | None" = None
@@ -40,7 +42,6 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     },
     "watch": {
         "enabled": True,
-        "poll_interval_seconds": 2.0,
     },
 }
 
@@ -106,10 +107,10 @@ def _retention_cleanup_factory(archive_dir: Path, retention_days: int):
 
 class _LoguruConfigWatcher:
     def __init__(self, config_path: Path):
-        self.config_path = config_path
+        self.config_path = config_path.resolve()
         self._config_mtime_ns: int | None = None
         self._apply_lock = threading.Lock()
-        self._thread: threading.Thread | None = None
+        self._observer: Observer | None = None
 
     def start(self) -> None:
         self._apply_if_needed(force=True)
@@ -117,22 +118,27 @@ class _LoguruConfigWatcher:
         watch_enabled = bool(config.get("watch", {}).get("enabled", True))
         if not watch_enabled:
             return
-        if self._thread is None or not self._thread.is_alive():
-            poll_interval = float(
-                config.get("watch", {}).get("poll_interval_seconds", 2.0)
-            )
-            self._thread = threading.Thread(
-                target=self._watch_loop,
-                args=(max(poll_interval, 0.25),),
-                daemon=True,
-                name="loguru-config-watcher",
-            )
-            self._thread.start()
+        if self._observer is None:
+            self.config_path.parent.mkdir(parents=True, exist_ok=True)
+            event_handler = _ConfigFileEventHandler(self)
+            observer = Observer()
+            observer.schedule(event_handler, str(self.config_path.parent), recursive=False)
+            observer.start()
+            self._observer = observer
+            logger.debug("Started watchdog observer for {}", self.config_path)
 
-    def _watch_loop(self, poll_interval_seconds: float) -> None:
-        while True:
-            time.sleep(poll_interval_seconds)
+    def handle_fs_event(self, event: FileSystemEvent) -> None:
+        if self._event_targets_config(event):
             self._apply_if_needed(force=False)
+
+    def _event_targets_config(self, event: FileSystemEvent) -> bool:
+        src_path = Path(event.src_path).resolve()
+        if src_path == self.config_path:
+            return True
+        dest_path = getattr(event, "dest_path", None)
+        if dest_path is None:
+            return False
+        return Path(dest_path).resolve() == self.config_path
 
     def _apply_if_needed(self, force: bool) -> None:
         try:
@@ -200,6 +206,23 @@ class _LoguruConfigWatcher:
                 diagnose=False,
                 enqueue=True,
             )
+
+
+class _ConfigFileEventHandler(FileSystemEventHandler):
+    def __init__(self, watcher: _LoguruConfigWatcher):
+        self._watcher = watcher
+
+    def on_modified(self, event: FileSystemEvent) -> None:
+        self._watcher.handle_fs_event(event)
+
+    def on_created(self, event: FileSystemEvent) -> None:
+        self._watcher.handle_fs_event(event)
+
+    def on_deleted(self, event: FileSystemEvent) -> None:
+        self._watcher.handle_fs_event(event)
+
+    def on_moved(self, event: FileSystemEvent) -> None:
+        self._watcher.handle_fs_event(event)
 
 
 def setup_logging(config_path: str | Path = DEFAULT_CONFIG_PATH) -> None:

@@ -50,6 +50,6 @@ Iteratively displays all the names currently cached locally
 
 - Logging is powered by `loguru`.
 - Runtime config is externalized in `config/loguru.json`.
-- Config changes are hot-reloaded (no restart required) by a background watcher.
+- Config changes are hot-reloaded (no restart required) via `watchdog` file events.
 - File logs rotate daily at midnight, compressed archives are stored in `logs/archive`, and logs older than 14 days are removed.
 - Console logs are colorized.
