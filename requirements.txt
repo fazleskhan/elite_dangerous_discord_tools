@@ -1,6 +1,7 @@
 aiohttp
 ujson
 tinydb
+tinydb-smartcache
 aiotinydb
 pytest
 mypy
