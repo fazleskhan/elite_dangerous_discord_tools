@@ -25,6 +25,8 @@ Discord Commands
 Simple ping-pong command to confirm connectivity
 #### system_info
 Returns information regarding the provided system name. If the system is not present in the local cache, the information is queried and cached from EDGIS
+#### calc_systems_distance
+Calculates the distance between two systems given thier coordinates in 3D space
 #### path
 Performs a breath-first-search from the source system to the destination system. If the current system does not exist, the data is queried from EDGIS. If the system neighbor is not present in the cache, it is queried from EDGIS. The search will only visit a max 100 nodes
 #### dump_system_cache_names
@@ -35,8 +37,10 @@ Iteratively displays all the names currently cached locally
 
 ![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-1.png)
 
-![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-2.png)
+![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-2.png)
 
-![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-3.png)
+![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-3.png)
+
+![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-4.png)
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
