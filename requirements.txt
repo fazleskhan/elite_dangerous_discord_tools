@@ -1,4 +1,5 @@
 aiohttp
+ujson
 tinydb
 aiotinydb
 pytest
