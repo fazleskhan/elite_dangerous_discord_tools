@@ -26,7 +26,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/main.py",
             "console": "integratedTerminal",
-            "args": "path --initial 'Sol' --destination 'Sirius' --max_systems 100"
+            "args": "path --initial 'Sol' --destination 'Sirius' --max_systems 100 --min_distance=5 --max_distance=10"
         },        
         {
             "name": "Discord Bot",

@@ -29,7 +29,9 @@ class RouteServiceProtocol(Protocol):
         self,
         initial_system_name: str,
         destination_system_name: str,
-        max_systems: int = 100,
+        max_systems: int,
+        min_distance: int,
+        max_distance: int,
     ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
@@ -154,21 +156,27 @@ class DiscordBot:
         initial_system_name: str,
         destination_system_name: str,
         max_system_count: int = 100,
+        min_distance: int = 0,
+        max_distance: int = 10000,
     ) -> None:
         self.logger.info(
-            "path command: source=%s destination=%s max_system_count=%s",
+            "path command: source=%s destination=%s max_system_count=%s min_distance=%s max_distance=%s",
             initial_system_name,
             destination_system_name,
             max_system_count,
+            min_distance,
+            max_distance,
         )
         await ctx.send(
-            f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count}...  This may take a while"
+            f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count} a min travel distance of {min_distance} and a max travel distance of {max_distance}...  This may take a while"
         )
         route = await self._resolve(
             self.ed_route.path(
                 initial_system_name,
                 destination_system_name,
                 max_systems=max_system_count,
+                min_distance=min_distance,
+                max_distance=max_distance,
             )
         )
         if not route:
@@ -229,12 +237,16 @@ class DiscordBot:
             initial_system_name: str,
             destination_system_name: str,
             max_system_count: int = 100,
+            min_distance: int = 0,
+            max_distance: int = 10000,
         ) -> None:
             return await self.path(
                 ctx,
                 initial_system_name,
                 destination_system_name,
                 max_system_count,
+                min_distance,
+                max_distance,
             )
 
         @self.bot.command()

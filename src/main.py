@@ -46,6 +46,22 @@ def main() -> None:
         help="over how many systems the search will operate. Beware setting this value to high will dramatically increase runtime. Abolute maximum of 1000",
     )
     parser.add_argument(
+        "--min_distance",
+        nargs="?",
+        const=None,
+        default=0,
+        type=int,
+        help="minimum edge distance allowed for path traversal",
+    )
+    parser.add_argument(
+        "--max_distance",
+        nargs="?",
+        const=None,
+        default=10000,
+        type=int,
+        help="maximum edge distance allowed for path traversal",
+    )
+    parser.add_argument(
         "--system_name",
         nargs="?",
         const=None,
@@ -88,12 +104,20 @@ def main() -> None:
                 print("Error: Absolute value --max_systems argument is 1000")
                 sys.exit(1)
             logger.info(
-                "Calculating path source=%s destination=%s max_systems=%s",
+                "Calculating path source=%s destination=%s max_systems=%s min_distance=%s max_distance=%s",
                 args.initial,
                 args.destination,
                 args.max_systems,
+                args.min_distance,
+                args.max_distance,
             )
-            route = calc_route(args.initial, args.destination, int(args.max_systems))
+            route = calc_route(
+                args.initial,
+                args.destination,
+                int(args.max_systems),
+                args.min_distance,
+                args.max_distance,
+            )
             if route:
                 logger.info("Route found with hop_count=%s", len(route))
                 print(" → ".join(route))
@@ -135,10 +159,20 @@ def get_all_system_names() -> list[str]:
 
 
 def calc_route(
-    source_system: str, target_system: str, i_max_systems: int
+    source_system: str,
+    target_system: str,
+    i_max_systems: int,
+    min_distance: int = 0,
+    max_distance: int = 10000,
 ) -> list[str] | None:
     return asyncio.run(
-        ed_service.path(source_system, target_system, max_systems=i_max_systems)
+        ed_service.path(
+            source_system,
+            target_system,
+            max_systems=i_max_systems,
+            min_distance=min_distance,
+            max_distance=max_distance,
+        )
     )
 
 

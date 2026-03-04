@@ -52,13 +52,13 @@ def make_service():
 @pytest.mark.asyncio
 async def test_small_path():
     ed_service = make_service()
-    assert await ed_service.path("Sol", "Sirius") == ["Sol", "Sirius"]
+    assert await ed_service.path("Sol", "Sirius", 100, 0, 10000) == ["Sol", "Sirius"]
 
 
 @pytest.mark.asyncio
 async def test_large_path():
     ed_service = make_service()
-    assert await ed_service.path("Sol", "Ross 248") == [
+    assert await ed_service.path("Sol", "Ross 248", 100, 0, 10000) == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",

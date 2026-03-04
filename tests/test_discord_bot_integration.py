@@ -26,7 +26,9 @@ class FakeRoute:
     async def calc_systems_distance(self, system_name_one, system_name_two):
         return 4.377120022057882
 
-    async def path(self, initial, dest, max_systems=100):
+    async def path(
+        self, initial, dest, max_systems=100, min_distance=0, max_distance=10000
+    ):
         return [initial, dest]
 
 
