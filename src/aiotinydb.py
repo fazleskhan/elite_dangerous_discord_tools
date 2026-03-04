@@ -7,6 +7,7 @@ from typing import Any, cast
 
 
 class SmartCacheTinyDB(TinyDB):
+    # Swap TinyDB's default table with SmartCache's query-cache table.
     table_class = SmartCacheTable
 
 
@@ -32,6 +33,7 @@ class AIOTinyDB:
             self._db = None
 
     def _require_db(self) -> TinyDB:
+        # Central guard so async wrapper methods fail fast if misused.
         if self._db is None:
             raise RuntimeError("AIOTinyDB must be used within 'async with'")
         return self._db

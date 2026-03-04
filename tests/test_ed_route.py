@@ -28,6 +28,7 @@ def fake_travel_fn(
     min_distance,
     max_distance,
     calc_distance,
+    progress_callback,
 ):
     if source == "Sol" and destination == "Sirius":
         return ["Sol", "Sirius"]
@@ -52,13 +53,17 @@ def make_service():
 @pytest.mark.asyncio
 async def test_small_path():
     ed_service = make_service()
-    assert await ed_service.path("Sol", "Sirius", 100, 0, 10000) == ["Sol", "Sirius"]
+    assert await ed_service.path(
+        "Sol", "Sirius", 100, 0, 10000, lambda _message: None
+    ) == ["Sol", "Sirius"]
 
 
 @pytest.mark.asyncio
 async def test_large_path():
     ed_service = make_service()
-    assert await ed_service.path("Sol", "Ross 248", 100, 0, 10000) == [
+    assert await ed_service.path(
+        "Sol", "Ross 248", 100, 0, 10000, lambda _message: None
+    ) == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",

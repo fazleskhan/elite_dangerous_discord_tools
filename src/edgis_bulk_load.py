@@ -54,6 +54,7 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
         0,
         10000,
         lambda _a, _b: 1.0,
+        lambda message: logger.info(message),
     )
     logger.info("Bulk load traversal completed")
 

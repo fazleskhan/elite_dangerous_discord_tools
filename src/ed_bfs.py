@@ -1,6 +1,7 @@
 from collections import deque
 import constants
 import logging
+import time
 from typing import Any, Callable
 
 """Breadth-first traversal used to build/solve routes between systems."""
@@ -12,6 +13,7 @@ SystemInfo = dict[str, Any]
 FetchInfoFn = Callable[[str], SystemInfo | None]
 FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo] | None]
 DistanceFn = Callable[[str, str], float]
+ProgressFn = Callable[[str], None]
 
 
 def main() -> None: ...
@@ -26,6 +28,7 @@ def travel(
     min_distance: int,
     max_distance: int,
     func_calc_system_distance: DistanceFn,
+    progress_callback: ProgressFn,
 ) -> list[str] | None:
     logger.info(
         "Starting BFS travel from %s to %s with max_count=%s",
@@ -44,6 +47,8 @@ def travel(
 
     queue: deque[list[str]] = deque([[start_name]])
     visited: set[str] = {start_name}
+    # Throttle progress updates so callers (CLI/Discord) aren't spammed.
+    last_progress_report = time.monotonic()
 
     while queue:
 
@@ -53,6 +58,11 @@ def travel(
             break
         else:
             node_count += 1
+            now = time.monotonic()
+            if now - last_progress_report >= 30:
+                # Message format is consumed by CLI/Discord progress handlers.
+                progress_callback(f"Analyzed {node_count} of {max_count} systems")
+                last_progress_report = now
 
         path = queue.popleft()
         current_node = path[-1]

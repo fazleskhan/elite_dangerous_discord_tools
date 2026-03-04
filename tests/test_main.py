@@ -14,7 +14,12 @@ def test_calc_route():
     captured_args = {}
 
     async def fake_path(
-        source, target, max_systems=100, min_distance=0, max_distance=10000
+        source,
+        target,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         captured_args["values"] = (
             source,
@@ -22,6 +27,7 @@ def test_calc_route():
             max_systems,
             min_distance,
             max_distance,
+            progress_callback,
         )
         return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
 
@@ -32,7 +38,8 @@ def test_calc_route():
         "61 Cygni",
         "Ross 248",
     ]
-    assert captured_args["values"] == ("Sol", "Ross 248", 100, 5, 50)
+    assert captured_args["values"][:5] == ("Sol", "Ross 248", 100, 5, 50)
+    assert callable(captured_args["values"][5])
 
 
 def test_get_system_info():

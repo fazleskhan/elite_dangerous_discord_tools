@@ -2,6 +2,7 @@ import pytest
 import logging
 import discord
 import re
+import asyncio
 from discord.ext import commands
 from unittest.mock import MagicMock
 
@@ -39,7 +40,13 @@ class FakeRoute:
         return 4.377120022057882
 
     async def path(
-        self, initial, dest, max_systems=100, min_distance=0, max_distance=10000
+        self,
+        initial,
+        dest,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         self.last_path_args = (initial, dest, max_systems, min_distance, max_distance)
         # mimic the real return value used by tests
@@ -156,7 +163,12 @@ async def test_path_when_route_is_none(bot):
     max_system_count = 75
 
     async def no_route_path(
-        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+        initial,
+        destination,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         return None
 
@@ -181,7 +193,12 @@ async def test_path_when_distance_is_less_than_min_distance(bot):
     dest = "Target"
 
     async def filtered_path(
-        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+        initial,
+        destination,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         distance = -1.0
         if min_distance <= distance <= max_distance:
@@ -205,7 +222,12 @@ async def test_path_when_distance_is_greater_than_max_distance(bot):
     dest = "Target"
 
     async def filtered_path(
-        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+        initial,
+        destination,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         distance = 20001.0
         if min_distance <= distance <= max_distance:
@@ -229,7 +251,12 @@ async def test_path_when_distance_is_between_min_and_max_distance(bot):
     dest = "Target"
 
     async def filtered_path(
-        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+        initial,
+        destination,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         distance = 42.0
         if min_distance <= distance <= max_distance:
@@ -244,6 +271,44 @@ async def test_path_when_distance_is_between_min_and_max_distance(bot):
         f"Route from {source} to {dest}: {source} → {dest}"
     )
     assert re.search(r"\(\d+ ms\)$", sent_messages[1])
+
+
+@pytest.mark.asyncio
+async def test_path_emits_progress_callback_messages(bot):
+    ctx = MockContext()
+    source = "Sol"
+    dest = "Sirius"
+    progress_message = "Analyzed 30 of 100 systems"
+
+    async def path_with_progress(
+        initial,
+        destination,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
+    ):
+        if progress_callback is not None:
+            progress_callback(progress_message)
+        return [initial, destination]
+
+    bot.ed_route.path = path_with_progress
+    await bot.path(ctx, source, dest, 100)
+    await asyncio.sleep(0.01)
+
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) >= 3
+    assert any(message == progress_message for message in sent_messages)
+    assert any(
+        message.startswith(
+            f"Calculate Path between {source} and {dest} with max system count 100"
+        )
+        for message in sent_messages
+    )
+    assert any(
+        message.startswith(f"Route from {source} to {dest}: {source} → {dest}")
+        for message in sent_messages
+    )
 
 
 @pytest.mark.asyncio

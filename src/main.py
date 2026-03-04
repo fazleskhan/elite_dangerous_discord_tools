@@ -185,6 +185,7 @@ def calc_route(
             max_systems=i_max_systems,
             min_distance=min_distance,
             max_distance=max_distance,
+            progress_callback=lambda message: logger.info(message),
         )
     )
 
