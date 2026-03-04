@@ -1,11 +1,8 @@
-import logging
 from discord_bot import DiscordBot
-from logging_utils import resolve_log_level
+from loguru import logger
+from logging_utils import setup_logging
 
 """Launch script for the Discord bot process."""
-
-logger = logging.getLogger(__name__)
-
 
 def main() -> None:
     logger.info("Starting Discord runner")
@@ -19,5 +16,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=resolve_log_level(logging.INFO))
+    setup_logging()
     main()

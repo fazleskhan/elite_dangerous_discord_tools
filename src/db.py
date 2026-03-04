@@ -2,15 +2,13 @@ import asyncio
 import threading
 from tinydb import Query
 import constants
-import logging
+from loguru import logger
 from typing import Any
 from aiotinydb import AIOTinyDB
 
 """TinyDB persistence helpers for cached system records."""
 
 # https://www.tutorialspoint.com/tinydb/index.htm
-
-logger = logging.getLogger(__name__)
 
 SystemInfo = dict[str, Any]
 
@@ -59,11 +57,11 @@ class DB:
             if not await db.contains(System.name == system_name):
                 inserted_id = await db.insert(system_info)
                 self.logger.debug(
-                    "Inserted system=%s doc_id=%s", system_name, inserted_id
+                    "Inserted system={} doc_id={}", system_name, inserted_id
                 )
                 return inserted_id
             self.logger.debug(
-                "Skipped duplicate system insert for system=%s", system_name
+                "Skipped duplicate system insert for system={}", system_name
             )
         return None
 
@@ -71,11 +69,11 @@ class DB:
         System = Query()
         async with AIOTinyDB(self._database_name) as db:
             if not await db.contains(System.name == system_name):
-                self.logger.debug("Lookup system=%s found=False", system_name)
+                self.logger.debug("Lookup system={} found=False", system_name)
                 return None
             result = await db.get(System.name == system_name)
             self.logger.debug(
-                "Lookup system=%s found=%s", system_name, result is not None
+                "Lookup system={} found={}", system_name, result is not None
             )
             return result
 
@@ -90,7 +88,7 @@ class DB:
                 System.name == system_name,
             )
             self.logger.debug(
-                "Updated neighbors for system=%s updated_rows=%s",
+                "Updated neighbors for system={} updated_rows={}",
                 system_name,
                 len(updated),
             )
@@ -99,7 +97,7 @@ class DB:
     async def _get_all_systems_async(self) -> list[SystemInfo]:
         async with AIOTinyDB(self._database_name) as db:
             systems = await db.all()
-            self.logger.debug("Loaded all systems count=%s", len(systems))
+            self.logger.debug("Loaded all systems count={}", len(systems))
             return systems
 
     def insert_system(self, system_info: SystemInfo) -> int | None:
@@ -110,7 +108,7 @@ class DB:
         try:
             return self._run_async(self._get_system_async(system_name))
         except Exception:
-            self.logger.exception("Lookup failed for system=%s", system_name)
+            self.logger.exception("Lookup failed for system={}", system_name)
             return None
 
     def add_neighbors(

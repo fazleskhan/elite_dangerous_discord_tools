@@ -1,12 +1,10 @@
 import asyncio
-import logging
+from loguru import logger
 import threading
 import aiohttp
 from typing import Any
 
 """Thin HTTP client wrappers for EDGIS system and neighbor lookups."""
-
-logger = logging.getLogger(__name__)
 
 
 def main() -> None: ...
@@ -53,13 +51,13 @@ fetch_neighbors_uri: str = r"https://edgis.elitedangereuse.fr/neighbors"
 def fetch_neighbors(
     x: float | int, y: float | int, z: float | int
 ) -> list[dict[str, Any]] | None:
-    logger.debug("Fetching neighbors for coordinates x=%s y=%s z=%s", x, y, z)
+    logger.debug("Fetching neighbors for coordinates x={} y={} z={}", x, y, z)
     try:
         # EDGIS defaults to a 20ly radius when radius is omitted.
         return _run_async(_fetch_json(fetch_neighbors_uri, {"x": x, "y": y, "z": z}))
     except (aiohttp.ClientError, asyncio.TimeoutError):
         logger.exception(
-            "Failed to fetch neighbors for coordinates x=%s y=%s z=%s", x, y, z
+            "Failed to fetch neighbors for coordinates x={} y={} z={}", x, y, z
         )
         return None
 
@@ -70,12 +68,12 @@ fetch_coords_uri: str = r"https://edgis.elitedangereuse.fr/coords"
 
 
 def fetch_system_info(system_name: str) -> dict[str, Any] | None:
-    logger.debug("Fetching system info for system=%s", system_name)
+    logger.debug("Fetching system info for system={}", system_name)
     try:
         # The API expects the system name under the `q` query parameter.
         return _run_async(_fetch_json(fetch_coords_uri, {"q": system_name}))
     except (aiohttp.ClientError, asyncio.TimeoutError):
-        logger.exception("Failed to fetch system info for system=%s", system_name)
+        logger.exception("Failed to fetch system info for system={}", system_name)
         return None
 
 

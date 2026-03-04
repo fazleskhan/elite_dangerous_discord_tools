@@ -2,13 +2,11 @@ import argparse
 import ed_bfs
 import edgis_cache
 import db
-import logging
 from typing import Any
-from logging_utils import resolve_log_level
+from loguru import logger
+from logging_utils import setup_logging
 
 """Utility script to pre-populate local cache by traversing nearby systems."""
-
-logger = logging.getLogger(__name__)
 
 db_filename: str = f"{__file__.replace('src', 'data').replace('.py', '.db')}"
 
@@ -28,7 +26,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     logger.info(
-        "Bulk load requested: initial_system=%s system_count=%s",
+        "Bulk load requested: initial_system={} system_count={}",
         args.initial_system,
         args.system_count,
     )
@@ -37,7 +35,7 @@ def main() -> None:
 
 def logic(initial_system_name: str, number_of_systems: int) -> None:
     logger.info(
-        "Starting bulk load traversal from %s with max systems=%s",
+        "Starting bulk load traversal from {} with max systems={}",
         initial_system_name,
         number_of_systems,
     )
@@ -68,5 +66,5 @@ def fetch_neighbors() -> Any:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=resolve_log_level(logging.INFO))
+    setup_logging()
     main()

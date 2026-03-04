@@ -1,17 +1,14 @@
 import ed_route
 import constants
 import argparse
-import logging
 import asyncio
 import sys
 import time
 from typing import Any
-from logging_utils import resolve_log_level
+from loguru import logger
+from logging_utils import setup_logging
 
 """CLI entrypoint for route search and cache inspection commands."""
-
-logger = logging.getLogger(__name__)
-
 
 ed_service = ed_route.EDRouteService.create()
 
@@ -75,7 +72,7 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    logger.info("CLI command received: %s", args.command)
+    logger.info("CLI command received: {}", args.command)
 
     # Dispatch by sub-command and validate required args per command.
     match args.command:
@@ -93,7 +90,7 @@ def main() -> None:
                 )
                 parser.print_help()
                 sys.exit(1)
-            logger.debug("Fetching system info for %s", args.system_name)
+            logger.debug("Fetching system info for {}", args.system_name)
             print(args.system_name)
             print(get_system_info([args.system_name]))
             print(f"Execution time: {_elapsed_ms(start)} ms")
@@ -110,11 +107,11 @@ def main() -> None:
                 parser.print_help()
                 sys.exit(1)
             if args.max_systems and int(args.max_systems) > 1000:
-                logger.error("Invalid --max_systems value: %s", args.max_systems)
+                logger.error("Invalid --max_systems value: {}", args.max_systems)
                 print("Error: Absolute value --max_systems argument is 1000")
                 sys.exit(1)
             logger.info(
-                "Calculating path source=%s destination=%s max_systems=%s min_distance=%s max_distance=%s",
+                "Calculating path source={} destination={} max_systems={} min_distance={} max_distance={}",
                 args.initial,
                 args.destination,
                 args.max_systems,
@@ -129,7 +126,7 @@ def main() -> None:
                 args.max_distance,
             )
             if route:
-                logger.info("Route found with hop_count=%s", len(route))
+                logger.info("Route found with hop_count={}", len(route))
                 print(" → ".join(route))
             else:
                 logger.warning("No route found")
@@ -155,7 +152,7 @@ def main() -> None:
                 parser.print_help()
                 sys.exit(1)
             logger.info(
-                "Calculating distance source=%s destination=%s",
+                "Calculating distance source={} destination={}",
                 args.initial,
                 args.destination,
             )
@@ -202,5 +199,5 @@ def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=resolve_log_level(logging.INFO))
+    setup_logging()
     main()
