@@ -59,11 +59,11 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
 
 
 def fetch_system_info() -> Any:
-    return edgis_cache.find_system_info
+    return edgis_cache.EDGisCache.find_system_info
 
 
 def fetch_neighbors() -> Any:
-    edgis_cache.find_system_neighbors
+    return edgis_cache.EDGisCache.find_system_neighbors
 
 
 if __name__ == "__main__":

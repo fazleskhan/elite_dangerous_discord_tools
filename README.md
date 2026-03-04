@@ -45,3 +45,11 @@ Iteratively displays all the names currently cached locally
 ![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-4.png)
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
+
+### Type Checking
+
+Run mypy against the source tree:
+
+```bash
+mypy
+```

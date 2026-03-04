@@ -33,7 +33,7 @@ class RouteServiceProtocol(Protocol):
         max_systems: int,
         min_distance: int,
         max_distance: int,
-    ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
+    ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
 
 
 class DiscordBot:
@@ -107,7 +107,8 @@ class DiscordBot:
         )
 
     async def on_ready(self) -> None:
-        self.logger.info("Elite Dangerous Tools is ready: user=%s", self.bot.user.name)
+        user_name = self.bot.user.name if self.bot.user is not None else "<unknown>"
+        self.logger.info("Elite Dangerous Tools is ready: user=%s", user_name)
 
     async def ping(self, ctx: commands.Context) -> None:
         start = time.perf_counter()
@@ -282,6 +283,8 @@ class DiscordBot:
         This call is intentionally side‑effecty, so tests in which we don't
         want to connect to Discord shouldn't use it.
         """
+        if self.token is None:
+            raise RuntimeError("DISCORD_TOKEN is not configured")
         self.logger.info("Starting Discord bot run loop")
         self.bot.run(self.token, log_handler=self.log_handler, log_level=self.log_level)
 

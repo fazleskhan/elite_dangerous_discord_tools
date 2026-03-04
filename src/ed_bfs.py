@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 SystemInfo = dict[str, Any]
 FetchInfoFn = Callable[[str], SystemInfo | None]
-FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo]]
+FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo] | None]
 DistanceFn = Callable[[str, str], float]
 
 
@@ -85,7 +85,11 @@ def travel(
             continue
 
         # Expand the frontier one hop at a time (standard BFS).
-        for adjacent_neighbor in func_fetch_neighbors(system_info):
+        neighbors = func_fetch_neighbors(system_info)
+        if not neighbors:
+            continue
+
+        for adjacent_neighbor in neighbors:
             adjacent_name = adjacent_neighbor[constants.system_info_name_field]
             adjacent_distance = adjacent_neighbor.get("distance")
             if adjacent_distance is None:
@@ -100,8 +104,8 @@ def travel(
                 continue
 
             if adjacent_name not in visited:
-                adjacent_neighbor = func_fetch_info(adjacent_name)
-                if not adjacent_neighbor:
+                adjacent_info = func_fetch_info(adjacent_name)
+                if not adjacent_info:
                     continue
                 visited.add(adjacent_name)
                 new_path = list(path)
@@ -113,6 +117,7 @@ def travel(
         destination_name,
         max_count,
     )
+    return None
 
 
 if __name__ == "__main__":

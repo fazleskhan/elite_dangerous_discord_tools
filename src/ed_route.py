@@ -9,7 +9,7 @@ import threading
 from concurrent.futures import Future
 import logging
 from dotenv import load_dotenv
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Protocol, cast
 import math
 
 """Service layer that composes DB/cache dependencies and route search."""
@@ -64,9 +64,9 @@ class EDRouteService:
     @staticmethod
     def create(
         db_factory: Callable[[str], DBProtocol] = db.DB,
-        cache_factory: Callable[
-            [DBProtocol], CacheProtocol
-        ] = edgis_cache.EDGisCache.create,
+        cache_factory: Callable[[Any], CacheProtocol] = cast(
+            Callable[[Any], CacheProtocol], edgis_cache.EDGisCache.create
+        ),
         travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
         file_exists: Callable[[str], bool] = os.path.exists,
         copy_file: Callable[[str, str], str] = shutil.copy,
@@ -152,6 +152,7 @@ class EDRouteService:
         if self.cache is None:
             self.logger.warning("Route cache is not initialized for path")
             return None
+        cache = self.cache
         self.logger.info(
             "Calculating path source=%s destination=%s max_systems=%s min_distance=%s max_distance=%s",
             initial_system_name,
@@ -166,8 +167,8 @@ class EDRouteService:
         def _worker() -> None:
             try:
                 route_result = self.travel_fn(
-                    self.cache.find_system_info,
-                    self.cache.find_system_neighbors,
+                    cache.find_system_info,
+                    cache.find_system_neighbors,
                     initial_system_name,
                     destination_name,
                     max_systems,
@@ -196,6 +197,15 @@ class EDRouteService:
         )
         system_info_one = self.get_system_info(system_name_one)
         system_info_two = self.get_system_info(system_name_two)
+        if system_info_one is None or system_info_two is None:
+            missing_systems: list[str] = []
+            if system_info_one is None:
+                missing_systems.append(system_name_one)
+            if system_info_two is None:
+                missing_systems.append(system_name_two)
+            message = f"Could not load system info for: {', '.join(missing_systems)}"
+            self.logger.error(message)
+            raise ValueError(message)
 
         # Distance is computed from each system's cartesian coordinates.
         coords1 = system_info_one[constants.system_info_coords_field]
