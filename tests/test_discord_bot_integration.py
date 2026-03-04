@@ -28,7 +28,13 @@ class FakeRoute:
         return 4.377120022057882
 
     async def path(
-        self, initial, dest, max_systems=100, min_distance=0, max_distance=10000
+        self,
+        initial,
+        dest,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
     ):
         return [initial, dest]
 

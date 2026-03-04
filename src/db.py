@@ -27,6 +27,8 @@ class DB:
         self.logger.info("DB backend: aiotinydb")
 
     def _run_async(self, coro: Any) -> Any:
+        # If we're already inside an event loop, execute the coroutine in a
+        # helper thread so sync callers can still block for the result.
         try:
             asyncio.get_running_loop()
         except RuntimeError:

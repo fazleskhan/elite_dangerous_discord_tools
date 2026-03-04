@@ -49,6 +49,10 @@ def calc_systems_distance_return_10(system_one, system_two) -> float:
     return 10
 
 
+def no_op_progress(_message: str) -> None:
+    return None
+
+
 expected_test_travel_list = ["Sol", "Alpha Centauri", "Luhman 16"]
 
 
@@ -62,6 +66,7 @@ def test_simple_travel():
         0,
         100,
         calc_systems_distance,
+        no_op_progress,
     )
     assert visited == expected_test_travel_list
 
@@ -85,6 +90,7 @@ def test_larger_local_travel_Sol_Wolf_359():
         0,
         100,
         calc_systems_distance_return_10,
+        no_op_progress,
     )
     assert visited == ["Sol", "Wolf 359"]
 
@@ -108,6 +114,7 @@ def test_larger_travel_Sol_LTT_3572():
         0,
         100,
         calc_systems_distance_return_10,
+        no_op_progress,
     )
     assert visited == ["Sol", "Luhman 16", "Luyten 143-23", "LTT 3572"]
 
@@ -151,6 +158,7 @@ def test_travel_filters_edges_by_min_and_max_distance():
         2,
         5,
         calc_distance,
+        no_op_progress,
     )
     assert visited == ["A", "C", "T"]
 

@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 SystemInfo = dict[str, Any]
+ProgressFn = Callable[[str], None]
 
 
 class DBProtocol(Protocol):
@@ -148,6 +149,7 @@ class EDRouteService:
         max_systems: int,
         min_distance: int,
         max_distance: int,
+        progress_callback: ProgressFn,
     ) -> list[str] | None:
         if self.cache is None:
             self.logger.warning("Route cache is not initialized for path")
@@ -165,6 +167,7 @@ class EDRouteService:
         result: Future[list[str] | None] = Future()
 
         def _worker() -> None:
+            # Run blocking BFS traversal off the event loop thread.
             try:
                 route_result = self.travel_fn(
                     cache.find_system_info,
@@ -175,12 +178,14 @@ class EDRouteService:
                     min_distance,
                     max_distance,
                     self.calc_systems_distance,
+                    progress_callback,
                 )
                 result.set_result(route_result)
             except Exception as exc:
                 result.set_exception(exc)
 
         threading.Thread(target=_worker, daemon=True).start()
+        # Poll the worker result without blocking the async caller.
         while not result.done():
             await asyncio.sleep(0.01)
         route = result.result()

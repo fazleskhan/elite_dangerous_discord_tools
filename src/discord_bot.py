@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
 import discord
 from discord.ext import commands
 import logging
@@ -7,7 +9,7 @@ from dotenv import load_dotenv
 import os
 import inspect
 import time
-from typing import Any, Awaitable, Iterator, Protocol, Sequence, TypeVar
+from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
 import ed_route
 from logging_utils import resolve_log_level
 
@@ -33,6 +35,7 @@ class RouteServiceProtocol(Protocol):
         max_systems: int,
         min_distance: int,
         max_distance: int,
+        progress_callback: Callable[[str], None],
     ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
 
 
@@ -181,6 +184,25 @@ class DiscordBot:
         await ctx.send(
             f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count} a min travel distance of {min_distance} and a max travel distance of {max_distance}...  This may take a while"
         )
+        loop = asyncio.get_running_loop()
+
+        def handle_progress_send_result(
+            send_result: concurrent.futures.Future[None],
+        ) -> None:
+            # Progress sends happen from a worker-thread callback; surface
+            # failures in logs instead of failing the command coroutine.
+            exc = send_result.exception()
+            if exc is not None:
+                self.logger.exception(
+                    "Failed to send progress update to Discord", exc_info=exc
+                )
+
+        def progress_callback(message: str) -> None:
+            self.logger.info(message)
+            # Route progress callback executes off-loop; schedule send safely.
+            send_future = asyncio.run_coroutine_threadsafe(ctx.send(message), loop)
+            send_future.add_done_callback(handle_progress_send_result)
+
         route = await self._resolve(
             self.ed_route.path(
                 initial_system_name,
@@ -188,6 +210,7 @@ class DiscordBot:
                 max_systems=max_system_count,
                 min_distance=min_distance,
                 max_distance=max_distance,
+                progress_callback=progress_callback,
             )
         )
         if not route:
