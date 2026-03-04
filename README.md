@@ -46,3 +46,10 @@ Iteratively displays all the names currently cached locally
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
 
+### Logging
+
+- Logging is powered by `loguru`.
+- Runtime config is externalized in `config/loguru.json`.
+- Config changes are hot-reloaded (no restart required) by a background watcher.
+- File logs rotate daily at midnight, compressed archives are stored in `logs/archive`, and logs older than 14 days are removed.
+- Console logs are colorized.

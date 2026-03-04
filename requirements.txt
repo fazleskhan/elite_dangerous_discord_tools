@@ -10,3 +10,4 @@ discord
 python-dotenv
 pytest-asyncio
 asyncio
+loguru

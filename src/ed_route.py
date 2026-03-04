@@ -7,14 +7,12 @@ import os
 import asyncio
 import threading
 from concurrent.futures import Future
-import logging
+from loguru import logger
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol, cast
 import math
 
 """Service layer that composes DB/cache dependencies and route search."""
-
-logger = logging.getLogger(__name__)
 
 
 SystemInfo = dict[str, Any]
@@ -78,7 +76,7 @@ class EDRouteService:
         # Keep a stable default DB path while allowing env override.
         default_db_path = script_file.replace("src", "data").replace(".py", ".db")
         resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
-        logger.debug("Creating EDRouteService with db_path=%s", resolved_db_path)
+        logger.debug("Creating EDRouteService with db_path={}", resolved_db_path)
         service = EDRouteService(
             db_path=resolved_db_path,
             database=None,
@@ -93,7 +91,7 @@ class EDRouteService:
         service.database = db_factory(resolved_db_path)
         service.cache = cache_factory(service.database)
         service.logger.info(
-            "EDRouteService initialized with db_path=%s", resolved_db_path
+            "EDRouteService initialized with db_path={}", resolved_db_path
         )
         return service
 
@@ -113,14 +111,14 @@ class EDRouteService:
     def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
         # First run: copy preloaded DB to the configured writable target.
         if self.file_exists(self.db_path):
-            self.logger.debug("DB already exists at %s", self.db_path)
+            self.logger.debug("DB already exists at {}", self.db_path)
             return
         db_dir = os.path.dirname(self.db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         source_path = self._resolve_preload_source_path(preinit_db_filename)
         self.logger.info(
-            "Copying preloaded DB from %s to %s", source_path, self.db_path
+            "Copying preloaded DB from {} to {}", source_path, self.db_path
         )
         self.copy_file(source_path, self.db_path)
 
@@ -128,7 +126,7 @@ class EDRouteService:
         if self.cache is None:
             self.logger.warning("Route cache is not initialized for get_system_info")
             return None
-        self.logger.debug("Fetching system info via cache for system=%s", system_name)
+        self.logger.debug("Fetching system info via cache for system={}", system_name)
         return self.cache.find_system_info(system_name)
 
     def get_all_system_names(self) -> list[str]:
@@ -139,7 +137,7 @@ class EDRouteService:
         system_infos = self.database.get_all_systems()
         for system_info in system_infos:
             results.append(system_info[constants.system_info_name_field])
-        self.logger.debug("Collected %s system names", len(results))
+        self.logger.debug("Collected {} system names", len(results))
         return results
 
     async def path(
@@ -156,7 +154,7 @@ class EDRouteService:
             return None
         cache = self.cache
         self.logger.info(
-            "Calculating path source=%s destination=%s max_systems=%s min_distance=%s max_distance=%s",
+            "Calculating path source={} destination={} max_systems={} min_distance={} max_distance={}",
             initial_system_name,
             destination_name,
             max_systems,
@@ -189,14 +187,14 @@ class EDRouteService:
         while not result.done():
             await asyncio.sleep(0.01)
         route = result.result()
-        self.logger.info("Path calculation complete found=%s", route is not None)
+        self.logger.info("Path calculation complete found={}", route is not None)
         return route
 
     def calc_systems_distance(
         self, system_name_one: str, system_name_two: str
     ) -> float:
         self.logger.info(
-            "Calculating distance between systems: %s and %s",
+            "Calculating distance between systems: {} and {}",
             system_name_one,
             system_name_two,
         )
@@ -223,7 +221,7 @@ class EDRouteService:
             + (coords2["z"] - coords1["z"]) ** 2
         )
         self.logger.debug(
-            "Distance calculated for %s -> %s: %s",
+            "Distance calculated for {} -> {}: {}",
             system_name_one,
             system_name_two,
             distance,

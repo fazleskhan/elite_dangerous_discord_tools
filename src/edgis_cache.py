@@ -1,11 +1,9 @@
 from edgis import fetch_system_info, fetch_neighbors
 import constants
-import logging
+from loguru import logger
 from typing import Any, Callable, Protocol
 
 """Caching wrapper around EDGIS fetchers backed by the local DB."""
-
-logger = logging.getLogger(__name__)
 
 
 SystemInfo = dict[str, Any]
@@ -55,16 +53,16 @@ class EDGisCache:
 
         # On a cache miss, fetch once and persist for future reads.
         if not system_info:
-            self.logger.debug("Cache miss for system=%s", system_name)
+            self.logger.debug("Cache miss for system={}", system_name)
             if system_info := self.fetch_system_info_fn(system_name):
                 self.db.insert_system(system_info)
-                self.logger.debug("Inserted system=%s into cache", system_name)
+                self.logger.debug("Inserted system={} into cache", system_name)
             else:
                 self.logger.warning(
-                    "Failed to fetch system=%s on cache miss", system_name
+                    "Failed to fetch system={} on cache miss", system_name
                 )
         else:
-            self.logger.debug("Cache hit for system=%s", system_name)
+            self.logger.debug("Cache hit for system={}", system_name)
 
         return system_info
 
@@ -80,7 +78,7 @@ class EDGisCache:
         )
         # Fetch neighbors once per system and store them in the DB cache.
         if not neighbors:
-            self.logger.debug("Neighbor cache miss for system=%s", system_name)
+            self.logger.debug("Neighbor cache miss for system={}", system_name)
             x = system_info[constants.system_info_coords_field][
                 constants.system_info_x_field
             ]
@@ -94,14 +92,14 @@ class EDGisCache:
             if neighbors is not None:
                 self.db.add_neighbors(system_info, neighbors)
                 self.logger.debug(
-                    "Cached %s neighbors for system=%s", len(neighbors), system_name
+                    "Cached {} neighbors for system={}", len(neighbors), system_name
                 )
             else:
                 self.logger.warning(
-                    "Failed to fetch neighbors for system=%s", system_name
+                    "Failed to fetch neighbors for system={}", system_name
                 )
         else:
-            self.logger.debug("Neighbor cache hit for system=%s", system_name)
+            self.logger.debug("Neighbor cache hit for system={}", system_name)
         return neighbors
 
 
