@@ -3,7 +3,7 @@ from __future__ import annotations
 from tinydb import TinyDB
 from tinydb.middlewares import CachingMiddleware
 from tinydb.storages import JSONStorage
-from typing import Any
+from typing import Any, cast
 
 
 class AIOTinyDB:
@@ -39,10 +39,10 @@ class AIOTinyDB:
         return self._require_db().insert(document)
 
     async def get(self, cond: Any) -> dict[str, Any] | None:
-        return self._require_db().get(cond)
+        return cast(dict[str, Any] | None, self._require_db().get(cond))
 
     async def update(self, fields: dict[str, Any], cond: Any) -> list[int]:
         return self._require_db().update(fields, cond)
 
     async def all(self) -> list[dict[str, Any]]:
-        return self._require_db().all()
+        return cast(list[dict[str, Any]], self._require_db().all())

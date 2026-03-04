@@ -3,6 +3,7 @@ ujson
 tinydb
 aiotinydb
 pytest
+mypy
 argparse
 discord
 python-dotenv
