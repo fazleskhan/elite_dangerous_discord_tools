@@ -1,6 +1,7 @@
 import pytest
 import logging
 import discord
+import re
 from discord.ext import commands
 from unittest.mock import MagicMock
 
@@ -67,7 +68,8 @@ async def test_ping(bot):
     ctx = MockContext()
     await bot.ping(ctx)
     sent_messages = ctx.retrieve_messages()
-    assert sent_messages == ["Pong"]
+    assert len(sent_messages) == 1
+    assert re.match(r"^Pong \(\d+ ms\)$", sent_messages[0])
 
 
 @pytest.mark.asyncio
@@ -77,7 +79,7 @@ async def test_system_info(bot):
     await bot.system_info(ctx, arg)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 1
-    assert sent_messages[0] == f"{arg}: info-for-{arg}"
+    assert re.match(rf"^{arg}: info-for-{arg} \(\d+ ms\)$", sent_messages[0])
 
 
 @pytest.mark.asyncio
@@ -93,9 +95,10 @@ async def test_system_info_when_payload_exceeds_2000_chars(bot):
     await bot.system_info(ctx, arg)
 
     sent_messages = ctx.retrieve_messages()
-    assert len(sent_messages) == 2
-    assert all(len(message) <= 2000 for message in sent_messages)
-    assert "".join(sent_messages) == long_payload
+    assert len(sent_messages) == 3
+    assert all(len(message) <= 2000 for message in sent_messages[:-1])
+    assert "".join(sent_messages[:-1]) == long_payload
+    assert re.match(r"^Execution time: \d+ ms$", sent_messages[-1])
 
 
 @pytest.mark.asyncio
@@ -108,11 +111,12 @@ async def test_path(bot):
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
     assert sent_messages[0].startswith(
-        f"Calculate Path between {source} and {dest} with max system count {max_system_count}...  This may take a while"
+        f"Calculate Path between {source} and {dest} with max system count {max_system_count} a min travel distance of 0 and a max travel distance of 10000...  This may take a while"
     )
     assert sent_messages[1].startswith(
         f"Route from {source} to {dest}: {source} → {dest}"
     )
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
     assert bot.ed_route.last_path_args == (source, dest, max_system_count, 0, 10000)
 
 
@@ -162,12 +166,14 @@ async def test_path_when_route_is_none(bot):
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
     assert sent_messages[0].startswith(
-        f"Calculate Path between {source} and {dest} with max system count {max_system_count}...  This may take a while"
+        f"Calculate Path between {source} and {dest} with max system count {max_system_count} a min travel distance of 0 and a max travel distance of 10000...  This may take a while"
     )
     assert (
-        sent_messages[1]
-        == f"No Path found between {source} and {dest} with max system count {max_system_count}"
+        sent_messages[1].startswith(
+            f"No Path found between {source} and {dest} with max system count {max_system_count}"
+        )
     )
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
 
 @pytest.mark.asyncio
@@ -188,10 +194,10 @@ async def test_path_when_distance_is_less_than_min_distance(bot):
     await bot.path(ctx, source, dest, 100)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
-    assert (
-        sent_messages[1]
-        == f"No Path found between {source} and {dest} with max system count 100"
+    assert sent_messages[1].startswith(
+        f"No Path found between {source} and {dest} with max system count 100"
     )
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
 
 @pytest.mark.asyncio
@@ -212,10 +218,10 @@ async def test_path_when_distance_is_greater_than_max_distance(bot):
     await bot.path(ctx, source, dest, 100)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
-    assert (
-        sent_messages[1]
-        == f"No Path found between {source} and {dest} with max system count 100"
+    assert sent_messages[1].startswith(
+        f"No Path found between {source} and {dest} with max system count 100"
     )
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
 
 @pytest.mark.asyncio
@@ -237,6 +243,7 @@ async def test_path_when_distance_is_between_min_and_max_distance(bot):
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
     assert sent_messages[1].startswith(f"Route from {source} to {dest}: {source} → {dest}")
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
 
 @pytest.mark.asyncio
@@ -247,7 +254,10 @@ async def test_calc_systems_distance(bot):
     await bot.calc_systems_distance(ctx, source, dest)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 1
-    assert sent_messages[0] == f"Distance between {source} and {dest}: 4.377120022057882"
+    assert re.match(
+        rf"^Distance between {source} and {dest}: 4\.377120022057882 \(\d+ ms\)$",
+        sent_messages[0],
+    )
 
 
 @pytest.mark.asyncio
@@ -261,7 +271,7 @@ async def test_dump_system_cache_names(bot):
     )
     # middle messages should start with the expected prefix and derive from FakeRoute
     assert sent_messages[1].startswith("Systems in cache:")
-    assert sent_messages[-1].startswith("Total number of systems in cache: ")
+    assert re.match(r"^Total number of systems in cache: 3 \(\d+ ms\)$", sent_messages[-1])
 
 
 if __name__ == "__main__":

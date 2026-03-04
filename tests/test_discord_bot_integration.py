@@ -8,6 +8,7 @@ to test command execution and message responses.
 import pytest
 import discord
 import logging
+import re
 from discord.ext import commands
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -70,7 +71,9 @@ async def test_ping_command(bot):
     """Test that the ping command responds with 'Pong'."""
     ctx = create_mock_context()
     await bot.ping(ctx)
-    ctx.send.assert_called_once_with("Pong")
+    ctx.send.assert_called_once()
+    sent_message = ctx.send.call_args[0][0]
+    assert re.match(r"^Pong \(\d+ ms\)$", sent_message)
 
 
 @pytest.mark.asyncio
@@ -82,6 +85,7 @@ async def test_system_info_command(bot):
     call_args = ctx.send.call_args[0][0]
     assert "Sol" in call_args
     assert "info-for-Sol" in call_args
+    assert re.search(r"\(\d+ ms\)$", call_args)
 
 
 @pytest.mark.asyncio
@@ -93,6 +97,7 @@ async def test_system_info_command_with_different_system(bot):
     call_args = ctx.send.call_args[0][0]
     assert "Alpha Centauri" in call_args
     assert "info-for-Alpha Centauri" in call_args
+    assert re.search(r"\(\d+ ms\)$", call_args)
 
 
 @pytest.mark.asyncio
@@ -114,6 +119,7 @@ async def test_path_command(bot):
     second_call = ctx.send.call_args_list[1][0][0]
     assert "Route from Sol to Andromeda" in second_call
     assert "Sol → Andromeda" in second_call
+    assert re.search(r"\(\d+ ms\)$", second_call)
 
 
 @pytest.mark.asyncio
@@ -125,6 +131,7 @@ async def test_calc_systems_distance_command(bot):
     call_args = ctx.send.call_args[0][0]
     assert "Distance between Sol and Alpha Centauri:" in call_args
     assert "4.377120022057882" in call_args
+    assert re.search(r"\(\d+ ms\)$", call_args)
 
 
 @pytest.mark.asyncio
@@ -148,6 +155,7 @@ async def test_dump_system_cache_names_command(bot):
     last_call = ctx.send.call_args_list[-1][0][0]
     assert "Total number of systems in cache:" in last_call
     assert "3" in last_call
+    assert re.search(r"\(\d+ ms\)$", last_call)
 
 
 @pytest.mark.asyncio

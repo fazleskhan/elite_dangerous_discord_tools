@@ -4,6 +4,7 @@ import argparse
 import logging
 import asyncio
 import sys
+import time
 from typing import Any
 from logging_utils import resolve_log_level
 
@@ -13,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 ed_service = ed_route.EDRouteService.create()
+
+
+def _elapsed_ms(start: float) -> int:
+    return int((time.perf_counter() - start) * 1000)
 
 
 def main() -> None:
@@ -75,9 +80,12 @@ def main() -> None:
     # Dispatch by sub-command and validate required args per command.
     match args.command:
         case "all_loaded_systems":
+            start = time.perf_counter()
             logger.debug("Listing all loaded systems")
             print("All Loaded Systems: ", get_all_system_names())
+            print(f"Execution time: {_elapsed_ms(start)} ms")
         case "system_info":
+            start = time.perf_counter()
             if not args.system_name:
                 logger.error("Missing required --system_name for system_info command")
                 print(
@@ -88,7 +96,9 @@ def main() -> None:
             logger.debug("Fetching system info for %s", args.system_name)
             print(args.system_name)
             print(get_system_info([args.system_name]))
+            print(f"Execution time: {_elapsed_ms(start)} ms")
         case "path":
+            start = time.perf_counter()
             if not args.initial:
                 logger.error("Missing required --initial for path command")
                 print("Error: The --initial argument is requried with path command")
@@ -123,7 +133,9 @@ def main() -> None:
                 print(" → ".join(route))
             else:
                 logger.warning("No route found")
+            print(f"Execution time: {_elapsed_ms(start)} ms")
         case "calc_systems_distance":
+            start = time.perf_counter()
             if not args.initial:
                 logger.error(
                     "Missing required --initial for calc_systems_distance command"
@@ -152,6 +164,7 @@ def main() -> None:
                     source_system=args.initial, target_system=args.destination
                 )
             )
+            print(f"Execution time: {_elapsed_ms(start)} ms")
 
 
 def get_all_system_names() -> list[str]:
