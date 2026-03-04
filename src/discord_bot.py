@@ -120,7 +120,6 @@ class DiscordBot:
             "system_info command completed: found=%s", system_info is not None
         )
         s_info = str(system_info)
-        print(f"length {len(s_info)}")
         if len(s_info) <= 2000:
             await ctx.send(f"{arg}: {s_info}")
         else:
