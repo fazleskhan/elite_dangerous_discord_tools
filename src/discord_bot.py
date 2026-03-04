@@ -6,6 +6,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import inspect
+import time
 from typing import Any, Awaitable, Iterator, Protocol, Sequence, TypeVar
 import ed_route
 from logging_utils import resolve_log_level
@@ -109,8 +110,10 @@ class DiscordBot:
         self.logger.info("Elite Dangerous Tools is ready: user=%s", self.bot.user.name)
 
     async def ping(self, ctx: commands.Context) -> None:
+        start = time.perf_counter()
         self.logger.debug("Received ping command")
-        await ctx.send("Pong")
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        await ctx.send(f"Pong ({elapsed_ms} ms)")
 
     async def _resolve(self, value: T | Awaitable[T]) -> T:
         # Allow both sync and async service implementations.
@@ -119,6 +122,7 @@ class DiscordBot:
         return value
 
     async def system_info(self, ctx: commands.Context, arg: str) -> None:
+        start = time.perf_counter()
         self.logger.info("system_info command: system=%s", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
         self.logger.debug(
@@ -126,11 +130,14 @@ class DiscordBot:
         )
         s_info = str(system_info)
         if len(s_info) <= 2000:
-            await ctx.send(f"{arg}: {s_info}")
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
+            await ctx.send(f"{arg}: {s_info} ({elapsed_ms} ms)")
         else:
             chunks = [s_info[i : i + 2000] for i in range(0, len(s_info), 2000)]
             for chunk in chunks:
                 await ctx.send(chunk)
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
+            await ctx.send(f"Execution time: {elapsed_ms} ms")
 
     async def calc_systems_distance(
         self,
@@ -138,6 +145,7 @@ class DiscordBot:
         system_name_one: str,
         system_name_two: str,
     ) -> None:
+        start = time.perf_counter()
         self.logger.info(
             "calc_systems_distance command: system_one=%s system_two=%s",
             system_name_one,
@@ -146,8 +154,9 @@ class DiscordBot:
         distance = await self._resolve(
             self.ed_route.calc_systems_distance(system_name_one, system_name_two)
         )
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(
-            f"Distance between {system_name_one} and {system_name_two}: {distance}"
+            f"Distance between {system_name_one} and {system_name_two}: {distance} ({elapsed_ms} ms)"
         )
 
     async def path(
@@ -159,6 +168,7 @@ class DiscordBot:
         min_distance: int = 0,
         max_distance: int = 10000,
     ) -> None:
+        start = time.perf_counter()
         self.logger.info(
             "path command: source=%s destination=%s max_system_count=%s min_distance=%s max_distance=%s",
             initial_system_name,
@@ -196,7 +206,8 @@ class DiscordBot:
             )
             route_message = " → ".join(route)
             message = f"Route from {initial_system_name} to {destination_system_name}: {route_message} "
-        await ctx.send(message)
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        await ctx.send(f"{message}({elapsed_ms} ms)")
 
     def chunked_system_list(
         self, system_list: Sequence[str], size: int = 5
@@ -205,6 +216,7 @@ class DiscordBot:
             yield system_list[i : i + size]
 
     async def dump_system_cache_names(self, ctx: commands.Context) -> None:
+        start = time.perf_counter()
         self.logger.info("dump_system_cache_names command")
         await ctx.send("Fetching all system names in cache... This may take a while")
         system_names = await self._resolve(self.ed_route.get_all_system_names())
@@ -212,7 +224,10 @@ class DiscordBot:
         for chunk in self.chunked_system_list(system_names, size=10):
             system_names_message = ", ".join(chunk)
             await ctx.send(f"Systems in cache: {system_names_message}")
-        await ctx.send(f"Total number of systems in cache: {len(system_names)}")
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        await ctx.send(
+            f"Total number of systems in cache: {len(system_names)} ({elapsed_ms} ms)"
+        )
 
     def register_commands(self) -> None:
         self.logger.debug("Registering bot commands")
