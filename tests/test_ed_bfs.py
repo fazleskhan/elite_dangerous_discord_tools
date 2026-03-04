@@ -36,6 +36,19 @@ def get_neighbors_test_data(system_info):
         )
 
 
+def calc_systems_distance(system_name_one, system_name_two) -> float:
+    if system_name_one == "Sol" and system_name_two == "Luhman 16":
+        return 2
+    elif system_name_one == "Alpha Centauri" and system_name_two == "Luhman 16":
+        return 1
+    else:
+        return 0
+
+
+def calc_systems_distance_return_10(system_one, system_two) -> float:
+    return 10
+
+
 expected_test_travel_list = ["Sol", "Alpha Centauri", "Luhman 16"]
 
 
@@ -45,6 +58,8 @@ def test_simple_travel():
         get_neighbors_test_data,
         "Sol",
         "Luhman 16",
+        10,
+        calc_systems_distance,
     )
     assert visited == expected_test_travel_list
 
@@ -60,7 +75,12 @@ def test_larger_local_travel_Sol_Wolf_359():
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
-        cache.find_system_info, cache.find_system_neighbors, "Sol", "Wolf 359"
+        cache.find_system_info,
+        cache.find_system_neighbors,
+        "Sol",
+        "Wolf 359",
+        10,
+        calc_systems_distance_return_10,
     )
     assert visited == ["Sol", "Wolf 359"]
 
@@ -76,7 +96,12 @@ def test_larger_travel_Sol_LTT_3572():
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
-        cache.find_system_info, cache.find_system_neighbors, "Sol", "LTT 3572", 100
+        cache.find_system_info,
+        cache.find_system_neighbors,
+        "Sol",
+        "LTT 3572",
+        100,
+        calc_systems_distance_return_10,
     )
     assert visited == ["Sol", "Luhman 16", "Luyten 143-23", "LTT 3572"]
 

@@ -29,6 +29,9 @@ class CacheProtocol(Protocol):
     def find_system_neighbors(
         self, system_info: SystemInfo
     ) -> list[SystemInfo] | None: ...
+    def calc_systems_distance(
+        self, system_name_one: str, system_name_two: str
+    ) -> float: ...
 
 
 def main() -> None: ...
@@ -161,6 +164,7 @@ class EDRouteService:
                     initial_system_name,
                     destination_name,
                     max_systems,
+                    self.calc_systems_distance,
                 )
                 result.set_result(route_result)
             except Exception as exc:
@@ -173,7 +177,9 @@ class EDRouteService:
         self.logger.info("Path calculation complete found=%s", route is not None)
         return route
 
-    def calc_systems_distance(self, system_name_one: str, system_name_two: str) -> float:
+    def calc_systems_distance(
+        self, system_name_one: str, system_name_two: str
+    ) -> float:
         self.logger.info(
             "Calculating distance between systems: %s and %s",
             system_name_one,

@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 SystemInfo = dict[str, Any]
 FetchInfoFn = Callable[[str], SystemInfo | None]
 FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo]]
+DistanceFn = Callable[[str, str], float]
 
 
 def main() -> None: ...
@@ -20,8 +21,9 @@ def travel(
     func_fetch_info: FetchInfoFn,
     func_fetch_neighbors: FetchNeighborsFn,
     start_name: str,
-    destination_name: str = "",
-    max_count: int = 10,
+    destination_name: str,
+    max_count: int,
+    func_calc_system_distance: DistanceFn,
 ) -> list[str] | None:
     logger.info(
         "Starting BFS travel from %s to %s with max_count=%s",
@@ -35,6 +37,8 @@ def travel(
         return [start_name]
 
     node_count = 0
+    distance_to_destination = func_calc_system_distance(start_name, destination_name)
+    previous_distance = distance_to_destination
 
     queue: deque[list[str]] = deque([[start_name]])
     visited: set[str] = {start_name}
@@ -50,6 +54,24 @@ def travel(
 
         path = queue.popleft()
         current_node = path[-1]
+
+        distance_to_destination = func_calc_system_distance(
+            current_node, destination_name
+        )
+        logger.debug(
+            "Current distance estimate %s -> %s: %s",
+            current_node,
+            destination_name,
+            distance_to_destination,
+        )
+
+        if distance_to_destination >= previous_distance * 1.05:
+            logger.debug(
+                r"current node is more than 5% further ways than the previous node"
+            )
+            continue
+        elif distance_to_destination < previous_distance:
+            previous_distance = distance_to_destination
 
         if current_node == destination_name:
             logger.info("Destination reached: %s", destination_name)
