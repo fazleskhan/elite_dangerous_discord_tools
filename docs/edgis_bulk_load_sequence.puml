@@ -1,81 +1,61 @@
 @startuml
-title edgis_bulk_load.py Sequence (main -> logic -> BFS/cache/API)
+title edgis_bulk_load.py sequence
 
 actor User
-participant "edgis_bulk_load.main" as Main
+participant "__main__" as Entry
+participant "resolve_log_level" as ResolveLog
+participant "logging" as Logging
+participant "main()" as Main
 participant "argparse.ArgumentParser" as ArgParser
-participant "edgis_bulk_load.logic" as Logic
+participant "logic(initial_system_name, number_of_systems)" as Logic
 participant "db.DB" as DB
-participant "EDGisCache" as Cache
+participant "EDGisCache.create" as CacheCreate
+participant "EDGisCache instance" as Cache
 participant "ed_bfs.travel" as Travel
-participant "EDGIS API\n/coords" as CoordsApi
-participant "EDGIS API\n/neighbors" as NeighborsApi
 
-User -> Main: run script with args
+User -> Entry: python src/edgis_bulk_load.py <initial_system> <system_count>
+Entry -> ResolveLog: resolve_log_level(logging.INFO)
+ResolveLog --> Entry: configured level
+Entry -> Logging: basicConfig(level=...)
+Entry -> Main: main()
+
+Main -> ArgParser: ArgumentParser(...)
+Main -> ArgParser: add_argument("initial_system")
+Main -> ArgParser: add_argument("system_count", type=int)
 Main -> ArgParser: parse_args()
-ArgParser --> Main: initial_system, system_count
-Main -> Logic: logic(initial_system, system_count)
+ArgParser --> Main: args.initial_system, args.system_count
+Main -> Logging: logger.info("Bulk load requested", ...)
+Main -> Logic: logic(args.initial_system, args.system_count)
 
+Logic -> Logging: logger.info("Starting bulk load traversal", ...)
 Logic -> DB: DB(db_filename)
 DB --> Logic: database
-Logic -> Cache: EDGisCache.create(database)
-Cache --> Logic: cache
-Logic -> Travel: travel(cache.find_system_info,\ncache.find_system_neighbors,\ninitial_system, "", system_count)
+Logic -> CacheCreate: create(database)
+CacheCreate --> Logic: cache
 
-loop while queue has nodes and node_count <= max_count
-  Travel -> Cache: find_system_info(current_node)
-  Cache -> DB: get_system(current_node)
-  alt system exists in DB
-    DB --> Cache: system_info
-  else cache miss
-    DB --> Cache: None
-    Cache -> CoordsApi: fetch_system_info(current_node)
-    CoordsApi --> Cache: system_info | None
-    alt fetch returned system_info
-      Cache -> DB: insert_system(system_info)
-      DB --> Cache: inserted id
-    end
-  end
-  Cache --> Travel: system_info | None
+Logic -> Travel: travel(
+cache.find_system_info,
+cache.find_system_neighbors,
+initial_system_name,
+"Beagle Point",
+number_of_systems,
+0,
+10000,
+lambda _a, _b: 1.0)
 
-  alt system_info is None
-    Travel -> Travel: continue
-  else system_info found
-    Travel -> Cache: find_system_neighbors(system_info)
-    Cache -> DB: get_system(system_name)
-    DB --> Cache: db_system_info | None
-
-    alt neighbors already cached
-      Cache --> Travel: neighbors
-    else neighbors missing
-      Cache -> NeighborsApi: fetch_neighbors(x, y, z)
-      NeighborsApi --> Cache: neighbors | None
-      Cache -> DB: add_neighbors(system_info, neighbors)
-      DB --> Cache: update result
-      Cache --> Travel: neighbors
-    end
-
-    loop each adjacent neighbor
-      Travel -> Cache: find_system_info(adjacent_name)
-      Cache -> DB: get_system(adjacent_name)
-      alt adjacent in cache
-        DB --> Cache: adjacent_system_info
-      else adjacent cache miss
-        DB --> Cache: None
-        Cache -> CoordsApi: fetch_system_info(adjacent_name)
-        CoordsApi --> Cache: adjacent_system_info | None
-        alt adjacent fetch returned info
-          Cache -> DB: insert_system(adjacent_system_info)
-          DB --> Cache: inserted id
-        end
-      end
-      Cache --> Travel: adjacent_system_info | None
-      Travel -> Travel: add to visited/queue when present
-    end
-  end
+activate Travel
+loop BFS traversal (internal)
+Travel -> Cache: find_system_info(system_name)
+Cache --> Travel: system_info | None
+Travel -> Cache: find_system_neighbors(system_info)
+Cache --> Travel: neighbors
+Travel -> Travel: queue/filter/visit nodes
 end
+Travel --> Logic: path | None
+deactivate Travel
 
-Travel --> Logic: route or None
+Logic -> Logging: logger.info("Bulk load traversal completed")
 Logic --> Main: return
-Main --> User: process exits
+Main --> Entry: return
+Entry --> User: process exits
 @enduml
