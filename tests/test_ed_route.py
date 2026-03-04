@@ -19,7 +19,9 @@ class FakeCache:
         return []
 
 
-def fake_travel_fn(fetch_info, fetch_neighbors, source, destination, max_systems):
+def fake_travel_fn(
+    fetch_info, fetch_neighbors, source, destination, max_systems, calc_distance
+):
     if source == "Sol" and destination == "Sirius":
         return ["Sol", "Sirius"]
     if source == "Sol" and destination == "Ross 248":

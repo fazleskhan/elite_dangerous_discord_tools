@@ -49,8 +49,9 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
         cache.find_system_info,
         cache.find_system_neighbors,
         initial_system_name,
-        "",
+        "Beagle Point",
         number_of_systems,
+        lambda _a, _b: 1.0,
     )
     logger.info("Bulk load traversal completed")
 
