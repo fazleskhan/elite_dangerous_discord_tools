@@ -46,10 +46,3 @@ Iteratively displays all the names currently cached locally
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
 
-### Type Checking
-
-Run mypy against the source tree:
-
-```bash
-mypy
-```

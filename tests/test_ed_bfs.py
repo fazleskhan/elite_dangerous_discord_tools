@@ -115,8 +115,8 @@ def test_larger_travel_Sol_LTT_3572():
 def test_travel_filters_edges_by_min_and_max_distance():
     graph = {
         "A": [
-            {"name": "B", "distance": 1.0},   # below min -> excluded
-            {"name": "C", "distance": 3.0},   # within range -> included
+            {"name": "B", "distance": 1.0},  # below min -> excluded
+            {"name": "C", "distance": 3.0},  # within range -> included
             {"name": "D", "distance": 10.0},  # above max -> excluded
         ],
         "B": [{"name": "T", "distance": 3.0}],

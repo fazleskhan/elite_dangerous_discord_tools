@@ -1,17 +1,19 @@
 @startuml
-title DiscordBot.ping()
+title DiscordBot.ping(ctx)
 
 actor User
-participant "discord.py\nCommand Dispatcher" as Dispatcher
-participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "discord.py Dispatcher" as Dispatcher
+participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !ping
 Dispatcher -> Wrapper: ping(ctx)
 Wrapper -> Bot: ping(ctx)
-Bot -> Ctx: send("Pong")
-Ctx --> Bot: message sent
+Bot -> Bot: start = perf_counter()
+Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+Bot -> Ctx: send("Pong (<ms> ms)")
+Ctx --> Bot: sent
 Bot --> Wrapper: return
 Wrapper --> Dispatcher: return
 @enduml
@@ -20,34 +22,35 @@ Wrapper --> Dispatcher: return
 title DiscordBot.system_info(ctx, arg)
 
 actor User
-participant "discord.py\nCommand Dispatcher" as Dispatcher
-participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "discord.py Dispatcher" as Dispatcher
+participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
-participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !system_info <arg>
 Dispatcher -> Wrapper: system_info(ctx, arg)
 Wrapper -> Bot: system_info(ctx, arg)
-Bot -> RouteService: get_system_info(arg)
-RouteService --> Bot: value or awaitable
+Bot -> Bot: start = perf_counter()
+Bot -> Route: get_system_info(arg)
+Route --> Bot: value | awaitable
 Bot -> Bot: _resolve(value)
-alt value is awaitable
+alt awaitable
   Bot -> Bot: await value
-  Bot --> Bot: resolved_system_info
-else value is immediate
-  Bot --> Bot: resolved_system_info
+else immediate
 end
-Bot -> Bot: s_info = str(resolved_system_info)
+Bot -> Bot: s_info = str(system_info)
 alt len(s_info) <= 2000
-  Bot -> Ctx: send(f"{arg}: {s_info}")
-  Ctx --> Bot: message sent
+  Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+  Bot -> Ctx: send("<arg>: <system_info> (<ms> ms)")
 else len(s_info) > 2000
-  loop for each 2000-char chunk
+  loop each 2000-char chunk
     Bot -> Ctx: send(chunk)
-    Ctx --> Bot: message sent
   end
+  Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+  Bot -> Ctx: send("Execution time: <ms> ms")
 end
+Ctx --> Bot: sent
 Bot --> Wrapper: return
 Wrapper --> Dispatcher: return
 @enduml
@@ -56,26 +59,26 @@ Wrapper --> Dispatcher: return
 title DiscordBot.calc_systems_distance(ctx, system_name_one, system_name_two)
 
 actor User
-participant "discord.py\nCommand Dispatcher" as Dispatcher
-participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "discord.py Dispatcher" as Dispatcher
+participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
-participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !calc_systems_distance <system_one> <system_two>
 Dispatcher -> Wrapper: calc_systems_distance(ctx, system_one, system_two)
 Wrapper -> Bot: calc_systems_distance(ctx, system_one, system_two)
-Bot -> RouteService: calc_systems_distance(system_one, system_two)
-RouteService --> Bot: distance or awaitable
+Bot -> Bot: start = perf_counter()
+Bot -> Route: calc_systems_distance(system_one, system_two)
+Route --> Bot: distance | awaitable
 Bot -> Bot: _resolve(distance)
-alt distance is awaitable
+alt awaitable
   Bot -> Bot: await distance
-  Bot --> Bot: resolved_distance
-else distance is immediate
-  Bot --> Bot: resolved_distance
+else immediate
 end
-Bot -> Ctx: send(f"Distance between system_one and system_two: {resolved_distance}")
-Ctx --> Bot: message sent
+Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+Bot -> Ctx: send("Distance between ...: <distance> (<ms> ms)")
+Ctx --> Bot: sent
 Bot --> Wrapper: return
 Wrapper --> Dispatcher: return
 @enduml
@@ -84,36 +87,37 @@ Wrapper --> Dispatcher: return
 title DiscordBot.path(ctx, initial_system_name, destination_system_name, max_system_count, min_distance, max_distance)
 
 actor User
-participant "discord.py\nCommand Dispatcher" as Dispatcher
-participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "discord.py Dispatcher" as Dispatcher
+participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
-participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !path <initial> <destination> [max_system_count] [min_distance] [max_distance]
 Dispatcher -> Wrapper: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
 Wrapper -> Bot: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
-Bot -> Ctx: send("Calculate Path between ...")
-Ctx --> Bot: message sent
+Bot -> Bot: start = perf_counter()
+Bot -> Ctx: send("Calculate Path between ... This may take a while")
+Ctx --> Bot: sent
 
-Bot -> RouteService: path(initial, destination, max_systems=max_system_count, min_distance=min_distance, max_distance=max_distance)
-RouteService --> Bot: route or awaitable
+Bot -> Route: path(initial, destination, max_systems=max_system_count, min_distance=min_distance, max_distance=max_distance)
+Route --> Bot: route | awaitable
 Bot -> Bot: _resolve(route)
-alt route is awaitable
+alt awaitable
   Bot -> Bot: await route
-  Bot --> Bot: resolved_route
-else route is immediate
-  Bot --> Bot: resolved_route
+else immediate
 end
 
-alt no route found
-  Bot -> Ctx: send("No Path found ...")
-  Ctx --> Bot: message sent
+alt route is None or empty
+  Bot -> Bot: message = "No Path found ..."
 else route found
-  Bot -> Bot: route_message = " -> ".join(resolved_route)
-  Bot -> Ctx: send(f"Route from initial to destination: {route_message}")
-  Ctx --> Bot: message sent
+  Bot -> Bot: route_message = " -> ".join(route)
+  Bot -> Bot: message = "Route from ..."
 end
+
+Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+Bot -> Ctx: send("<message>(<ms> ms)")
+Ctx --> Bot: sent
 Bot --> Wrapper: return
 Wrapper --> Dispatcher: return
 @enduml
@@ -122,37 +126,35 @@ Wrapper --> Dispatcher: return
 title DiscordBot.dump_system_cache_names(ctx)
 
 actor User
-participant "discord.py\nCommand Dispatcher" as Dispatcher
-participant "DiscordBot\ncommand wrapper" as Wrapper
+participant "discord.py Dispatcher" as Dispatcher
+participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
-participant "RouteServiceProtocol\n(ed_route)" as RouteService
+participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !dump_system_cache_names
 Dispatcher -> Wrapper: dump_system_cache_names(ctx)
 Wrapper -> Bot: dump_system_cache_names(ctx)
+Bot -> Bot: start = perf_counter()
+Bot -> Ctx: send("Fetching all system names in cache... This may take a while")
+Ctx --> Bot: sent
 
-Bot -> Ctx: send("Fetching all system names in cache...")
-Ctx --> Bot: message sent
-
-Bot -> RouteService: get_all_system_names()
-RouteService --> Bot: names or awaitable
+Bot -> Route: get_all_system_names()
+Route --> Bot: names | awaitable
 Bot -> Bot: _resolve(names)
-alt names is awaitable
+alt awaitable
   Bot -> Bot: await names
-  Bot --> Bot: resolved_names
-else names is immediate
-  Bot --> Bot: resolved_names
+else immediate
 end
 
-loop for each chunk in chunked_system_list(resolved_names, size=10)
-  Bot -> Bot: system_names_message = ", ".join(chunk)
-  Bot -> Ctx: send(f"Systems in cache: {system_names_message}")
-  Ctx --> Bot: message sent
+loop each chunk in chunked_system_list(names, size=10)
+  Bot -> Ctx: send("Systems in cache: ...")
+  Ctx --> Bot: sent
 end
 
-Bot -> Ctx: send(f"Total number of systems in cache: {len(resolved_names)}")
-Ctx --> Bot: message sent
+Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+Bot -> Ctx: send("Total number of systems in cache: <count> (<ms> ms)")
+Ctx --> Bot: sent
 Bot --> Wrapper: return
 Wrapper --> Dispatcher: return
 @enduml

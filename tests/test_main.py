@@ -16,7 +16,13 @@ def test_calc_route():
     async def fake_path(
         source, target, max_systems=100, min_distance=0, max_distance=10000
     ):
-        captured_args["values"] = (source, target, max_systems, min_distance, max_distance)
+        captured_args["values"] = (
+            source,
+            target,
+            max_systems,
+            min_distance,
+            max_distance,
+        )
         return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
 
     main.ed_service.path = fake_path
@@ -44,9 +50,7 @@ def test_get_system_info():
 
 def test_calc_systems_distance():
     main.ed_service.calc_systems_distance = lambda source, target: 4.377120022057882
-    assert (
-        main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
-    )
+    assert main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
 
 
 if __name__ == "__main__":

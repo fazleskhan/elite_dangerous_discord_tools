@@ -60,7 +60,9 @@ class EDGisCache:
                 self.db.insert_system(system_info)
                 self.logger.debug("Inserted system=%s into cache", system_name)
             else:
-                self.logger.warning("Failed to fetch system=%s on cache miss", system_name)
+                self.logger.warning(
+                    "Failed to fetch system=%s on cache miss", system_name
+                )
         else:
             self.logger.debug("Cache hit for system=%s", system_name)
 
@@ -95,7 +97,9 @@ class EDGisCache:
                     "Cached %s neighbors for system=%s", len(neighbors), system_name
                 )
             else:
-                self.logger.warning("Failed to fetch neighbors for system=%s", system_name)
+                self.logger.warning(
+                    "Failed to fetch neighbors for system=%s", system_name
+                )
         else:
             self.logger.debug("Neighbor cache hit for system=%s", system_name)
         return neighbors

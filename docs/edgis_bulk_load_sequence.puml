@@ -15,7 +15,7 @@ participant "ed_bfs.travel" as Travel
 
 User -> Entry: python src/edgis_bulk_load.py <initial_system> <system_count>
 Entry -> ResolveLog: resolve_log_level(logging.INFO)
-ResolveLog --> Entry: configured level
+ResolveLog --> Entry: level
 Entry -> Logging: basicConfig(level=...)
 Entry -> Main: main()
 
@@ -30,28 +30,20 @@ Main -> Logic: logic(args.initial_system, args.system_count)
 Logic -> Logging: logger.info("Starting bulk load traversal", ...)
 Logic -> DB: DB(db_filename)
 DB --> Logic: database
-Logic -> CacheCreate: create(database)
+Logic -> CacheCreate: EDGisCache.create(database)
 CacheCreate --> Logic: cache
 
-Logic -> Travel: travel(
-cache.find_system_info,
-cache.find_system_neighbors,
-initial_system_name,
-"Beagle Point",
-number_of_systems,
-0,
-10000,
-lambda _a, _b: 1.0)
+Logic -> Travel: travel(\ncache.find_system_info,\ncache.find_system_neighbors,\ninitial_system_name,\n\"Beagle Point\",\nnumber_of_systems,\n0,\n10000,\nlambda _a, _b: 1.0)
 
 activate Travel
 loop BFS traversal (internal)
-Travel -> Cache: find_system_info(system_name)
-Cache --> Travel: system_info | None
-Travel -> Cache: find_system_neighbors(system_info)
-Cache --> Travel: neighbors
-Travel -> Travel: queue/filter/visit nodes
+  Travel -> Cache: find_system_info(system_name)
+  Cache --> Travel: system_info | None
+  Travel -> Cache: find_system_neighbors(system_info)
+  Cache --> Travel: neighbors | None
+  Travel -> Travel: enqueue/visit/filter nodes
 end
-Travel --> Logic: path | None
+Travel --> Logic: route | None
 deactivate Travel
 
 Logic -> Logging: logger.info("Bulk load traversal completed")

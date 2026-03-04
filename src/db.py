@@ -56,9 +56,13 @@ class DB:
         async with AIOTinyDB(self._database_name) as db:
             if not await db.contains(System.name == system_name):
                 inserted_id = await db.insert(system_info)
-                self.logger.debug("Inserted system=%s doc_id=%s", system_name, inserted_id)
+                self.logger.debug(
+                    "Inserted system=%s doc_id=%s", system_name, inserted_id
+                )
                 return inserted_id
-            self.logger.debug("Skipped duplicate system insert for system=%s", system_name)
+            self.logger.debug(
+                "Skipped duplicate system insert for system=%s", system_name
+            )
         return None
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
@@ -68,7 +72,9 @@ class DB:
                 self.logger.debug("Lookup system=%s found=False", system_name)
                 return None
             result = await db.get(System.name == system_name)
-            self.logger.debug("Lookup system=%s found=%s", system_name, result is not None)
+            self.logger.debug(
+                "Lookup system=%s found=%s", system_name, result is not None
+            )
             return result
 
     async def _add_neighbors_async(
@@ -109,7 +115,9 @@ class DB:
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> list[int]:
         with self._write_lock:
-            return self._run_async(self._add_neighbors_async(system_info, new_neighbors))
+            return self._run_async(
+                self._add_neighbors_async(system_info, new_neighbors)
+            )
 
     def get_all_systems(self) -> list[SystemInfo]:
         return self._run_async(self._get_all_systems_async())

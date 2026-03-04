@@ -168,10 +168,8 @@ async def test_path_when_route_is_none(bot):
     assert sent_messages[0].startswith(
         f"Calculate Path between {source} and {dest} with max system count {max_system_count} a min travel distance of 0 and a max travel distance of 10000...  This may take a while"
     )
-    assert (
-        sent_messages[1].startswith(
-            f"No Path found between {source} and {dest} with max system count {max_system_count}"
-        )
+    assert sent_messages[1].startswith(
+        f"No Path found between {source} and {dest} with max system count {max_system_count}"
     )
     assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
@@ -242,7 +240,9 @@ async def test_path_when_distance_is_between_min_and_max_distance(bot):
     await bot.path(ctx, source, dest, 100)
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 2
-    assert sent_messages[1].startswith(f"Route from {source} to {dest}: {source} → {dest}")
+    assert sent_messages[1].startswith(
+        f"Route from {source} to {dest}: {source} → {dest}"
+    )
     assert re.search(r"\(\d+ ms\)$", sent_messages[1])
 
 
@@ -271,7 +271,9 @@ async def test_dump_system_cache_names(bot):
     )
     # middle messages should start with the expected prefix and derive from FakeRoute
     assert sent_messages[1].startswith("Systems in cache:")
-    assert re.match(r"^Total number of systems in cache: 3 \(\d+ ms\)$", sent_messages[-1])
+    assert re.match(
+        r"^Total number of systems in cache: 3 \(\d+ ms\)$", sent_messages[-1]
+    )
 
 
 if __name__ == "__main__":
