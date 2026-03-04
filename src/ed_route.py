@@ -142,16 +142,23 @@ class EDRouteService:
         return results
 
     async def path(
-        self, initial_system_name: str, destination_name: str, max_systems: int = 100
+        self,
+        initial_system_name: str,
+        destination_name: str,
+        max_systems: int,
+        min_distance: int,
+        max_distance: int,
     ) -> list[str] | None:
         if self.cache is None:
             self.logger.warning("Route cache is not initialized for path")
             return None
         self.logger.info(
-            "Calculating path source=%s destination=%s max_systems=%s",
+            "Calculating path source=%s destination=%s max_systems=%s min_distance=%s max_distance=%s",
             initial_system_name,
             destination_name,
             max_systems,
+            min_distance,
+            max_distance,
         )
 
         result: Future[list[str] | None] = Future()
@@ -164,8 +171,8 @@ class EDRouteService:
                     initial_system_name,
                     destination_name,
                     max_systems,
-                    0,
-                    10000,
+                    min_distance,
+                    max_distance,
                     self.calc_systems_distance,
                 )
                 result.set_result(route_result)

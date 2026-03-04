@@ -37,8 +37,10 @@ class FakeRoute:
     async def calc_systems_distance(self, system_name_one, system_name_two):
         return 4.377120022057882
 
-    async def path(self, initial, dest, max_systems=100):
-        self.last_path_args = (initial, dest, max_systems)
+    async def path(
+        self, initial, dest, max_systems=100, min_distance=0, max_distance=10000
+    ):
+        self.last_path_args = (initial, dest, max_systems, min_distance, max_distance)
         # mimic the real return value used by tests
         return [initial, dest]
 
@@ -111,7 +113,35 @@ async def test_path(bot):
     assert sent_messages[1].startswith(
         f"Route from {source} to {dest}: {source} → {dest}"
     )
-    assert bot.ed_route.last_path_args == (source, dest, max_system_count)
+    assert bot.ed_route.last_path_args == (source, dest, max_system_count, 0, 10000)
+
+
+@pytest.mark.asyncio
+async def test_path_with_optional_min_and_max_distance(bot):
+    ctx = MockContext()
+    source = "Sol"
+    dest = "Alpha Centauri"
+    max_system_count = 250
+    min_distance = 5
+    max_distance = 50
+
+    await bot.path(
+        ctx,
+        source,
+        dest,
+        max_system_count,
+        min_distance=min_distance,
+        max_distance=max_distance,
+    )
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert bot.ed_route.last_path_args == (
+        source,
+        dest,
+        max_system_count,
+        min_distance,
+        max_distance,
+    )
 
 
 @pytest.mark.asyncio
@@ -121,7 +151,9 @@ async def test_path_when_route_is_none(bot):
     dest = "Beagle Point"
     max_system_count = 75
 
-    async def no_route_path(initial, destination, max_systems=100):
+    async def no_route_path(
+        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+    ):
         return None
 
     bot.ed_route.path = no_route_path
@@ -136,6 +168,75 @@ async def test_path_when_route_is_none(bot):
         sent_messages[1]
         == f"No Path found between {source} and {dest} with max system count {max_system_count}"
     )
+
+
+@pytest.mark.asyncio
+async def test_path_when_distance_is_less_than_min_distance(bot):
+    ctx = MockContext()
+    source = "TooClose"
+    dest = "Target"
+
+    async def filtered_path(
+        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+    ):
+        distance = -1.0
+        if min_distance <= distance <= max_distance:
+            return [initial, destination]
+        return None
+
+    bot.ed_route.path = filtered_path
+    await bot.path(ctx, source, dest, 100)
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert (
+        sent_messages[1]
+        == f"No Path found between {source} and {dest} with max system count 100"
+    )
+
+
+@pytest.mark.asyncio
+async def test_path_when_distance_is_greater_than_max_distance(bot):
+    ctx = MockContext()
+    source = "TooFar"
+    dest = "Target"
+
+    async def filtered_path(
+        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+    ):
+        distance = 20001.0
+        if min_distance <= distance <= max_distance:
+            return [initial, destination]
+        return None
+
+    bot.ed_route.path = filtered_path
+    await bot.path(ctx, source, dest, 100)
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert (
+        sent_messages[1]
+        == f"No Path found between {source} and {dest} with max system count 100"
+    )
+
+
+@pytest.mark.asyncio
+async def test_path_when_distance_is_between_min_and_max_distance(bot):
+    ctx = MockContext()
+    source = "InRange"
+    dest = "Target"
+
+    async def filtered_path(
+        initial, destination, max_systems=100, min_distance=0, max_distance=10000
+    ):
+        distance = 42.0
+        if min_distance <= distance <= max_distance:
+            return [initial, destination]
+        return None
+
+    bot.ed_route.path = filtered_path
+    await bot.path(ctx, source, dest, 100)
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert sent_messages[1].startswith(f"Route from {source} to {dest}: {source} → {dest}")
 
 
 @pytest.mark.asyncio

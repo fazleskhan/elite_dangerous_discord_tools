@@ -11,16 +11,22 @@ def test_initialize_db():
 
 
 def test_calc_route():
-    async def fake_path(source, target, max_systems=100):
+    captured_args = {}
+
+    async def fake_path(
+        source, target, max_systems=100, min_distance=0, max_distance=10000
+    ):
+        captured_args["values"] = (source, target, max_systems, min_distance, max_distance)
         return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
 
     main.ed_service.path = fake_path
-    assert main.calc_route("Sol", "Ross 248", 100) == [
+    assert main.calc_route("Sol", "Ross 248", 100, 5, 50) == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",
         "Ross 248",
     ]
+    assert captured_args["values"] == ("Sol", "Ross 248", 100, 5, 50)
 
 
 def test_get_system_info():

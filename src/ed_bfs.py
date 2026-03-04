@@ -89,9 +89,14 @@ def travel(
             adjacent_name = adjacent_neighbor[constants.system_info_name_field]
             adjacent_distance = adjacent_neighbor.get("distance")
             if adjacent_distance is None:
-                adjacent_distance = func_calc_system_distance(current_node, adjacent_name)
+                adjacent_distance = func_calc_system_distance(
+                    current_node, adjacent_name
+                )
 
             if not (min_distance <= adjacent_distance <= max_distance):
+                logger.debug(
+                    f"system distance {adjacent_distance} is not between {min_distance} and {max_distance}"
+                )
                 continue
 
             if adjacent_name not in visited:
