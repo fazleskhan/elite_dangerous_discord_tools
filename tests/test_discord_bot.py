@@ -76,6 +76,24 @@ async def test_system_info(bot):
 
 
 @pytest.mark.asyncio
+async def test_system_info_when_payload_exceeds_2000_chars(bot):
+    ctx = MockContext()
+    arg = "Sol"
+    long_payload = "x" * 2100
+
+    async def long_system_info(name):
+        return long_payload
+
+    bot.ed_route.get_system_info = long_system_info
+    await bot.system_info(ctx, arg)
+
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert all(len(message) <= 2000 for message in sent_messages)
+    assert "".join(sent_messages) == long_payload
+
+
+@pytest.mark.asyncio
 async def test_path(bot):
     ctx = MockContext()
     source = "Sol"

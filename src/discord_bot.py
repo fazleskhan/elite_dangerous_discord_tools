@@ -54,7 +54,9 @@ class DiscordBot:
         self.log_handler = log_handler
         self.bot = bot
         self.logger = logger
-        self.logger.debug("Initializing DiscordBot with prefix=%s", self.bot.command_prefix)
+        self.logger.debug(
+            "Initializing DiscordBot with prefix=%s", self.bot.command_prefix
+        )
         self.bot.event(self.on_ready)
         self.register_commands()
 
@@ -114,8 +116,17 @@ class DiscordBot:
     async def system_info(self, ctx: commands.Context, arg: str) -> None:
         self.logger.info("system_info command: system=%s", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
-        self.logger.debug("system_info command completed: found=%s", system_info is not None)
-        await ctx.send(f"{arg}: {system_info}")
+        self.logger.debug(
+            "system_info command completed: found=%s", system_info is not None
+        )
+        s_info = str(system_info)
+        print(f"length {len(s_info)}")
+        if len(s_info) <= 2000:
+            await ctx.send(f"{arg}: {s_info}")
+        else:
+            chunks = [s_info[i : i + 2000] for i in range(0, len(s_info), 2000)]
+            for chunk in chunks:
+                await ctx.send(chunk)
 
     async def path(
         self,
