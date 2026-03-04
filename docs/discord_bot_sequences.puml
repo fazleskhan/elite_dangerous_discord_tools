@@ -91,6 +91,7 @@ participant "discord.py Dispatcher" as Dispatcher
 participant "DiscordBot wrapper" as Wrapper
 participant "DiscordBot" as Bot
 participant "RouteService (ed_route)" as Route
+participant "progress_callback(message)" as ProgressCb
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !path <initial> <destination> [max_system_count] [min_distance] [max_distance]
@@ -100,7 +101,15 @@ Bot -> Bot: start = perf_counter()
 Bot -> Ctx: send("Calculate Path between ... This may take a while")
 Ctx --> Bot: sent
 
-Bot -> Route: path(initial, destination, max_systems=max_system_count, min_distance=min_distance, max_distance=max_distance)
+Bot -> Bot: loop = get_running_loop()
+Bot -> Route: path(initial, destination, max_systems=max_system_count, min_distance=min_distance, max_distance=max_distance,\nprogress_callback=progress_callback)
+loop every ~30s during traversal
+  Route -> ProgressCb: progress_callback("Analyzed X of Y systems")
+  ProgressCb -> Bot: logger.info(message)
+  ProgressCb -> Bot: run_coroutine_threadsafe(ctx.send(message), loop)
+  Bot -> Ctx: send(progress_message)
+  Ctx --> Bot: sent
+end
 Route --> Bot: route | awaitable
 Bot -> Bot: _resolve(route)
 alt awaitable

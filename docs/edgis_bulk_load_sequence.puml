@@ -33,7 +33,7 @@ DB --> Logic: database
 Logic -> CacheCreate: EDGisCache.create(database)
 CacheCreate --> Logic: cache
 
-Logic -> Travel: travel(\ncache.find_system_info,\ncache.find_system_neighbors,\ninitial_system_name,\n\"Beagle Point\",\nnumber_of_systems,\n0,\n10000,\nlambda _a, _b: 1.0)
+Logic -> Travel: travel(\ncache.find_system_info,\ncache.find_system_neighbors,\ninitial_system_name,\n"Beagle Point",\nnumber_of_systems,\n0,\n10000,\nlambda _a, _b: 1.0,\nlambda message: logger.info(message))
 
 activate Travel
 loop BFS traversal (internal)
