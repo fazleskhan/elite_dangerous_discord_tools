@@ -1,7 +1,7 @@
 # Elite Dangerous Tools
 ### Description:
 
-Python Discord bot enabling utilities to work with the Elite Dangerous video game.
+Python Discord bot providing utilities to work with the Elite Dangerous video game.
 ## Elite Dangerous GIS
 #### Description:
 
@@ -17,8 +17,9 @@ https://github.com/elitedangereuse/edgis
 Discord Commands
 
 * !ping
+* !calc_systems_distance system_one system_two
 * !system_info `<system name>` - _for example !system_info Sol_
-* !path `<initial system name>` `<destination system name>` - _for example !path Sol  Sirius_
+* !path `<initial system name>` `<destination system name> <max systems> <min distance> <max distance>` - _for example !path Sol  Sirius_ 1000 6 11
 * !dump_system_cache_names - _for example !dump_system_cache_names_
 
 #### ping 
