@@ -21,8 +21,8 @@ def main() -> None:
     )
     parser.add_argument(
         "command",
-        help="enter command (path|system_info|all_loaded_systems)",
-        choices=["path", "all_loaded_systems", "system_info"],
+        help="enter command (path|system_info|all_loaded_systems|calc_systems_distance)",
+        choices=["path", "all_loaded_systems", "system_info", "calc_systems_distance"],
     )
     parser.add_argument(
         "--initial",
@@ -99,6 +99,35 @@ def main() -> None:
                 print(" → ".join(route))
             else:
                 logger.warning("No route found")
+        case "calc_systems_distance":
+            if not args.initial:
+                logger.error(
+                    "Missing required --initial for calc_systems_distance command"
+                )
+                print(
+                    "Error: The --initial argument is requried with calc_systems_distance command"
+                )
+                parser.print_help()
+                sys.exit(1)
+            if not args.destination:
+                logger.error(
+                    "Missing required --destination for calc_systems_distance command"
+                )
+                print(
+                    "Error: The --destination argument is requried with calc_systems_distance command"
+                )
+                parser.print_help()
+                sys.exit(1)
+            logger.info(
+                "Calculating distance source=%s destination=%s",
+                args.initial,
+                args.destination,
+            )
+            print(
+                calc_systems_distance(
+                    source_system=args.initial, target_system=args.destination
+                )
+            )
 
 
 def get_all_system_names() -> list[str]:
@@ -111,6 +140,10 @@ def calc_route(
     return asyncio.run(
         ed_service.path(source_system, target_system, max_systems=i_max_systems)
     )
+
+
+def calc_systems_distance(source_system: str, target_system: str) -> float:
+    return ed_service.calc_systems_distance(source_system, target_system)
 
 
 def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:

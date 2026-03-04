@@ -10,6 +10,7 @@ from concurrent.futures import Future
 import logging
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol
+import math
 
 """Service layer that composes DB/cache dependencies and route search."""
 
@@ -87,7 +88,9 @@ class EDRouteService:
         service._ensure_preloaded_db(default_preload_db)
         service.database = db_factory(resolved_db_path)
         service.cache = cache_factory(service.database)
-        service.logger.info("EDRouteService initialized with db_path=%s", resolved_db_path)
+        service.logger.info(
+            "EDRouteService initialized with db_path=%s", resolved_db_path
+        )
         return service
 
     def _resolve_preload_source_path(self, preinit_db_filename: str) -> str:
@@ -112,7 +115,9 @@ class EDRouteService:
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         source_path = self._resolve_preload_source_path(preinit_db_filename)
-        self.logger.info("Copying preloaded DB from %s to %s", source_path, self.db_path)
+        self.logger.info(
+            "Copying preloaded DB from %s to %s", source_path, self.db_path
+        )
         self.copy_file(source_path, self.db_path)
 
     def get_system_info(self, system_name: str) -> SystemInfo | None:
@@ -167,6 +172,33 @@ class EDRouteService:
         route = result.result()
         self.logger.info("Path calculation complete found=%s", route is not None)
         return route
+
+    def calc_systems_distance(self, system_name_one: str, system_name_two: str) -> float:
+        self.logger.info(
+            "Calculating distance between systems: %s and %s",
+            system_name_one,
+            system_name_two,
+        )
+        system_info_one = self.get_system_info(system_name_one)
+        system_info_two = self.get_system_info(system_name_two)
+
+        # Distance is computed from each system's cartesian coordinates.
+        coords1 = system_info_one[constants.system_info_coords_field]
+        coords2 = system_info_two[constants.system_info_coords_field]
+
+        # Euclidean distance in 3D space.
+        distance = math.sqrt(
+            (coords2["x"] - coords1["x"]) ** 2
+            + (coords2["y"] - coords1["y"]) ** 2
+            + (coords2["z"] - coords1["z"]) ** 2
+        )
+        self.logger.debug(
+            "Distance calculated for %s -> %s: %s",
+            system_name_one,
+            system_name_two,
+            distance,
+        )
+        return distance
 
 
 if __name__ == "__main__":

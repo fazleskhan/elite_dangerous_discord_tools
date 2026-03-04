@@ -50,7 +50,15 @@
             "program": "${workspaceFolder}/src/edgis_bulk_load.py",
             "console": "integratedTerminal",
             "args": "Sol 10"
-        },         
+        },      
+        {
+            "name": "Main Calc Systems Distance",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            "args": "calc_systems_distance --initial 'Sol' --destination 'Sirius'"
+        },              
         {
             "name": "Python Debugger: Current File",
             "type": "debugpy",

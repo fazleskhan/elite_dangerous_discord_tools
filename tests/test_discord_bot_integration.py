@@ -23,6 +23,9 @@ class FakeRoute:
     async def get_all_system_names(self):
         return ["Sol", "Alpha Centauri", "Proxima Centauri"]
 
+    async def calc_systems_distance(self, system_name_one, system_name_two):
+        return 4.377120022057882
+
     async def path(self, initial, dest, max_systems=100):
         return [initial, dest]
 
@@ -112,6 +115,17 @@ async def test_path_command(bot):
 
 
 @pytest.mark.asyncio
+async def test_calc_systems_distance_command(bot):
+    """Test the calc_systems_distance command returns system distance."""
+    ctx = create_mock_context()
+    await bot.calc_systems_distance(ctx, "Sol", "Alpha Centauri")
+    ctx.send.assert_called_once()
+    call_args = ctx.send.call_args[0][0]
+    assert "Distance between Sol and Alpha Centauri:" in call_args
+    assert "4.377120022057882" in call_args
+
+
+@pytest.mark.asyncio
 async def test_dump_system_cache_names_command(bot):
     """Test dump_system_cache_names lists all systems in cache."""
     ctx = create_mock_context()
@@ -142,6 +156,7 @@ async def test_command_availability(bot):
     assert "ping" in commands_dict
     assert "system_info" in commands_dict
     assert "path" in commands_dict
+    assert "calc_systems_distance" in commands_dict
     assert "dump_system_cache_names" in commands_dict
 
 

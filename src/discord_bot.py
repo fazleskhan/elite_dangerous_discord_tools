@@ -22,6 +22,9 @@ def main() -> None: ...
 class RouteServiceProtocol(Protocol):
     def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
     def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
+    def calc_systems_distance(
+        self, system_name_one: str, system_name_two: str
+    ) -> float | Awaitable[float]: ...
     def path(
         self,
         initial_system_name: str,
@@ -127,6 +130,24 @@ class DiscordBot:
             for chunk in chunks:
                 await ctx.send(chunk)
 
+    async def calc_systems_distance(
+        self,
+        ctx: commands.Context,
+        system_name_one: str,
+        system_name_two: str,
+    ) -> None:
+        self.logger.info(
+            "calc_systems_distance command: system_one=%s system_two=%s",
+            system_name_one,
+            system_name_two,
+        )
+        distance = await self._resolve(
+            self.ed_route.calc_systems_distance(system_name_one, system_name_two)
+        )
+        await ctx.send(
+            f"Distance between {system_name_one} and {system_name_two}: {distance}"
+        )
+
     async def path(
         self,
         ctx: commands.Context,
@@ -214,6 +235,14 @@ class DiscordBot:
                 initial_system_name,
                 destination_system_name,
                 max_system_count,
+            )
+
+        @self.bot.command()
+        async def calc_systems_distance(
+            ctx: commands.Context, system_name_one: str, system_name_two: str
+        ) -> None:
+            return await self.calc_systems_distance(
+                ctx, system_name_one, system_name_two
             )
 
         @self.bot.command()
