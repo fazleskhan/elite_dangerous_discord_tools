@@ -51,6 +51,8 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
         initial_system_name,
         "Beagle Point",
         number_of_systems,
+        0,
+        10000,
         lambda _a, _b: 1.0,
     )
     logger.info("Bulk load traversal completed")

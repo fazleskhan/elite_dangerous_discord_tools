@@ -23,6 +23,8 @@ def travel(
     start_name: str,
     destination_name: str,
     max_count: int,
+    min_distance: int,
+    max_distance: int,
     func_calc_system_distance: DistanceFn,
 ) -> list[str] | None:
     logger.info(
@@ -84,15 +86,21 @@ def travel(
 
         # Expand the frontier one hop at a time (standard BFS).
         for adjacent_neighbor in func_fetch_neighbors(system_info):
-            if adjacent_neighbor[constants.system_info_name_field] not in visited:
-                adjacent_neighbor = func_fetch_info(
-                    adjacent_neighbor[constants.system_info_name_field]
-                )
+            adjacent_name = adjacent_neighbor[constants.system_info_name_field]
+            adjacent_distance = adjacent_neighbor.get("distance")
+            if adjacent_distance is None:
+                adjacent_distance = func_calc_system_distance(current_node, adjacent_name)
+
+            if not (min_distance <= adjacent_distance <= max_distance):
+                continue
+
+            if adjacent_name not in visited:
+                adjacent_neighbor = func_fetch_info(adjacent_name)
                 if not adjacent_neighbor:
                     continue
-                visited.add(adjacent_neighbor[constants.system_info_name_field])
+                visited.add(adjacent_name)
                 new_path = list(path)
-                new_path.append(adjacent_neighbor[constants.system_info_name_field])
+                new_path.append(adjacent_name)
                 queue.append(new_path)
     logger.info(
         "No route found from %s to %s within max_count=%s",

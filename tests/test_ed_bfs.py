@@ -59,6 +59,8 @@ def test_simple_travel():
         "Sol",
         "Luhman 16",
         10,
+        0,
+        100,
         calc_systems_distance,
     )
     assert visited == expected_test_travel_list
@@ -80,6 +82,8 @@ def test_larger_local_travel_Sol_Wolf_359():
         "Sol",
         "Wolf 359",
         10,
+        0,
+        100,
         calc_systems_distance_return_10,
     )
     assert visited == ["Sol", "Wolf 359"]
@@ -101,9 +105,54 @@ def test_larger_travel_Sol_LTT_3572():
         "Sol",
         "LTT 3572",
         100,
+        0,
+        100,
         calc_systems_distance_return_10,
     )
     assert visited == ["Sol", "Luhman 16", "Luyten 143-23", "LTT 3572"]
+
+
+def test_travel_filters_edges_by_min_and_max_distance():
+    graph = {
+        "A": [
+            {"name": "B", "distance": 1.0},   # below min -> excluded
+            {"name": "C", "distance": 3.0},   # within range -> included
+            {"name": "D", "distance": 10.0},  # above max -> excluded
+        ],
+        "B": [{"name": "T", "distance": 3.0}],
+        "C": [{"name": "T", "distance": 4.0}],
+        "D": [{"name": "T", "distance": 4.0}],
+        "T": [],
+    }
+
+    def fetch_info(system_name: str):
+        return {"name": system_name}
+
+    def fetch_neighbors(system_info):
+        return graph[system_info[constants.system_info_name_field]]
+
+    distance_to_target = {
+        "A": 10.0,
+        "B": 8.0,
+        "C": 4.0,
+        "D": 12.0,
+        "T": 0.0,
+    }
+
+    def calc_distance(system_one: str, system_two: str) -> float:
+        return distance_to_target[system_one]
+
+    visited = ed_bfs.travel(
+        fetch_info,
+        fetch_neighbors,
+        "A",
+        "T",
+        20,
+        2,
+        5,
+        calc_distance,
+    )
+    assert visited == ["A", "C", "T"]
 
 
 if __name__ == "__main__":

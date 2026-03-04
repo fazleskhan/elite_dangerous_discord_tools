@@ -164,6 +164,8 @@ class EDRouteService:
                     initial_system_name,
                     destination_name,
                     max_systems,
+                    0,
+                    10000,
                     self.calc_systems_distance,
                 )
                 result.set_result(route_result)
