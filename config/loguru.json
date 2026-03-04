@@ -15,7 +15,6 @@
     "format": "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}"
   },
   "watch": {
-    "enabled": true,
-    "poll_interval_seconds": 2.0
+    "enabled": true
   }
 }
