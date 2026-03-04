@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from tinydb import TinyDB
+from tinydb.middlewares import CachingMiddleware
+from tinydb.storages import JSONStorage
 from typing import Any
 
 
@@ -16,7 +18,8 @@ class AIOTinyDB:
         self._db: TinyDB | None = None
 
     async def __aenter__(self) -> "AIOTinyDB":
-        self._db = TinyDB(self._path)
+        # Use TinyDB's write-cache middleware to reduce disk writes.
+        self._db = TinyDB(self._path, storage=CachingMiddleware(JSONStorage))
         return self
 
     async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
