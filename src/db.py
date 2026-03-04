@@ -21,6 +21,8 @@ def main() -> None: ...
 class DB:
     def __init__(self, database_name: str):
         self._database_name = database_name
+        # Serialize write operations to avoid concurrent TinyDB write races.
+        self._write_lock = threading.Lock()
         self.logger = logger
         self.logger.info("DB backend: aiotinydb")
 
@@ -93,7 +95,8 @@ class DB:
             return systems
 
     def insert_system(self, system_info: SystemInfo) -> int | None:
-        return self._run_async(self._insert_system_async(system_info))
+        with self._write_lock:
+            return self._run_async(self._insert_system_async(system_info))
 
     def get_system(self, system_name: str) -> SystemInfo | None:
         try:
@@ -105,7 +108,8 @@ class DB:
     def add_neighbors(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> list[int]:
-        return self._run_async(self._add_neighbors_async(system_info, new_neighbors))
+        with self._write_lock:
+            return self._run_async(self._add_neighbors_async(system_info, new_neighbors))
 
     def get_all_systems(self) -> list[SystemInfo]:
         return self._run_async(self._get_all_systems_async())
