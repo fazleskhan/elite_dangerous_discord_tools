@@ -34,6 +34,9 @@ class FakeRoute:
     async def get_all_system_names(self):
         return ["A", "B", "C"]
 
+    async def calc_systems_distance(self, system_name_one, system_name_two):
+        return 4.377120022057882
+
     async def path(self, initial, dest, max_systems=100):
         self.last_path_args = (initial, dest, max_systems)
         # mimic the real return value used by tests
@@ -133,6 +136,17 @@ async def test_path_when_route_is_none(bot):
         sent_messages[1]
         == f"No Path found between {source} and {dest} with max system count {max_system_count}"
     )
+
+
+@pytest.mark.asyncio
+async def test_calc_systems_distance(bot):
+    ctx = MockContext()
+    source = "Sol"
+    dest = "Alpha Centauri"
+    await bot.calc_systems_distance(ctx, source, dest)
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 1
+    assert sent_messages[0] == f"Distance between {source} and {dest}: 4.377120022057882"
 
 
 @pytest.mark.asyncio

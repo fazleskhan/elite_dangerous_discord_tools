@@ -1,5 +1,6 @@
 import ed_route
 import pytest
+import test_data
 
 
 def main(): ...
@@ -64,6 +65,18 @@ def test_get_all_system_names():
 def test_get_system_info():
     ed_service = make_service()
     assert ed_service.get_system_info("Sol") != None
+
+
+def test_calc_systems_distance():
+    ed_service = make_service()
+    systems = {
+        "Sol": test_data.sol_data,
+        "Alpha Centauri": test_data.alpha_centauri_data,
+    }
+    ed_service.get_system_info = lambda name: systems.get(name)
+
+    distance = ed_service.calc_systems_distance("Sol", "Alpha Centauri")
+    assert distance == pytest.approx(4.377120022057882)
 
 
 if __name__ == "__main__":

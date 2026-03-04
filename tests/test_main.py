@@ -36,5 +36,12 @@ def test_get_system_info():
     # ]
 
 
+def test_calc_systems_distance():
+    main.ed_service.calc_systems_distance = lambda source, target: 4.377120022057882
+    assert (
+        main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
+    )
+
+
 if __name__ == "__main__":
     main()
