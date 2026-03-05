@@ -1,9 +1,9 @@
 services:
   elite-dangerous-discord-tools:
     build:
-      context: https://github.com/fazleskhan/elite_dangerous_discord_tools.git#main
+      context: https://github.com/fazleskhan/elite_dangerous_discord_tools.git#create-docker-container
       dockerfile: Dockerfile
-    image: elite-dangerous-discord-tools:main
+    image: fazleskhan/public-images:elite-dangerous-discord-tools
     restart: unless-stopped
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN:?set DISCORD_TOKEN}
@@ -11,3 +11,5 @@ services:
       # Externalize application logging behavior and output.
       - ./config/loguru.json:/app/config/loguru.json:ro
       - ./logs:/app/logs
+      # Persist application data across container redeploys.
+      - ./data:/app/data
