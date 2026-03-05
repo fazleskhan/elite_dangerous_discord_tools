@@ -34,7 +34,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/discord_runner.py",
             "console": "integratedTerminal"
-        },           
+        },                   
         {
             "name": "EDGIS Bulk Load -h",
             "type": "debugpy",

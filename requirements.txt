@@ -12,3 +12,4 @@ pytest-asyncio
 asyncio
 loguru
 watchdog
+tuna
