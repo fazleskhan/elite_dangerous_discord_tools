@@ -100,9 +100,15 @@ class EDRouteService:
             return preinit_db_filename
 
         script_dir = os.path.dirname(os.path.realpath(self.script_file))
+        repo_root = os.path.normpath(os.path.join(script_dir, ".."))
+        repo_source_path = os.path.join(repo_root, preinit_db_filename)
+        # Prefer repo-relative preload location (e.g. init/edgis_bulk_load.db).
+        if self.file_exists(repo_source_path):
+            return repo_source_path
+
         data_dir = os.path.normpath(os.path.join(script_dir, "..", "data"))
         data_source_path = os.path.join(data_dir, preinit_db_filename)
-        # Prefer `<repo>/data/<filename>` and fall back to the script folder.
+        # Backward-compatible fallback for older layouts under `<repo>/data/`.
         if self.file_exists(data_source_path):
             return data_source_path
 

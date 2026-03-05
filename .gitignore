@@ -228,6 +228,7 @@ __marimo__/
 
 # Tinydb file
 *.db
+!init/edgis_bulk_load.db
 
 # local environment variables file
 .env    

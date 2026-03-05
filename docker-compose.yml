@@ -1,5 +1,6 @@
 services:
   elite-dangerous-discord-tools:
+    user: "${UID:-1000}:${GID:-1000}"
     build:
       context: https://github.com/fazleskhan/elite_dangerous_discord_tools.git#create-docker-container
       dockerfile: Dockerfile

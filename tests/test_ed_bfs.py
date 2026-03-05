@@ -73,9 +73,9 @@ def test_simple_travel():
 
 def test_larger_local_travel_Sol_Wolf_359():
 
-    script_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
-    filename = constants.pre_initiazlied_db_filename
-    source_path = os.path.join(script_dir, filename)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    project_root = os.path.normpath(os.path.join(script_dir, ".."))
+    source_path = os.path.join(project_root, constants.pre_initiazlied_db_filename)
     shutil.copy(source_path, db_filename)
 
     database = db.DB(db_filename)
@@ -97,9 +97,9 @@ def test_larger_local_travel_Sol_Wolf_359():
 
 def test_larger_travel_Sol_LTT_3572():
 
-    script_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
-    filename = constants.pre_initiazlied_db_filename
-    source_path = os.path.join(script_dir, filename)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    project_root = os.path.normpath(os.path.join(script_dir, ".."))
+    source_path = os.path.join(project_root, constants.pre_initiazlied_db_filename)
     shutil.copy(source_path, db_filename)
 
     database = db.DB(db_filename)
