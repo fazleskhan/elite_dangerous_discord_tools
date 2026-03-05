@@ -106,12 +106,6 @@ class EDRouteService:
         if self.file_exists(repo_source_path):
             return repo_source_path
 
-        data_dir = os.path.normpath(os.path.join(script_dir, "..", "data"))
-        data_source_path = os.path.join(data_dir, preinit_db_filename)
-        # Backward-compatible fallback for older layouts under `<repo>/data/`.
-        if self.file_exists(data_source_path):
-            return data_source_path
-
         return os.path.join(script_dir, preinit_db_filename)
 
     def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
