@@ -7,7 +7,7 @@ def main() -> None: ...
 
 
 # Seed database copied into a writable location on first startup.
-pre_initiazlied_db_filename: Final[str] = "edgis_bulk_load.db"
+pre_initiazlied_db_filename: Final[str] = "init/edgis_bulk_load.db"
 
 # EDGIS system payload keys.
 system_info_id64_field: Final[str] = "id64"

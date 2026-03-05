@@ -46,7 +46,7 @@ def make_service():
         file_exists=lambda _: True,
         copy_file=lambda src, dst: dst,
         script_file=__file__,
-        default_preload_db="edgis_bulk_load.db",
+        default_preload_db=ed_route.constants.pre_initiazlied_db_filename,
     )
 
 
