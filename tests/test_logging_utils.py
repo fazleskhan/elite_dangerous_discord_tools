@@ -28,17 +28,6 @@ def test_merge_dict_recursively_merges_nested_values():
     }
 
 
-def test_resolve_level_uses_env_var_and_fallback(monkeypatch):
-    monkeypatch.setenv("LOG_LEVEL", " warning ")
-    assert logging_utils._resolve_level("INFO") == "WARNING"
-
-    monkeypatch.setenv("LOG_LEVEL", "   ")
-    assert logging_utils._resolve_level("ERROR") == "ERROR"
-
-    monkeypatch.delenv("LOG_LEVEL", raising=False)
-    assert logging_utils._resolve_level("INFO") == "INFO"
-
-
 def test_setup_logging_initializes_watcher_once(monkeypatch, tmp_path):
     created_paths = []
     start_calls = 0

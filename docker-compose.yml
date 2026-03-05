@@ -7,7 +7,6 @@ services:
     restart: unless-stopped
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN:?set DISCORD_TOKEN}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       # Externalize application logging behavior and output.
       - ./config/loguru.json:/app/config/loguru.json:ro

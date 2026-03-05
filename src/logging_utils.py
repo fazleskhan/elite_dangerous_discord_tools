@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 import shutil
 import sys
 import threading
@@ -59,15 +58,6 @@ def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
         else:
             merged[key] = value
     return merged
-
-
-def _resolve_level(default_level: str = "INFO") -> str:
-    # LOG_LEVEL always takes precedence when provided.
-    raw_level = os.getenv("LOG_LEVEL")
-    if raw_level is None:
-        return default_level
-    normalized = raw_level.strip().upper()
-    return normalized or default_level
 
 
 def _compress_to_archive_factory(archive_dir: Path):
@@ -171,9 +161,6 @@ class _LoguruConfigWatcher:
                 # Keep defaults when the config file is temporarily invalid.
                 pass
 
-        env_level = _resolve_level(str(config["console"]["level"]))
-        config["console"]["level"] = env_level
-        config["file"]["level"] = env_level
         return config
 
     def _configure_logger(self, config: dict[str, Any]) -> None:
