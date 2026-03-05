@@ -47,6 +47,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
 
 
 def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    # Recursively merge nested sections so partial config overrides work.
     merged: dict[str, Any] = dict(base)
     for key, value in override.items():
         if (
@@ -61,6 +62,7 @@ def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
 
 
 def _resolve_level(default_level: str = "INFO") -> str:
+    # LOG_LEVEL always takes precedence when provided.
     raw_level = os.getenv("LOG_LEVEL")
     if raw_level is None:
         return default_level
@@ -72,6 +74,7 @@ def _compress_to_archive_factory(archive_dir: Path):
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     def _compress(source_path: str) -> None:
+        # Loguru passes the rotated file path; we gzip it into archive_dir.
         source = Path(source_path)
         archive_target = archive_dir / f"{source.name}.gz"
         with source.open("rb") as source_stream:
@@ -87,6 +90,7 @@ def _retention_cleanup_factory(archive_dir: Path, retention_days: int):
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     def _cleanup(paths: list[str]) -> None:
+        # Loguru sends current log file candidates; we also prune archived .gz files.
         now = time.time()
         for path_str in paths:
             path = Path(path_str)
@@ -146,6 +150,7 @@ class _LoguruConfigWatcher:
         except FileNotFoundError:
             current_mtime_ns = None
 
+        # Skip reloads when the file timestamp did not change.
         if not force and current_mtime_ns == self._config_mtime_ns:
             return
 
@@ -163,6 +168,7 @@ class _LoguruConfigWatcher:
                 if isinstance(raw, dict):
                     config = _merge_dict(_DEFAULT_CONFIG, raw)
             except json.JSONDecodeError:
+                # Keep defaults when the config file is temporarily invalid.
                 pass
 
         env_level = _resolve_level(str(config["console"]["level"]))
