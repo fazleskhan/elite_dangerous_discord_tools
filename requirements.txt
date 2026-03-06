@@ -12,3 +12,4 @@ loguru
 watchdog
 tuna
 redis[hiredis]
+psutil
