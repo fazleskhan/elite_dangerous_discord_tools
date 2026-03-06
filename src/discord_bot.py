@@ -16,6 +16,7 @@ import ed_route
 
 T = TypeVar("T")
 
+
 def main() -> None: ...
 
 

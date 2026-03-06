@@ -4,6 +4,7 @@ from logging_utils import setup_logging
 
 """Launch script for the Discord bot process."""
 
+
 def main() -> None:
     logger.info("Starting Discord runner")
     try:

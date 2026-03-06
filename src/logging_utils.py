@@ -49,11 +49,7 @@ def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     # Recursively merge nested sections so partial config overrides work.
     merged: dict[str, Any] = dict(base)
     for key, value in override.items():
-        if (
-            isinstance(value, dict)
-            and key in merged
-            and isinstance(merged[key], dict)
-        ):
+        if isinstance(value, dict) and key in merged and isinstance(merged[key], dict):
             merged[key] = _merge_dict(merged[key], value)
         else:
             merged[key] = value
@@ -116,7 +112,9 @@ class _LoguruConfigWatcher:
             self.config_path.parent.mkdir(parents=True, exist_ok=True)
             event_handler = _ConfigFileEventHandler(self)
             observer = Observer()
-            observer.schedule(event_handler, str(self.config_path.parent), recursive=False)
+            observer.schedule(
+                event_handler, str(self.config_path.parent), recursive=False
+            )
             observer.start()
             self._observer = observer
             logger.debug("Started watchdog observer for {}", self.config_path)
@@ -172,7 +170,9 @@ class _LoguruConfigWatcher:
                 sys.stderr,
                 level=str(console_config.get("level", "INFO")),
                 colorize=bool(console_config.get("colorize", True)),
-                format=str(console_config.get("format", _DEFAULT_CONFIG["console"]["format"])),
+                format=str(
+                    console_config.get("format", _DEFAULT_CONFIG["console"]["format"])
+                ),
                 backtrace=False,
                 diagnose=False,
                 enqueue=True,
@@ -194,7 +194,9 @@ class _LoguruConfigWatcher:
                 rotation=str(file_config.get("rotation", "00:00")),
                 retention=_retention_cleanup_factory(archive_dir, retention_days),
                 compression=_compress_to_archive_factory(archive_dir),
-                format=str(file_config.get("format", _DEFAULT_CONFIG["file"]["format"])),
+                format=str(
+                    file_config.get("format", _DEFAULT_CONFIG["file"]["format"])
+                ),
                 backtrace=False,
                 diagnose=False,
                 enqueue=True,
