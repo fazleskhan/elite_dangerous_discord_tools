@@ -13,4 +13,7 @@ services:
       - ./config/loguru.json:/app/config/loguru.json:ro
       - ./logs:/app/logs
       # Persist application data across container redeploys.
-      - ./data:/app/data
+      - ed_data:/app/data
+  
+volumes:
+  ed_data:
