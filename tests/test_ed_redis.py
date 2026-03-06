@@ -70,12 +70,14 @@ def fake_redis(monkeypatch):
 
     store = _FakeRedisStore()
     fake_client = _FakeRedisClient(store)
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 8)
+    monkeypatch.delenv("REDIS_MAX_CONNECTIONS", raising=False)
 
     def _fake_from_url(
         _url: str, decode_responses: bool = False, max_connections: int | None = None
     ):
         assert decode_responses is True
-        assert max_connections == 20
+        assert max_connections == 8
         return fake_client
 
     monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)

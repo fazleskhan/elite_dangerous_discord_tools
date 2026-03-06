@@ -6,6 +6,7 @@ import threading
 from typing import Any
 from urllib.parse import urlparse
 
+import psutil
 from loguru import logger
 from redis import asyncio as redis
 
@@ -27,9 +28,18 @@ class EDRedis:
         self._closed = False
         self.logger = logger
         self._redis_url = self._resolve_redis_url(redis_url)
-        self._max_connections = int(os.getenv("REDIS_MAX_CONNECTIONS", "20"))
+        self._max_connections = int(
+            os.getenv("REDIS_MAX_CONNECTIONS", str(self._default_max_connections()))
+        )
         atexit.register(self.close)
         self.logger.info("DB backend: redis")
+
+    @staticmethod
+    def _default_max_connections() -> int:
+        physical_cores = psutil.cpu_count(logical=False)
+        if physical_cores is None or physical_cores < 1:
+            return 1
+        return physical_cores
 
     @staticmethod
     def _resolve_redis_url(redis_url: str | None) -> str:
