@@ -21,6 +21,7 @@ class _FakeRedisStore:
 class _FakeRedisClient:
     def __init__(self, store: _FakeRedisStore):
         self._store = store
+        self.closed = False
 
     async def exists(self, key: str) -> int:
         return 1 if key in self._store.strings else 0
@@ -60,7 +61,7 @@ class _FakeRedisClient:
         return hash_obj.get(field)
 
     async def aclose(self) -> None:
-        return None
+        self.closed = True
 
 
 @pytest.fixture()
@@ -68,14 +69,18 @@ def fake_redis(monkeypatch):
     import ed_redis
 
     store = _FakeRedisStore()
+    fake_client = _FakeRedisClient(store)
 
-    def _fake_from_url(_url: str, decode_responses: bool = False):
+    def _fake_from_url(
+        _url: str, decode_responses: bool = False, max_connections: int | None = None
+    ):
         assert decode_responses is True
-        return _FakeRedisClient(store)
+        assert max_connections == 20
+        return fake_client
 
     monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
-    return store
+    return {"store": store, "client": fake_client}
 
 
 def test_redis_crud_system(fake_redis):
@@ -162,6 +167,13 @@ def test_redis_write_lock_serializes_insert_and_add_neighbors(fake_redis):
 
     assert call_count == 2
     assert max_active_writes == 1
+
+
+def test_redis_close_closes_client_and_prevents_operations(fake_redis):
+    database = EDRedis("unit-test-db")
+    database.close()
+    with pytest.raises(RuntimeError, match="Redis client is closed"):
+        database.insert_system(test_data.sol_data)
 
 
 if __name__ == "__main__":
