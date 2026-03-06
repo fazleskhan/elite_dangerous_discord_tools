@@ -178,5 +178,67 @@ def test_redis_close_closes_client_and_prevents_operations(fake_redis):
         database.insert_system(test_data.sol_data)
 
 
+def test_redis_app_name_env_used_for_system_key(monkeypatch):
+    import ed_redis
+
+    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_APP_NAME", "myapp")
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 4)
+    monkeypatch.setattr(
+        ed_redis.redis,
+        "from_url",
+        lambda *_args, **_kwargs: _FakeRedisClient(_FakeRedisStore()),
+    )
+
+    database = EDRedis("unit-test-db")
+    assert database._system_key("Sol") == "myapp:system:Sol"
+
+
+def test_redis_max_connections_env_overrides_default(monkeypatch):
+    import ed_redis
+
+    captured: dict[str, int | None] = {"max_connections": None}
+    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_MAX_CONNECTIONS", "13")
+
+    def _fake_from_url(
+        _url: str, decode_responses: bool = False, max_connections: int | None = None
+    ):
+        assert decode_responses is True
+        captured["max_connections"] = max_connections
+        return _FakeRedisClient(_FakeRedisStore())
+
+    monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
+
+    database = EDRedis("unit-test-db")
+    database._new_client()
+
+    assert captured["max_connections"] == 13
+
+
+def test_redis_url_env_and_explicit_arg_precedence(monkeypatch):
+    import ed_redis
+
+    captured: dict[str, str] = {"url": ""}
+    monkeypatch.setenv("REDIS_URL", "redis://env-host:6379/0")
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 2)
+
+    def _fake_from_url(
+        _url: str, decode_responses: bool = False, max_connections: int | None = None
+    ):
+        captured["url"] = _url
+        return _FakeRedisClient(_FakeRedisStore())
+
+    monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
+
+    database_from_env = EDRedis("unit-test-db")
+    database_from_env._new_client()
+    assert captured["url"] == "redis://env-host:6379/0"
+
+    database_from_arg = EDRedis("unit-test-db", redis_url="redis://arg-host:6379/0")
+    database_from_arg._new_client()
+    assert captured["url"] == "redis://arg-host:6379/0"
+
+
 if __name__ == "__main__":
     main()

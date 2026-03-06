@@ -22,7 +22,7 @@ def main() -> None: ...
 
 class EDRedis:
     def __init__(self, database_name: str, redis_url: str | None = None):
-        self._database_name = database_name
+        self._app_name = os.getenv("REDIS_APP_NAME", "eddt")
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
@@ -115,19 +115,19 @@ class EDRedis:
             raise RuntimeError("Redis client is closed")
 
     def _system_key(self, system_name: str) -> str:
-        return f"{self._database_name}:system:{system_name}"
+        return f"{self._app_name}:system:{system_name}"
 
     @property
     def _systems_set_key(self) -> str:
-        return f"{self._database_name}:systems"
+        return f"{self._app_name}:systems"
 
     @property
     def _doc_id_counter_key(self) -> str:
-        return f"{self._database_name}:doc_id_counter"
+        return f"{self._app_name}:doc_id_counter"
 
     @property
     def _doc_ids_hash_key(self) -> str:
-        return f"{self._database_name}:doc_ids"
+        return f"{self._app_name}:doc_ids"
 
     async def _insert_system_async(self, system_info: SystemInfo) -> int | None:
         system_name = system_info[constants.system_info_name_field]
