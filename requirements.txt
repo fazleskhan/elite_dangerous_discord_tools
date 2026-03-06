@@ -5,11 +5,9 @@ tinydb-smartcache
 aiotinydb
 pytest
 mypy
-argparse
 discord
 python-dotenv
 pytest-asyncio
-asyncio
 loguru
 watchdog
 tuna

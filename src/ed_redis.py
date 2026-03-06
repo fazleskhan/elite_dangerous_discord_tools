@@ -1,4 +1,5 @@
 import asyncio
+import atexit
 import json
 import os
 import threading
@@ -22,8 +23,12 @@ class EDRedis:
     def __init__(self, database_name: str, redis_url: str | None = None):
         self._database_name = database_name
         self._write_lock = threading.Lock()
+        self._close_lock = threading.Lock()
+        self._closed = False
         self.logger = logger
         self._redis_url = self._resolve_redis_url(redis_url)
+        self._max_connections = int(os.getenv("REDIS_MAX_CONNECTIONS", "20"))
+        atexit.register(self.close)
         self.logger.info("DB backend: redis")
 
     @staticmethod
@@ -44,38 +49,8 @@ class EDRedis:
 
         return final_redis_url
 
-    async def _close_client(self, client: redis.Redis) -> None:
-        close_fn = getattr(client, "aclose", None)
-        if callable(close_fn):
-            await close_fn()
-            return
-
-        # Compatibility path for redis versions exposing `close`.
-        legacy_close = getattr(client, "close", None)
-        if callable(legacy_close):
-            close_result = legacy_close()
-            if asyncio.iscoroutine(close_result):
-                await close_result
-
-    def _new_client(self) -> redis.Redis:
-        return redis.from_url(self._redis_url, decode_responses=True)
-
-    def _system_key(self, system_name: str) -> str:
-        return f"{self._database_name}:system:{system_name}"
-
-    @property
-    def _systems_set_key(self) -> str:
-        return f"{self._database_name}:systems"
-
-    @property
-    def _doc_id_counter_key(self) -> str:
-        return f"{self._database_name}:doc_id_counter"
-
-    @property
-    def _doc_ids_hash_key(self) -> str:
-        return f"{self._database_name}:doc_ids"
-
     def _run_async(self, coro: Any) -> Any:
+        self._ensure_open()
         try:
             asyncio.get_running_loop()
         except RuntimeError:
@@ -99,6 +74,44 @@ class EDRedis:
 
         return output.get("value")
 
+    def _new_client(self) -> Any:
+        return redis.from_url(
+            self._redis_url,
+            decode_responses=True,
+            max_connections=self._max_connections,
+        )
+
+    async def _close_client_async(self, client: Any) -> None:
+        close_fn = getattr(client, "aclose", None)
+        if callable(close_fn):
+            await close_fn()
+            return
+
+        legacy_close = getattr(client, "close", None)
+        if callable(legacy_close):
+            close_result = legacy_close()
+            if asyncio.iscoroutine(close_result):
+                await close_result
+
+    def _ensure_open(self) -> None:
+        if self._closed:
+            raise RuntimeError("Redis client is closed")
+
+    def _system_key(self, system_name: str) -> str:
+        return f"{self._database_name}:system:{system_name}"
+
+    @property
+    def _systems_set_key(self) -> str:
+        return f"{self._database_name}:systems"
+
+    @property
+    def _doc_id_counter_key(self) -> str:
+        return f"{self._database_name}:doc_id_counter"
+
+    @property
+    def _doc_ids_hash_key(self) -> str:
+        return f"{self._database_name}:doc_ids"
+
     async def _insert_system_async(self, system_info: SystemInfo) -> int | None:
         system_name = system_info[constants.system_info_name_field]
         system_key = self._system_key(system_name)
@@ -114,12 +127,10 @@ class EDRedis:
             await client.set(system_key, json.dumps(system_info))
             await client.sadd(self._systems_set_key, system_name)
             await client.hset(self._doc_ids_hash_key, system_name, inserted_id)
-            self.logger.debug(
-                "Inserted system={} doc_id={}", system_name, inserted_id
-            )
+            self.logger.debug("Inserted system={} doc_id={}", system_name, inserted_id)
             return inserted_id
         finally:
-            await self._close_client(client)
+            await self._close_client_async(client)
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
         client = self._new_client()
@@ -133,7 +144,7 @@ class EDRedis:
             self.logger.debug("Lookup system={} found=True", system_name)
             return decoded
         finally:
-            await self._close_client(client)
+            await self._close_client_async(client)
 
     async def _add_neighbors_async(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
@@ -167,7 +178,7 @@ class EDRedis:
             )
             return updated
         finally:
-            await self._close_client(client)
+            await self._close_client_async(client)
 
     async def _get_all_systems_async(self) -> list[SystemInfo]:
         client = self._new_client()
@@ -177,14 +188,17 @@ class EDRedis:
                 self.logger.debug("Loaded all systems count=0")
                 return []
 
-            payloads = await client.mget([self._system_key(name) for name in system_names])
+            payloads = await client.mget(
+                [self._system_key(name) for name in system_names]
+            )
             systems = [json.loads(payload) for payload in payloads if payload is not None]
             self.logger.debug("Loaded all systems count={}", len(systems))
             return systems
         finally:
-            await self._close_client(client)
+            await self._close_client_async(client)
 
     def insert_system(self, system_info: SystemInfo) -> int | None:
+        self._ensure_open()
         with self._write_lock:
             return self._run_async(self._insert_system_async(system_info))
 
@@ -198,13 +212,21 @@ class EDRedis:
     def add_neighbors(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> list[int]:
+        self._ensure_open()
         with self._write_lock:
             return self._run_async(
                 self._add_neighbors_async(system_info, new_neighbors)
             )
 
     def get_all_systems(self) -> list[SystemInfo]:
+        self._ensure_open()
         return self._run_async(self._get_all_systems_async())
+
+    def close(self) -> None:
+        with self._close_lock:
+            if self._closed:
+                return
+            self._closed = True
 
 
 if __name__ == "__main__":
