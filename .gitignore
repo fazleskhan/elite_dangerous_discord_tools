@@ -232,3 +232,6 @@ __marimo__/
 
 # local environment variables file
 .env    
+
+# archives
+.gz

@@ -29,11 +29,31 @@
             "args": "path --initial 'Sol' --destination 'Sirius' --max_systems 100 --min_distance=5 --max_distance=10"
         },        
         {
-            "name": "Discord Bot",
+            "name": "Discord Bot - Default",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/discord_runner.py",
             "console": "integratedTerminal"
+        },                   
+        {
+            "name": "Discord Bot - TinyDB",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/discord_runner.py",
+            "console": "integratedTerminal",
+            "env": {
+                "DATASTORE_TYPE": "tinydb"
+            }            
+        },                   
+        {
+            "name": "Discord Bot - Redis",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/discord_runner.py",
+            "console": "integratedTerminal",
+            "env": {
+                "DATASTORE_TYPE": "redis"
+            }            
         },                   
         {
             "name": "EDGIS Bulk Load -h",
