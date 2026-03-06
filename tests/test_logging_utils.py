@@ -74,9 +74,7 @@ def test_hot_reload_reapplies_config_when_file_changes(monkeypatch, tmp_path):
 
     def record_config(config):
         # Track each applied level tuple to verify a reload happened.
-        applied_levels.append(
-            (config["console"]["level"], config["file"]["level"])
-        )
+        applied_levels.append((config["console"]["level"], config["file"]["level"]))
 
     monkeypatch.setattr(watcher, "_configure_logger", record_config)
 

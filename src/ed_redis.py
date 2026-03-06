@@ -54,6 +54,7 @@ class EDRedis:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
+            # Standard sync call path: create a short-lived loop for this op.
             return asyncio.run(coro)
 
         output: dict[str, Any] = {}
@@ -61,6 +62,8 @@ class EDRedis:
 
         def _worker() -> None:
             try:
+                # If caller is already inside an event loop, run in a helper
+                # thread so sync methods can still block on completion.
                 output["value"] = asyncio.run(coro)
             except BaseException as exc:
                 error["value"] = exc
@@ -75,6 +78,8 @@ class EDRedis:
         return output.get("value")
 
     def _new_client(self) -> Any:
+        # Each client uses redis-py's internal connection pool; max pool size is
+        # bounded to avoid unbounded socket growth.
         return redis.from_url(
             self._redis_url,
             decode_responses=True,
@@ -82,6 +87,8 @@ class EDRedis:
         )
 
     async def _close_client_async(self, client: Any) -> None:
+        # Prefer async close when available; keep a compatibility path for
+        # clients exposing only sync `close`.
         close_fn = getattr(client, "aclose", None)
         if callable(close_fn):
             await close_fn()
@@ -191,7 +198,9 @@ class EDRedis:
             payloads = await client.mget(
                 [self._system_key(name) for name in system_names]
             )
-            systems = [json.loads(payload) for payload in payloads if payload is not None]
+            systems = [
+                json.loads(payload) for payload in payloads if payload is not None
+            ]
             self.logger.debug("Loaded all systems count={}", len(systems))
             return systems
         finally:

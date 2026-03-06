@@ -1,14 +1,14 @@
 {
   "console": {
     "enabled": true,
-    "level": "INFO",
+    "level": "DEBUG",
     "colorize": true,
     "format": "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | <level>{message}</level>"
   },
   "file": {
     "enabled": true,
     "path": "logs/application.log",
-    "level": "INFO",
+    "level": "DEBUG",
     "rotation": "00:00",
     "retention_days": 14,
     "archive_directory": "logs/archive",
