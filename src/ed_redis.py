@@ -121,15 +121,7 @@ class EDRedis:
     def _systems_set_key(self) -> str:
         return f"{self._app_name}:systems"
 
-    @property
-    def _doc_id_counter_key(self) -> str:
-        return f"{self._app_name}:doc_id_counter"
-
-    @property
-    def _doc_ids_hash_key(self) -> str:
-        return f"{self._app_name}:doc_ids"
-
-    async def _insert_system_async(self, system_info: SystemInfo) -> int | None:
+    async def _insert_system_async(self, system_info: SystemInfo) -> None:
         system_name = system_info[constants.system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
@@ -138,14 +130,11 @@ class EDRedis:
                 self.logger.debug(
                     "Skipped duplicate system insert for system={}", system_name
                 )
-                return None
+                return
 
-            inserted_id = int(await client.incr(self._doc_id_counter_key))
             await client.set(system_key, json.dumps(system_info))
             await client.sadd(self._systems_set_key, system_name)
-            await client.hset(self._doc_ids_hash_key, system_name, inserted_id)
-            self.logger.debug("Inserted system={} doc_id={}", system_name, inserted_id)
-            return inserted_id
+            self.logger.debug("Inserted system={}", system_name)
         finally:
             await self._close_client_async(client)
 
@@ -165,7 +154,7 @@ class EDRedis:
 
     async def _add_neighbors_async(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> list[int]:
+    ) -> None:
         system_name = system_info[constants.system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
@@ -175,25 +164,16 @@ class EDRedis:
                 self.logger.debug(
                     "Updated neighbors for system={} updated_rows=0", system_name
                 )
-                return []
+                return
 
             system_payload = json.loads(current)
             system_payload[constants.system_info_neighbors_field] = new_neighbors
             await client.set(system_key, json.dumps(system_payload))
-            raw_doc_id = await client.hget(self._doc_ids_hash_key, system_name)
-            if raw_doc_id is None:
-                self.logger.debug(
-                    "Updated neighbors for system={} updated_rows=0", system_name
-                )
-                return []
-
-            updated = [int(raw_doc_id)]
             self.logger.debug(
                 "Updated neighbors for system={} updated_rows={}",
                 system_name,
-                len(updated),
+                1,
             )
-            return updated
         finally:
             await self._close_client_async(client)
 
@@ -216,10 +196,10 @@ class EDRedis:
         finally:
             await self._close_client_async(client)
 
-    def insert_system(self, system_info: SystemInfo) -> int | None:
+    def insert_system(self, system_info: SystemInfo) -> None:
         self._ensure_open()
         with self._write_lock:
-            return self._run_async(self._insert_system_async(system_info))
+            self._run_async(self._insert_system_async(system_info))
 
     def get_system(self, system_name: str) -> SystemInfo | None:
         try:
@@ -230,12 +210,10 @@ class EDRedis:
 
     def add_neighbors(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> list[int]:
+    ) -> None:
         self._ensure_open()
         with self._write_lock:
-            return self._run_async(
-                self._add_neighbors_async(system_info, new_neighbors)
-            )
+            self._run_async(self._add_neighbors_async(system_info, new_neighbors))
 
     def get_all_systems(self) -> list[SystemInfo]:
         self._ensure_open()

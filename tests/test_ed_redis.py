@@ -14,8 +14,6 @@ class _FakeRedisStore:
     def __init__(self):
         self.strings: dict[str, str] = {}
         self.sets: dict[str, set[str]] = {}
-        self.hashes: dict[str, dict[str, str]] = {}
-        self.counters: dict[str, int] = {}
 
 
 class _FakeRedisClient:
@@ -25,11 +23,6 @@ class _FakeRedisClient:
 
     async def exists(self, key: str) -> int:
         return 1 if key in self._store.strings else 0
-
-    async def incr(self, key: str) -> int:
-        next_value = self._store.counters.get(key, 0) + 1
-        self._store.counters[key] = next_value
-        return next_value
 
     async def set(self, key: str, value: str) -> bool:
         self._store.strings[key] = value
@@ -49,16 +42,6 @@ class _FakeRedisClient:
 
     async def mget(self, keys: list[str]) -> list[str | None]:
         return [self._store.strings.get(key) for key in keys]
-
-    async def hset(self, key: str, field: str, value: int) -> int:
-        hash_obj = self._store.hashes.setdefault(key, {})
-        is_new = field not in hash_obj
-        hash_obj[field] = str(value)
-        return 1 if is_new else 0
-
-    async def hget(self, key: str, field: str) -> str | None:
-        hash_obj = self._store.hashes.get(key, {})
-        return hash_obj.get(field)
 
     async def aclose(self) -> None:
         self.closed = True
@@ -88,19 +71,17 @@ def fake_redis(monkeypatch):
 def test_redis_crud_system(fake_redis):
     database = EDRedis("unit-test-db")
 
-    assert database.insert_system(test_data.sol_data) == 1
-    assert database.insert_system(test_data.sol_data) is None
+    database.insert_system(test_data.sol_data)
+    database.insert_system(test_data.sol_data)
     assert database.get_system("Sol") == test_data.sol_data
-    assert database.add_neighbors(
-        test_data.sol_data, test_data.sol_complete_neighbors
-    ) == [1]
+    database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
     assert database.get_system("Sol")["neighbors"] == test_data.sol_complete_neighbors
 
 
 def test_redis_get_all_systems(fake_redis):
     database = EDRedis("unit-test-db")
-    assert database.insert_system(test_data.sol_data) == 1
-    assert database.insert_system(test_data.wise_data) == 2
+    database.insert_system(test_data.sol_data)
+    database.insert_system(test_data.wise_data)
 
     systems = database.get_all_systems()
     system_names = {entry["name"] for entry in systems}
@@ -114,10 +95,7 @@ def test_redis_get_system_when_record_not_available(fake_redis):
 
 def test_redis_add_neighbors_when_record_not_available(fake_redis):
     database = EDRedis("unit-test-db")
-    assert (
-        database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
-        == []
-    )
+    database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
 
 
 def test_redis_requires_redis_url(monkeypatch):
