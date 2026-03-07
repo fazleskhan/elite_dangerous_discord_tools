@@ -52,7 +52,7 @@ class EDTinyDB:
 
         return output.get("value")
 
-    async def _insert_system_async(self, system_info: SystemInfo) -> int | None:
+    async def _insert_system_async(self, system_info: SystemInfo) -> None:
         System = Query()
         system_name = system_info[constants.system_info_name_field]
         async with AIOTinyDB(self._database_name) as db:
@@ -61,11 +61,9 @@ class EDTinyDB:
                 self.logger.debug(
                     "Inserted system={} doc_id={}", system_name, inserted_id
                 )
-                return inserted_id
             self.logger.debug(
                 "Skipped duplicate system insert for system={}", system_name
             )
-        return None
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
         System = Query()
@@ -81,7 +79,7 @@ class EDTinyDB:
 
     async def _add_neighbors_async(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> list[int]:
+    ) -> None:
         System = Query()
         system_name = system_info[constants.system_info_name_field]
         async with AIOTinyDB(self._database_name) as db:
@@ -94,7 +92,6 @@ class EDTinyDB:
                 system_name,
                 len(updated),
             )
-            return updated
 
     async def _get_all_systems_async(self) -> list[SystemInfo]:
         async with AIOTinyDB(self._database_name) as db:
@@ -102,9 +99,9 @@ class EDTinyDB:
             self.logger.debug("Loaded all systems count={}", len(systems))
             return systems
 
-    def insert_system(self, system_info: SystemInfo) -> int | None:
+    def insert_system(self, system_info: SystemInfo) -> None:
         with self._write_lock:
-            return self._run_async(self._insert_system_async(system_info))
+            self._run_async(self._insert_system_async(system_info))
 
     def get_system(self, system_name: str) -> SystemInfo | None:
         try:
@@ -115,11 +112,9 @@ class EDTinyDB:
 
     def add_neighbors(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> list[int]:
+    ) -> None:
         with self._write_lock:
-            return self._run_async(
-                self._add_neighbors_async(system_info, new_neighbors)
-            )
+            self._run_async(self._add_neighbors_async(system_info, new_neighbors))
 
     def get_all_systems(self) -> list[SystemInfo]:
         return self._run_async(self._get_all_systems_async())

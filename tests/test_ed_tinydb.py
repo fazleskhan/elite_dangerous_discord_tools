@@ -26,15 +26,13 @@ def database(del_prior_database):
 
 def test_crud_system(database):
     # initial insertion of system into db
-    assert database.insert_system(test_data.sol_data) == 1
+    database.insert_system(test_data.sol_data)
     # attempt to insert the same system again
-    assert database.insert_system(test_data.sol_data) == None
+    database.insert_system(test_data.sol_data)
     # fetch the Sol system info
     assert database.get_system("Sol") == test_data.sol_data
     # update Sol system info with neighbors
-    assert database.add_neighbors(
-        test_data.sol_data, test_data.sol_complete_neighbors
-    ) == [1]
+    database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
 
 
 def test_get_all_systems(database):
