@@ -1,4 +1,5 @@
 import db
+import ed_tinydb
 import pytest
 import test_data
 import os
@@ -88,6 +89,44 @@ def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
 
     assert call_count == 2
     assert max_active_writes == 1
+
+
+def test_init_db_skips_copy_when_target_exists(tmp_path):
+    database_path = str(tmp_path / "existing.db")
+    tinydb_backend = ed_tinydb.EDTinyDB(database_path)
+    copied: list[tuple[str, str]] = []
+
+    tinydb_backend.init_db(
+        script_file=str(tmp_path / "src" / "ed_route.py"),
+        preinit_db_filename="init/edgis_bulk_load.db",
+        file_exists=lambda path: path == database_path,
+        copy_file=lambda src, dst: copied.append((src, dst)) or dst,
+    )
+
+    assert copied == []
+
+
+def test_init_db_copies_from_repo_relative_preload_path(tmp_path):
+    script_file = str(tmp_path / "src" / "ed_route.py")
+    database_path = str(tmp_path / "data" / "target.db")
+    preload_rel = "init/edgis_bulk_load.db"
+    repo_source = str(tmp_path / "init" / "edgis_bulk_load.db")
+    tinydb_backend = ed_tinydb.EDTinyDB(database_path)
+    copied: list[tuple[str, str]] = []
+
+    def fake_exists(path: str) -> bool:
+        if path == database_path:
+            return False
+        return path == repo_source
+
+    tinydb_backend.init_db(
+        script_file=script_file,
+        preinit_db_filename=preload_rel,
+        file_exists=fake_exists,
+        copy_file=lambda src, dst: copied.append((src, dst)) or dst,
+    )
+
+    assert copied == [(repo_source, database_path)]
 
 
 if __name__ == "__main__":

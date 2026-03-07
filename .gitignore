@@ -234,4 +234,4 @@ __marimo__/
 .env    
 
 # archives
-.gz
+**/*.gz
