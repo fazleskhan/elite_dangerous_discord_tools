@@ -78,7 +78,35 @@
             "program": "${workspaceFolder}/src/main.py",
             "console": "integratedTerminal",
             "args": "calc_systems_distance --initial 'Sol' --destination 'Sirius'"
-        },              
+        },           
+        {
+            "name": "Export ED TinyDB",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/export_tinydb.py",
+            "console": "integratedTerminal"
+        },            
+        {
+            "name": "Export ED Redis",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/export_redis.py",
+            "console": "integratedTerminal"
+        },            
+        {
+            "name": "Import ED Redis",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/import_redis.py",
+            "console": "integratedTerminal"
+        },     
+        {
+            "name": "Import ED TinyDB",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/import_tinydb.py",
+            "console": "integratedTerminal"
+        },               
         {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
