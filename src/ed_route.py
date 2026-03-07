@@ -20,6 +20,13 @@ ProgressFn = Callable[[str], None]
 
 
 class DBProtocol(Protocol):
+    def init_db(
+        self,
+        script_file: str,
+        preinit_db_filename: str = constants.pre_initiazlied_db_filename,
+        file_exists: Callable[[str], bool] = os.path.exists,
+        copy_file: Callable[[str, str], str] = shutil.copy,
+    ) -> None: ...
     def get_all_systems(self) -> list[SystemInfo]: ...
 
 
@@ -87,40 +94,18 @@ class EDRouteService:
             script_file=script_file,
             default_preload_db=default_preload_db,
         )
-        service._ensure_preloaded_db(default_preload_db)
         service.database = db_factory(resolved_db_path)
+        service.database.init_db(
+            script_file=script_file,
+            preinit_db_filename=default_preload_db,
+            file_exists=file_exists,
+            copy_file=copy_file,
+        )
         service.cache = cache_factory(service.database)
         service.logger.info(
             "EDRouteService initialized with db_path={}", resolved_db_path
         )
         return service
-
-    def _resolve_preload_source_path(self, preinit_db_filename: str) -> str:
-        if os.path.isabs(preinit_db_filename):
-            return preinit_db_filename
-
-        script_dir = os.path.dirname(os.path.realpath(self.script_file))
-        repo_root = os.path.normpath(os.path.join(script_dir, ".."))
-        repo_source_path = os.path.join(repo_root, preinit_db_filename)
-        # Prefer repo-relative preload location (e.g. init/edgis_bulk_load.db).
-        if self.file_exists(repo_source_path):
-            return repo_source_path
-
-        return os.path.join(script_dir, preinit_db_filename)
-
-    def _ensure_preloaded_db(self, preinit_db_filename: str) -> None:
-        # First run: copy preloaded DB to the configured writable target.
-        if self.file_exists(self.db_path):
-            self.logger.debug("DB already exists at {}", self.db_path)
-            return
-        db_dir = os.path.dirname(self.db_path)
-        if db_dir:
-            os.makedirs(db_dir, exist_ok=True)
-        source_path = self._resolve_preload_source_path(preinit_db_filename)
-        self.logger.info(
-            "Copying preloaded DB from {} to {}", source_path, self.db_path
-        )
-        self.copy_file(source_path, self.db_path)
 
     def get_system_info(self, system_name: str) -> SystemInfo | None:
         if self.cache is None:

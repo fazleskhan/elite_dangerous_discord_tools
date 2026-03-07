@@ -218,5 +218,23 @@ def test_redis_url_env_and_explicit_arg_precedence(monkeypatch):
     assert captured["url"] == "redis://arg-host:6379/0"
 
 
+def test_redis_init_db_is_noop(monkeypatch):
+    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    database = EDRedis("unit-test-db")
+
+    def fail_exists(_path: str) -> bool:
+        raise AssertionError("file_exists should not be called for redis init_db")
+
+    def fail_copy(_src: str, _dst: str) -> str:
+        raise AssertionError("copy_file should not be called for redis init_db")
+
+    database.init_db(
+        script_file="/tmp/src/ed_route.py",
+        preinit_db_filename="init/edgis_bulk_load.db",
+        file_exists=fail_exists,
+        copy_file=fail_copy,
+    )
+
+
 if __name__ == "__main__":
     main()

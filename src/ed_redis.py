@@ -3,7 +3,7 @@ import atexit
 import json
 import os
 import threading
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse
 
 import psutil
@@ -33,6 +33,17 @@ class EDRedis:
         )
         atexit.register(self.close)
         self.logger.info("DB backend: redis")
+
+    def init_db(
+        self,
+        script_file: str,
+        preinit_db_filename: str = constants.pre_initiazlied_db_filename,
+        file_exists: Callable[[str], bool] = os.path.exists,
+        copy_file: Callable[[str, str], str] = lambda src, dst: dst,
+    ) -> None:
+        # Redis backend does not use a local preloaded database file.
+        _ = (script_file, preinit_db_filename, file_exists, copy_file)
+        return
 
     @staticmethod
     def _default_max_connections() -> int:
