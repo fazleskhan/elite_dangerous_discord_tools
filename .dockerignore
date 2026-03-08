@@ -1,0 +1,22 @@
+# excluded directories
+/.devcontainer
+/.pytest_cache
+/.vscode
+/config
+/data
+/docs
+/logs
+/tests
+/__pycache__
+/.git
+/venv
+
+
+# excluded files
+.env
+.gitignore
+.harper-dictionary.txt
+mypy.ini
+pytest.ini
+.docker-compose.yml
+Dockerfile

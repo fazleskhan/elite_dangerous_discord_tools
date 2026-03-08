@@ -58,19 +58,19 @@ Run the Discord bot process via the runner script:
 * `!dump_system_cache_names`
 * `!init_datasource [import_dir=./init]`
 
-#### ping
+#### Ping
 
 Simple ping-pong command to confirm connectivity
 
-#### system_info
+#### System_Info
 
 Returns information regarding the provided system name.
 
-#### calc_systems_distance
+#### Calc_Systems_Distance
 
 Calculates the distance between two systems given their coordinates in 3D space
 
-#### path
+#### Path
 
 Performs a breadth-first-search from the source system to the destination system.
 
@@ -82,15 +82,15 @@ While checking each node, the system calculates the total distance to the target
 
 Unlike in normal graphs, every node (system) in EDGIS is reachable from every other node. The limiting factor is the distance any ship can travel. The optional parameter configures the value.
 
-#### Min Distance
+#### Minimum Distance
 
 It is not to the traveler's benefit to visit every local system because every system (node) is visitable from every other system. So, this configuration limits the search for adjacent neighbors.
 
-#### dump_system_cache_names
+#### Dump_System_Cache_Names
 
 Iteratively displays all the names currently cached locally.
 
-#### init_datasource
+#### Init_Datasource
 
 Loads JSON files from the target import directory into the configured datasource.
 
@@ -114,7 +114,7 @@ Loads JSON files from the target import directory into the configured datasource
 
 
 
-## Command line
+## Command Line
 
 The tool also provides a CLI entrypoint:
 
@@ -128,7 +128,7 @@ Supported commands:
 * `calc_systems_distance --initial <system> --destination <system>`
 * `init_datasource [--import_dir <dir>]`
 
-### Example usage
+### Example Usage
 
 #### Command Line Help
 
