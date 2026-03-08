@@ -13,3 +13,4 @@ watchdog
 tuna
 redis[hiredis]
 psutil
+austin-python
