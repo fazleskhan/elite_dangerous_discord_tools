@@ -90,20 +90,28 @@ Iteratively loads the json contents of the init directory into the current datas
 
 ### Diagrams
 
-![Ping Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences.png)
+![Ping Sequence Diagram](./docs/discord_bot_sequences/Ping&#32;Sequence&#32;Diagram.png)
 
-![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-1.png)
+![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/System&#32;Info&#32;Sequence&#32;Diagram.png)
 
-![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-2.png)
+![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/Calculate&#32;Systems&#32;Distance&#32;Sequence&#32;Diagram.png)
 
-![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-3.png)
+![Path Sequence Diagram](./docs/discord_bot_sequences/Path&#32;Sequence&#32;Diagram.png)
 
-![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-4.png)
+![Dump System Cache Names Sequence Diagram](./docs/discord_bot_sequences/Dump&#32;System&#32;Cache&#32;Names&#32;Sequence&#32;Diagram.png)
 
-![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-5.png)
+![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/Initialize&#32;Datasource&#32;Sequence&#32;Diagram.png)
 
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
+
+![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Redis&#32;Sequence&#32;Diagram.png)
+
+![Export Redis Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Redis&#32;Sequence&#32;Diagram.png)
+
+![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Tinydb&#32;Sequence&#32;Diagram.png)
+
+![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Tinydb&#32;Sequence&#32;Diagram.png)
 
 
 ## Command line
@@ -146,7 +154,23 @@ for example __python ./src/main.py path Sol Sirius 1000 6 11__
 
 main.py init_datasource 
 
+## Data Transfer Utils
 
+### Export Redis
+
+Extracts the contents of the redis datasource, generates a json file for each system and writes them to the ./data/ed_redis-export
+
+### Export TinyDB
+
+Extracts the contents of the tinydb datasource, generates a json file for each system and writes them to the ./data/ed_redis-export
+
+### Import Redis
+
+Import the contents of the tinydb export directory ./data/ed_tinydb-export
+
+### Import TinyDB
+
+Import the contents of the redis export directory ./data/ed_redis-export
 
 
 

@@ -34,11 +34,13 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("DB backend: redis")
 
+    # TODO Need to run this method is a worker thread
     def init_datasource(
         self, import_dir: str = "./init"
     ) -> None:
         self.import_datasource(import_dir)
 
+    # Only executed through command line so no asynchronous logic needed
     def import_datasource(self, import_dir: str) -> None:
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
@@ -60,6 +62,7 @@ class EDRedis:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
+    # Only executed through command line so no asynchronous logic needed
     def export_datasource(self, export_dir: str) -> None:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()

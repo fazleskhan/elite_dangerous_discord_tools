@@ -4,7 +4,6 @@ DockerHub
 EDGIS
 SmartCache
 SmartCache's
-TinyDB
 TinyDB's
 aiotinydb
 args
@@ -14,7 +13,9 @@ entrypoint
 json
 loguru
 py
+redis
 src
 sub-command
+tinydb
 url
 visitable

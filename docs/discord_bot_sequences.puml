@@ -1,4 +1,4 @@
-@startuml
+@startuml Ping Sequence Diagram
 title DiscordBot.ping(ctx)
 
 actor User
@@ -18,7 +18,7 @@ Bot --> Command: return
 Command --> Dispatcher: return
 @enduml
 
-@startuml
+@startuml System Info Sequence Diagram
 title DiscordBot.system_info(ctx, arg)
 
 actor User
@@ -56,7 +56,7 @@ Bot --> Command: return
 Command --> Dispatcher: return
 @enduml
 
-@startuml
+@startuml Calculate Systems Distance Sequence Diagram
 title DiscordBot.calc_systems_distance(ctx, system_name_one, system_name_two)
 
 actor User
@@ -84,7 +84,7 @@ Bot --> Command: return
 Command --> Dispatcher: return
 @enduml
 
-@startuml
+@startuml Path Sequence Diagram
 title DiscordBot.path(ctx, initial_system_name, destination_system_name, max_system_count, min_distance, max_distance)
 
 actor User
@@ -140,7 +140,7 @@ Bot --> Command: return
 Command --> Dispatcher: return
 @enduml
 
-@startuml
+@startuml Dump System Cache Names Sequence Diagram
 title DiscordBot.dump_system_cache_names(ctx)
 
 actor User
@@ -177,7 +177,7 @@ Bot --> Command: return
 Command --> Dispatcher: return
 @enduml
 
-@startuml
+@startuml Initialize Datasource Sequence Diagram
 title DiscordBot.init_datasource(ctx, import_dir)
 
 actor User

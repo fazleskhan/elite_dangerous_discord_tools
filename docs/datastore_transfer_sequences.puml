@@ -1,0 +1,87 @@
+@startuml Import Redis Sequence Diagram
+title import_redis.py main()
+
+actor User
+participant "CLI" as CLI
+participant "argparse.ArgumentParser" as Parser
+participant "import_redis.main" as Main
+participant "EDRedis" as Redis
+
+User -> CLI: python src/import_redis.py [--import-dir DIR]
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.import_dir
+Main -> Redis: EDRedis(database_name="ed_route")
+Redis --> Main: redis_db
+Main -> Redis: import_datasource(args.import_dir)
+Redis --> Main: imported
+Main --> CLI: return
+@enduml
+
+@startuml Export Redis Sequence Diagram
+title export_redis.py main()
+
+actor User
+participant "CLI" as CLI
+participant "argparse.ArgumentParser" as Parser
+participant "export_redis.main" as Main
+participant "EDRedis" as Redis
+
+User -> CLI: python src/export_redis.py [--export-dir DIR]
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.export_dir
+Main -> Redis: EDRedis(database_name="ed_route")
+Redis --> Main: database
+Main -> Redis: export_datasource(args.export_dir)
+Redis --> Main: exported
+Main --> CLI: return
+@enduml
+
+@startuml Import Tinydb Sequence Diagram
+title import_tinydb.py main()
+
+actor User
+participant "CLI" as CLI
+participant "argparse.ArgumentParser" as Parser
+participant "import_tinydb.main" as Main
+participant "Path/os.getenv" as Env
+participant "EDTinyDB" as TinyDB
+
+User -> CLI: python src/import_tinydb.py [--import-dir DIR]
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.import_dir
+Main -> Env: resolve repo_root/data/ed_route.db
+Main -> Env: DB_LOCATION override lookup
+Env --> Main: db_path
+Main -> TinyDB: EDTinyDB(db_path)
+TinyDB --> Main: tinydb
+Main -> TinyDB: import_datasource(args.import_dir)
+TinyDB --> Main: imported
+Main --> CLI: return
+@enduml
+
+@startuml Export Tinydb Sequence Diagram
+title export_tinydb.py main()
+
+actor User
+participant "CLI" as CLI
+participant "argparse.ArgumentParser" as Parser
+participant "export_tinydb.main" as Main
+participant "Path/os.getenv" as Env
+participant "EDTinyDB" as TinyDB
+
+User -> CLI: python src/export_tinydb.py [--export-dir DIR]
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.export_dir
+Main -> Env: resolve repo_root/data/ed_route.db
+Main -> Env: DB_LOCATION override lookup
+Env --> Main: db_path
+Main -> TinyDB: EDTinyDB(db_path)
+TinyDB --> Main: database
+Main -> TinyDB: export_datasource(args.export_dir)
+TinyDB --> Main: exported
+Main --> CLI: return
+@enduml

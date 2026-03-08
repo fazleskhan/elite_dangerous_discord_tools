@@ -27,7 +27,9 @@
 				"Redis.redis-for-vscode",
 				"ms-python.vscode-pylance",
 				"ms-python.debugpy",
-				"ms-python.vscode-python-envs"
+				"ms-python.vscode-python-envs",
+				"elijah-potter.harper",
+				"Gruntfuggly.todo-tree"
 			],
 			"settings": {
 				"[python]": {
