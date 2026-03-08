@@ -1,0 +1,232 @@
+{
+  "coords": {
+    "x": 18.09375,
+    "y": -32.5,
+    "z": -3.34375
+  },
+  "id64": 22961431923536,
+  "mainstar": "L (Brown dwarf) Star",
+  "name": "Core Sys Sector XO-R a4-1",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 18.09375,
+        "y": -32.5,
+        "z": -3.34375
+      },
+      "distance": 0.0,
+      "id64": 22961431923536,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 18.5625,
+        "y": -30.78125,
+        "z": -2.59375
+      },
+      "distance": 1.9329583867740143,
+      "id64": 5369245879120,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 16.65625,
+        "y": -33.8125,
+        "z": -3.65625
+      },
+      "distance": 1.9714762869484381,
+      "id64": 908553327314,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "CC Eri"
+    },
+    {
+      "coords": {
+        "x": 19.21875,
+        "y": -31.625,
+        "z": -5.5
+      },
+      "distance": 2.584698060219027,
+      "id64": 40553617967944,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector TI-T a3-2"
+    },
+    {
+      "coords": {
+        "x": 19.125,
+        "y": -30.5,
+        "z": -6.875
+      },
+      "distance": 4.187266784550514,
+      "id64": 22961431923528,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector TI-T a3-1"
+    },
+    {
+      "coords": {
+        "x": 13.28125,
+        "y": -33.40625,
+        "z": -2.65625
+      },
+      "distance": 4.945108852441976,
+      "id64": 40552544226128,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 5.278938103444669,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 5.684494398141315,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 19.96875,
+        "y": -28.03125,
+        "z": -6.5
+      },
+      "distance": 5.783361101038046,
+      "id64": 2870246057377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 1678"
+    },
+    {
+      "coords": {
+        "x": 21.71875,
+        "y": -28.5,
+        "z": -0.40625
+      },
+      "distance": 6.145692088772427,
+      "id64": 9467315824041,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "BPM 17113"
+    },
+    {
+      "coords": {
+        "x": 23.6875,
+        "y": -35.0,
+        "z": 0.125
+      },
+      "distance": 7.040757461026477,
+      "id64": 2870246057385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-53 570"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -37.6875,
+        "z": -7.0625
+      },
+      "distance": 8.08874121078181,
+      "id64": 40553617836872,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector VD-T a3-2"
+    },
+    {
+      "coords": {
+        "x": 12.5,
+        "y": -29.9375,
+        "z": 1.96875
+      },
+      "distance": 8.128905311448769,
+      "id64": 58144730270544,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 25.25,
+        "y": -28.3125,
+        "z": -3.21875
+      },
+      "distance": 8.292327496698379,
+      "id64": 5370319620944,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 10.1875,
+        "y": -35.125,
+        "z": -3.625
+      },
+      "distance": 8.335377353485564,
+      "id64": 5368172006224,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 19.875,
+        "y": -37.4375,
+        "z": 3.65625
+      },
+      "distance": 8.749386139181423,
+      "id64": 22961431792464,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Wakaparibe"
+    },
+    {
+      "coords": {
+        "x": 25.25,
+        "y": -37.71875,
+        "z": -4.3125
+      },
+      "distance": 8.909867686307132,
+      "id64": 22962505534288,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector AK-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -33.21875,
+        "z": 4.5
+      },
+      "distance": 9.134092216799653,
+      "id64": 5368172137296,
+      "mainstar": "T",
+      "name": "Core Sys Sector WO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 26.8125,
+        "y": -34.875,
+        "z": -5.875
+      },
+      "distance": 9.384266253948681,
+      "id64": 1458309141202,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Yinjian"
+    },
+    {
+      "coords": {
+        "x": 27.3125,
+        "y": -31.15625,
+        "z": -0.84375
+      },
+      "distance": 9.645777087668987,
+      "id64": 22962505665360,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector YO-R a4-1"
+    }
+  ]
+}

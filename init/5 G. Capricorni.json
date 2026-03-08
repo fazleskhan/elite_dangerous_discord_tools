@@ -1,0 +1,89 @@
+{
+  "coords": {
+    "x": -6.96875,
+    "y": -14.53125,
+    "z": 24.1875
+  },
+  "id64": 1733119972058,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "5 G. Capricorni",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -6.96875,
+        "y": -14.53125,
+        "z": 24.1875
+      },
+      "distance": 0.0,
+      "id64": 1733119972058,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "5 G. Capricorni"
+    },
+    {
+      "coords": {
+        "x": -5.8125,
+        "y": -19.65625,
+        "z": 25.0
+      },
+      "distance": 5.31626704676317,
+      "id64": 5581410669274,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "AU Microscopii"
+    },
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 5.758824749894721,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": -1.15625,
+        "y": -11.03125,
+        "z": 21.875
+      },
+      "distance": 7.168180557156746,
+      "id64": 8055311831770,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Narenses"
+    },
+    {
+      "coords": {
+        "x": -5.59375,
+        "y": -20.96875,
+        "z": 27.3125
+      },
+      "distance": 7.286813861352574,
+      "id64": 2869709252017,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 8181"
+    },
+    {
+      "coords": {
+        "x": -12.90625,
+        "y": -19.09375,
+        "z": 27.625
+      },
+      "distance": 8.239339703519937,
+      "id64": 16063848785329,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Sekhenses"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 9.017073648778743,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    }
+  ]
+}

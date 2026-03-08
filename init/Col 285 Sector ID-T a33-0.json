@@ -1,0 +1,177 @@
+{
+  "coords": {
+    "x": 37.96875,
+    "y": -33.6875,
+    "z": 7.625
+  },
+  "id64": 5371393362776,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Col 285 Sector ID-T a33-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 37.96875,
+        "y": -33.6875,
+        "z": 7.625
+      },
+      "distance": 0.0,
+      "id64": 5371393362776,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector ID-T a33-0"
+    },
+    {
+      "coords": {
+        "x": 37.78125,
+        "y": -31.6875,
+        "z": 7.6875
+      },
+      "distance": 2.009741898851691,
+      "id64": 22963579407192,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector DV-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 38.71875,
+        "y": -35.53125,
+        "z": 9.84375
+      },
+      "distance": 2.980732397415105,
+      "id64": 671491237289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LP 91-140"
+    },
+    {
+      "coords": {
+        "x": 37.6875,
+        "y": -39.34375,
+        "z": 5.9375
+      },
+      "distance": 5.90930807074737,
+      "id64": 6131233559250,
+      "mainstar": "K",
+      "name": "Mitra"
+    },
+    {
+      "coords": {
+        "x": 32.625,
+        "y": -31.09375,
+        "z": 9.0
+      },
+      "distance": 6.097034371315287,
+      "id64": 75739063798616,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-4"
+    },
+    {
+      "coords": {
+        "x": 39.4375,
+        "y": -41.1875,
+        "z": 5.78125
+      },
+      "distance": 7.861719953356263,
+      "id64": 7268561003945,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1552"
+    },
+    {
+      "coords": {
+        "x": 39.1875,
+        "y": -40.28125,
+        "z": 11.875
+      },
+      "distance": 7.9388532311033435,
+      "id64": 22963579276120,
+      "mainstar": "T Tauri Star",
+      "name": "Col 285 Sector KY-S a33-1"
+    },
+    {
+      "coords": {
+        "x": 31.9375,
+        "y": -33.0,
+        "z": 13.03125
+      },
+      "distance": 8.128725107604513,
+      "id64": 58146877754200,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-3"
+    },
+    {
+      "coords": {
+        "x": 46.03125,
+        "y": -34.84375,
+        "z": 6.96875
+      },
+      "distance": 8.171382035800308,
+      "id64": 5372467104600,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Col 285 Sector JD-T a33-0"
+    },
+    {
+      "coords": {
+        "x": 35.65625,
+        "y": -29.4375,
+        "z": 0.75
+      },
+      "distance": 8.406888916240062,
+      "id64": 5371393362768,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Sikians"
+    },
+    {
+      "coords": {
+        "x": 40.6875,
+        "y": -26.59375,
+        "z": 3.71875
+      },
+      "distance": 8.542346263615167,
+      "id64": 6680989373138,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Ennead"
+    },
+    {
+      "coords": {
+        "x": 36.84375,
+        "y": -40.53125,
+        "z": 1.9375
+      },
+      "distance": 8.96940328631175,
+      "id64": 5371393231696,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Arynaman"
+    },
+    {
+      "coords": {
+        "x": 38.46875,
+        "y": -39.65625,
+        "z": 0.5625
+      },
+      "distance": 9.260393232066336,
+      "id64": 22963579276112,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector GS-U a32-1"
+    },
+    {
+      "coords": {
+        "x": 37.0,
+        "y": -33.875,
+        "z": -1.65625
+      },
+      "distance": 9.333554219856442,
+      "id64": 2870514492841,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1665"
+    },
+    {
+      "coords": {
+        "x": 29.84375,
+        "y": -31.875,
+        "z": 12.78125
+      },
+      "distance": 9.792226269470085,
+      "id64": 22962505665368,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-1"
+    }
+  ]
+}

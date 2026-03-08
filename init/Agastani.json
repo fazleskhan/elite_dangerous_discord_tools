@@ -1,0 +1,78 @@
+{
+  "coords": {
+    "x": 22.375,
+    "y": -17.6875,
+    "z": -7.78125
+  },
+  "id64": 4820857522539,
+  "mainstar": "F",
+  "name": "Agastani",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 22.375,
+        "y": -17.6875,
+        "z": -7.78125
+      },
+      "distance": 0.0,
+      "id64": 4820857522539,
+      "mainstar": "F",
+      "name": "Agastani"
+    },
+    {
+      "coords": {
+        "x": 18.3125,
+        "y": -18.59375,
+        "z": -4.6875
+      },
+      "distance": 5.186182061497648,
+      "id64": 2862352435563,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "RR Caeli"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 6.929048906596056,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 27.71875,
+        "y": -15.21875,
+        "z": -3.15625
+      },
+      "distance": 7.486054743655032,
+      "id64": 4889576999275,
+      "mainstar": "M",
+      "name": "Puppis Sector DL-Y d142"
+    },
+    {
+      "coords": {
+        "x": 26.6875,
+        "y": -21.40625,
+        "z": -2.6875
+      },
+      "distance": 7.640225577494424,
+      "id64": 5370319752016,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gwaelod"
+    },
+    {
+      "coords": {
+        "x": 28.21875,
+        "y": -22.53125,
+        "z": -2.90625
+      },
+      "distance": 9.020917532324525,
+      "id64": 5069269378473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-56 1032"
+    }
+  ]
+}

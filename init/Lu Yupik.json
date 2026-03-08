@@ -1,0 +1,177 @@
+{
+  "coords": {
+    "x": 21.53125,
+    "y": -19.21875,
+    "z": 4.25
+  },
+  "id64": 4752138045803,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Lu Yupik",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 0.0,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -22.9375,
+        "z": 6.5625
+      },
+      "distance": 4.599380053333275,
+      "id64": 5369246010200,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LB 3303"
+    },
+    {
+      "coords": {
+        "x": 22.25,
+        "y": -25.4375,
+        "z": 6.65625
+      },
+      "distance": 6.706675196213098,
+      "id64": 5369245879128,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector BV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 7.301139679871904,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": -13.5625,
+        "z": 7.53125
+      },
+      "distance": 7.3875687391049025,
+      "id64": 9467315889577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-9"
+    },
+    {
+      "coords": {
+        "x": 14.9375,
+        "y": -20.4375,
+        "z": 8.5625
+      },
+      "distance": 7.972486868913614,
+      "id64": 33656303265193,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Minmar"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 8.06092523380536,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 8.2973899322317,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 20.3125,
+        "y": -27.8125,
+        "z": 5.5
+      },
+      "distance": 8.769286779721599,
+      "id64": 22961431923544,
+      "mainstar": "L",
+      "name": "Sanuku"
+    },
+    {
+      "coords": {
+        "x": 26.6875,
+        "y": -21.40625,
+        "z": -2.6875
+      },
+      "distance": 8.916332012801004,
+      "id64": 5370319752016,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gwaelod"
+    },
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 9.159022617752399,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    },
+    {
+      "coords": {
+        "x": 18.3125,
+        "y": -18.59375,
+        "z": -4.6875
+      },
+      "distance": 9.519972836752213,
+      "id64": 2862352435563,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "RR Caeli"
+    },
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 9.559282546954034,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -22.96875,
+        "z": 4.3125
+      },
+      "distance": 9.6637309209487,
+      "id64": 2557753692882,
+      "mainstar": "K",
+      "name": "P Eridani"
+    },
+    {
+      "coords": {
+        "x": 24.46875,
+        "y": -28.53125,
+        "z": 5.59375
+      },
+      "distance": 9.856836539301035,
+      "id64": 5069269312937,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 160"
+    }
+  ]
+}

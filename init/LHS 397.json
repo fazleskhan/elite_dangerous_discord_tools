@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 8.5625,
+    "y": 3.875,
+    "z": 16.875
+  },
+  "id64": 2869977753009,
+  "mainstar": "M",
+  "name": "LHS 397",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 8.5625,
+        "y": 3.875,
+        "z": 16.875
+      },
+      "distance": 0.0,
+      "id64": 2869977753009,
+      "mainstar": "M",
+      "name": "LHS 397"
+    },
+    {
+      "coords": {
+        "x": 7.90625,
+        "y": 9.21875,
+        "z": 16.1875
+      },
+      "distance": 5.427613137927205,
+      "id64": 22661187052977,
+      "mainstar": "M",
+      "name": "LHS 3003"
+    },
+    {
+      "coords": {
+        "x": 5.8125,
+        "y": 10.125,
+        "z": 15.03125
+      },
+      "distance": 7.072793936097672,
+      "id64": 2282875785946,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "KX Librae"
+    },
+    {
+      "coords": {
+        "x": 5.28125,
+        "y": 6.75,
+        "z": 10.875
+      },
+      "distance": 7.4183708833206765,
+      "id64": 13865094030761,
+      "mainstar": "M",
+      "name": "LHS 380"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -2.09375,
+        "z": 15.9375
+      },
+      "distance": 7.647060812004832,
+      "id64": 5069001008561,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 451"
+    },
+    {
+      "coords": {
+        "x": 4.1875,
+        "y": -1.90625,
+        "z": 14.0625
+      },
+      "distance": 7.776479461330815,
+      "id64": 5069001008553,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 449"
+    },
+    {
+      "coords": {
+        "x": 8.40625,
+        "y": -3.40625,
+        "z": 13.25
+      },
+      "distance": 8.13520993121874,
+      "id64": 5031654855378,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Rigga"
+    },
+    {
+      "coords": {
+        "x": 3.0,
+        "y": 0.3125,
+        "z": 22.0625
+      },
+      "distance": 8.3989861739379,
+      "id64": 3382387413722,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Cuspoor"
+    },
+    {
+      "coords": {
+        "x": 0.4375,
+        "y": 2.09375,
+        "z": 19.21875
+      },
+      "distance": 8.641854003916057,
+      "id64": 1865903245675,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "36 Ophiuchi"
+    },
+    {
+      "coords": {
+        "x": 7.59375,
+        "y": -4.9375,
+        "z": 16.71875
+      },
+      "distance": 8.866963791230908,
+      "id64": 7268024264113,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Luyten 205-128"
+    },
+    {
+      "coords": {
+        "x": 8.125,
+        "y": 4.0,
+        "z": 26.09375
+      },
+      "distance": 9.22997198329984,
+      "id64": 11666070775217,
+      "mainstar": "M",
+      "name": "LHS 415"
+    },
+    {
+      "coords": {
+        "x": 9.875,
+        "y": -4.09375,
+        "z": 12.28125
+      },
+      "distance": 9.291187861355512,
+      "id64": 5368172530520,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 1639-6847"
+    },
+    {
+      "coords": {
+        "x": 0.78125,
+        "y": -0.84375,
+        "z": 20.125
+      },
+      "distance": 9.663175105781743,
+      "id64": 18263140541873,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 7072"
+    }
+  ]
+}

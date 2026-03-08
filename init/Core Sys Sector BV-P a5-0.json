@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 22.25,
+    "y": -25.4375,
+    "z": 6.65625
+  },
+  "id64": 5369245879128,
+  "mainstar": "T Tauri Star",
+  "name": "Core Sys Sector BV-P a5-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 22.25,
+        "y": -25.4375,
+        "z": 6.65625
+      },
+      "distance": 0.0,
+      "id64": 5369245879128,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector BV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -22.9375,
+        "z": 6.5625
+      },
+      "distance": 2.594502902773477,
+      "id64": 5369246010200,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LB 3303"
+    },
+    {
+      "coords": {
+        "x": 20.3125,
+        "y": -27.8125,
+        "z": 5.5
+      },
+      "distance": 3.2758884768105276,
+      "id64": 22961431923544,
+      "mainstar": "L",
+      "name": "Sanuku"
+    },
+    {
+      "coords": {
+        "x": 24.46875,
+        "y": -28.53125,
+        "z": 5.59375
+      },
+      "distance": 3.9526000145473863,
+      "id64": 5069269312937,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 160"
+    },
+    {
+      "coords": {
+        "x": 26.25,
+        "y": -28.78125,
+        "z": 4.0625
+      },
+      "distance": 5.823075057476076,
+      "id64": 1900279744875,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Zeta-1 Reticuli"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 6.706675196213098,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 21.71875,
+        "y": -28.5,
+        "z": -0.40625
+      },
+      "distance": 7.716219220738871,
+      "id64": 9467315824041,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "BPM 17113"
+    },
+    {
+      "coords": {
+        "x": 24.40625,
+        "y": -31.21875,
+        "z": 11.5625
+      },
+      "distance": 7.883118335246529,
+      "id64": 2759273204075,
+      "mainstar": "DA",
+      "name": "LHS 145"
+    },
+    {
+      "coords": {
+        "x": 14.9375,
+        "y": -20.4375,
+        "z": 8.5625
+      },
+      "distance": 9.061260691123504,
+      "id64": 33656303265193,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Minmar"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 9.560763731261222,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 9.590288463466571,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 26.09375,
+    "y": -25.3125,
+    "z": 31.15625
+  },
+  "id64": 5370319620968,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Arima",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 26.09375,
+        "y": -25.3125,
+        "z": 31.15625
+      },
+      "distance": 0.0,
+      "id64": 5370319620968,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Arima"
+    },
+    {
+      "coords": {
+        "x": 30.96875,
+        "y": -26.9375,
+        "z": 29.78125
+      },
+      "distance": 5.319480707738303,
+      "id64": 13865362335153,
+      "mainstar": "M",
+      "name": "LHS 499"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -29.28125,
+        "z": 28.96875
+      },
+      "distance": 7.321108714702985,
+      "id64": 58146877754216,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Pladset"
+    },
+    {
+      "coords": {
+        "x": 33.5,
+        "y": -25.375,
+        "z": 31.375
+      },
+      "distance": 7.409743374436122,
+      "id64": 22962505665384,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Handh"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -29.1875,
+        "z": 34.5
+      },
+      "distance": 7.697973048959057,
+      "id64": 11666339079601,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 493"
+    },
+    {
+      "coords": {
+        "x": 18.25,
+        "y": -23.1875,
+        "z": 32.25
+      },
+      "distance": 8.199776102126204,
+      "id64": 9467315889585,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "V375 Pavonis"
+    },
+    {
+      "coords": {
+        "x": 25.3125,
+        "y": -32.15625,
+        "z": 35.8125
+      },
+      "distance": 8.314320759238244,
+      "id64": 5370319620976,
+      "mainstar": "L",
+      "name": "Hollatja"
+    },
+    {
+      "coords": {
+        "x": 26.9375,
+        "y": -33.59375,
+        "z": 31.28125
+      },
+      "distance": 8.325060998275028,
+      "id64": 4756844024538,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "AY Indi"
+    },
+    {
+      "coords": {
+        "x": 34.375,
+        "y": -24.15625,
+        "z": 30.21875
+      },
+      "distance": 8.413971825184584,
+      "id64": 5069269378481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 475"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 8.791919674479516,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 31.0,
+        "y": -31.625,
+        "z": 26.53125
+      },
+      "distance": 9.23631800624578,
+      "id64": 40554691709800,
+      "mainstar": "Y",
+      "name": "Owaha"
+    }
+  ]
+}

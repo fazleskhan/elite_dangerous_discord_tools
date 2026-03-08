@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 15.28125,
+    "y": -15.6875,
+    "z": 10.5625
+  },
+  "id64": 10494151019,
+  "mainstar": "G",
+  "name": "Beta Hydri",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 0.0,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 4.553930307986717,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 14.9375,
+        "y": -20.4375,
+        "z": 8.5625
+      },
+      "distance": 5.1653329091647135,
+      "id64": 33656303265193,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Minmar"
+    },
+    {
+      "coords": {
+        "x": 9.46875,
+        "y": -16.0,
+        "z": 12.09375
+      },
+      "distance": 6.01893172103655,
+      "id64": 16064117220777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3836"
+    },
+    {
+      "coords": {
+        "x": 13.5,
+        "y": -22.15625,
+        "z": 10.53125
+      },
+      "distance": 6.709586774720184,
+      "id64": 44837112171,
+      "mainstar": "F",
+      "name": "Zeta Tucanae"
+    },
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 8.167018753039569,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 8.36858429634308,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 10.40625,
+        "y": -18.90625,
+        "z": 3.6875
+      },
+      "distance": 9.021729410844685,
+      "id64": 8330189738706,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Terravor"
+    },
+    {
+      "coords": {
+        "x": 8.375,
+        "y": -10.84375,
+        "z": 14.46875
+      },
+      "distance": 9.29607402011731,
+      "id64": 633608344274,
+      "mainstar": "G",
+      "name": "Delta Pavonis"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 9.559282546954034,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 9.74544164276304,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 9.880585841057199,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -22.96875,
+        "z": 4.3125
+      },
+      "distance": 9.956644295393906,
+      "id64": 2557753692882,
+      "mainstar": "K",
+      "name": "P Eridani"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "coords": {
+    "x": 19.15625,
+    "y": -10.375,
+    "z": 15.40625
+  },
+  "id64": 7230745219802,
+  "mainstar": "G",
+  "name": "Arangorii",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 0.0,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 6.1853689512025065,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 6.677270213193412,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 7.187364129150547,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 7.866562940700341,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 8.167018753039569,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 8.282664973455102,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 8.36222206189838,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 8.595170337171917,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 9.890316444634115,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    }
+  ]
+}

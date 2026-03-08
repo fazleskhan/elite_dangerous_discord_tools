@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 38.59375,
+    "y": 2.03125,
+    "z": 14.625
+  },
+  "id64": 2870514623913,
+  "mainstar": "M",
+  "name": "LHS 40",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 38.59375,
+        "y": 2.03125,
+        "z": 14.625
+      },
+      "distance": 0.0,
+      "id64": 2870514623913,
+      "mainstar": "M",
+      "name": "LHS 40"
+    },
+    {
+      "coords": {
+        "x": 38.625,
+        "y": -0.5,
+        "z": 16.53125
+      },
+      "distance": 3.168910252358056,
+      "id64": 2557820801754,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mata"
+    },
+    {
+      "coords": {
+        "x": 33.0,
+        "y": 2.34375,
+        "z": 15.71875
+      },
+      "distance": 5.708238289963025,
+      "id64": 3996223801707,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Puppis Sector DL-Y d116"
+    },
+    {
+      "coords": {
+        "x": 35.375,
+        "y": 0.1875,
+        "z": 7.75
+      },
+      "distance": 7.811874974998,
+      "id64": 2621834266987,
+      "mainstar": "F",
+      "name": "L 190-21"
+    },
+    {
+      "coords": {
+        "x": 33.8125,
+        "y": -2.375,
+        "z": 19.84375
+      },
+      "distance": 8.33731024896519,
+      "id64": 4756844057306,
+      "mainstar": "DC",
+      "name": "LP 104-2"
+    },
+    {
+      "coords": {
+        "x": 41.125,
+        "y": -5.9375,
+        "z": 13.15625
+      },
+      "distance": 8.48913598003354,
+      "id64": 18263677347241,
+      "mainstar": "M",
+      "name": "Convoumia"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": 2.84375,
+        "z": 18.78125
+      },
+      "distance": 9.162433918588444,
+      "id64": 13865362466225,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-6"
+    },
+    {
+      "coords": {
+        "x": 36.3125,
+        "y": 11.5,
+        "z": 13.53125
+      },
+      "distance": 9.80089879488101,
+      "id64": 2008064987858,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "LHS 2441"
+    }
+  ]
+}

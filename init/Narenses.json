@@ -1,0 +1,89 @@
+{
+  "coords": {
+    "x": -1.15625,
+    "y": -11.03125,
+    "z": 21.875
+  },
+  "id64": 8055311831770,
+  "mainstar": "K",
+  "name": "Narenses",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -1.15625,
+        "y": -11.03125,
+        "z": 21.875
+      },
+      "distance": 0.0,
+      "id64": 8055311831770,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Narenses"
+    },
+    {
+      "coords": {
+        "x": -1.65625,
+        "y": -10.28125,
+        "z": 16.625
+      },
+      "distance": 5.326818938165629,
+      "id64": 5306532762330,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Stopover"
+    },
+    {
+      "coords": {
+        "x": 1.4375,
+        "y": -11.1875,
+        "z": 16.78125
+      },
+      "distance": 5.718237681969857,
+      "id64": 2869977687473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3531"
+    },
+    {
+      "coords": {
+        "x": 2.21875,
+        "y": -7.53125,
+        "z": 16.8125
+      },
+      "distance": 7.019225829819126,
+      "id64": 9467047454129,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Luyten 347-14"
+    },
+    {
+      "coords": {
+        "x": -6.96875,
+        "y": -14.53125,
+        "z": 24.1875
+      },
+      "distance": 7.168180557156746,
+      "id64": 1733119972058,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "5 G. Capricorni"
+    },
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 7.623975340988453,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 8.7067569845207,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    }
+  ]
+}

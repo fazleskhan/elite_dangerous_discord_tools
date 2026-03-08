@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 33.8125,
+    "y": -2.375,
+    "z": 19.84375
+  },
+  "id64": 4756844057306,
+  "mainstar": "DC",
+  "name": "LP 104-2",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 33.8125,
+        "y": -2.375,
+        "z": 19.84375
+      },
+      "distance": 0.0,
+      "id64": 4756844057306,
+      "mainstar": "DC",
+      "name": "LP 104-2"
+    },
+    {
+      "coords": {
+        "x": 38.625,
+        "y": -0.5,
+        "z": 16.53125
+      },
+      "distance": 6.13583225813744,
+      "id64": 2557820801754,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mata"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": 2.84375,
+        "z": 18.78125
+      },
+      "distance": 6.288475321967957,
+      "id64": 13865362466225,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-6"
+    },
+    {
+      "coords": {
+        "x": 33.0,
+        "y": 2.34375,
+        "z": 15.71875
+      },
+      "distance": 6.319998640229284,
+      "id64": 3996223801707,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Puppis Sector DL-Y d116"
+    },
+    {
+      "coords": {
+        "x": 29.46875,
+        "y": -1.6875,
+        "z": 25.375
+      },
+      "distance": 7.066508818009074,
+      "id64": 9467315955121,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Hill Pa Hsi"
+    },
+    {
+      "coords": {
+        "x": 38.59375,
+        "y": 2.03125,
+        "z": 14.625
+      },
+      "distance": 8.33731024896519,
+      "id64": 2870514623913,
+      "mainstar": "M",
+      "name": "LHS 40"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 9.821502637707734,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 27.53125,
+        "y": 0.8125,
+        "z": 26.84375
+      },
+      "distance": 9.930471177768958,
+      "id64": 633675453146,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Zeaex"
+    }
+  ]
+}

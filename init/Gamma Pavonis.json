@@ -1,0 +1,166 @@
+{
+  "coords": {
+    "x": 12.03125,
+    "y": -19.75,
+    "z": 19.4375
+  },
+  "id64": 628952664427,
+  "mainstar": "F (White) Star",
+  "name": "Gamma Pavonis",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 0.0,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    },
+    {
+      "coords": {
+        "x": 11.78125,
+        "y": -16.28125,
+        "z": 23.75
+      },
+      "distance": 5.5400706504971575,
+      "id64": 16064117220785,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector PI-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 6.468523546760884,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 6.669075085797131,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 11.53125,
+        "y": -26.6875,
+        "z": 20.5
+      },
+      "distance": 7.036178828028747,
+      "id64": 5368172137312,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-0"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 7.5859656603493795,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 8.101166968406465,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 8.295977470286427,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 9.46875,
+        "y": -16.0,
+        "z": 12.09375
+      },
+      "distance": 8.634788376821982,
+      "id64": 16064117220777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3836"
+    },
+    {
+      "coords": {
+        "x": 5.5625,
+        "y": -25.375,
+        "z": 18.0
+      },
+      "distance": 8.692051415661323,
+      "id64": 75736916314976,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-4"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -28.46875,
+        "z": 18.53125
+      },
+      "distance": 8.78580842538124,
+      "id64": 20462163666353,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Segais"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 8.837177327914157,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 13.5,
+        "y": -22.15625,
+        "z": 10.53125
+      },
+      "distance": 9.341764002986801,
+      "id64": 44837112171,
+      "mainstar": "F",
+      "name": "Zeta Tucanae"
+    },
+    {
+      "coords": {
+        "x": 12.28125,
+        "y": -28.46875,
+        "z": 23.78125
+      },
+      "distance": 9.744088752931184,
+      "id64": 7268024133041,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1672"
+    }
+  ]
+}

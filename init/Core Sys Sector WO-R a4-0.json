@@ -1,0 +1,177 @@
+{
+  "coords": {
+    "x": 13.46875,
+    "y": -33.21875,
+    "z": 4.5
+  },
+  "id64": 5368172137296,
+  "mainstar": "T",
+  "name": "Core Sys Sector WO-R a4-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -33.21875,
+        "z": 4.5
+      },
+      "distance": 0.0,
+      "id64": 5368172137296,
+      "mainstar": "T",
+      "name": "Core Sys Sector WO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 10.4375,
+        "y": -31.28125,
+        "z": 4.625
+      },
+      "distance": 3.599723296657675,
+      "id64": 22960358181712,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 12.5,
+        "y": -29.9375,
+        "z": 1.96875
+      },
+      "distance": 4.255855341467799,
+      "id64": 58144730270544,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 4.778900566552939,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    },
+    {
+      "coords": {
+        "x": 8.15625,
+        "y": -37.03125,
+        "z": 5.40625
+      },
+      "distance": 6.601446929461752,
+      "id64": 40552544095064,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CQ-P a5-2"
+    },
+    {
+      "coords": {
+        "x": 13.28125,
+        "y": -33.40625,
+        "z": -2.65625
+      },
+      "distance": 7.161160978675175,
+      "id64": 40552544226128,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -31.3125,
+        "z": 5.0
+      },
+      "distance": 7.5734038128506,
+      "id64": 5069000877481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 69"
+    },
+    {
+      "coords": {
+        "x": 19.875,
+        "y": -37.4375,
+        "z": 3.65625
+      },
+      "distance": 7.716851993364911,
+      "id64": 22961431792464,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Wakaparibe"
+    },
+    {
+      "coords": {
+        "x": 6.03125,
+        "y": -36.25,
+        "z": 5.375
+      },
+      "distance": 8.079016512701283,
+      "id64": 22960358050648,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CQ-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 8.532737965477436,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 16.65625,
+        "y": -33.8125,
+        "z": -3.65625
+      },
+      "distance": 8.777078635571177,
+      "id64": 908553327314,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "CC Eri"
+    },
+    {
+      "coords": {
+        "x": 20.3125,
+        "y": -27.8125,
+        "z": 5.5
+      },
+      "distance": 8.778636176821545,
+      "id64": 22961431923544,
+      "mainstar": "L",
+      "name": "Sanuku"
+    },
+    {
+      "coords": {
+        "x": 10.1875,
+        "y": -35.125,
+        "z": -3.625
+      },
+      "distance": 8.967497734875655,
+      "id64": 5368172006224,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 18.5625,
+        "y": -30.78125,
+        "z": -2.59375
+      },
+      "distance": 9.066917027027435,
+      "id64": 5369245879120,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 18.09375,
+        "y": -32.5,
+        "z": -3.34375
+      },
+      "distance": 9.134092216799653,
+      "id64": 22961431923536,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-1"
+    }
+  ]
+}

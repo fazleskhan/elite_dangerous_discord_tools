@@ -1,0 +1,111 @@
+{
+  "coords": {
+    "x": 22.5,
+    "y": -5.625,
+    "z": 13.28125
+  },
+  "id64": 16064385656233,
+  "mainstar": "M",
+  "name": "Core Sys Sector MC-V b2-7",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 0.0,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 4.0731830688664115,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 4.9707150202460815,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 6.1853689512025065,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 7.320041517129531,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 18.90625,
+        "y": -4.21875,
+        "z": 5.875
+      },
+      "distance": 8.35135421279088,
+      "id64": 22661455488425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 3572"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 9.685130758668155,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 9.70225690561222,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 20.90625,
+        "y": -7.5,
+        "z": 3.75
+      },
+      "distance": 9.843799603049627,
+      "id64": 2587474528619,
+      "mainstar": "DA",
+      "name": "LAWD 26"
+    }
+  ]
+}

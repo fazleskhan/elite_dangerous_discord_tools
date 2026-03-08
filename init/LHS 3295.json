@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 27.03125,
+    "y": -15.96875,
+    "z": 25.1875
+  },
+  "id64": 2870246122929,
+  "mainstar": "M",
+  "name": "LHS 3295",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 0.0,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 30.78125,
+        "y": -14.5625,
+        "z": 25.75
+      },
+      "distance": 4.044310239398061,
+      "id64": 3107576615642,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Moepirt"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 5.534250598545389,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -12.4375,
+        "z": 27.53125
+      },
+      "distance": 6.204443342274954,
+      "id64": 16064385656241,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Mari"
+    },
+    {
+      "coords": {
+        "x": 24.65625,
+        "y": -10.25,
+        "z": 29.125
+      },
+      "distance": 7.338162768193412,
+      "id64": 1556682377579,
+      "mainstar": "F",
+      "name": "Zeta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 8.74653949428001,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 9.148567596214175,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 9.685735726443294,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    }
+  ]
+}

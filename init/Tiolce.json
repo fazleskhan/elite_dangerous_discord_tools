@@ -1,0 +1,331 @@
+{
+  "coords": {
+    "x": 10.5,
+    "y": -34.78125,
+    "z": 25.0625
+  },
+  "id64": 2007997846234,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Tiolce",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 10.5,
+        "y": -34.78125,
+        "z": 25.0625
+      },
+      "distance": 0.0,
+      "id64": 2007997846234,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Tiolce"
+    },
+    {
+      "coords": {
+        "x": 9.90625,
+        "y": -35.40625,
+        "z": 25.875
+      },
+      "distance": 1.1846182138140542,
+      "id64": 1865903229291,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Senlu"
+    },
+    {
+      "coords": {
+        "x": 12.53125,
+        "y": -37.21875,
+        "z": 27.125
+      },
+      "distance": 3.784347904527278,
+      "id64": 22960358050664,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector KC-M a7-1"
+    },
+    {
+      "coords": {
+        "x": 9.90625,
+        "y": -37.96875,
+        "z": 27.3125
+      },
+      "distance": 3.9465421969744603,
+      "id64": 40552544095080,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector KC-M a7-2"
+    },
+    {
+      "coords": {
+        "x": 9.15625,
+        "y": -38.375,
+        "z": 26.15625
+      },
+      "distance": 3.9896105308037275,
+      "id64": 58144730139496,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector KC-M a7-3"
+    },
+    {
+      "coords": {
+        "x": 14.34375,
+        "y": -33.34375,
+        "z": 28.34375
+      },
+      "distance": 5.254276532026079,
+      "id64": 5368172137320,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Kedre Ralis"
+    },
+    {
+      "coords": {
+        "x": 8.6875,
+        "y": -39.75,
+        "z": 24.125
+      },
+      "distance": 5.371455953696353,
+      "id64": 5368172006240,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector GW-N a6-0"
+    },
+    {
+      "coords": {
+        "x": 15.8125,
+        "y": -32.4375,
+        "z": 24.65625
+      },
+      "distance": 5.820726705060117,
+      "id64": 40553617967968,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector FB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 12.28125,
+        "y": -28.46875,
+        "z": 23.78125
+      },
+      "distance": 6.682971597650255,
+      "id64": 7268024133041,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1672"
+    },
+    {
+      "coords": {
+        "x": 6.78125,
+        "y": -40.71875,
+        "z": 25.0625
+      },
+      "distance": 7.005926620547777,
+      "id64": 75736916183912,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector KC-M a7-4"
+    },
+    {
+      "coords": {
+        "x": 5.03125,
+        "y": -31.75,
+        "z": 21.78125
+      },
+      "distance": 7.0613245703267316,
+      "id64": 13865093899697,
+      "mainstar": "M",
+      "name": "LHS 3804"
+    },
+    {
+      "coords": {
+        "x": 16.75,
+        "y": -37.96875,
+        "z": 26.0625
+      },
+      "distance": 7.086794497514373,
+      "id64": 40553617836904,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Udaiyuna"
+    },
+    {
+      "coords": {
+        "x": 7.5625,
+        "y": -34.90625,
+        "z": 31.625
+      },
+      "distance": 7.191031740995168,
+      "id64": 1458242032346,
+      "mainstar": "K",
+      "name": "Aornum"
+    },
+    {
+      "coords": {
+        "x": 16.125,
+        "y": -37.5,
+        "z": 28.6875
+      },
+      "distance": 7.223077707078888,
+      "id64": 5369245748072,
+      "mainstar": "T",
+      "name": "Cranhcat"
+    },
+    {
+      "coords": {
+        "x": 7.46875,
+        "y": -32.78125,
+        "z": 31.78125
+      },
+      "distance": 7.637413051878234,
+      "id64": 40552544226152,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Sandafarr"
+    },
+    {
+      "coords": {
+        "x": 4.65625,
+        "y": -37.03125,
+        "z": 29.78125
+      },
+      "distance": 7.840823657307949,
+      "id64": 5069000877489,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 355-62"
+    },
+    {
+      "coords": {
+        "x": 10.28125,
+        "y": -42.59375,
+        "z": 23.5
+      },
+      "distance": 7.970220452565914,
+      "id64": 22960358050656,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector GW-N a6-1"
+    },
+    {
+      "coords": {
+        "x": 18.0,
+        "y": -31.40625,
+        "z": 23.1875
+      },
+      "distance": 8.435416409401494,
+      "id64": 5069269312945,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1728"
+    },
+    {
+      "coords": {
+        "x": 6.3125,
+        "y": -34.40625,
+        "z": 32.59375
+      },
+      "distance": 8.625283056949494,
+      "id64": 22960358181736,
+      "mainstar": "L",
+      "name": "Quapa"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -32.625,
+        "z": 16.875
+      },
+      "distance": 8.729272324340672,
+      "id64": 40552544226144,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 10.78125,
+        "y": -27.125,
+        "z": 29.46875
+      },
+      "distance": 8.838116580329771,
+      "id64": 670954366385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1594"
+    },
+    {
+      "coords": {
+        "x": 9.34375,
+        "y": -33.90625,
+        "z": 16.03125
+      },
+      "distance": 9.14691290135639,
+      "id64": 58144730270560,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-3"
+    },
+    {
+      "coords": {
+        "x": 10.28125,
+        "y": -38.09375,
+        "z": 16.40625
+      },
+      "distance": 9.270985485642829,
+      "id64": 58144730139488,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector GW-N a6-3"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -28.46875,
+        "z": 18.53125
+      },
+      "distance": 9.32847832245431,
+      "id64": 20462163666353,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Segais"
+    },
+    {
+      "coords": {
+        "x": 11.53125,
+        "y": -26.6875,
+        "z": 20.5
+      },
+      "distance": 9.34819083432725,
+      "id64": 5368172137312,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-0"
+    },
+    {
+      "coords": {
+        "x": 19.46875,
+        "y": -37.34375,
+        "z": 26.46875
+      },
+      "distance": 9.433049447289036,
+      "id64": 58145803881320,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Ipoix"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -32.65625,
+        "z": 16.3125
+      },
+      "distance": 9.48111815992713,
+      "id64": 22960358181728,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 7.1875,
+        "y": -43.90625,
+        "z": 25.6875
+      },
+      "distance": 9.727739010170863,
+      "id64": 5368172006248,
+      "mainstar": "T Tauri Star",
+      "name": "Col 285 Sector PK-P a35-0"
+    },
+    {
+      "coords": {
+        "x": 8.84375,
+        "y": -40.625,
+        "z": 32.75
+      },
+      "distance": 9.797460608494427,
+      "id64": 9467047388593,
+      "mainstar": "White Dwarf (DQ) Star",
+      "name": "Zhulong"
+    }
+  ]
+}

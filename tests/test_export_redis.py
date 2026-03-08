@@ -1,6 +1,4 @@
-import json
 import sys
-from pathlib import Path
 
 import export_redis
 
@@ -8,17 +6,16 @@ import export_redis
 def main() -> None: ...
 
 
-def test_export_redis_writes_pretty_json_files(tmp_path, monkeypatch):
+def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):
     class FakeRedisDB:
-        def get_all_systems(self):
-            return [{"name": "Sol"}, {"name": "2MASS 1503/2525"}]
+        def __init__(self):
+            self.export_dir = None
 
-        def get_system(self, system_name: str):
-            return {"name": system_name, "coords": {"x": 0, "y": 0, "z": 0}}
+        def export_datasource(self, export_dir: str):
+            self.export_dir = export_dir
 
-    monkeypatch.setattr(
-        export_redis, "EDRedis", lambda database_name: FakeRedisDB()
-    )
+    fake_db = FakeRedisDB()
+    monkeypatch.setattr(export_redis, "EDRedis", lambda database_name: fake_db)
     export_dir = tmp_path / "ed_redis-export"
     monkeypatch.setattr(
         sys, "argv", ["export_redis.py", "--export-dir", str(export_dir)]
@@ -26,14 +23,7 @@ def test_export_redis_writes_pretty_json_files(tmp_path, monkeypatch):
 
     export_redis.main()
 
-    sol_file = export_dir / "Sol.json"
-    safe_file = export_dir / "2MASS 1503_2525.json"
-    assert sol_file.exists()
-    assert safe_file.exists()
-    assert "\n  " in sol_file.read_text(encoding="utf-8")
-
-    exported = json.loads(sol_file.read_text(encoding="utf-8"))
-    assert exported["name"] == "Sol"
+    assert fake_db.export_dir == str(export_dir)
 
 
 if __name__ == "__main__":

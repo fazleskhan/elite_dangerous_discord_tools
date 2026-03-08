@@ -4,9 +4,9 @@ import shutil
 import constants
 import os
 import edgis_cache
-import db
+import datasource
 
-db_filename = f"{__file__.replace("tests", "data").replace(".py", ".db")}"
+db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 
 
 def main(): ...
@@ -75,10 +75,10 @@ def test_larger_local_travel_Sol_Wolf_359():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.normpath(os.path.join(script_dir, ".."))
-    source_path = os.path.join(project_root, constants.pre_initiazlied_db_filename)
+    source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = db.DB(db_filename)
+    database = datasource.DB(db_filename)
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
@@ -99,10 +99,10 @@ def test_larger_travel_Sol_LTT_3572():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.normpath(os.path.join(script_dir, ".."))
-    source_path = os.path.join(project_root, constants.pre_initiazlied_db_filename)
+    source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = db.DB(db_filename)
+    database = datasource.DB(db_filename)
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(

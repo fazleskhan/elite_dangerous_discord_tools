@@ -3,7 +3,7 @@ import atexit
 import json
 import os
 import threading
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import urlparse
 
 import psutil
@@ -34,16 +34,56 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("DB backend: redis")
 
-    def init_db(
-        self,
-        script_file: str,
-        preinit_db_filename: str = constants.pre_initiazlied_db_filename,
-        file_exists: Callable[[str], bool] = os.path.exists,
-        copy_file: Callable[[str, str], str] = lambda src, dst: dst,
+    def init_datasource(
+        self, import_dir: str = "./init"
     ) -> None:
-        # Redis backend does not use a local preloaded database file.
-        _ = (script_file, preinit_db_filename, file_exists, copy_file)
-        return
+        self.import_datasource(import_dir)
+
+    def import_datasource(self, import_dir: str) -> None:
+        if not os.path.isdir(import_dir):
+            raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
+        json_filenames = sorted(
+            filename for filename in os.listdir(import_dir) if filename.endswith(".json")
+        )
+        self.logger.info(
+            "Importing Redis datasource from {} JSON files in {}",
+            len(json_filenames),
+            import_dir,
+        )
+        for filename in json_filenames:
+            json_path = os.path.join(import_dir, filename)
+            with open(json_path, encoding="utf-8") as json_file:
+                payload = json.load(json_file)
+
+            records = payload if isinstance(payload, list) else [payload]
+            for record in records:
+                if isinstance(record, dict):
+                    self.insert_system(record)
+
+    def export_datasource(self, export_dir: str) -> None:
+        os.makedirs(export_dir, exist_ok=True)
+        systems = self.get_all_systems()
+        for system in systems:
+            system_name = system.get(constants.system_info_name_field)
+            if not isinstance(system_name, str) or not system_name:
+                continue
+            full_system = self.get_system(system_name)
+            if full_system is None:
+                continue
+            output_path = os.path.join(export_dir, f"{self._safe_filename(system_name)}.json")
+            with open(output_path, "w", encoding="utf-8") as file_handle:
+                json.dump(
+                    full_system, file_handle, indent=2, sort_keys=True, ensure_ascii=False
+                )
+                file_handle.write("\n")
+
+    def _safe_filename(self, system_name: str) -> str:
+        return "".join(
+            character
+            if character.isalnum() or character in (" ", "-", "_", ".")
+            else "_"
+            for character in system_name
+        ).strip()
 
     @staticmethod
     def _default_max_connections() -> int:
@@ -126,6 +166,7 @@ class EDRedis:
             raise RuntimeError("Redis client is closed")
 
     def _system_key(self, system_name: str) -> str:
+        # Namespace keys by app name so multiple bots can share one Redis safely.
         return f"{self._app_name}:system:{system_name}"
 
     @property

@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 27.875,
+    "y": -42.90625,
+    "z": 6.96875
+  },
+  "id64": 5370319489880,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Col 285 Sector JY-S a33-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 27.875,
+        "y": -42.90625,
+        "z": 6.96875
+      },
+      "distance": 0.0,
+      "id64": 5370319489880,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Col 285 Sector JY-S a33-0"
+    },
+    {
+      "coords": {
+        "x": 28.75,
+        "y": -39.34375,
+        "z": 4.8125
+      },
+      "distance": 4.255166895963072,
+      "id64": 671222801833,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 174-28"
+    },
+    {
+      "coords": {
+        "x": 32.125,
+        "y": -44.3125,
+        "z": 4.90625
+      },
+      "distance": 4.928888851708872,
+      "id64": 5031721931474,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-58 538"
+    },
+    {
+      "coords": {
+        "x": 29.96875,
+        "y": -47.28125,
+        "z": 10.28125
+      },
+      "distance": 5.873420665378907,
+      "id64": 7268292502953,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Col 285 Sector SJ-W b16-3"
+    },
+    {
+      "coords": {
+        "x": 24.75,
+        "y": -37.34375,
+        "z": 7.625
+      },
+      "distance": 6.41386742242931,
+      "id64": 5369245748056,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector DQ-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 21.5625,
+        "y": -40.75,
+        "z": 4.71875
+      },
+      "distance": 7.0398558445823305,
+      "id64": 40553617836880,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector ZJ-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 25.71875,
+        "y": -50.15625,
+        "z": 7.4375
+      },
+      "distance": 7.5783666198594535,
+      "id64": 251012303211,
+      "mainstar": "F (White) Star",
+      "name": "q1 Eridani"
+    },
+    {
+      "coords": {
+        "x": 34.28125,
+        "y": -45.65625,
+        "z": 11.5
+      },
+      "distance": 8.314731843240647,
+      "id64": 2870245991849,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1351"
+    },
+    {
+      "coords": {
+        "x": 22.21875,
+        "y": -48.15625,
+        "z": 10.21875
+      },
+      "distance": 8.373658941137977,
+      "id64": 671222736297,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 692"
+    },
+    {
+      "coords": {
+        "x": 36.15625,
+        "y": -44.3125,
+        "z": 6.5
+      },
+      "distance": 8.412869141232378,
+      "id64": 5371393231704,
+      "mainstar": "T Tauri Star",
+      "name": "Col 285 Sector KY-S a33-0"
+    },
+    {
+      "coords": {
+        "x": 26.28125,
+        "y": -51.75,
+        "z": 4.625
+      },
+      "distance": 9.286824924994548,
+      "id64": 4481966117586,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Chi Eridani"
+    },
+    {
+      "coords": {
+        "x": 29.4375,
+        "y": -47.625,
+        "z": -0.9375
+      },
+      "distance": 9.338993354478843,
+      "id64": 422810995051,
+      "mainstar": "F",
+      "name": "Iota Horologii"
+    },
+    {
+      "coords": {
+        "x": 26.1875,
+        "y": -34.375,
+        "z": 2.625
+      },
+      "distance": 9.721010589182587,
+      "id64": 58146877754192,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-3"
+    }
+  ]
+}

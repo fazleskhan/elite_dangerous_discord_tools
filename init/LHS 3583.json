@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 26.5625,
+    "y": -21.1875,
+    "z": 23.40625
+  },
+  "id64": 7268292634033,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "LHS 3583",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 0.0,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 5.534250598545389,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 6.561458250648251,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    },
+    {
+      "coords": {
+        "x": 30.78125,
+        "y": -14.5625,
+        "z": 25.75
+      },
+      "distance": 8.19644072906039,
+      "id64": 3107576615642,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Moepirt"
+    },
+    {
+      "coords": {
+        "x": 34.3125,
+        "y": -24.875,
+        "z": 24.28125
+      },
+      "distance": 8.627037802745505,
+      "id64": 8605134754522,
+      "mainstar": "K",
+      "name": "Chambo"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 8.628056523632655,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 26.09375,
+        "y": -25.3125,
+        "z": 31.15625
+      },
+      "distance": 8.791919674479516,
+      "id64": 5370319620968,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Arima"
+    },
+    {
+      "coords": {
+        "x": 24.625,
+        "y": -29.15625,
+        "z": 19.15625
+      },
+      "distance": 9.23674091942066,
+      "id64": 5369245879136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Fergus"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 9.462766261115192,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 30.96875,
+        "y": -26.9375,
+        "z": 29.78125
+      },
+      "distance": 9.649775337410711,
+      "id64": 13865362335153,
+      "mainstar": "M",
+      "name": "LHS 499"
+    },
+    {
+      "coords": {
+        "x": 20.59375,
+        "y": -25.75,
+        "z": 17.3125
+      },
+      "distance": 9.67347775492351,
+      "id64": 3382454489818,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Eanric"
+    }
+  ]
+}

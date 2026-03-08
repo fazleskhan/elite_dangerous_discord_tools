@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 23.96875,
+    "y": -15.0,
+    "z": 15.21875
+  },
+  "id64": 7505623126746,
+  "mainstar": "K",
+  "name": "Lopu Maris",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 0.0,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 6.522272538195564,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    },
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 6.677270213193412,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": -13.5625,
+        "z": 7.53125
+      },
+      "distance": 7.884418970349052,
+      "id64": 9467315889577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-9"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 7.973160544131794,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 8.201443279996516,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 8.386303006987047,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 8.421396670089825,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 8.548003239061154,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 8.549545400926297,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 9.685130758668155,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 9.824634217109562,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 9.880585841057199,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    }
+  ]
+}

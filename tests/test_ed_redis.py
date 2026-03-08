@@ -218,22 +218,40 @@ def test_redis_url_env_and_explicit_arg_precedence(monkeypatch):
     assert captured["url"] == "redis://arg-host:6379/0"
 
 
-def test_redis_init_db_is_noop(monkeypatch):
+def test_redis_init_datasource_skips_loading_when_target_exists(monkeypatch, tmp_path):
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
     database = EDRedis("unit-test-db")
+    inserted: list[dict] = []
+    database.insert_system = inserted.append  # type: ignore[method-assign]
+    empty_init = tmp_path / "init"
+    empty_init.mkdir(parents=True, exist_ok=True)
 
-    def fail_exists(_path: str) -> bool:
-        raise AssertionError("file_exists should not be called for redis init_db")
+    database.init_datasource(str(empty_init))
 
-    def fail_copy(_src: str, _dst: str) -> str:
-        raise AssertionError("copy_file should not be called for redis init_db")
+    assert inserted == []
 
-    database.init_db(
-        script_file="/tmp/src/ed_route.py",
-        preinit_db_filename="init/edgis_bulk_load.db",
-        file_exists=fail_exists,
-        copy_file=fail_copy,
+
+def test_redis_init_datasource_loads_records_from_init_json_files(monkeypatch, tmp_path):
+    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    init_dir = tmp_path / "init"
+    init_dir.mkdir(parents=True, exist_ok=True)
+    (init_dir / "single.json").write_text(
+        '{"name":"Sol","id64":1,"coords":{"x":0,"y":0,"z":0}}',
+        encoding="utf-8",
     )
+    (init_dir / "bulk.json").write_text(
+        '[{"name":"Sirius","id64":2},{"name":"Lave","id64":3}]',
+        encoding="utf-8",
+    )
+    (init_dir / "ignore.txt").write_text("not json", encoding="utf-8")
+
+    database = EDRedis("unit-test-db")
+    inserted: list[dict] = []
+    database.insert_system = inserted.append  # type: ignore[method-assign]
+
+    database.init_datasource(str(init_dir))
+
+    assert {entry["name"] for entry in inserted} == {"Sol", "Sirius", "Lave"}
 
 
 if __name__ == "__main__":

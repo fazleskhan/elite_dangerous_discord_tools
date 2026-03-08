@@ -1,7 +1,6 @@
 import edgis_cache
-import db
+import datasource
 import ed_bfs
-import shutil
 import constants
 import os
 import asyncio
@@ -20,13 +19,7 @@ ProgressFn = Callable[[str], None]
 
 
 class DBProtocol(Protocol):
-    def init_db(
-        self,
-        script_file: str,
-        preinit_db_filename: str = constants.pre_initiazlied_db_filename,
-        file_exists: Callable[[str], bool] = os.path.exists,
-        copy_file: Callable[[str, str], str] = shutil.copy,
-    ) -> None: ...
+    def init_datasource(self, import_dir: str = "./init") -> None: ...
     def get_all_systems(self) -> list[SystemInfo]: ...
 
 
@@ -52,32 +45,23 @@ class EDRouteService:
         database: DBProtocol | None,
         cache: CacheProtocol | None,
         travel_fn: Callable[..., list[str] | None],
-        file_exists: Callable[[str], bool],
-        copy_file: Callable[[str, str], str],
         script_file: str,
-        default_preload_db: str,
     ) -> None:
         self.db_path = db_path
         self.database = database
         self.cache = cache
         self.travel_fn = travel_fn
-        self.file_exists = file_exists
-        self.copy_file = copy_file
         self.script_file = script_file
-        self.default_preload_db = default_preload_db
         self.logger = logger
 
     @staticmethod
     def create(
-        db_factory: Callable[[str], DBProtocol] = db.DB,
+        db_factory: Callable[[str], DBProtocol] = datasource.DB,
         cache_factory: Callable[[Any], CacheProtocol] = cast(
             Callable[[Any], CacheProtocol], edgis_cache.EDGisCache.create
         ),
         travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
-        file_exists: Callable[[str], bool] = os.path.exists,
-        copy_file: Callable[[str, str], str] = shutil.copy,
         script_file: str = __file__,
-        default_preload_db: str = constants.pre_initiazlied_db_filename,
     ) -> "EDRouteService":
         load_dotenv()
         # Keep a stable default DB path while allowing env override.
@@ -89,23 +73,18 @@ class EDRouteService:
             database=None,
             cache=None,
             travel_fn=travel_fn,
-            file_exists=file_exists,
-            copy_file=copy_file,
             script_file=script_file,
-            default_preload_db=default_preload_db,
         )
         service.database = db_factory(resolved_db_path)
-        service.database.init_db(
-            script_file=script_file,
-            preinit_db_filename=default_preload_db,
-            file_exists=file_exists,
-            copy_file=copy_file,
-        )
         service.cache = cache_factory(service.database)
         service.logger.info(
             "EDRouteService initialized with db_path={}", resolved_db_path
         )
         return service
+
+    def init_datasource(self, import_dir: str = "./init") -> None:
+        self.logger.info("Initializing datasource from {}", import_dir)
+        self.database.init_datasource(import_dir)  # type: ignore[union-attr]
 
     def get_system_info(self, system_name: str) -> SystemInfo | None:
         if self.cache is None:
@@ -168,7 +147,7 @@ class EDRouteService:
                 result.set_exception(exc)
 
         threading.Thread(target=_worker, daemon=True).start()
-        # Poll the worker result without blocking the async caller.
+        # Poll the worker Future so this async method stays non-blocking.
         while not result.done():
             await asyncio.sleep(0.01)
         route = result.result()

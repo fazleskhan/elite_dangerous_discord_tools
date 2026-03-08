@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 25.09375,
+    "y": -5.3125,
+    "z": 16.40625
+  },
+  "id64": 4064943278443,
+  "mainstar": "K",
+  "name": "Core Sys Sector DL-Y d118",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 0.0,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 4.0731830688664115,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 7.866562940700341,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 7.978364298213012,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 21.65625,
+        "y": -3.625,
+        "z": 23.75
+      },
+      "distance": 8.282193342496901,
+      "id64": 16064385721777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 9.239436535850007,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 33.8125,
+        "y": -2.375,
+        "z": 19.84375
+      },
+      "distance": 9.821502637707734,
+      "id64": 4756844057306,
+      "mainstar": "DC",
+      "name": "LP 104-2"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 9.824634217109562,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    }
+  ]
+}

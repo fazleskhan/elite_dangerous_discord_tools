@@ -1,0 +1,67 @@
+{
+  "coords": {
+    "x": 6.15625,
+    "y": -20.53125,
+    "z": 31.96875
+  },
+  "id64": 5069000943025,
+  "mainstar": "K (Yellow-Orange giant) Star",
+  "name": "Plutarch",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -20.53125,
+        "z": 31.96875
+      },
+      "distance": 0.0,
+      "id64": 5069000943025,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Plutarch"
+    },
+    {
+      "coords": {
+        "x": 7.53125,
+        "y": -24.625,
+        "z": 30.09375
+      },
+      "distance": 4.707976111080004,
+      "id64": 2007997879002,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Saxon"
+    },
+    {
+      "coords": {
+        "x": 12.1875,
+        "y": -16.03125,
+        "z": 34.625
+      },
+      "distance": 7.980077733017392,
+      "id64": 4207021134554,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 7509"
+    },
+    {
+      "coords": {
+        "x": 10.78125,
+        "y": -27.125,
+        "z": 29.46875
+      },
+      "distance": 8.433158605321022,
+      "id64": 670954366385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1594"
+    },
+    {
+      "coords": {
+        "x": 12.25,
+        "y": -13.8125,
+        "z": 31.1875
+      },
+      "distance": 9.104160707473259,
+      "id64": 7268024198577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3413"
+    }
+  ]
+}

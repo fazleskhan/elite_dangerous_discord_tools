@@ -1,14 +1,10 @@
 import argparse
-import json
 import os
 from pathlib import Path
-from typing import Any
 
 from ed_tinydb import EDTinyDB
 
 """Import per-system JSON exports into TinyDB."""
-
-SystemInfo = dict[str, Any]
 
 
 def main() -> None:
@@ -22,24 +18,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Fail fast when the import source does not exist.
-    import_dir = Path(args.import_dir)
-    if not import_dir.exists() or not import_dir.is_dir():
-        raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
-
     script_file = Path(__file__).resolve()
     repo_root = script_file.parent.parent
     default_db_path = str(repo_root / "data" / "ed_route.db")
+    # Allow local override without changing code.
     db_path = os.getenv("DB_LOCATION", default_db_path)
     tinydb = EDTinyDB(db_path)
-
-    # Import one JSON payload per file into TinyDB.
-    for json_file in sorted(import_dir.glob("*.json")):
-        with json_file.open("r", encoding="utf-8") as file_handle:
-            payload = json.load(file_handle)
-
-        if isinstance(payload, dict):
-            tinydb.insert_system(payload)
+    tinydb.import_datasource(args.import_dir)
 
 
 if __name__ == "__main__":

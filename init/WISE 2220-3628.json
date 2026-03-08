@@ -1,0 +1,177 @@
+{
+  "coords": {
+    "x": -1.78125,
+    "y": -22.125,
+    "z": 14.28125
+  },
+  "id64": 5367098526552,
+  "mainstar": "Y (Brown dwarf) Star",
+  "name": "WISE 2220-3628",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -1.78125,
+        "y": -22.125,
+        "z": 14.28125
+      },
+      "distance": 0.0,
+      "id64": 5367098526552,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 2220-3628"
+    },
+    {
+      "coords": {
+        "x": -3.78125,
+        "y": -22.875,
+        "z": 9.6875
+      },
+      "distance": 5.0660674159055565,
+      "id64": 95800001716,
+      "mainstar": "A",
+      "name": "Fomalhaut"
+    },
+    {
+      "coords": {
+        "x": -0.25,
+        "y": -27.15625,
+        "z": 13.375
+      },
+      "distance": 5.336618047743346,
+      "id64": 22959284439896,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-1"
+    },
+    {
+      "coords": {
+        "x": -2.21875,
+        "y": -26.125,
+        "z": 19.40625
+      },
+      "distance": 6.515906019119674,
+      "id64": 11666070644145,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3746"
+    },
+    {
+      "coords": {
+        "x": -4.65625,
+        "y": -28.78125,
+        "z": 13.15625
+      },
+      "distance": 7.337364244911111,
+      "id64": 40551470484312,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-2"
+    },
+    {
+      "coords": {
+        "x": -7.03125,
+        "y": -24.28125,
+        "z": 8.90625
+      },
+      "distance": 7.816811310406565,
+      "id64": 1458242065106,
+      "mainstar": "K",
+      "name": "LHS 3885"
+    },
+    {
+      "coords": {
+        "x": -8.9375,
+        "y": -24.25,
+        "z": 11.46875
+      },
+      "distance": 7.977323818957082,
+      "id64": 35855058085289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gl 867 B"
+    },
+    {
+      "coords": {
+        "x": -9.0,
+        "y": -24.46875,
+        "z": 11.1875
+      },
+      "distance": 8.196023711989858,
+      "id64": 20461895296425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "FK Aquarii"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 8.458596311593313,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    },
+    {
+      "coords": {
+        "x": -9.1875,
+        "y": -19.84375,
+        "z": 10.6875
+      },
+      "distance": 8.542346263615167,
+      "id64": 27058965063081,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3799"
+    },
+    {
+      "coords": {
+        "x": -7.25,
+        "y": -26.78125,
+        "z": 19.09375
+      },
+      "distance": 8.645695280022307,
+      "id64": 93326954875744,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector CB-O a6-5"
+    },
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 8.846013402940333,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": 5.5625,
+        "y": -25.375,
+        "z": 18.0
+      },
+      "distance": 8.84998675846467,
+      "id64": 75736916314976,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-4"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -24.09375,
+        "z": 7.25
+      },
+      "distance": 9.23621227492634,
+      "id64": 3824408332651,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "LAWD 96"
+    },
+    {
+      "coords": {
+        "x": -6.75,
+        "y": -27.53125,
+        "z": 20.65625
+      },
+      "distance": 9.72402389060208,
+      "id64": 22958210698080,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector CB-O a6-1"
+    }
+  ]
+}

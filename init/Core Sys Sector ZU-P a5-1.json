@@ -1,0 +1,199 @@
+{
+  "coords": {
+    "x": -0.25,
+    "y": -27.15625,
+    "z": 13.375
+  },
+  "id64": 22959284439896,
+  "mainstar": "Y (Brown dwarf) Star",
+  "name": "Core Sys Sector ZU-P a5-1",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -0.25,
+        "y": -27.15625,
+        "z": 13.375
+      },
+      "distance": 0.0,
+      "id64": 22959284439896,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-1"
+    },
+    {
+      "coords": {
+        "x": -4.65625,
+        "y": -28.78125,
+        "z": 13.15625
+      },
+      "distance": 4.7014376125819215,
+      "id64": 40551470484312,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-2"
+    },
+    {
+      "coords": {
+        "x": -1.78125,
+        "y": -22.125,
+        "z": 14.28125
+      },
+      "distance": 5.336618047743346,
+      "id64": 5367098526552,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 2220-3628"
+    },
+    {
+      "coords": {
+        "x": -2.21875,
+        "y": -26.125,
+        "z": 19.40625
+      },
+      "distance": 6.427707965324809,
+      "id64": 11666070644145,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3746"
+    },
+    {
+      "coords": {
+        "x": 5.625,
+        "y": -29.53125,
+        "z": 11.5625
+      },
+      "distance": 6.591009501586233,
+      "id64": 5368172137304,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Silvanitou"
+    },
+    {
+      "coords": {
+        "x": -3.78125,
+        "y": -22.875,
+        "z": 9.6875
+      },
+      "distance": 6.663068690550924,
+      "id64": 95800001716,
+      "mainstar": "A",
+      "name": "Fomalhaut"
+    },
+    {
+      "coords": {
+        "x": 3.75,
+        "y": -30.0,
+        "z": 8.15625
+      },
+      "distance": 7.163956003843128,
+      "id64": 2869977621929,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "LHS 102"
+    },
+    {
+      "coords": {
+        "x": 5.5625,
+        "y": -25.375,
+        "z": 18.0
+      },
+      "distance": 7.6386276786147915,
+      "id64": 75736916314976,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-4"
+    },
+    {
+      "coords": {
+        "x": -2.5625,
+        "y": -33.59375,
+        "z": 16.8125
+      },
+      "distance": 7.655420873472601,
+      "id64": 5367098395488,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector DB-O a6-0"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -24.09375,
+        "z": 7.25
+      },
+      "distance": 7.994382793561989,
+      "id64": 3824408332651,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "LAWD 96"
+    },
+    {
+      "coords": {
+        "x": -7.03125,
+        "y": -24.28125,
+        "z": 8.90625
+      },
+      "distance": 8.615143824974718,
+      "id64": 1458242065106,
+      "mainstar": "K",
+      "name": "LHS 3885"
+    },
+    {
+      "coords": {
+        "x": -7.25,
+        "y": -26.78125,
+        "z": 19.09375
+      },
+      "distance": 9.046807534290757,
+      "id64": 93326954875744,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector CB-O a6-5"
+    },
+    {
+      "coords": {
+        "x": -3.5625,
+        "y": -32.625,
+        "z": 6.9375
+      },
+      "distance": 9.0731080155865,
+      "id64": 5367098395480,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-0"
+    },
+    {
+      "coords": {
+        "x": -8.9375,
+        "y": -24.25,
+        "z": 11.46875
+      },
+      "distance": 9.356961813270374,
+      "id64": 35855058085289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gl 867 B"
+    },
+    {
+      "coords": {
+        "x": -9.0,
+        "y": -24.46875,
+        "z": 11.1875
+      },
+      "distance": 9.411180186352825,
+      "id64": 20461895296425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "FK Aquarii"
+    },
+    {
+      "coords": {
+        "x": -4.65625,
+        "y": -32.5625,
+        "z": 20.1875
+      },
+      "distance": 9.749499185855651,
+      "id64": 40551470484320,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector DB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": -6.75,
+        "y": -27.53125,
+        "z": 20.65625
+      },
+      "distance": 9.767662287492335,
+      "id64": 22958210698080,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector CB-O a6-1"
+    }
+  ]
+}

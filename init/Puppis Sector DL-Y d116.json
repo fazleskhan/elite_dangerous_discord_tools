@@ -1,0 +1,122 @@
+{
+  "coords": {
+    "x": 33.0,
+    "y": 2.34375,
+    "z": 15.71875
+  },
+  "id64": 3996223801707,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Puppis Sector DL-Y d116",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 33.0,
+        "y": 2.34375,
+        "z": 15.71875
+      },
+      "distance": 0.0,
+      "id64": 3996223801707,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Puppis Sector DL-Y d116"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": 2.84375,
+        "z": 18.78125
+      },
+      "distance": 4.004514054476523,
+      "id64": 13865362466225,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-6"
+    },
+    {
+      "coords": {
+        "x": 38.59375,
+        "y": 2.03125,
+        "z": 14.625
+      },
+      "distance": 5.708238289963025,
+      "id64": 2870514623913,
+      "mainstar": "M",
+      "name": "LHS 40"
+    },
+    {
+      "coords": {
+        "x": 33.8125,
+        "y": -2.375,
+        "z": 19.84375
+      },
+      "distance": 6.319998640229284,
+      "id64": 4756844057306,
+      "mainstar": "DC",
+      "name": "LP 104-2"
+    },
+    {
+      "coords": {
+        "x": 38.625,
+        "y": -0.5,
+        "z": 16.53125
+      },
+      "distance": 6.355131415832406,
+      "id64": 2557820801754,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mata"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": 5.78125,
+        "z": 16.125
+      },
+      "distance": 7.30909375794975,
+      "id64": 671222932913,
+      "mainstar": "M",
+      "name": "LHS 336"
+    },
+    {
+      "coords": {
+        "x": 35.375,
+        "y": 0.1875,
+        "z": 7.75
+      },
+      "distance": 8.590169708742662,
+      "id64": 2621834266987,
+      "mainstar": "F",
+      "name": "L 190-21"
+    },
+    {
+      "coords": {
+        "x": 33.0625,
+        "y": 11.84375,
+        "z": 17.125
+      },
+      "distance": 9.603720389125249,
+      "id64": 4580339353963,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector DL-Y d133"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": 4.5625,
+        "z": 10.25
+      },
+      "distance": 9.966496610519666,
+      "id64": 4481966150354,
+      "mainstar": "K",
+      "name": "LHS 2447"
+    },
+    {
+      "coords": {
+        "x": 36.3125,
+        "y": 11.5,
+        "z": 13.53125
+      },
+      "distance": 9.979715755596448,
+      "id64": 2008064987858,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "LHS 2441"
+    }
+  ]
+}

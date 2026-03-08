@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": -6.15625,
+    "y": -15.78125,
+    "z": 18.625
+  },
+  "id64": 8605067645658,
+  "mainstar": "K",
+  "name": "Sameni",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 0.0,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 3.587494555744998,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    },
+    {
+      "coords": {
+        "x": -6.96875,
+        "y": -14.53125,
+        "z": 24.1875
+      },
+      "distance": 5.758824749894721,
+      "id64": 1733119972058,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "5 G. Capricorni"
+    },
+    {
+      "coords": {
+        "x": -1.65625,
+        "y": -10.28125,
+        "z": 16.625
+      },
+      "distance": 7.3824115301167,
+      "id64": 5306532762330,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Stopover"
+    },
+    {
+      "coords": {
+        "x": -5.8125,
+        "y": -19.65625,
+        "z": 25.0
+      },
+      "distance": 7.468226969133973,
+      "id64": 5581410669274,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "AU Microscopii"
+    },
+    {
+      "coords": {
+        "x": -1.15625,
+        "y": -11.03125,
+        "z": 21.875
+      },
+      "distance": 7.623975340988453,
+      "id64": 8055311831770,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Narenses"
+    },
+    {
+      "coords": {
+        "x": -7.8125,
+        "y": -10.65625,
+        "z": 13.15625
+      },
+      "distance": 7.675676883832461,
+      "id64": 2869709252009,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LP 816-60"
+    },
+    {
+      "coords": {
+        "x": -1.78125,
+        "y": -22.125,
+        "z": 14.28125
+      },
+      "distance": 8.846013402940333,
+      "id64": 5367098526552,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 2220-3628"
+    },
+    {
+      "coords": {
+        "x": 1.4375,
+        "y": -11.1875,
+        "z": 16.78125
+      },
+      "distance": 9.064601049549836,
+      "id64": 2869977687473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3531"
+    },
+    {
+      "coords": {
+        "x": -14.3125,
+        "y": -17.53125,
+        "z": 14.84375
+      },
+      "distance": 9.158862681850842,
+      "id64": 18262872040873,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 922"
+    },
+    {
+      "coords": {
+        "x": -9.1875,
+        "y": -19.84375,
+        "z": 10.6875
+      },
+      "distance": 9.417870728699773,
+      "id64": 27058965063081,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3799"
+    }
+  ]
+}

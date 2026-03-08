@@ -23,8 +23,20 @@ def main() -> None:
     )
     parser.add_argument(
         "command",
-        help="enter command (path|system_info|all_loaded_systems|calc_systems_distance)",
-        choices=["path", "all_loaded_systems", "system_info", "calc_systems_distance"],
+        help="enter command (path|system_info|all_loaded_systems|calc_systems_distance|init_datasource)",
+        choices=[
+            "path",
+            "all_loaded_systems",
+            "system_info",
+            "calc_systems_distance",
+            "init_datasource",
+        ],
+    )
+    parser.add_argument(
+        "--import_dir",
+        default="./init",
+        # Only used by the `init_datasource` command.
+        help="directory containing datasource JSON files for init_datasource command",
     )
     parser.add_argument(
         "--initial",
@@ -162,6 +174,11 @@ def main() -> None:
                 )
             )
             print(f"Execution time: {_elapsed_ms(start)} ms")
+        case "init_datasource":
+            start = time.perf_counter()
+            init_datasource(args.import_dir)
+            print(f"Datasource initialized from {args.import_dir}")
+            print(f"Execution time: {_elapsed_ms(start)} ms")
 
 
 def get_all_system_names() -> list[str]:
@@ -196,6 +213,10 @@ def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
     for system_name in system_names:
         results.append(ed_service.get_system_info(system_name))
     return results
+
+
+def init_datasource(import_dir: str = "./init") -> None:
+    ed_service.init_datasource(import_dir)
 
 
 if __name__ == "__main__":

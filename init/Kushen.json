@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 26.46875,
+    "y": -8.5,
+    "z": 7.84375
+  },
+  "id64": 4133662755179,
+  "mainstar": "L",
+  "name": "Kushen",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 0.0,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 3.8337012957454055,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 5.192204192344519,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": -13.5625,
+        "z": 7.53125
+      },
+      "distance": 5.289287522908922,
+      "id64": 9467315889577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-9"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 5.867182298599559,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 31.3125,
+        "y": -13.34375,
+        "z": 7.625
+      },
+      "distance": 6.853588818093773,
+      "id64": 5370319883096,
+      "mainstar": "Y",
+      "name": "Donner"
+    },
+    {
+      "coords": {
+        "x": 20.90625,
+        "y": -7.5,
+        "z": 3.75
+      },
+      "distance": 6.978552522729911,
+      "id64": 2587474528619,
+      "mainstar": "DA",
+      "name": "LAWD 26"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 7.320041517129531,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 7.451208480005106,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 7.7468491578834815,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 33.34375,
+        "y": -4.375,
+        "z": 5.78125
+      },
+      "distance": 8.278596272919703,
+      "id64": 671222932905,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Pwyll"
+    },
+    {
+      "coords": {
+        "x": 18.90625,
+        "y": -4.21875,
+        "z": 5.875
+      },
+      "distance": 8.910470491225478,
+      "id64": 22661455488425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 3572"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 9.239436535850007,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    }
+  ]
+}

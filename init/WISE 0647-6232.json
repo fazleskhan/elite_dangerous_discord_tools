@@ -1,0 +1,166 @@
+{
+  "coords": {
+    "x": 25.46875,
+    "y": -11.5625,
+    "z": 1.125
+  },
+  "id64": 5370319883088,
+  "mainstar": "Y",
+  "name": "WISE 0647-6232",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 0.0,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 4.186450428167041,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 5.743032463341993,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 27.71875,
+        "y": -15.21875,
+        "z": -3.15625
+      },
+      "distance": 6.0629832281641685,
+      "id64": 4889576999275,
+      "mainstar": "M",
+      "name": "Puppis Sector DL-Y d142"
+    },
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 6.460894989279736,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 20.90625,
+        "y": -7.5,
+        "z": 3.75
+      },
+      "distance": 6.64913058226412,
+      "id64": 2587474528619,
+      "mainstar": "DA",
+      "name": "LAWD 26"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": -13.5625,
+        "z": 7.53125
+      },
+      "distance": 6.729787445566167,
+      "id64": 9467315889577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-9"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 7.451208480005106,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 8.539602138712318,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 24.03125,
+        "y": -7.78125,
+        "z": -6.6875
+      },
+      "distance": 8.797693678601227,
+      "id64": 7268292634017,
+      "mainstar": "M",
+      "name": "LHS 222"
+    },
+    {
+      "coords": {
+        "x": 31.3125,
+        "y": -13.34375,
+        "z": 7.625
+      },
+      "distance": 8.920328784579636,
+      "id64": 5370319883096,
+      "mainstar": "Y",
+      "name": "Donner"
+    },
+    {
+      "coords": {
+        "x": 31.53125,
+        "y": -18.21875,
+        "z": 0.46875
+      },
+      "distance": 9.027194158485791,
+      "id64": 4855217260907,
+      "mainstar": "F (White) Star",
+      "name": "Macalites"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 9.159022617752399,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 9.176279287516264,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 3.0,
+    "y": 0.3125,
+    "z": 22.0625
+  },
+  "id64": 3382387413722,
+  "mainstar": "K",
+  "name": "Cuspoor",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 3.0,
+        "y": 0.3125,
+        "z": 22.0625
+      },
+      "distance": 0.0,
+      "id64": 3382387413722,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Cuspoor"
+    },
+    {
+      "coords": {
+        "x": 0.78125,
+        "y": -0.84375,
+        "z": 20.125
+      },
+      "distance": 3.164438635050457,
+      "id64": 18263140541873,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 7072"
+    },
+    {
+      "coords": {
+        "x": 0.4375,
+        "y": 2.09375,
+        "z": 19.21875
+      },
+      "distance": 4.222105147316916,
+      "id64": 1865903245675,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "36 Ophiuchi"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -2.09375,
+        "z": 15.9375
+      },
+      "distance": 6.638621021153414,
+      "id64": 5069001008561,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 451"
+    },
+    {
+      "coords": {
+        "x": 8.125,
+        "y": 4.0,
+        "z": 26.09375
+      },
+      "distance": 7.490945054697705,
+      "id64": 11666070775217,
+      "mainstar": "M",
+      "name": "LHS 415"
+    },
+    {
+      "coords": {
+        "x": 8.5,
+        "y": -2.9375,
+        "z": 27.25
+      },
+      "distance": 8.229377634426555,
+      "id64": 3657265320666,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "41 G. Arae"
+    },
+    {
+      "coords": {
+        "x": 4.1875,
+        "y": -1.90625,
+        "z": 14.0625
+      },
+      "distance": 8.386477676146285,
+      "id64": 5069001008553,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 449"
+    },
+    {
+      "coords": {
+        "x": 8.5625,
+        "y": 3.875,
+        "z": 16.875
+      },
+      "distance": 8.3989861739379,
+      "id64": 2869977753009,
+      "mainstar": "M",
+      "name": "LHS 397"
+    },
+    {
+      "coords": {
+        "x": 7.59375,
+        "y": -4.9375,
+        "z": 16.71875
+      },
+      "distance": 8.787531116587866,
+      "id64": 7268024264113,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Luyten 205-128"
+    },
+    {
+      "coords": {
+        "x": -5.875,
+        "y": 0.90625,
+        "z": 23.84375
+      },
+      "distance": 9.071439556376927,
+      "id64": 33656034895281,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Haghole"
+    },
+    {
+      "coords": {
+        "x": 2.21875,
+        "y": -7.53125,
+        "z": 16.8125
+      },
+      "distance": 9.470864037932337,
+      "id64": 9467047454129,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Luyten 347-14"
+    }
+  ]
+}

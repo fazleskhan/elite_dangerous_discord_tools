@@ -1,0 +1,232 @@
+{
+  "coords": {
+    "x": 31.84375,
+    "y": -35.0,
+    "z": 16.125
+  },
+  "id64": 5370319620960,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Weir",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -35.0,
+        "z": 16.125
+      },
+      "distance": 0.0,
+      "id64": 5370319620960,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Weir"
+    },
+    {
+      "coords": {
+        "x": 30.9375,
+        "y": -31.96875,
+        "z": 14.6875
+      },
+      "distance": 3.475078686159495,
+      "id64": 5370319620952,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 31.9375,
+        "y": -33.0,
+        "z": 13.03125
+      },
+      "distance": 3.6851157546269833,
+      "id64": 58146877754200,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-3"
+    },
+    {
+      "coords": {
+        "x": 30.65625,
+        "y": -39.03125,
+        "z": 16.125
+      },
+      "distance": 4.202515057974213,
+      "id64": 58146877623136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-3"
+    },
+    {
+      "coords": {
+        "x": 29.84375,
+        "y": -31.875,
+        "z": 12.78125
+      },
+      "distance": 4.99462601828205,
+      "id64": 22962505665368,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 26.40625,
+        "y": -32.90625,
+        "z": 14.1875
+      },
+      "distance": 6.140366565808592,
+      "id64": 40554691709784,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector CV-P a5-2"
+    },
+    {
+      "coords": {
+        "x": 38.59375,
+        "y": -33.625,
+        "z": 18.21875
+      },
+      "distance": 7.1997856955953905,
+      "id64": 5371393362784,
+      "mainstar": "L",
+      "name": "Ehi"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -30.375,
+        "z": 17.8125
+      },
+      "distance": 7.2889578301702365,
+      "id64": 22962505665376,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector GB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 35.15625,
+        "y": -40.15625,
+        "z": 21.21875
+      },
+      "distance": 7.969056366659731,
+      "id64": 5371393231712,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector OE-R a34-0"
+    },
+    {
+      "coords": {
+        "x": 32.625,
+        "y": -31.09375,
+        "z": 9.0
+      },
+      "distance": 8.163012043663786,
+      "id64": 75739063798616,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-4"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -37.46875,
+        "z": 21.0625
+      },
+      "distance": 8.38577897768001,
+      "id64": 3657332396762,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Esege Malan"
+    },
+    {
+      "coords": {
+        "x": 26.28125,
+        "y": -39.15625,
+        "z": 21.5
+      },
+      "distance": 8.781027577254271,
+      "id64": 83919606490,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Chup Kamui"
+    },
+    {
+      "coords": {
+        "x": 27.1875,
+        "y": -42.65625,
+        "z": 17.625
+      },
+      "distance": 9.085638564514879,
+      "id64": 5370319489888,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-0"
+    },
+    {
+      "coords": {
+        "x": 34.46875,
+        "y": -43.1875,
+        "z": 19.65625
+      },
+      "distance": 9.294918386543262,
+      "id64": 40554691578720,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-2"
+    },
+    {
+      "coords": {
+        "x": 38.71875,
+        "y": -35.53125,
+        "z": 9.84375
+      },
+      "distance": 9.32748375099094,
+      "id64": 671491237289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LP 91-140"
+    },
+    {
+      "coords": {
+        "x": 37.6875,
+        "y": -41.71875,
+        "z": 19.28125
+      },
+      "distance": 9.44737686807825,
+      "id64": 22963579276128,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector OE-R a34-1"
+    },
+    {
+      "coords": {
+        "x": 24.40625,
+        "y": -31.21875,
+        "z": 11.5625
+      },
+      "distance": 9.509503880986642,
+      "id64": 2759273204075,
+      "mainstar": "DA",
+      "name": "LHS 145"
+    },
+    {
+      "coords": {
+        "x": 24.625,
+        "y": -29.15625,
+        "z": 19.15625
+      },
+      "distance": 9.769761623883154,
+      "id64": 5369245879136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Fergus"
+    },
+    {
+      "coords": {
+        "x": 40.09375,
+        "y": -31.71875,
+        "z": 20.625
+      },
+      "distance": 9.95384858044867,
+      "id64": 22963579407200,
+      "mainstar": "Y",
+      "name": "Crucis Sector OI-T a3-1"
+    },
+    {
+      "coords": {
+        "x": 39.1875,
+        "y": -40.28125,
+        "z": 11.875
+      },
+      "distance": 9.994236620422793,
+      "id64": 22963579276120,
+      "mainstar": "T Tauri Star",
+      "name": "Col 285 Sector KY-S a33-1"
+    }
+  ]
+}

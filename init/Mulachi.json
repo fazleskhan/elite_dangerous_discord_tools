@@ -1,0 +1,111 @@
+{
+  "coords": {
+    "x": 6.25,
+    "y": -5.78125,
+    "z": 35.9375
+  },
+  "id64": 9154823459546,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Mulachi",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 6.25,
+        "y": -5.78125,
+        "z": 35.9375
+      },
+      "distance": 0.0,
+      "id64": 9154823459546,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mulachi"
+    },
+    {
+      "coords": {
+        "x": 7.09375,
+        "y": -9.15625,
+        "z": 41.125
+      },
+      "distance": 6.246014354170185,
+      "id64": 633608344282,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Tara"
+    },
+    {
+      "coords": {
+        "x": 9.46875,
+        "y": -5.09375,
+        "z": 29.8125
+      },
+      "distance": 6.9533181152957475,
+      "id64": 670954431921,
+      "mainstar": "M",
+      "name": "LTT 6988"
+    },
+    {
+      "coords": {
+        "x": 3.6875,
+        "y": -2.34375,
+        "z": 42.625
+      },
+      "distance": 7.943895061618073,
+      "id64": 13865094030777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Isleta"
+    },
+    {
+      "coords": {
+        "x": 10.5625,
+        "y": -10.53125,
+        "z": 29.75
+      },
+      "distance": 8.913209999770004,
+      "id64": 7230678110938,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Santy"
+    },
+    {
+      "coords": {
+        "x": 8.5,
+        "y": -2.9375,
+        "z": 27.25
+      },
+      "distance": 9.413929589310726,
+      "id64": 3657265320666,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "41 G. Arae"
+    },
+    {
+      "coords": {
+        "x": 15.71875,
+        "y": -5.75,
+        "z": 37.0625
+      },
+      "distance": 9.535398687260015,
+      "id64": 2870246122937,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 268-67"
+    },
+    {
+      "coords": {
+        "x": 3.8125,
+        "y": 3.625,
+        "z": 37.1875
+      },
+      "distance": 9.797012060444755,
+      "id64": 11666070775225,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector RT-R b4-5"
+    },
+    {
+      "coords": {
+        "x": 1.65625,
+        "y": -12.65625,
+        "z": 41.4375
+      },
+      "distance": 9.93066785581413,
+      "id64": 5069000943033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Diyu"
+    }
+  ]
+}

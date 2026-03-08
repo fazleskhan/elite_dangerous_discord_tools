@@ -1,0 +1,166 @@
+{
+  "coords": {
+    "x": 22.5,
+    "y": -12.4375,
+    "z": 27.53125
+  },
+  "id64": 16064385656241,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Mari",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -12.4375,
+        "z": 27.53125
+      },
+      "distance": 0.0,
+      "id64": 16064385656241,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Mari"
+    },
+    {
+      "coords": {
+        "x": 24.65625,
+        "y": -10.25,
+        "z": 29.125
+      },
+      "distance": 3.4604348534541147,
+      "id64": 1556682377579,
+      "mainstar": "F",
+      "name": "Zeta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 6.204443342274954,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 7.415737593961912,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 20.46875,
+        "y": -10.8125,
+        "z": 34.8125
+      },
+      "distance": 7.731959850193222,
+      "id64": 13865362400689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1349"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 7.915940207896975,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 24.53125,
+        "y": -5.59375,
+        "z": 31.5625
+      },
+      "distance": 8.198406380968194,
+      "id64": 297663464628,
+      "mainstar": "F (White) Star",
+      "name": "Beta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 8.355270604534601,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 30.78125,
+        "y": -14.5625,
+        "z": 25.75
+      },
+      "distance": 8.733131060793717,
+      "id64": 3107576615642,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Moepirt"
+    },
+    {
+      "coords": {
+        "x": 24.6875,
+        "y": -15.65625,
+        "z": 35.8125
+      },
+      "distance": 9.150115265667422,
+      "id64": 11666339145145,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gracunha"
+    },
+    {
+      "coords": {
+        "x": 21.65625,
+        "y": -3.625,
+        "z": 23.75
+      },
+      "distance": 9.626521795279954,
+      "id64": 16064385721777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 15.59375,
+        "y": -6.28125,
+        "z": 24.5625
+      },
+      "distance": 9.716438631901093,
+      "id64": 671222867377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Baker"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -11.03125,
+        "z": 36.6875
+      },
+      "distance": 9.74694463344796,
+      "id64": 9467315889593,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector UO-R b4-4"
+    },
+    {
+      "coords": {
+        "x": 29.9375,
+        "y": -11.03125,
+        "z": 33.9375
+      },
+      "distance": 9.916349347164006,
+      "id64": 3932210336474,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "LHS 3167"
+    }
+  ]
+}
