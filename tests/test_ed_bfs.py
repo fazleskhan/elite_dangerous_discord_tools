@@ -5,6 +5,7 @@ import constants
 import os
 import edgis_cache
 import datasource
+import pytest
 
 db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 
@@ -70,7 +71,7 @@ def test_simple_travel():
     )
     assert visited == expected_test_travel_list
 
-
+@pytest.mark.skip(reason="the test_ed_bfs.db does not exist on fresh devcontainer")
 def test_larger_local_travel_Sol_Wolf_359():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -95,6 +96,7 @@ def test_larger_local_travel_Sol_Wolf_359():
     assert visited == ["Sol", "Wolf 359"]
 
 
+@pytest.mark.skip(reason="the test_ed_bfs.db does not exist on fresh devcontainer")
 def test_larger_travel_Sol_LTT_3572():
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
