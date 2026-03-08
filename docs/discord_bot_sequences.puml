@@ -3,19 +3,19 @@ title DiscordBot.ping(ctx)
 
 actor User
 participant "discord.py Dispatcher" as Dispatcher
-participant "DiscordBot wrapper" as Wrapper
+participant "Discord command wrapper" as Command
 participant "DiscordBot" as Bot
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !ping
-Dispatcher -> Wrapper: ping(ctx)
-Wrapper -> Bot: ping(ctx)
+Dispatcher -> Command: ping(ctx)
+Command -> Bot: ping(ctx)
 Bot -> Bot: start = perf_counter()
 Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
 Bot -> Ctx: send("Pong (<ms> ms)")
 Ctx --> Bot: sent
-Bot --> Wrapper: return
-Wrapper --> Dispatcher: return
+Bot --> Command: return
+Command --> Dispatcher: return
 @enduml
 
 @startuml
@@ -23,14 +23,14 @@ title DiscordBot.system_info(ctx, arg)
 
 actor User
 participant "discord.py Dispatcher" as Dispatcher
-participant "DiscordBot wrapper" as Wrapper
+participant "Discord command wrapper" as Command
 participant "DiscordBot" as Bot
 participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !system_info <arg>
-Dispatcher -> Wrapper: system_info(ctx, arg)
-Wrapper -> Bot: system_info(ctx, arg)
+Dispatcher -> Command: system_info(ctx, arg)
+Command -> Bot: system_info(ctx, arg)
 Bot -> Bot: start = perf_counter()
 Bot -> Route: get_system_info(arg)
 Route --> Bot: value | awaitable
@@ -46,13 +46,14 @@ alt len(s_info) <= 2000
 else len(s_info) > 2000
   loop each 2000-char chunk
     Bot -> Ctx: send(chunk)
+    Ctx --> Bot: sent
   end
   Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
   Bot -> Ctx: send("Execution time: <ms> ms")
 end
 Ctx --> Bot: sent
-Bot --> Wrapper: return
-Wrapper --> Dispatcher: return
+Bot --> Command: return
+Command --> Dispatcher: return
 @enduml
 
 @startuml
@@ -60,14 +61,14 @@ title DiscordBot.calc_systems_distance(ctx, system_name_one, system_name_two)
 
 actor User
 participant "discord.py Dispatcher" as Dispatcher
-participant "DiscordBot wrapper" as Wrapper
+participant "Discord command wrapper" as Command
 participant "DiscordBot" as Bot
 participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !calc_systems_distance <system_one> <system_two>
-Dispatcher -> Wrapper: calc_systems_distance(ctx, system_one, system_two)
-Wrapper -> Bot: calc_systems_distance(ctx, system_one, system_two)
+Dispatcher -> Command: calc_systems_distance(ctx, system_one, system_two)
+Command -> Bot: calc_systems_distance(ctx, system_one, system_two)
 Bot -> Bot: start = perf_counter()
 Bot -> Route: calc_systems_distance(system_one, system_two)
 Route --> Bot: distance | awaitable
@@ -79,8 +80,8 @@ end
 Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
 Bot -> Ctx: send("Distance between ...: <distance> (<ms> ms)")
 Ctx --> Bot: sent
-Bot --> Wrapper: return
-Wrapper --> Dispatcher: return
+Bot --> Command: return
+Command --> Dispatcher: return
 @enduml
 
 @startuml
@@ -88,28 +89,36 @@ title DiscordBot.path(ctx, initial_system_name, destination_system_name, max_sys
 
 actor User
 participant "discord.py Dispatcher" as Dispatcher
-participant "DiscordBot wrapper" as Wrapper
+participant "Discord command wrapper" as Command
 participant "DiscordBot" as Bot
 participant "RouteService (ed_route)" as Route
-participant "progress_callback(message)" as ProgressCb
+participant "Worker thread" as Worker
+participant "concurrent.futures.Future" as SendFuture
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !path <initial> <destination> [max_system_count] [min_distance] [max_distance]
-Dispatcher -> Wrapper: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
-Wrapper -> Bot: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
+Dispatcher -> Command: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
+Command -> Bot: path(ctx, initial, destination, max_system_count, min_distance, max_distance)
 Bot -> Bot: start = perf_counter()
 Bot -> Ctx: send("Calculate Path between ... This may take a while")
 Ctx --> Bot: sent
 
 Bot -> Bot: loop = get_running_loop()
-Bot -> Route: path(initial, destination, max_systems=max_system_count, min_distance=min_distance, max_distance=max_distance,\nprogress_callback=progress_callback)
-loop every ~30s during traversal
-  Route -> ProgressCb: progress_callback("Analyzed X of Y systems")
-  ProgressCb -> Bot: logger.info(message)
-  ProgressCb -> Bot: run_coroutine_threadsafe(ctx.send(message), loop)
-  Bot -> Ctx: send(progress_message)
-  Ctx --> Bot: sent
+Bot -> Route: path(initial, destination, max_systems=max_system_count,\nmin_distance=min_distance, max_distance=max_distance,\nprogress_callback=progress_callback)
+loop progress updates during traversal
+  Route -> Worker: progress_callback(message)
+  Worker -> Bot: logger.info(message)
+  Worker -> SendFuture: run_coroutine_threadsafe(ctx.send(message), loop)
+  Worker -> SendFuture: add_done_callback(handle_progress_send_result)
+  SendFuture -> Ctx: send(progress_message)
+  Ctx --> SendFuture: sent | exception
+  alt send failed
+    SendFuture -> Bot: handle_progress_send_result(future.exception())
+    Bot -> Bot: logger.error("Failed to send progress update to Discord")
+  else send ok
+  end
 end
+
 Route --> Bot: route | awaitable
 Bot -> Bot: _resolve(route)
 alt awaitable
@@ -127,8 +136,8 @@ end
 Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
 Bot -> Ctx: send("<message>(<ms> ms)")
 Ctx --> Bot: sent
-Bot --> Wrapper: return
-Wrapper --> Dispatcher: return
+Bot --> Command: return
+Command --> Dispatcher: return
 @enduml
 
 @startuml
@@ -136,14 +145,14 @@ title DiscordBot.dump_system_cache_names(ctx)
 
 actor User
 participant "discord.py Dispatcher" as Dispatcher
-participant "DiscordBot wrapper" as Wrapper
+participant "Discord command wrapper" as Command
 participant "DiscordBot" as Bot
 participant "RouteService (ed_route)" as Route
 participant "commands.Context" as Ctx
 
 User -> Dispatcher: !dump_system_cache_names
-Dispatcher -> Wrapper: dump_system_cache_names(ctx)
-Wrapper -> Bot: dump_system_cache_names(ctx)
+Dispatcher -> Command: dump_system_cache_names(ctx)
+Command -> Bot: dump_system_cache_names(ctx)
 Bot -> Bot: start = perf_counter()
 Bot -> Ctx: send("Fetching all system names in cache... This may take a while")
 Ctx --> Bot: sent
@@ -164,6 +173,34 @@ end
 Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
 Bot -> Ctx: send("Total number of systems in cache: <count> (<ms> ms)")
 Ctx --> Bot: sent
-Bot --> Wrapper: return
-Wrapper --> Dispatcher: return
+Bot --> Command: return
+Command --> Dispatcher: return
+@enduml
+
+@startuml
+title DiscordBot.init_datasource(ctx, import_dir)
+
+actor User
+participant "discord.py Dispatcher" as Dispatcher
+participant "Discord command wrapper" as Command
+participant "DiscordBot" as Bot
+participant "RouteService (ed_route)" as Route
+participant "commands.Context" as Ctx
+
+User -> Dispatcher: !init_datasource [import_dir]
+Dispatcher -> Command: init_datasource(ctx, import_dir="./init")
+Command -> Bot: init_datasource(ctx, import_dir)
+Bot -> Bot: start = perf_counter()
+Bot -> Route: init_datasource(import_dir)
+Route --> Bot: result | awaitable
+Bot -> Bot: _resolve(result)
+alt awaitable
+  Bot -> Bot: await result
+else immediate
+end
+Bot -> Bot: elapsed_ms = int((perf_counter()-start)*1000)
+Bot -> Ctx: send("Datasource initialized from <import_dir> (<ms> ms)")
+Ctx --> Bot: sent
+Bot --> Command: return
+Command --> Dispatcher: return
 @enduml

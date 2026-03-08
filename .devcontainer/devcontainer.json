@@ -21,9 +21,13 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-python.black-formatter",
-				"bierner.emojisense",
 				"codezombiech.gitignore",
-				"jebbs.plantuml"
+				"jebbs.plantuml",
+				"ms-python.autopep8",
+				"Redis.redis-for-vscode",
+				"ms-python.vscode-pylance",
+				"ms-python.debugpy",
+				"ms-python.vscode-python-envs"
 			],
 			"settings": {
 				"[python]": {

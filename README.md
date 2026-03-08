@@ -17,7 +17,7 @@ https://github.com/elitedangereuse/edgis
 
 ### Docker Image
 
-An image of this deployed app is avaialble on DockerHub
+An image of this deployed app is available on DockerHub
 
 https://hub.docker.com/repository/docker/fazleskhan/public-images/tags/elite-dangerous-discord-tools/
 
@@ -25,7 +25,7 @@ The image externalizes the configuration, logs, and the database to /config, /lo
 
 ### Starting 
 
-The Discord bot can be started by running the discord_runner.py script. For example _python ./src/discord_bot.py_
+The Discord bot can be started by running the discord_runner.py script. For example, _python ./src/discord_bot.py_
 
 ### Configuration
 
@@ -48,8 +48,9 @@ The Discord bot can be started by running the discord_runner.py script. For exam
 * !ping
 * !calc_systems_distance <system_one> <system_two>
 * !system_info <system name> - for example !system_info Sol
-* !path <initial system name> <destination system name> <max systems> <min distance> <max distance> - for example !path Sol  Sirius 1000 6 11
-* !dump_system_cache_names - for example !dump_system_cache_names
+* !path <initial system name> <destination system name> <max systems> <min distance> <max distance> - for example _!path Sol Sirius 1000 6 11_
+* !dump_system_cache_names - for example _!dump_system_cache_names_
+* !init_datasource - load system json file from the init directory into the datasource
 
 #### ping
 
@@ -77,11 +78,15 @@ Unlike in normal graphs, every node (system) in EDGIS is reachable from every ot
 
 #### Min Distance
 
-It is not to the traveller's benefit to visit every local system because every system (node) is visitable from every other system. So, this configuration limits the search for adjacent neighbors.
+It is not to the traveler's benefit to visit every local system because every system (node) is visitable from every other system. So, this configuration limits the search for adjacent neighbors.
 
 #### dump_system_cache_names
 
 Iteratively displays all the names currently cached locally.
+
+#### init_datasource
+
+Iteratively loads the json contents of the init directory into the current datasource
 
 ### Diagrams
 
@@ -95,7 +100,11 @@ Iteratively displays all the names currently cached locally.
 
 ![Dump System Cache Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-4.png)
 
+![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_sequences-5.png)
+
+
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
+
 
 ## Command line
 
@@ -105,13 +114,13 @@ The tool also provides a command line interaction. To run the command line run m
 
 #### Command Line Help
 
-Provide description of the commands and avaiable options
+Provide description of the commands and available options
 
 __python ./src/main.py -h__
 
 #### System Info
 
-Returns information about the target system. It will retrieve infrom EDGIS if not preset.
+Returns information about the target system. It will retrieve information from EDGIS if not preset.
 
 system_info <system_name>
 
@@ -132,6 +141,10 @@ Calculates the path between two systems.
 main.py path <initial system> <destination system> <optional max nodes> <min distance> <max distance>
 
 for example __python ./src/main.py path Sol Sirius 1000 6 11__
+
+#### Init Datasource
+
+main.py init_datasource 
 
 
 

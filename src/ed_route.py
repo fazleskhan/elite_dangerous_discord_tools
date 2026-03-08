@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from typing import Any, Callable, Protocol, cast
 import math
 
-"""Service layer that composes DB/cache dependencies and route search."""
+"""Service layer that composes datasource/cache dependencies and route search."""
 
 
 SystemInfo = dict[str, Any]
