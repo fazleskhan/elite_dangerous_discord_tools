@@ -124,9 +124,10 @@ class EDTinyDB:
                 self.logger.debug(
                     "Inserted system={} doc_id={}", system_name, inserted_id
                 )
-            self.logger.debug(
-                "Skipped duplicate system insert for system={}", system_name
-            )
+            else:
+                self.logger.debug(
+                    "Skipped duplicate system insert for system={}", system_name
+                )
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
         System = Query()

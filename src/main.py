@@ -209,10 +209,7 @@ def calc_systems_distance(source_system: str, target_system: str) -> float:
 
 
 def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
-    results: list[dict[str, Any] | None] = []
-    for system_name in system_names:
-        results.append(ed_service.get_system_info(system_name))
-    return results
+    return [ed_service.get_system_info(system_name) for system_name in system_names]
 
 
 def init_datasource(import_dir: str = "./init") -> None:
