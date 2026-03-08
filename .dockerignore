@@ -11,6 +11,7 @@
 /.git
 /venv
 /scripts
+/src/__pycache__
 
 
 # excluded files
