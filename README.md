@@ -94,7 +94,7 @@ Iteratively displays all the names currently cached locally.
 
 Loads JSON files from the target import directory into the configured datasource.
 
-### Diagrams
+### Discord Bot Sequence Diagrams
 
 ![Ping Sequence Diagram](./docs/discord_bot_sequences/Ping&#32;Sequence&#32;Diagram.png)
 
@@ -111,13 +111,7 @@ Loads JSON files from the target import directory into the configured datasource
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
 
-![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Redis&#32;Sequence&#32;Diagram.png)
 
-![Export Redis Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Redis&#32;Sequence&#32;Diagram.png)
-
-![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Tinydb&#32;Sequence&#32;Diagram.png)
-
-![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Tinydb&#32;Sequence&#32;Diagram.png)
 
 
 ## Command line
@@ -164,6 +158,19 @@ Calculates the path between two systems.
 
 `python ./src/main.py init_datasource --import_dir ./init`
 
+## Main Sequence Diagrams
+
+![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/All&#32;Loaded&#32;Systems&#32;Sequence&#32;Diagram.png)
+
+![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/Calculate&#32;System&#32;Distance&#32;Sequence&#32;Diagram.png)
+
+![Main Initialize Datasource Sequence Diagram](./docs/main_sequences/Initialize&#32;Datasource&#32;Sequence&#32;Diagram.png)
+
+![Main Path Sequence Diagram](./docs/main_sequences/Path&#32;Sequence&#32;Diagram.png)
+
+![Main System Info Sequence Diagram](./docs/main_sequences/System&#32;Info&#32;Sequence&#32;Diagram.png)
+
+
 ## Data Transfer Utils
 
 ### Export Redis
@@ -189,5 +196,14 @@ Imports JSON system files into Redis.
 Imports JSON system files into TinyDB.
 
 `python ./src/import_tinydb.py [--import-dir ./data/ed_redis-export]`
+
+## Data Transfer Utils Sequence Diagrams
+![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Redis&#32;Sequence&#32;Diagram.png)
+
+![Export Redis Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Redis&#32;Sequence&#32;Diagram.png)
+
+![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Tinydb&#32;Sequence&#32;Diagram.png)
+
+![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Tinydb&#32;Sequence&#32;Diagram.png)
 
 

@@ -1,0 +1,154 @@
+@startuml All Loaded Systems Sequence Diagram
+title main.py all_loaded_systems
+
+actor User
+participant "CLI" as CLI
+participant "argparse" as Parser
+participant "main.main" as Main
+participant "main.get_all_system_names" as GetNames
+participant "EDRouteService" as Service
+participant "stdout" as Out
+
+User -> CLI: python src/main.py all_loaded_systems
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.command=all_loaded_systems
+Main -> GetNames: get_all_system_names()
+GetNames -> Service: get_all_system_names()
+Service --> GetNames: names
+GetNames --> Main: names
+Main -> Out: print("All Loaded Systems:", names)
+Main -> Out: print("Execution time: <ms> ms")
+Main --> CLI: return
+@enduml
+
+@startuml System Info Sequence Diagram 
+title main.py system_info
+
+actor User
+participant "CLI" as CLI
+participant "argparse" as Parser
+participant "main.main" as Main
+participant "main.get_system_info" as GetInfo
+participant "EDRouteService" as Service
+participant "stdout" as Out
+
+User -> CLI: python src/main.py system_info --system_name <name>
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.command=system_info, args.system_name
+
+alt missing --system_name
+  Main -> Out: print(error)
+  Main -> Parser: print_help()
+  Main -> CLI: sys.exit(1)
+else valid --system_name
+  Main -> Out: print(system_name)
+  Main -> GetInfo: get_system_info([system_name])
+  loop each requested system
+    GetInfo -> Service: get_system_info(system_name)
+    Service --> GetInfo: system | None
+  end
+  GetInfo --> Main: [system | None]
+  Main -> Out: print(result)
+  Main -> Out: print("Execution time: <ms> ms")
+end
+@enduml
+
+@startuml Path Sequence Diagram
+title main.py path
+
+actor User
+participant "CLI" as CLI
+participant "argparse" as Parser
+participant "main.main" as Main
+participant "main.calc_route" as CalcRoute
+participant "asyncio" as AsyncIO
+participant "EDRouteService" as Service
+participant "logger" as Logger
+participant "stdout" as Out
+
+User -> CLI: python src/main.py path --initial <src> --destination <dst> --max_systems <n>
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.command=path + args
+
+alt missing --initial or --destination
+  Main -> Out: print(error)
+  Main -> Parser: print_help()
+  Main -> CLI: sys.exit(1)
+else max_systems > 1000
+  Main -> Out: print(error)
+  Main -> CLI: sys.exit(1)
+else valid args
+  Main -> CalcRoute: calc_route(src, dst, int(max_systems), min_distance, max_distance)
+  CalcRoute -> AsyncIO: asyncio.run(ed_service.path(...))
+  AsyncIO -> Service: await path(..., progress_callback)
+  loop traversal progress
+    Service -> Logger: progress_callback(message)
+  end
+  Service --> AsyncIO: route | None
+  AsyncIO --> CalcRoute: route | None
+  CalcRoute --> Main: route | None
+  alt route found
+    Main -> Out: print("src → ... → dst")
+  else no route
+    Main -> Out: (no route line)
+  end
+  Main -> Out: print("Execution time: <ms> ms")
+end
+@enduml
+
+@startuml Calculate Systems Distance Sequence Diagram
+title main.py calc_systems_distance
+
+actor User
+participant "CLI" as CLI
+participant "argparse" as Parser
+participant "main.main" as Main
+participant "main.calc_systems_distance" as CalcDistance
+participant "EDRouteService" as Service
+participant "stdout" as Out
+
+User -> CLI: python src/main.py calc_systems_distance --initial <src> --destination <dst>
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.command=calc_systems_distance + args
+
+alt missing --initial or --destination
+  Main -> Out: print(error)
+  Main -> Parser: print_help()
+  Main -> CLI: sys.exit(1)
+else valid args
+  Main -> CalcDistance: calc_systems_distance(src, dst)
+  CalcDistance -> Service: calc_systems_distance(src, dst)
+  Service --> CalcDistance: distance
+  CalcDistance --> Main: distance
+  Main -> Out: print(distance)
+  Main -> Out: print("Execution time: <ms> ms")
+end
+@enduml
+
+@startuml Initialize Datasource Sequence Diagram
+title main.py init_datasource
+
+actor User
+participant "CLI" as CLI
+participant "argparse" as Parser
+participant "main.main" as Main
+participant "main.init_datasource" as InitDS
+participant "EDRouteService" as Service
+participant "stdout" as Out
+
+User -> CLI: python src/main.py init_datasource [--import_dir <dir>]
+CLI -> Main: main()
+Main -> Parser: parse_args()
+Parser --> Main: args.command=init_datasource, args.import_dir
+Main -> InitDS: init_datasource(import_dir)
+InitDS -> Service: init_datasource(import_dir)
+Service --> InitDS: done
+InitDS --> Main: done
+Main -> Out: print("Datasource initialized from <dir>")
+Main -> Out: print("Execution time: <ms> ms")
+Main --> CLI: return
+@enduml
