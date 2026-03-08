@@ -1,0 +1,188 @@
+{
+  "coords": {
+    "x": 13.28125,
+    "y": -33.40625,
+    "z": -2.65625
+  },
+  "id64": 40552544226128,
+  "mainstar": "Y (Brown dwarf) Star",
+  "name": "Core Sys Sector WO-R a4-2",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 13.28125,
+        "y": -33.40625,
+        "z": -2.65625
+      },
+      "distance": 0.0,
+      "id64": 40552544226128,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 16.65625,
+        "y": -33.8125,
+        "z": -3.65625
+      },
+      "distance": 3.5433972487571865,
+      "id64": 908553327314,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "CC Eri"
+    },
+    {
+      "coords": {
+        "x": 10.1875,
+        "y": -35.125,
+        "z": -3.625
+      },
+      "distance": 3.6693142666580085,
+      "id64": 5368172006224,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 18.09375,
+        "y": -32.5,
+        "z": -3.34375
+      },
+      "distance": 4.945108852441976,
+      "id64": 22961431923536,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 5.715675403003568,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    },
+    {
+      "coords": {
+        "x": 12.5,
+        "y": -29.9375,
+        "z": 1.96875
+      },
+      "distance": 5.833798344560772,
+      "id64": 58144730270544,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 18.5625,
+        "y": -30.78125,
+        "z": -2.59375
+      },
+      "distance": 5.897977010170521,
+      "id64": 5369245879120,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 19.21875,
+        "y": -31.625,
+        "z": -5.5
+      },
+      "distance": 6.820093245330301,
+      "id64": 40553617967944,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector TI-T a3-2"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -33.21875,
+        "z": 4.5
+      },
+      "distance": 7.161160978675175,
+      "id64": 5368172137296,
+      "mainstar": "T",
+      "name": "Core Sys Sector WO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 19.125,
+        "y": -30.5,
+        "z": -6.875
+      },
+      "distance": 7.771329016809158,
+      "id64": 22961431923528,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector TI-T a3-1"
+    },
+    {
+      "coords": {
+        "x": 10.4375,
+        "y": -31.28125,
+        "z": 4.625
+      },
+      "distance": 8.10056421646048,
+      "id64": 22960358181712,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 10.5,
+        "y": -38.71875,
+        "z": -8.15625
+      },
+      "distance": 8.136830329587806,
+      "id64": 2869977621921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 193"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 8.537028720520976,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 6.46875,
+        "y": -28.9375,
+        "z": -6.0625
+      },
+      "distance": 8.830765644891727,
+      "id64": 670954366369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1339"
+    },
+    {
+      "coords": {
+        "x": 19.96875,
+        "y": -28.03125,
+        "z": -6.5
+      },
+      "distance": 9.401473039502905,
+      "id64": 2870246057377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 1678"
+    },
+    {
+      "coords": {
+        "x": 19.875,
+        "y": -37.4375,
+        "z": 3.65625
+      },
+      "distance": 9.97878609225591,
+      "id64": 22961431792464,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Wakaparibe"
+    }
+  ]
+}

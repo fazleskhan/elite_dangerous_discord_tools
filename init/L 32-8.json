@@ -1,0 +1,188 @@
+{
+  "coords": {
+    "x": 24.0625,
+    "y": -13.0625,
+    "z": 7.25
+  },
+  "id64": 7268292634025,
+  "mainstar": "M",
+  "name": "L 32-8",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 24.0625,
+        "y": -13.0625,
+        "z": 7.25
+      },
+      "distance": 0.0,
+      "id64": 7268292634025,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-8"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": -13.5625,
+        "z": 7.53125
+      },
+      "distance": 1.072562643858157,
+      "id64": 9467315889577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 32-9"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -8.875,
+        "z": 9.5625
+      },
+      "distance": 4.887004450581153,
+      "id64": 13865362400681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 263"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 5.012289584112235,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 5.192204192344519,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 6.356744695596953,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 6.460894989279736,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    },
+    {
+      "coords": {
+        "x": 31.3125,
+        "y": -13.34375,
+        "z": 7.625
+      },
+      "distance": 7.265137752479302,
+      "id64": 5370319883096,
+      "mainstar": "Y",
+      "name": "Donner"
+    },
+    {
+      "coords": {
+        "x": 20.90625,
+        "y": -7.5,
+        "z": 3.75
+      },
+      "distance": 7.2906323671201525,
+      "id64": 2587474528619,
+      "mainstar": "DA",
+      "name": "LAWD 26"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 7.301139679871904,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 8.201443279996516,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -5.625,
+        "z": 13.28125
+      },
+      "distance": 9.70225690561222,
+      "id64": 16064385656233,
+      "mainstar": "M",
+      "name": "Core Sys Sector MC-V b2-7"
+    },
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 9.74544164276304,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 9.773859028679512,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 19.15625,
+        "y": -10.375,
+        "z": 15.40625
+      },
+      "distance": 9.890316444634115,
+      "id64": 7230745219802,
+      "mainstar": "G",
+      "name": "Arangorii"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -22.9375,
+        "z": 6.5625
+      },
+      "distance": 9.962625469724333,
+      "id64": 5369246010200,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LB 3303"
+    }
+  ]
+}

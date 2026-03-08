@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 6.15625,
+    "y": -31.3125,
+    "z": 5.0
+  },
+  "id64": 5069000877481,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "LFT 69",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -31.3125,
+        "z": 5.0
+      },
+      "distance": 0.0,
+      "id64": 5069000877481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 69"
+    },
+    {
+      "coords": {
+        "x": 3.75,
+        "y": -30.0,
+        "z": 8.15625
+      },
+      "distance": 4.180264270952256,
+      "id64": 2869977621929,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "LHS 102"
+    },
+    {
+      "coords": {
+        "x": 10.4375,
+        "y": -31.28125,
+        "z": 4.625
+      },
+      "distance": 4.297755591584984,
+      "id64": 22960358181712,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 6.03125,
+        "y": -36.25,
+        "z": 5.375
+      },
+      "distance": 4.95329751276864,
+      "id64": 22960358050648,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CQ-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 8.15625,
+        "y": -37.03125,
+        "z": 5.40625
+      },
+      "distance": 6.071996428276288,
+      "id64": 40552544095064,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CQ-P a5-2"
+    },
+    {
+      "coords": {
+        "x": 5.625,
+        "y": -29.53125,
+        "z": 11.5625
+      },
+      "distance": 6.820665977380801,
+      "id64": 5368172137304,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Silvanitou"
+    },
+    {
+      "coords": {
+        "x": 12.5,
+        "y": -29.9375,
+        "z": 1.96875
+      },
+      "distance": 7.163956003843128,
+      "id64": 58144730270544,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -33.21875,
+        "z": 4.5
+      },
+      "distance": 7.5734038128506,
+      "id64": 5368172137296,
+      "mainstar": "T",
+      "name": "Core Sys Sector WO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -24.09375,
+        "z": 7.25
+      },
+      "distance": 7.89790814868089,
+      "id64": 3824408332651,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "LAWD 96"
+    },
+    {
+      "coords": {
+        "x": 1.125,
+        "y": -38.875,
+        "z": 8.125
+      },
+      "distance": 9.605753890897892,
+      "id64": 40551470353240,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector BQ-P a5-2"
+    },
+    {
+      "coords": {
+        "x": -3.5625,
+        "y": -32.625,
+        "z": 6.9375
+      },
+      "distance": 9.99653260198255,
+      "id64": 5367098395480,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-0"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 16.09375,
+    "y": -19.90625,
+    "z": 24.46875
+  },
+  "id64": 6406111498970,
+  "mainstar": "K",
+  "name": "Iman Caber",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 0.0,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 3.0048788453114046,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 5.493693116884124,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 11.78125,
+        "y": -16.28125,
+        "z": 23.75
+      },
+      "distance": 5.6793382371980625,
+      "id64": 16064117220785,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector PI-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 6.468523546760884,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 6.478178515215523,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 18.25,
+        "y": -23.1875,
+        "z": 32.25
+      },
+      "distance": 8.71572528178235,
+      "id64": 9467315889585,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "V375 Pavonis"
+    },
+    {
+      "coords": {
+        "x": 11.53125,
+        "y": -26.6875,
+        "z": 20.5
+      },
+      "distance": 9.085853530351455,
+      "id64": 5368172137312,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-0"
+    },
+    {
+      "coords": {
+        "x": 12.28125,
+        "y": -28.46875,
+        "z": 23.78125
+      },
+      "distance": 9.398096549301885,
+      "id64": 7268024133041,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1672"
+    },
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 9.689717488141747,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    },
+    {
+      "coords": {
+        "x": 12.25,
+        "y": -13.8125,
+        "z": 31.1875
+      },
+      "distance": 9.851385927243943,
+      "id64": 7268024198577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3413"
+    }
+  ]
+}

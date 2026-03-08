@@ -1,5 +1,6 @@
 import main
 import test_data
+import sys
 
 
 def main_func(): ...
@@ -58,6 +59,27 @@ def test_get_system_info():
 def test_calc_systems_distance():
     main.ed_service.calc_systems_distance = lambda source, target: 4.377120022057882
     assert main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
+
+
+def test_init_datasource():
+    captured = {"import_dir": None}
+    main.ed_service.init_datasource = lambda import_dir="./init": captured.update(
+        {"import_dir": import_dir}
+    )
+    main.init_datasource("./init")
+    assert captured["import_dir"] == "./init"
+
+
+def test_main_init_datasource_command(monkeypatch):
+    captured = {"import_dir": None}
+    monkeypatch.setattr(
+        main, "init_datasource", lambda import_dir="./init": captured.update({"import_dir": import_dir})
+    )
+    monkeypatch.setattr(
+        sys, "argv", ["main.py", "init_datasource", "--import_dir", "./custom-init"]
+    )
+    main.main()
+    assert captured["import_dir"] == "./custom-init"
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-import db
+import datasource
 import pytest
 import test_data
 import os
@@ -20,7 +20,7 @@ def del_prior_database():
 
 @pytest.fixture(scope="module")
 def database(del_prior_database):
-    yield db.DB(test_db_filename)
+    yield datasource.DB(test_db_filename)
 
 
 @pytest.fixture(scope="module")

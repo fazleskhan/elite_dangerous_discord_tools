@@ -1,0 +1,232 @@
+{
+  "coords": {
+    "x": 31.0,
+    "y": -31.625,
+    "z": 26.53125
+  },
+  "id64": 40554691709800,
+  "mainstar": "Y",
+  "name": "Owaha",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 31.0,
+        "y": -31.625,
+        "z": 26.53125
+      },
+      "distance": 0.0,
+      "id64": 40554691709800,
+      "mainstar": "Y",
+      "name": "Owaha"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -29.28125,
+        "z": 28.96875
+      },
+      "distance": 3.4851806803952075,
+      "id64": 58146877754216,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Pladset"
+    },
+    {
+      "coords": {
+        "x": 30.96875,
+        "y": -26.9375,
+        "z": 29.78125
+      },
+      "distance": 5.704045302458598,
+      "id64": 13865362335153,
+      "mainstar": "M",
+      "name": "LHS 499"
+    },
+    {
+      "coords": {
+        "x": 35.0625,
+        "y": -36.15625,
+        "z": 27.84375
+      },
+      "distance": 6.225655713457017,
+      "id64": 22963579276136,
+      "mainstar": "L",
+      "name": "Col 285 Sector SK-P a35-1"
+    },
+    {
+      "coords": {
+        "x": 26.9375,
+        "y": -33.59375,
+        "z": 31.28125
+      },
+      "distance": 6.553043782281636,
+      "id64": 4756844024538,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "AY Indi"
+    },
+    {
+      "coords": {
+        "x": 37.1875,
+        "y": -34.71875,
+        "z": 25.84375
+      },
+      "distance": 6.9519135180538605,
+      "id64": 633675420378,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Hors"
+    },
+    {
+      "coords": {
+        "x": 36.3125,
+        "y": -29.5625,
+        "z": 31.3125
+      },
+      "distance": 7.438878548712837,
+      "id64": 671491237297,
+      "mainstar": "DA",
+      "name": "LAWD 83"
+    },
+    {
+      "coords": {
+        "x": 36.125,
+        "y": -37.0625,
+        "z": 25.15625
+      },
+      "distance": 7.5975427771089254,
+      "id64": 5371393231720,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector SK-P a35-0"
+    },
+    {
+      "coords": {
+        "x": 34.3125,
+        "y": -24.875,
+        "z": 24.28125
+      },
+      "distance": 7.848417436018551,
+      "id64": 8605134754522,
+      "mainstar": "K",
+      "name": "Chambo"
+    },
+    {
+      "coords": {
+        "x": 33.5,
+        "y": -25.375,
+        "z": 31.375
+      },
+      "distance": 8.293034068572249,
+      "id64": 22962505665384,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Handh"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -29.1875,
+        "z": 34.5
+      },
+      "distance": 8.375816191572019,
+      "id64": 11666339079601,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 493"
+    },
+    {
+      "coords": {
+        "x": 33.15625,
+        "y": -37.625,
+        "z": 32.25
+      },
+      "distance": 8.564666696667185,
+      "id64": 5581477745370,
+      "mainstar": "G",
+      "name": "Veroandi"
+    },
+    {
+      "coords": {
+        "x": 25.03125,
+        "y": -37.78125,
+        "z": 24.34375
+      },
+      "distance": 8.849324656435654,
+      "id64": 22962505534304,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-1"
+    },
+    {
+      "coords": {
+        "x": 34.375,
+        "y": -24.15625,
+        "z": 30.21875
+      },
+      "distance": 8.987241390576978,
+      "id64": 5069269378481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 475"
+    },
+    {
+      "coords": {
+        "x": 26.09375,
+        "y": -25.3125,
+        "z": 31.15625
+      },
+      "distance": 9.23631800624578,
+      "id64": 5370319620968,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Arima"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -35.75,
+        "z": 24.15625
+      },
+      "distance": 9.362700264880853,
+      "id64": 2832698675930,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Nanabozho"
+    },
+    {
+      "coords": {
+        "x": 31.96875,
+        "y": -41.09375,
+        "z": 26.25
+      },
+      "distance": 9.522331893370447,
+      "id64": 5370319489896,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector RK-P a35-0"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -37.46875,
+        "z": 21.0625
+      },
+      "distance": 9.693496128203694,
+      "id64": 3657332396762,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Esege Malan"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -30.375,
+        "z": 17.8125
+      },
+      "distance": 9.905116260044604,
+      "id64": 22962505665376,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector GB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 39.21875,
+        "y": -27.84375,
+        "z": 30.625
+      },
+      "distance": 9.92997946561321,
+      "id64": 22963579407208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Crucis Sector SO-R a4-1"
+    }
+  ]
+}

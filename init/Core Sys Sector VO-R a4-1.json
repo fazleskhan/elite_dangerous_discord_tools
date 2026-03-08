@@ -1,0 +1,122 @@
+{
+  "coords": {
+    "x": -0.59375,
+    "y": -29.25,
+    "z": -4.53125
+  },
+  "id64": 22959284439888,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Core Sys Sector VO-R a4-1",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -0.59375,
+        "y": -29.25,
+        "z": -4.53125
+      },
+      "distance": 0.0,
+      "id64": 22959284439888,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector VO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 0.125,
+        "y": -31.15625,
+        "z": -4.65625
+      },
+      "distance": 2.0410819741009916,
+      "id64": 5367098395472,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector VO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": -3.28125,
+        "y": -32.1875,
+        "z": -4.28125
+      },
+      "distance": 3.989243349308237,
+      "id64": 11666070644137,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 134"
+    },
+    {
+      "coords": {
+        "x": -2.96875,
+        "y": -32.25,
+        "z": -0.375
+      },
+      "distance": 5.649339701460693,
+      "id64": 3102853810539,
+      "mainstar": "White Dwarf (DQ) Star",
+      "name": "LFT 65"
+    },
+    {
+      "coords": {
+        "x": 1.375,
+        "y": -28.03125,
+        "z": -10.15625
+      },
+      "distance": 6.082923074065626,
+      "id64": 5069000877473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 149"
+    },
+    {
+      "coords": {
+        "x": 6.46875,
+        "y": -28.9375,
+        "z": -6.0625
+      },
+      "distance": 7.233345634110124,
+      "id64": 670954366369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1339"
+    },
+    {
+      "coords": {
+        "x": -2.03125,
+        "y": -32.1875,
+        "z": -11.28125
+      },
+      "distance": 7.500520815250098,
+      "id64": 22959284439880,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Jastreb Sector IH-M a7-1"
+    },
+    {
+      "coords": {
+        "x": 2.84375,
+        "y": -34.65625,
+        "z": -9.03125
+      },
+      "distance": 7.82904498087091,
+      "id64": 1183364125394,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 168"
+    },
+    {
+      "coords": {
+        "x": -1.34375,
+        "y": -24.4375,
+        "z": 2.15625
+      },
+      "distance": 8.273168226260118,
+      "id64": 31457280009641,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1070"
+    },
+    {
+      "coords": {
+        "x": -4.875,
+        "y": -29.5,
+        "z": -13.09375
+      },
+      "distance": 9.576429805125708,
+      "id64": 11666070644129,
+      "mainstar": "M",
+      "name": "LHS 1302"
+    }
+  ]
+}

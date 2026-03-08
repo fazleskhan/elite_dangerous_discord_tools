@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 24.65625,
+    "y": -10.25,
+    "z": 29.125
+  },
+  "id64": 1556682377579,
+  "mainstar": "F",
+  "name": "Zeta Trianguli Australis",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 24.65625,
+        "y": -10.25,
+        "z": 29.125
+      },
+      "distance": 0.0,
+      "id64": 1556682377579,
+      "mainstar": "F",
+      "name": "Zeta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -12.4375,
+        "z": 27.53125
+      },
+      "distance": 3.4604348534541147,
+      "id64": 16064385656241,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Mari"
+    },
+    {
+      "coords": {
+        "x": 24.53125,
+        "y": -5.59375,
+        "z": 31.5625
+      },
+      "distance": 5.257156580557592,
+      "id64": 297663464628,
+      "mainstar": "F (White) Star",
+      "name": "Beta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 20.46875,
+        "y": -10.8125,
+        "z": 34.8125
+      },
+      "distance": 7.085140700790634,
+      "id64": 13865362400689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1349"
+    },
+    {
+      "coords": {
+        "x": 29.9375,
+        "y": -11.03125,
+        "z": 33.9375
+      },
+      "distance": 7.18763586828103,
+      "id64": 3932210336474,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "LHS 3167"
+    },
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 7.338162768193412,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -11.03125,
+        "z": 36.6875
+      },
+      "distance": 7.652932954919963,
+      "id64": 9467315889593,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector UO-R b4-4"
+    },
+    {
+      "coords": {
+        "x": 30.78125,
+        "y": -14.5625,
+        "z": 25.75
+      },
+      "distance": 8.21607608594273,
+      "id64": 3107576615642,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Moepirt"
+    },
+    {
+      "coords": {
+        "x": 24.6875,
+        "y": -15.65625,
+        "z": 35.8125
+      },
+      "distance": 8.59948672160147,
+      "id64": 11666339145145,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gracunha"
+    },
+    {
+      "coords": {
+        "x": 21.59375,
+        "y": -9.78125,
+        "z": 37.5625
+      },
+      "distance": 8.988327934744037,
+      "id64": 1733187080922,
+      "mainstar": "K",
+      "name": "Yinsi"
+    },
+    {
+      "coords": {
+        "x": 21.65625,
+        "y": -3.625,
+        "z": 23.75
+      },
+      "distance": 9.043298623842961,
+      "id64": 16064385721777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-7"
+    }
+  ]
+}

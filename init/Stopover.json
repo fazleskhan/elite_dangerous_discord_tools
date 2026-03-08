@@ -1,0 +1,122 @@
+{
+  "coords": {
+    "x": -1.65625,
+    "y": -10.28125,
+    "z": 16.625
+  },
+  "id64": 5306532762330,
+  "mainstar": "K",
+  "name": "Stopover",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -1.65625,
+        "y": -10.28125,
+        "z": 16.625
+      },
+      "distance": 0.0,
+      "id64": 5306532762330,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Stopover"
+    },
+    {
+      "coords": {
+        "x": 1.4375,
+        "y": -11.1875,
+        "z": 16.78125
+      },
+      "distance": 3.2275365509161937,
+      "id64": 2869977687473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3531"
+    },
+    {
+      "coords": {
+        "x": 2.21875,
+        "y": -7.53125,
+        "z": 16.8125
+      },
+      "distance": 4.755342390406815,
+      "id64": 9467047454129,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Luyten 347-14"
+    },
+    {
+      "coords": {
+        "x": -1.15625,
+        "y": -11.03125,
+        "z": 21.875
+      },
+      "distance": 5.326818938165629,
+      "id64": 8055311831770,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Narenses"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 5.994382135591624,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    },
+    {
+      "coords": {
+        "x": 2.03125,
+        "y": -11.8125,
+        "z": 10.8125
+      },
+      "distance": 7.051775596436688,
+      "id64": 9467047454121,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "La Rochelle"
+    },
+    {
+      "coords": {
+        "x": -7.8125,
+        "y": -10.65625,
+        "z": 13.15625
+      },
+      "distance": 7.0761759181778405,
+      "id64": 2869709252009,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LP 816-60"
+    },
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 7.3824115301167,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": -0.6875,
+        "y": -9.09375,
+        "z": 9.09375
+      },
+      "distance": 7.685594275981527,
+      "id64": 7268024198569,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Lacaille 8760"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -2.09375,
+        "z": 15.9375
+      },
+      "distance": 9.904672587344823,
+      "id64": 5069001008561,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 451"
+    }
+  ]
+}

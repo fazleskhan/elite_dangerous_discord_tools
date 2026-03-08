@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 24.96875,
+    "y": 2.84375,
+    "z": 29.03125
+  },
+  "id64": 4545979615595,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Daiku",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": 2.84375,
+        "z": 29.03125
+      },
+      "distance": 0.0,
+      "id64": 4545979615595,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Daiku"
+    },
+    {
+      "coords": {
+        "x": 27.15625,
+        "y": 2.625,
+        "z": 26.5625
+      },
+      "distance": 3.3057123854019728,
+      "id64": 2870246188465,
+      "mainstar": "M",
+      "name": "Bran"
+    },
+    {
+      "coords": {
+        "x": 27.53125,
+        "y": 0.8125,
+        "z": 26.84375
+      },
+      "distance": 3.934150360941991,
+      "id64": 633675453146,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Zeaex"
+    },
+    {
+      "coords": {
+        "x": 29.46875,
+        "y": -1.6875,
+        "z": 25.375
+      },
+      "distance": 7.358694899572885,
+      "id64": 9467315955121,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Hill Pa Hsi"
+    },
+    {
+      "coords": {
+        "x": 26.21875,
+        "y": 6.3125,
+        "z": 35.5625
+      },
+      "distance": 7.500130207203072,
+      "id64": 8055378940634,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-29"
+    },
+    {
+      "coords": {
+        "x": 24.53125,
+        "y": -5.59375,
+        "z": 31.5625
+      },
+      "distance": 8.81986615899017,
+      "id64": 297663464628,
+      "mainstar": "F (White) Star",
+      "name": "Beta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 21.65625,
+        "y": -3.625,
+        "z": 23.75
+      },
+      "distance": 8.983817917511463,
+      "id64": 16064385721777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 33.84375,
+        "y": 6.25,
+        "z": 29.21875
+      },
+      "distance": 9.508066065846409,
+      "id64": 5069269444017,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 258-146"
+    }
+  ]
+}

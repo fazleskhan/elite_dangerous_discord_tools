@@ -1,0 +1,89 @@
+{
+  "coords": {
+    "x": 33.34375,
+    "y": -4.375,
+    "z": 5.78125
+  },
+  "id64": 671222932905,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Pwyll",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 33.34375,
+        "y": -4.375,
+        "z": 5.78125
+      },
+      "distance": 0.0,
+      "id64": 671222932905,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Pwyll"
+    },
+    {
+      "coords": {
+        "x": 35.375,
+        "y": 0.1875,
+        "z": 7.75
+      },
+      "distance": 5.368273407251162,
+      "id64": 2621834266987,
+      "mainstar": "F",
+      "name": "L 190-21"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -8.5,
+        "z": 7.84375
+      },
+      "distance": 8.278596272919703,
+      "id64": 4133662755179,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Kushen"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 8.716341513215278,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 32.0,
+        "y": 3.1875,
+        "z": 1.46875
+      },
+      "distance": 8.808786895055414,
+      "id64": 5069269444009,
+      "mainstar": "M",
+      "name": "LFT 682"
+    },
+    {
+      "coords": {
+        "x": 31.3125,
+        "y": -13.34375,
+        "z": 7.625
+      },
+      "distance": 9.378905436536824,
+      "id64": 5370319883096,
+      "mainstar": "Y",
+      "name": "Donner"
+    },
+    {
+      "coords": {
+        "x": 38.53125,
+        "y": -10.125,
+        "z": 11.625
+      },
+      "distance": 9.701652968051372,
+      "id64": 16064654091689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Charunder"
+    }
+  ]
+}

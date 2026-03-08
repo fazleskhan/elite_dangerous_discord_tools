@@ -1,0 +1,199 @@
+{
+  "coords": {
+    "x": -7.03125,
+    "y": -24.28125,
+    "z": 8.90625
+  },
+  "id64": 1458242065106,
+  "mainstar": "K",
+  "name": "LHS 3885",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -7.03125,
+        "y": -24.28125,
+        "z": 8.90625
+      },
+      "distance": 0.0,
+      "id64": 1458242065106,
+      "mainstar": "K",
+      "name": "LHS 3885"
+    },
+    {
+      "coords": {
+        "x": -9.0,
+        "y": -24.46875,
+        "z": 11.1875
+      },
+      "distance": 3.0191446429411095,
+      "id64": 20461895296425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "FK Aquarii"
+    },
+    {
+      "coords": {
+        "x": -8.9375,
+        "y": -24.25,
+        "z": 11.46875
+      },
+      "distance": 3.1939273434128084,
+      "id64": 35855058085289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gl 867 B"
+    },
+    {
+      "coords": {
+        "x": -3.78125,
+        "y": -22.875,
+        "z": 9.6875
+      },
+      "distance": 3.626346732594665,
+      "id64": 95800001716,
+      "mainstar": "A",
+      "name": "Fomalhaut"
+    },
+    {
+      "coords": {
+        "x": -9.1875,
+        "y": -19.84375,
+        "z": 10.6875
+      },
+      "distance": 5.245347641005313,
+      "id64": 27058965063081,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3799"
+    },
+    {
+      "coords": {
+        "x": -8.625,
+        "y": -27.84375,
+        "z": 3.9375
+      },
+      "distance": 6.318221417060342,
+      "id64": 9466778953129,
+      "mainstar": "M",
+      "name": "LP 823-4"
+    },
+    {
+      "coords": {
+        "x": -4.65625,
+        "y": -28.78125,
+        "z": 13.15625
+      },
+      "distance": 6.62971530308806,
+      "id64": 40551470484312,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-2"
+    },
+    {
+      "coords": {
+        "x": -13.375,
+        "y": -21.65625,
+        "z": 6.59375
+      },
+      "distance": 7.244407864863767,
+      "id64": 8055311831762,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "NLTT 55164"
+    },
+    {
+      "coords": {
+        "x": -1.78125,
+        "y": -22.125,
+        "z": 14.28125
+      },
+      "distance": 7.816811310406565,
+      "id64": 5367098526552,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 2220-3628"
+    },
+    {
+      "coords": {
+        "x": -6.875,
+        "y": -31.28125,
+        "z": 5.0
+      },
+      "distance": 8.017680657459488,
+      "id64": 22958210698072,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YU-P a5-1"
+    },
+    {
+      "coords": {
+        "x": -14.4375,
+        "y": -26.3125,
+        "z": 6.3125
+      },
+      "distance": 8.105927133123021,
+      "id64": 40550396742488,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YU-P a5-2"
+    },
+    {
+      "coords": {
+        "x": -14.90625,
+        "y": -25.40625,
+        "z": 6.96875
+      },
+      "distance": 8.1875,
+      "id64": 58142582786904,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YU-P a5-3"
+    },
+    {
+      "coords": {
+        "x": -0.25,
+        "y": -27.15625,
+        "z": 13.375
+      },
+      "distance": 8.615143824974718,
+      "id64": 22959284439896,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-1"
+    },
+    {
+      "coords": {
+        "x": -1.34375,
+        "y": -24.4375,
+        "z": 2.15625
+      },
+      "distance": 8.828055862561133,
+      "id64": 31457280009641,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1070"
+    },
+    {
+      "coords": {
+        "x": -3.5625,
+        "y": -32.625,
+        "z": 6.9375
+      },
+      "distance": 9.248046668756597,
+      "id64": 5367098395480,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-0"
+    },
+    {
+      "coords": {
+        "x": -13.09375,
+        "y": -27.03125,
+        "z": 16.0625
+      },
+      "distance": 9.773859028679512,
+      "id64": 11665802208689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3776"
+    },
+    {
+      "coords": {
+        "x": -11.96875,
+        "y": -20.25,
+        "z": 1.40625
+      },
+      "distance": 9.842757886512295,
+      "id64": 31457011574185,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 546"
+    }
+  ]
+}

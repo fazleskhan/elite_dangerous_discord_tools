@@ -1,0 +1,111 @@
+{
+  "coords": {
+    "x": 13.5,
+    "y": -22.15625,
+    "z": 10.53125
+  },
+  "id64": 44837112171,
+  "mainstar": "F",
+  "name": "Zeta Tucanae",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 13.5,
+        "y": -22.15625,
+        "z": 10.53125
+      },
+      "distance": 0.0,
+      "id64": 44837112171,
+      "mainstar": "F",
+      "name": "Zeta Tucanae"
+    },
+    {
+      "coords": {
+        "x": 14.9375,
+        "y": -20.4375,
+        "z": 8.5625
+      },
+      "distance": 2.982697499747502,
+      "id64": 33656303265193,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Minmar"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 6.159580317481054,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -22.96875,
+        "z": 4.3125
+      },
+      "distance": 6.332348127866945,
+      "id64": 2557753692882,
+      "mainstar": "K",
+      "name": "P Eridani"
+    },
+    {
+      "coords": {
+        "x": 15.28125,
+        "y": -15.6875,
+        "z": 10.5625
+      },
+      "distance": 6.709586774720184,
+      "id64": 10494151019,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Beta Hydri"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 7.376655004980238,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 9.46875,
+        "y": -16.0,
+        "z": 12.09375
+      },
+      "distance": 7.522751948256702,
+      "id64": 16064117220777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3836"
+    },
+    {
+      "coords": {
+        "x": 10.40625,
+        "y": -18.90625,
+        "z": 3.6875
+      },
+      "distance": 8.183562984727374,
+      "id64": 8330189738706,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Terravor"
+    },
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 9.341764002986801,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 8.5,
+    "y": -2.9375,
+    "z": 27.25
+  },
+  "id64": 3657265320666,
+  "mainstar": "G (White-Yellow) Star",
+  "name": "41 G. Arae",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 8.5,
+        "y": -2.9375,
+        "z": 27.25
+      },
+      "distance": 0.0,
+      "id64": 3657265320666,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "41 G. Arae"
+    },
+    {
+      "coords": {
+        "x": 9.46875,
+        "y": -5.09375,
+        "z": 29.8125
+      },
+      "distance": 3.4863013172988935,
+      "id64": 670954431921,
+      "mainstar": "M",
+      "name": "LTT 6988"
+    },
+    {
+      "coords": {
+        "x": 11.3125,
+        "y": 0.15625,
+        "z": 29.03125
+      },
+      "distance": 4.544699866327808,
+      "id64": 38054349841841,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 6031"
+    },
+    {
+      "coords": {
+        "x": 8.125,
+        "y": 4.0,
+        "z": 26.09375
+      },
+      "distance": 7.043184316237933,
+      "id64": 11666070775217,
+      "mainstar": "M",
+      "name": "LHS 415"
+    },
+    {
+      "coords": {
+        "x": 3.0,
+        "y": 0.3125,
+        "z": 22.0625
+      },
+      "distance": 8.229377634426555,
+      "id64": 3382387413722,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Cuspoor"
+    },
+    {
+      "coords": {
+        "x": 10.5625,
+        "y": -10.53125,
+        "z": 29.75
+      },
+      "distance": 8.256448710704863,
+      "id64": 7230678110938,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Santy"
+    },
+    {
+      "coords": {
+        "x": 15.59375,
+        "y": -6.28125,
+        "z": 24.5625
+      },
+      "distance": 8.290030722198802,
+      "id64": 671222867377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Baker"
+    },
+    {
+      "coords": {
+        "x": 6.25,
+        "y": -5.78125,
+        "z": 35.9375
+      },
+      "distance": 9.413929589310726,
+      "id64": 9154823459546,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mulachi"
+    }
+  ]
+}

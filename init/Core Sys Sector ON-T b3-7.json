@@ -1,0 +1,122 @@
+{
+  "coords": {
+    "x": 21.65625,
+    "y": -3.625,
+    "z": 23.75
+  },
+  "id64": 16064385721777,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Core Sys Sector ON-T b3-7",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 21.65625,
+        "y": -3.625,
+        "z": 23.75
+      },
+      "distance": 0.0,
+      "id64": 16064385721777,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector ON-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 15.59375,
+        "y": -6.28125,
+        "z": 24.5625
+      },
+      "distance": 6.668562555941123,
+      "id64": 671222867377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Baker"
+    },
+    {
+      "coords": {
+        "x": 27.53125,
+        "y": 0.8125,
+        "z": 26.84375
+      },
+      "distance": 7.986133001177729,
+      "id64": 633675453146,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Zeaex"
+    },
+    {
+      "coords": {
+        "x": 29.46875,
+        "y": -1.6875,
+        "z": 25.375
+      },
+      "distance": 8.211558165171821,
+      "id64": 9467315955121,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Hill Pa Hsi"
+    },
+    {
+      "coords": {
+        "x": 25.09375,
+        "y": -5.3125,
+        "z": 16.40625
+      },
+      "distance": 8.282193342496901,
+      "id64": 4064943278443,
+      "mainstar": "K",
+      "name": "Core Sys Sector DL-Y d118"
+    },
+    {
+      "coords": {
+        "x": 24.53125,
+        "y": -5.59375,
+        "z": 31.5625
+      },
+      "distance": 8.554341459896255,
+      "id64": 297663464628,
+      "mainstar": "F (White) Star",
+      "name": "Beta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 27.15625,
+        "y": 2.625,
+        "z": 26.5625
+      },
+      "distance": 8.787642246359372,
+      "id64": 2870246188465,
+      "mainstar": "M",
+      "name": "Bran"
+    },
+    {
+      "coords": {
+        "x": 24.96875,
+        "y": 2.84375,
+        "z": 29.03125
+      },
+      "distance": 8.983817917511463,
+      "id64": 4545979615595,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Daiku"
+    },
+    {
+      "coords": {
+        "x": 24.65625,
+        "y": -10.25,
+        "z": 29.125
+      },
+      "distance": 9.043298623842961,
+      "id64": 1556682377579,
+      "mainstar": "F",
+      "name": "Zeta Trianguli Australis"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -12.4375,
+        "z": 27.53125
+      },
+      "distance": 9.626521795279954,
+      "id64": 16064385656241,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Mari"
+    }
+  ]
+}

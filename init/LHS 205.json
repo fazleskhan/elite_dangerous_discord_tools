@@ -1,0 +1,56 @@
+{
+  "coords": {
+    "x": 34.03125,
+    "y": -22.0625,
+    "z": 12.625
+  },
+  "id64": 5370319752024,
+  "mainstar": "M",
+  "name": "LHS 205",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 34.03125,
+        "y": -22.0625,
+        "z": 12.625
+      },
+      "distance": 0.0,
+      "id64": 5370319752024,
+      "mainstar": "M",
+      "name": "LHS 205"
+    },
+    {
+      "coords": {
+        "x": 38.15625,
+        "y": -14.375,
+        "z": 10.96875
+      },
+      "distance": 8.880115163245351,
+      "id64": 13865630836137,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Puppis Sector QD-T b3-6"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 9.709199487470633,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 32.625,
+        "y": -31.09375,
+        "z": 9.0
+      },
+      "distance": 9.832682270113278,
+      "id64": 75739063798616,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-4"
+    }
+  ]
+}

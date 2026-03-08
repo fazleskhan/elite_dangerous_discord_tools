@@ -1,0 +1,111 @@
+{
+  "coords": {
+    "x": 12.1875,
+    "y": -16.03125,
+    "z": 34.625
+  },
+  "id64": 4207021134554,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "LTT 7509",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 12.1875,
+        "y": -16.03125,
+        "z": 34.625
+      },
+      "distance": 0.0,
+      "id64": 4207021134554,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 7509"
+    },
+    {
+      "coords": {
+        "x": 12.25,
+        "y": -13.8125,
+        "z": 31.1875
+      },
+      "distance": 4.091841158024099,
+      "id64": 7268024198577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3413"
+    },
+    {
+      "coords": {
+        "x": 10.5625,
+        "y": -10.53125,
+        "z": 29.75
+      },
+      "distance": 7.527034608662299,
+      "id64": 7230678110938,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Santy"
+    },
+    {
+      "coords": {
+        "x": 17.375,
+        "y": -16.25,
+        "z": 40.65625
+      },
+      "distance": 7.958265161139078,
+      "id64": 7268292634041,
+      "mainstar": "M",
+      "name": "L 206-187"
+    },
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -20.53125,
+        "z": 31.96875
+      },
+      "distance": 7.980077733017392,
+      "id64": 5069000943025,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Plutarch"
+    },
+    {
+      "coords": {
+        "x": 8.375,
+        "y": -17.0,
+        "z": 41.875
+      },
+      "distance": 8.2484018338403,
+      "id64": 670954431929,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1442"
+    },
+    {
+      "coords": {
+        "x": 19.96875,
+        "y": -17.46875,
+        "z": 38.28125
+      },
+      "distance": 8.71678965416741,
+      "id64": 4481966150362,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Circeo"
+    },
+    {
+      "coords": {
+        "x": 18.25,
+        "y": -23.1875,
+        "z": 32.25
+      },
+      "distance": 9.675042393317975,
+      "id64": 9467315889585,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "V375 Pavonis"
+    },
+    {
+      "coords": {
+        "x": 20.46875,
+        "y": -10.8125,
+        "z": 34.8125
+      },
+      "distance": 9.79028137363784,
+      "id64": 13865362400689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1349"
+    }
+  ]
+}

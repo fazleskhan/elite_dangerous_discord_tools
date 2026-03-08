@@ -1,0 +1,144 @@
+{
+  "coords": {
+    "x": 34.3125,
+    "y": -24.875,
+    "z": 24.28125
+  },
+  "id64": 8605134754522,
+  "mainstar": "K",
+  "name": "Chambo",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 34.3125,
+        "y": -24.875,
+        "z": 24.28125
+      },
+      "distance": 0.0,
+      "id64": 8605134754522,
+      "mainstar": "K",
+      "name": "Chambo"
+    },
+    {
+      "coords": {
+        "x": 34.375,
+        "y": -24.15625,
+        "z": 30.21875
+      },
+      "distance": 5.981171629580612,
+      "id64": 5069269378481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 475"
+    },
+    {
+      "coords": {
+        "x": 30.96875,
+        "y": -26.9375,
+        "z": 29.78125
+      },
+      "distance": 6.759036197010636,
+      "id64": 13865362335153,
+      "mainstar": "M",
+      "name": "LHS 499"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -29.28125,
+        "z": 28.96875
+      },
+      "distance": 6.890749006820666,
+      "id64": 58146877754216,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Pladset"
+    },
+    {
+      "coords": {
+        "x": 33.5,
+        "y": -25.375,
+        "z": 31.375
+      },
+      "distance": 7.157614498734897,
+      "id64": 22962505665384,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Handh"
+    },
+    {
+      "coords": {
+        "x": 31.0,
+        "y": -31.625,
+        "z": 26.53125
+      },
+      "distance": 7.848417436018551,
+      "id64": 40554691709800,
+      "mainstar": "Y",
+      "name": "Owaha"
+    },
+    {
+      "coords": {
+        "x": 39.21875,
+        "y": -27.84375,
+        "z": 30.625
+      },
+      "distance": 8.551486986922216,
+      "id64": 22963579407208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Crucis Sector SO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 8.627037802745505,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 36.3125,
+        "y": -29.5625,
+        "z": 31.3125
+      },
+      "distance": 8.683958360822558,
+      "id64": 671491237297,
+      "mainstar": "DA",
+      "name": "LAWD 83"
+    },
+    {
+      "coords": {
+        "x": 40.59375,
+        "y": -29.53125,
+        "z": 29.21875
+      },
+      "distance": 9.247360265232452,
+      "id64": 5371393362792,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Crucis Sector SO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 42.9375,
+        "y": -27.71875,
+        "z": 22.40625
+      },
+      "distance": 9.273249919122206,
+      "id64": 40555765451616,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Crucis Sector OI-T a3-2"
+    },
+    {
+      "coords": {
+        "x": 40.09375,
+        "y": -31.71875,
+        "z": 20.625
+      },
+      "distance": 9.676152628369397,
+      "id64": 22963579407200,
+      "mainstar": "Y",
+      "name": "Crucis Sector OI-T a3-1"
+    }
+  ]
+}

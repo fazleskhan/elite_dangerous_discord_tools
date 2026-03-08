@@ -1,0 +1,144 @@
+{
+  "coords": {
+    "x": 5.625,
+    "y": -29.53125,
+    "z": 11.5625
+  },
+  "id64": 5368172137304,
+  "mainstar": "L (Brown dwarf) Star",
+  "name": "Silvanitou",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 5.625,
+        "y": -29.53125,
+        "z": 11.5625
+      },
+      "distance": 0.0,
+      "id64": 5368172137304,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Silvanitou"
+    },
+    {
+      "coords": {
+        "x": 3.75,
+        "y": -30.0,
+        "z": 8.15625
+      },
+      "distance": 3.9163619119024227,
+      "id64": 2869977621929,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "LHS 102"
+    },
+    {
+      "coords": {
+        "x": -0.25,
+        "y": -27.15625,
+        "z": 13.375
+      },
+      "distance": 6.591009501586233,
+      "id64": 22959284439896,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector ZU-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -31.3125,
+        "z": 5.0
+      },
+      "distance": 6.820665977380801,
+      "id64": 5069000877481,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 69"
+    },
+    {
+      "coords": {
+        "x": 3.875,
+        "y": -24.09375,
+        "z": 7.25
+      },
+      "distance": 7.1572733984388215,
+      "id64": 3824408332651,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "LAWD 96"
+    },
+    {
+      "coords": {
+        "x": 9.34375,
+        "y": -33.90625,
+        "z": 16.03125
+      },
+      "distance": 7.275950324528061,
+      "id64": 58144730270560,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-3"
+    },
+    {
+      "coords": {
+        "x": 5.5625,
+        "y": -25.375,
+        "z": 18.0
+      },
+      "distance": 7.662879782594792,
+      "id64": 75736916314976,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-4"
+    },
+    {
+      "coords": {
+        "x": 10.4375,
+        "y": -31.28125,
+        "z": 4.625
+      },
+      "distance": 8.622735209897147,
+      "id64": 22960358181712,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 6.03125,
+        "y": -36.25,
+        "z": 5.375
+      },
+      "distance": 9.142854963029874,
+      "id64": 22960358050648,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CQ-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -32.625,
+        "z": 16.875
+      },
+      "distance": 9.316326814388812,
+      "id64": 40552544226144,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -32.65625,
+        "z": 16.3125
+      },
+      "distance": 9.687752012851073,
+      "id64": 22960358181728,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -28.46875,
+        "z": 18.53125
+      },
+      "distance": 9.9344039988567,
+      "id64": 20462163666353,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Segais"
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "coords": {
+    "x": 25.5625,
+    "y": -40.21875,
+    "z": -4.5625
+  },
+  "id64": 5370319489872,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Core Sys Sector AK-R a4-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 25.5625,
+        "y": -40.21875,
+        "z": -4.5625
+      },
+      "distance": 0.0,
+      "id64": 5370319489872,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector AK-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 25.25,
+        "y": -37.71875,
+        "z": -4.3125
+      },
+      "distance": 2.5318286375661367,
+      "id64": 22962505534288,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector AK-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 23.0625,
+        "y": -37.6875,
+        "z": -7.0625
+      },
+      "distance": 4.348244078073355,
+      "id64": 40553617836872,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector VD-T a3-2"
+    },
+    {
+      "coords": {
+        "x": 29.40625,
+        "y": -43.90625,
+        "z": -6.40625
+      },
+      "distance": 5.636619942394555,
+      "id64": 22962505534280,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Hyades Sector PL-H a25-1"
+    },
+    {
+      "coords": {
+        "x": 26.8125,
+        "y": -34.875,
+        "z": -5.875
+      },
+      "distance": 5.642767079412369,
+      "id64": 1458309141202,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Yinjian"
+    },
+    {
+      "coords": {
+        "x": 23.5625,
+        "y": -45.125,
+        "z": -2.3125
+      },
+      "distance": 5.7561957109274875,
+      "id64": 6955867280082,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "L 297-46"
+    },
+    {
+      "coords": {
+        "x": 30.125,
+        "y": -36.71875,
+        "z": -0.625
+      },
+      "distance": 6.969240453593203,
+      "id64": 40554691578704,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector AK-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 26.8125,
+        "y": -40.71875,
+        "z": -11.625
+      },
+      "distance": 7.18967358438476,
+      "id64": 40554691578696,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Hyades Sector PL-H a25-2"
+    },
+    {
+      "coords": {
+        "x": 23.6875,
+        "y": -35.0,
+        "z": 0.125
+      },
+      "distance": 7.261104104232358,
+      "id64": 2870246057385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-53 570"
+    },
+    {
+      "coords": {
+        "x": 27.75,
+        "y": -33.59375,
+        "z": 0.21875
+      },
+      "distance": 8.457903570773315,
+      "id64": 40554691709776,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 8.67276177898367,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 27.1875,
+        "y": -43.96875,
+        "z": -12.21875
+      },
+      "distance": 8.678783846974182,
+      "id64": 5370319489864,
+      "mainstar": "T Tauri Star",
+      "name": "Edin"
+    },
+    {
+      "coords": {
+        "x": 32.25,
+        "y": -35.21875,
+        "z": -7.0
+      },
+      "distance": 8.698509211353404,
+      "id64": 3996223785323,
+      "mainstar": "F (White) Star",
+      "name": "Jaburara"
+    },
+    {
+      "coords": {
+        "x": 29.4375,
+        "y": -47.625,
+        "z": -0.9375
+      },
+      "distance": 9.110915928846012,
+      "id64": 422810995051,
+      "mainstar": "F",
+      "name": "Iota Horologii"
+    },
+    {
+      "coords": {
+        "x": 26.1875,
+        "y": -34.375,
+        "z": 2.625
+      },
+      "distance": 9.284406029062925,
+      "id64": 58146877754192,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 28.75,
+        "y": -39.34375,
+        "z": 4.8125
+      },
+      "distance": 9.940644156693267,
+      "id64": 671222801833,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 174-28"
+    },
+    {
+      "coords": {
+        "x": 27.3125,
+        "y": -31.15625,
+        "z": -0.84375
+      },
+      "distance": 9.950904874055425,
+      "id64": 22962505665360,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector YO-R a4-1"
+    }
+  ]
+}

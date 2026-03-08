@@ -1,4 +1,3 @@
-import json
 import sys
 
 import export_tinydb
@@ -7,15 +6,16 @@ import export_tinydb
 def main() -> None: ...
 
 
-def test_export_tinydb_writes_pretty_json_files(tmp_path, monkeypatch):
+def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
     class FakeTinyDB:
-        def get_all_systems(self):
-            return [{"name": "Sol"}, {"name": "A/B"}]
+        def __init__(self):
+            self.export_dir = None
 
-        def get_system(self, system_name: str):
-            return {"name": system_name, "mainstar": "G"}
+        def export_datasource(self, export_dir: str):
+            self.export_dir = export_dir
 
-    monkeypatch.setattr(export_tinydb, "EDTinyDB", lambda database_name: FakeTinyDB())
+    fake_db = FakeTinyDB()
+    monkeypatch.setattr(export_tinydb, "EDTinyDB", lambda database_name: fake_db)
     export_dir = tmp_path / "ed_tinydb-export"
     monkeypatch.setattr(
         sys, "argv", ["export_tinydb.py", "--export-dir", str(export_dir)]
@@ -23,14 +23,7 @@ def test_export_tinydb_writes_pretty_json_files(tmp_path, monkeypatch):
 
     export_tinydb.main()
 
-    sol_file = export_dir / "Sol.json"
-    safe_file = export_dir / "A_B.json"
-    assert sol_file.exists()
-    assert safe_file.exists()
-    assert "\n  " in sol_file.read_text(encoding="utf-8")
-
-    exported = json.loads(sol_file.read_text(encoding="utf-8"))
-    assert exported["name"] == "Sol"
+    assert fake_db.export_dir == str(export_dir)
 
 
 if __name__ == "__main__":

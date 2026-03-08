@@ -1,0 +1,177 @@
+{
+  "coords": {
+    "x": 26.6875,
+    "y": -21.40625,
+    "z": -2.6875
+  },
+  "id64": 5370319752016,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Gwaelod",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 26.6875,
+        "y": -21.40625,
+        "z": -2.6875
+      },
+      "distance": 0.0,
+      "id64": 5370319752016,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gwaelod"
+    },
+    {
+      "coords": {
+        "x": 28.21875,
+        "y": -22.53125,
+        "z": -2.90625
+      },
+      "distance": 1.9126429685124196,
+      "id64": 5069269378473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-56 1032"
+    },
+    {
+      "coords": {
+        "x": 30.40625,
+        "y": -22.65625,
+        "z": -2.1875
+      },
+      "distance": 3.954946467716093,
+      "id64": 44853889387,
+      "mainstar": "F (White) Star",
+      "name": "Zeta Doradus"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": -22.65625,
+        "z": -2.125
+      },
+      "distance": 4.0220340392020555,
+      "id64": 83919639250,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Benoit"
+    },
+    {
+      "coords": {
+        "x": 27.71875,
+        "y": -15.21875,
+        "z": -3.15625
+      },
+      "distance": 6.290338573956095,
+      "id64": 4889576999275,
+      "mainstar": "M",
+      "name": "Puppis Sector DL-Y d142"
+    },
+    {
+      "coords": {
+        "x": 31.53125,
+        "y": -18.21875,
+        "z": 0.46875
+      },
+      "distance": 6.601816748062612,
+      "id64": 4855217260907,
+      "mainstar": "F (White) Star",
+      "name": "Macalites"
+    },
+    {
+      "coords": {
+        "x": 25.25,
+        "y": -28.3125,
+        "z": -3.21875
+      },
+      "distance": 7.0742435549675555,
+      "id64": 5370319620944,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 22.375,
+        "y": -17.6875,
+        "z": -7.78125
+      },
+      "distance": 7.640225577494424,
+      "id64": 4820857522539,
+      "mainstar": "F",
+      "name": "Agastani"
+    },
+    {
+      "coords": {
+        "x": 28.5625,
+        "y": -28.90625,
+        "z": -3.53125
+      },
+      "distance": 7.776730615271433,
+      "id64": 13865362335145,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 22"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 8.916332012801004,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 21.71875,
+        "y": -28.5,
+        "z": -0.40625
+      },
+      "distance": 8.956219469592067,
+      "id64": 9467315824041,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "BPM 17113"
+    },
+    {
+      "coords": {
+        "x": 18.3125,
+        "y": -18.59375,
+        "z": -4.6875
+      },
+      "distance": 9.058188629632307,
+      "id64": 2862352435563,
+      "mainstar": "White Dwarf (DA) Star",
+      "name": "RR Caeli"
+    },
+    {
+      "coords": {
+        "x": 30.1875,
+        "y": -29.6875,
+        "z": -4.21875
+      },
+      "distance": 9.119968647150055,
+      "id64": 2557820768978,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "LHS 1650"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 9.271617476201227,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 27.3125,
+        "y": -31.15625,
+        "z": -0.84375
+      },
+      "distance": 9.942461418708145,
+      "id64": 22962505665360,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector YO-R a4-1"
+    }
+  ]
+}

@@ -7,6 +7,9 @@ def main(): ...
 
 
 class FakeDB:
+    def init_datasource(self, import_dir: str = "./init"):
+        return None
+
     def get_all_systems(self):
         return [{"name": "Sol"}, {"name": "Sirius"}]
 
@@ -43,10 +46,7 @@ def make_service():
         database=FakeDB(),
         cache=FakeCache(),
         travel_fn=fake_travel_fn,
-        file_exists=lambda _: True,
-        copy_file=lambda src, dst: dst,
         script_file=__file__,
-        default_preload_db=ed_route.constants.pre_initiazlied_db_filename,
     )
 
 

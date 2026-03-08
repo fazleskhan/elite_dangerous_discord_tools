@@ -1,0 +1,188 @@
+{
+  "coords": {
+    "x": 11.53125,
+    "y": -26.6875,
+    "z": 20.5
+  },
+  "id64": 5368172137312,
+  "mainstar": "Y (Brown dwarf) Star",
+  "name": "Core Sys Sector EB-O a6-0",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 11.53125,
+        "y": -26.6875,
+        "z": 20.5
+      },
+      "distance": 0.0,
+      "id64": 5368172137312,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-0"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -28.46875,
+        "z": 18.53125
+      },
+      "distance": 2.8714312089095917,
+      "id64": 20462163666353,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Segais"
+    },
+    {
+      "coords": {
+        "x": 12.28125,
+        "y": -28.46875,
+        "z": 23.78125
+      },
+      "distance": 3.8081430021731064,
+      "id64": 7268024133041,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1672"
+    },
+    {
+      "coords": {
+        "x": 5.5625,
+        "y": -25.375,
+        "z": 18.0
+      },
+      "distance": 6.602926079587746,
+      "id64": 75736916314976,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-4"
+    },
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 7.036178828028747,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -32.625,
+        "z": 16.875
+      },
+      "distance": 7.042075000488137,
+      "id64": 40552544226144,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -32.65625,
+        "z": 16.3125
+      },
+      "distance": 7.544205661466289,
+      "id64": 22960358181728,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -30.90625,
+        "z": 16.15625
+      },
+      "distance": 7.544270383874109,
+      "id64": 22961431923552,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector FB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 15.8125,
+        "y": -32.4375,
+        "z": 24.65625
+      },
+      "distance": 8.286495979906103,
+      "id64": 40553617967968,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector FB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 5.03125,
+        "y": -31.75,
+        "z": 21.78125
+      },
+      "distance": 8.337895886403235,
+      "id64": 13865093899697,
+      "mainstar": "M",
+      "name": "LHS 3804"
+    },
+    {
+      "coords": {
+        "x": 18.0,
+        "y": -31.40625,
+        "z": 23.1875
+      },
+      "distance": 8.445944847972902,
+      "id64": 5069269312945,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1728"
+    },
+    {
+      "coords": {
+        "x": 9.34375,
+        "y": -33.90625,
+        "z": 16.03125
+      },
+      "distance": 8.76728204034751,
+      "id64": 58144730270560,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector EB-O a6-3"
+    },
+    {
+      "coords": {
+        "x": 10.78125,
+        "y": -27.125,
+        "z": 29.46875
+      },
+      "distance": 9.010681595334507,
+      "id64": 670954366385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1594"
+    },
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 9.085853530351455,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    },
+    {
+      "coords": {
+        "x": 10.5,
+        "y": -34.78125,
+        "z": 25.0625
+      },
+      "distance": 9.34819083432725,
+      "id64": 2007997846234,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Tiolce"
+    },
+    {
+      "coords": {
+        "x": 20.59375,
+        "y": -25.75,
+        "z": 17.3125
+      },
+      "distance": 9.6523556062756,
+      "id64": 3382454489818,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Eanric"
+    }
+  ]
+}

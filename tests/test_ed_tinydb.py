@@ -1,4 +1,4 @@
-import db
+import datasource
 import ed_tinydb
 import pytest
 import test_data
@@ -7,7 +7,7 @@ import threading
 import time
 
 
-test_db_filename = f"{__file__.replace("tests", "data").replace(".py", ".db")}"
+test_db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 
 
 def main(): ...
@@ -22,7 +22,7 @@ def del_prior_database():
 
 @pytest.fixture(scope="module")
 def database(del_prior_database):
-    yield db.DB(test_db_filename)
+    yield datasource.DB(test_db_filename)
 
 
 def test_crud_system(database):
@@ -45,7 +45,7 @@ def test_get_system_when_record_not_available(database):
 
 
 def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
-    database = db.DB(str(tmp_path / "write_lock_test.db"))
+    database = datasource.DB(str(tmp_path / "write_lock_test.db"))
     barrier = threading.Barrier(2)
     tracker_lock = threading.Lock()
     active_writes = 0
@@ -90,25 +90,27 @@ def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
     assert call_count == 2
     assert max_active_writes == 1
 
-@pytest.mark.skip(reason="Skipped while db and redis initialization refactored")
-def test_init_db_skips_copy_when_target_exists(tmp_path):
+
+def test_init_datasource_loads_records_when_target_exists(tmp_path):
     database_path = str(tmp_path / "target.db")
+    (tmp_path / "target.db").write_text("", encoding="utf-8")
+    init_dir = tmp_path / "init"
+    init_dir.mkdir(parents=True, exist_ok=True)
+    (init_dir / "single.json").write_text(
+        '{"name":"Sol","id64":1,"coords":{"x":0,"y":0,"z":0}}',
+        encoding="utf-8",
+    )
     tinydb_backend = ed_tinydb.EDTinyDB(database_path)
     inserted: list[dict] = []
     tinydb_backend.insert_system = inserted.append  # type: ignore[method-assign]
 
-    tinydb_backend.init_db(
-        script_file=str(tmp_path / "src" / "ed_route.py"),
-        file_exists=lambda _path: False,
-    )
+    tinydb_backend.init_datasource(str(init_dir))
 
-    assert inserted == []
+    assert [entry["name"] for entry in inserted] == ["Sol"]
 
-@pytest.mark.skip(reason="Skipped while db and redis initialization refactored")
-def test_init_db_loads_records_from_init_json_files(tmp_path):
-    script_file = str(tmp_path / "src" / "ed_route.py")
+
+def test_init_datasource_loads_records_from_init_json_files(tmp_path):
     database_path = str(tmp_path / "data" / "target.db")
-    os.makedirs(os.path.dirname(script_file), exist_ok=True)
     init_dir = tmp_path / "init"
     init_dir.mkdir(parents=True, exist_ok=True)
     (init_dir / "single.json").write_text(
@@ -125,10 +127,7 @@ def test_init_db_loads_records_from_init_json_files(tmp_path):
     inserted: list[dict] = []
     tinydb_backend.insert_system = inserted.append  # type: ignore[method-assign]
 
-    tinydb_backend.init_db(
-        script_file=script_file,
-        file_exists=os.path.exists,
-    )
+    tinydb_backend.init_datasource(str(init_dir))
 
     assert {entry["name"] for entry in inserted} == {"Sol", "Sirius", "Lave"}
 

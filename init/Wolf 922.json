@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": -14.3125,
+    "y": -17.53125,
+    "z": 14.84375
+  },
+  "id64": 18262872040873,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Wolf 922",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -14.3125,
+        "y": -17.53125,
+        "z": 14.84375
+      },
+      "distance": 0.0,
+      "id64": 18262872040873,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 922"
+    },
+    {
+      "coords": {
+        "x": -17.3125,
+        "y": -21.28125,
+        "z": 11.34375
+      },
+      "distance": 5.942432162002357,
+      "id64": 9466779018665,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 1329"
+    },
+    {
+      "coords": {
+        "x": -9.1875,
+        "y": -19.84375,
+        "z": 10.6875
+      },
+      "distance": 6.991973634997489,
+      "id64": 27058965063081,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3799"
+    },
+    {
+      "coords": {
+        "x": -17.1875,
+        "y": -25.21875,
+        "z": 13.25
+      },
+      "distance": 8.360820552583341,
+      "id64": 11665802208681,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "RBS 1843"
+    },
+    {
+      "coords": {
+        "x": -16.28125,
+        "y": -25.65625,
+        "z": 15.59375
+      },
+      "distance": 8.393694154691365,
+      "id64": 40549323000672,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Awindjibata"
+    },
+    {
+      "coords": {
+        "x": -6.15625,
+        "y": -15.78125,
+        "z": 18.625
+      },
+      "distance": 9.158862681850842,
+      "id64": 8605067645658,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Sameni"
+    },
+    {
+      "coords": {
+        "x": -5.5625,
+        "y": -14.625,
+        "z": 15.28125
+      },
+      "distance": 9.230395187233318,
+      "id64": 8879945552602,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Carener"
+    },
+    {
+      "coords": {
+        "x": -8.9375,
+        "y": -24.25,
+        "z": 11.46875
+      },
+      "distance": 9.242448353250344,
+      "id64": 35855058085289,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gl 867 B"
+    },
+    {
+      "coords": {
+        "x": -13.375,
+        "y": -21.65625,
+        "z": 6.59375
+      },
+      "distance": 9.271301486307086,
+      "id64": 8055311831762,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "NLTT 55164"
+    },
+    {
+      "coords": {
+        "x": -9.0,
+        "y": -24.46875,
+        "z": 11.1875
+      },
+      "distance": 9.472049755068857,
+      "id64": 20461895296425,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "FK Aquarii"
+    },
+    {
+      "coords": {
+        "x": -22.34375,
+        "y": -21.78125,
+        "z": 11.96875
+      },
+      "distance": 9.530430292620581,
+      "id64": 7267755763113,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 1340"
+    },
+    {
+      "coords": {
+        "x": -7.8125,
+        "y": -10.65625,
+        "z": 13.15625
+      },
+      "distance": 9.610581733173076,
+      "id64": 2869709252009,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LP 816-60"
+    },
+    {
+      "coords": {
+        "x": -13.09375,
+        "y": -27.03125,
+        "z": 16.0625
+      },
+      "distance": 9.655086904062541,
+      "id64": 11665802208689,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3776"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "coords": {
+    "x": -5.875,
+    "y": 0.90625,
+    "z": 23.84375
+  },
+  "id64": 33656034895281,
+  "mainstar": "M",
+  "name": "Haghole",
+  "neighbors": [
+    {
+      "coords": {
+        "x": -5.875,
+        "y": 0.90625,
+        "z": 23.84375
+      },
+      "distance": 0.0,
+      "id64": 33656034895281,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Haghole"
+    },
+    {
+      "coords": {
+        "x": -10.6875,
+        "y": 3.625,
+        "z": 22.65625
+      },
+      "distance": 5.653486894165405,
+      "id64": 2869709317553,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3356"
+    },
+    {
+      "coords": {
+        "x": 0.78125,
+        "y": -0.84375,
+        "z": 20.125
+      },
+      "distance": 7.822868120133434,
+      "id64": 18263140541873,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LTT 7072"
+    },
+    {
+      "coords": {
+        "x": 0.4375,
+        "y": 2.09375,
+        "z": 19.21875
+      },
+      "distance": 7.915076594702037,
+      "id64": 1865903245675,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "36 Ophiuchi"
+    },
+    {
+      "coords": {
+        "x": -4.0625,
+        "y": 7.6875,
+        "z": 20.09375
+      },
+      "distance": 7.958203805664944,
+      "id64": 13865094030769,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 629"
+    },
+    {
+      "coords": {
+        "x": -10.03125,
+        "y": 8.3125,
+        "z": 21.4375
+      },
+      "distance": 8.827060223398275,
+      "id64": 358730437338,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Wolf 718"
+    },
+    {
+      "coords": {
+        "x": 3.0,
+        "y": 0.3125,
+        "z": 22.0625
+      },
+      "distance": 9.071439556376927,
+      "id64": 3382387413722,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Cuspoor"
+    },
+    {
+      "coords": {
+        "x": -3.46875,
+        "y": 6.5625,
+        "z": 17.15625
+      },
+      "distance": 9.083273604543683,
+      "id64": 16064117286321,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Wolf 630"
+    },
+    {
+      "coords": {
+        "x": -13.40625,
+        "y": 5.96875,
+        "z": 24.65625
+      },
+      "distance": 9.110915928846012,
+      "id64": 5366025177952,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "WISE 1800+0134"
+    }
+  ]
+}

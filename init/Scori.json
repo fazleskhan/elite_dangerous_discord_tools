@@ -1,0 +1,155 @@
+{
+  "coords": {
+    "x": 18.40625,
+    "y": -18.375,
+    "z": 23.3125
+  },
+  "id64": 4099303016811,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Scori",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 0.0,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 2.875509465729508,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 3.0048788453114046,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 5.056323392545219,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 11.78125,
+        "y": -16.28125,
+        "z": 23.75
+      },
+      "distance": 6.961739747541558,
+      "id64": 16064117220785,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector PI-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 7.5859656603493795,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    },
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 7.634599490150089,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    },
+    {
+      "coords": {
+        "x": 22.5,
+        "y": -12.4375,
+        "z": 27.53125
+      },
+      "distance": 8.355270604534601,
+      "id64": 16064385656241,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Mari"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 8.628056523632655,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 9.03476358987882,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 9.148567596214175,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 9.252955608885195,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 20.59375,
+        "y": -25.75,
+        "z": 17.3125
+      },
+      "distance": 9.755807565240307,
+      "id64": 3382454489818,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Eanric"
+    }
+  ]
+}

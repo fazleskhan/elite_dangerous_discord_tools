@@ -1,0 +1,133 @@
+{
+  "coords": {
+    "x": 27.71875,
+    "y": -15.21875,
+    "z": -3.15625
+  },
+  "id64": 4889576999275,
+  "mainstar": "M",
+  "name": "Puppis Sector DL-Y d142",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 27.71875,
+        "y": -15.21875,
+        "z": -3.15625
+      },
+      "distance": 0.0,
+      "id64": 4889576999275,
+      "mainstar": "M",
+      "name": "Puppis Sector DL-Y d142"
+    },
+    {
+      "coords": {
+        "x": 31.53125,
+        "y": -18.21875,
+        "z": 0.46875
+      },
+      "distance": 6.0560532733786285,
+      "id64": 4855217260907,
+      "mainstar": "F (White) Star",
+      "name": "Macalites"
+    },
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 6.0629832281641685,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    },
+    {
+      "coords": {
+        "x": 26.6875,
+        "y": -21.40625,
+        "z": -2.6875
+      },
+      "distance": 6.290338573956095,
+      "id64": 5370319752016,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gwaelod"
+    },
+    {
+      "coords": {
+        "x": 21.3125,
+        "y": -13.875,
+        "z": -2.09375
+      },
+      "distance": 6.631335414153019,
+      "id64": 4168022493547,
+      "mainstar": "F (White) Star",
+      "name": "Sosolingati"
+    },
+    {
+      "coords": {
+        "x": 28.21875,
+        "y": -22.53125,
+        "z": -2.90625
+      },
+      "distance": 7.333836393730092,
+      "id64": 5069269378473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-56 1032"
+    },
+    {
+      "coords": {
+        "x": 22.375,
+        "y": -17.6875,
+        "z": -7.78125
+      },
+      "distance": 7.486054743655032,
+      "id64": 4820857522539,
+      "mainstar": "F",
+      "name": "Agastani"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 7.67942919835192,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 30.40625,
+        "y": -22.65625,
+        "z": -2.1875
+      },
+      "distance": 7.967279276045242,
+      "id64": 44853889387,
+      "mainstar": "F (White) Star",
+      "name": "Zeta Doradus"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": -22.65625,
+        "z": -2.125
+      },
+      "distance": 7.996398114932748,
+      "id64": 83919639250,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Benoit"
+    },
+    {
+      "coords": {
+        "x": 24.03125,
+        "y": -7.78125,
+        "z": -6.6875
+      },
+      "distance": 9.02129641805988,
+      "id64": 7268292634017,
+      "mainstar": "M",
+      "name": "LHS 222"
+    }
+  ]
+}

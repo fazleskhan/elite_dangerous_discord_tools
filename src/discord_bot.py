@@ -21,6 +21,7 @@ def main() -> None: ...
 
 
 class RouteServiceProtocol(Protocol):
+    def init_datasource(self, import_dir: str = "./init") -> None | Awaitable[None]: ...
     def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
     def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
     def calc_systems_distance(
@@ -125,6 +126,7 @@ class DiscordBot:
             "system_info command completed: found={}", system_info is not None
         )
         s_info = str(system_info)
+        # Discord message payloads are capped at 2000 characters.
         if len(s_info) <= 2000:
             elapsed_ms = int((time.perf_counter() - start) * 1000)
             await ctx.send(f"{arg}: {s_info} ({elapsed_ms} ms)")
@@ -245,6 +247,15 @@ class DiscordBot:
             f"Total number of systems in cache: {len(system_names)} ({elapsed_ms} ms)"
         )
 
+    async def init_datasource(
+        self, ctx: commands.Context, import_dir: str = "./init"
+    ) -> None:
+        start = time.perf_counter()
+        self.logger.info("init_datasource command: import_dir={}", import_dir)
+        await self._resolve(self.ed_route.init_datasource(import_dir))
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        await ctx.send(f"Datasource initialized from {import_dir} ({elapsed_ms} ms)")
+
     def register_commands(self) -> None:
         self.logger.debug("Registering bot commands")
         # ``discord.ext.commands`` expects plain callables whose first
@@ -291,6 +302,12 @@ class DiscordBot:
         @self.bot.command()
         async def dump_system_cache_names(ctx: commands.Context) -> None:
             return await self.dump_system_cache_names(ctx)
+
+        @self.bot.command()
+        async def init_datasource(
+            ctx: commands.Context, import_dir: str = "./init"
+        ) -> None:
+            return await self.init_datasource(ctx, import_dir)
 
     def run(self) -> None:
         """Start the bot using the configured token/logging.

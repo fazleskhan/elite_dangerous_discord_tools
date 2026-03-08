@@ -1,0 +1,210 @@
+{
+  "coords": {
+    "x": 20.3125,
+    "y": -27.8125,
+    "z": 5.5
+  },
+  "id64": 22961431923544,
+  "mainstar": "L",
+  "name": "Sanuku",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 20.3125,
+        "y": -27.8125,
+        "z": 5.5
+      },
+      "distance": 0.0,
+      "id64": 22961431923544,
+      "mainstar": "L",
+      "name": "Sanuku"
+    },
+    {
+      "coords": {
+        "x": 22.25,
+        "y": -25.4375,
+        "z": 6.65625
+      },
+      "distance": 3.2758884768105276,
+      "id64": 5369245879128,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector BV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 24.46875,
+        "y": -28.53125,
+        "z": 5.59375
+      },
+      "distance": 4.218981475131172,
+      "id64": 5069269312937,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 160"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -22.9375,
+        "z": 6.5625
+      },
+      "distance": 5.637832584424621,
+      "id64": 5369246010200,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LB 3303"
+    },
+    {
+      "coords": {
+        "x": 21.71875,
+        "y": -28.5,
+        "z": -0.40625
+      },
+      "distance": 6.1101542022276325,
+      "id64": 9467315824041,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "BPM 17113"
+    },
+    {
+      "coords": {
+        "x": 26.25,
+        "y": -28.78125,
+        "z": 4.0625
+      },
+      "distance": 6.1853689512025065,
+      "id64": 1900279744875,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Zeta-1 Reticuli"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 6.44886739086795,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    },
+    {
+      "coords": {
+        "x": 24.40625,
+        "y": -31.21875,
+        "z": 11.5625
+      },
+      "distance": 8.06940111625392,
+      "id64": 2759273204075,
+      "mainstar": "DA",
+      "name": "LHS 145"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 8.769286779721599,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    },
+    {
+      "coords": {
+        "x": 13.46875,
+        "y": -33.21875,
+        "z": 4.5
+      },
+      "distance": 8.778636176821545,
+      "id64": 5368172137296,
+      "mainstar": "T",
+      "name": "Core Sys Sector WO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 18.5625,
+        "y": -30.78125,
+        "z": -2.59375
+      },
+      "distance": 8.796861123434882,
+      "id64": 5369245879120,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector XO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 8.826064471920652,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 12.5,
+        "y": -29.9375,
+        "z": 1.96875
+      },
+      "distance": 8.832921816279141,
+      "id64": 58144730270544,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector WO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 12.625,
+        "y": -22.96875,
+        "z": 4.3125
+      },
+      "distance": 9.163499689665516,
+      "id64": 2557753692882,
+      "mainstar": "K",
+      "name": "P Eridani"
+    },
+    {
+      "coords": {
+        "x": 26.1875,
+        "y": -34.375,
+        "z": 2.625
+      },
+      "distance": 9.26540103017673,
+      "id64": 58146877754192,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 23.6875,
+        "y": -35.0,
+        "z": 0.125
+      },
+      "distance": 9.588608149778569,
+      "id64": 2870246057385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-53 570"
+    },
+    {
+      "coords": {
+        "x": 14.9375,
+        "y": -20.4375,
+        "z": 8.5625
+      },
+      "distance": 9.626014556918143,
+      "id64": 33656303265193,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Minmar"
+    },
+    {
+      "coords": {
+        "x": 19.875,
+        "y": -37.4375,
+        "z": 3.65625
+      },
+      "distance": 9.809762755158761,
+      "id64": 22961431792464,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Wakaparibe"
+    }
+  ]
+}

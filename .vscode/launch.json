@@ -80,6 +80,15 @@
             "args": "calc_systems_distance --initial 'Sol' --destination 'Sirius'"
         },           
         {
+            "name": "Main Initialize Datasource",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            // Use --import_dir to override the default ./init source folder.
+            "args": "init_datasource"
+        },           
+        {
             "name": "Export ED TinyDB",
             "type": "debugpy",
             "request": "launch",

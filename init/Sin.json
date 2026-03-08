@@ -1,0 +1,144 @@
+{
+  "coords": {
+    "x": 23.09375,
+    "y": -20.90625,
+    "z": 17.84375
+  },
+  "id64": 5369246010208,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Sin",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 23.09375,
+        "y": -20.90625,
+        "z": 17.84375
+      },
+      "distance": 0.0,
+      "id64": 5369246010208,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Sin"
+    },
+    {
+      "coords": {
+        "x": 19.40625,
+        "y": -21.53125,
+        "z": 14.90625
+      },
+      "distance": 4.7557530949367,
+      "id64": 2870246122921,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "L 26-27"
+    },
+    {
+      "coords": {
+        "x": 20.59375,
+        "y": -25.75,
+        "z": 17.3125
+      },
+      "distance": 5.4766906636216,
+      "id64": 3382454489818,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Eanric"
+    },
+    {
+      "coords": {
+        "x": 23.96875,
+        "y": -15.0,
+        "z": 15.21875
+      },
+      "distance": 6.522272538195564,
+      "id64": 7505623126746,
+      "mainstar": "K",
+      "name": "Lopu Maris"
+    },
+    {
+      "coords": {
+        "x": 26.5625,
+        "y": -21.1875,
+        "z": 23.40625
+      },
+      "distance": 6.561458250648251,
+      "id64": 7268292634033,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3583"
+    },
+    {
+      "coords": {
+        "x": 21.78125,
+        "y": -27.9375,
+        "z": 16.875
+      },
+      "distance": 7.218005914031936,
+      "id64": 58145804012384,
+      "mainstar": "Y",
+      "name": "Core Sys Sector FB-O a6-3"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 7.634599490150089,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 7.807811092905617,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 16.03125,
+        "y": -18.0625,
+        "z": 14.375
+      },
+      "distance": 8.366483542982678,
+      "id64": 671222867369,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 531"
+    },
+    {
+      "coords": {
+        "x": 24.625,
+        "y": -29.15625,
+        "z": 19.15625
+      },
+      "distance": 8.492931343917718,
+      "id64": 5369245879136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Fergus"
+    },
+    {
+      "coords": {
+        "x": 27.03125,
+        "y": -15.96875,
+        "z": 25.1875
+      },
+      "distance": 9.685735726443294,
+      "id64": 2870246122929,
+      "mainstar": "M",
+      "name": "LHS 3295"
+    },
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 9.689717488141747,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    }
+  ]
+}

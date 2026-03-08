@@ -1,0 +1,221 @@
+{
+  "coords": {
+    "x": 24.46875,
+    "y": -28.53125,
+    "z": 5.59375
+  },
+  "id64": 5069269312937,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "LHS 160",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 24.46875,
+        "y": -28.53125,
+        "z": 5.59375
+      },
+      "distance": 0.0,
+      "id64": 5069269312937,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 160"
+    },
+    {
+      "coords": {
+        "x": 26.25,
+        "y": -28.78125,
+        "z": 4.0625
+      },
+      "distance": 2.362218898620532,
+      "id64": 1900279744875,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Zeta-1 Reticuli"
+    },
+    {
+      "coords": {
+        "x": 22.25,
+        "y": -25.4375,
+        "z": 6.65625
+      },
+      "distance": 3.9526000145473863,
+      "id64": 5369245879128,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector BV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 20.3125,
+        "y": -27.8125,
+        "z": 5.5
+      },
+      "distance": 4.218981475131172,
+      "id64": 22961431923544,
+      "mainstar": "L",
+      "name": "Sanuku"
+    },
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -22.9375,
+        "z": 6.5625
+      },
+      "distance": 5.879901545731867,
+      "id64": 5369246010200,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LB 3303"
+    },
+    {
+      "coords": {
+        "x": 24.40625,
+        "y": -31.21875,
+        "z": 11.5625
+      },
+      "distance": 6.546185077012412,
+      "id64": 2759273204075,
+      "mainstar": "DA",
+      "name": "LHS 145"
+    },
+    {
+      "coords": {
+        "x": 21.71875,
+        "y": -28.5,
+        "z": -0.40625
+      },
+      "distance": 6.600263370692112,
+      "id64": 9467315824041,
+      "mainstar": "White Dwarf (D) Star",
+      "name": "BPM 17113"
+    },
+    {
+      "coords": {
+        "x": 26.1875,
+        "y": -34.375,
+        "z": 2.625
+      },
+      "distance": 6.776207802856994,
+      "id64": 58146877754192,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-3"
+    },
+    {
+      "coords": {
+        "x": 27.3125,
+        "y": -31.15625,
+        "z": -0.84375
+      },
+      "distance": 7.511254576467236,
+      "id64": 22962505665360,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector YO-R a4-1"
+    },
+    {
+      "coords": {
+        "x": 27.75,
+        "y": -33.59375,
+        "z": 0.21875
+      },
+      "distance": 8.079983466103133,
+      "id64": 40554691709776,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-2"
+    },
+    {
+      "coords": {
+        "x": 23.6875,
+        "y": -35.0,
+        "z": 0.125
+      },
+      "distance": 8.50660359294472,
+      "id64": 2870246057385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-53 570"
+    },
+    {
+      "coords": {
+        "x": 25.25,
+        "y": -28.3125,
+        "z": -3.21875
+      },
+      "distance": 8.849766063292295,
+      "id64": 5370319620944,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector YO-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 20.875,
+        "y": -35.25,
+        "z": 0.78125
+      },
+      "distance": 9.012036222463822,
+      "id64": 5369245748048,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector ZJ-R a4-0"
+    },
+    {
+      "coords": {
+        "x": 24.75,
+        "y": -37.34375,
+        "z": 7.625
+      },
+      "distance": 9.047940891440438,
+      "id64": 5369245748056,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector DQ-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 32.625,
+        "y": -31.09375,
+        "z": 9.0
+      },
+      "distance": 9.202899509122112,
+      "id64": 75739063798616,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-4"
+    },
+    {
+      "coords": {
+        "x": 16.46875,
+        "y": -31.0625,
+        "z": 1.46875
+      },
+      "distance": 9.350018800114789,
+      "id64": 633675420370,
+      "mainstar": "G (White-Yellow) Star",
+      "name": "Bento"
+    },
+    {
+      "coords": {
+        "x": 29.84375,
+        "y": -31.875,
+        "z": 12.78125
+      },
+      "distance": 9.577653434557966,
+      "id64": 22962505665368,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 26.40625,
+        "y": -32.90625,
+        "z": 14.1875
+      },
+      "distance": 9.836008860940499,
+      "id64": 40554691709784,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector CV-P a5-2"
+    },
+    {
+      "coords": {
+        "x": 21.53125,
+        "y": -19.21875,
+        "z": 4.25
+      },
+      "distance": 9.856836539301035,
+      "id64": 4752138045803,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Lu Yupik"
+    }
+  ]
+}

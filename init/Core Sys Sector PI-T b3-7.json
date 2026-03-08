@@ -1,0 +1,100 @@
+{
+  "coords": {
+    "x": 11.78125,
+    "y": -16.28125,
+    "z": 23.75
+  },
+  "id64": 16064117220785,
+  "mainstar": "M (Red dwarf) Star",
+  "name": "Core Sys Sector PI-T b3-7",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 11.78125,
+        "y": -16.28125,
+        "z": 23.75
+      },
+      "distance": 0.0,
+      "id64": 16064117220785,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Core Sys Sector PI-T b3-7"
+    },
+    {
+      "coords": {
+        "x": 16.53125,
+        "y": -13.75,
+        "z": 22.5
+      },
+      "distance": 5.525597394173774,
+      "id64": 6955867312858,
+      "mainstar": "K",
+      "name": "Core Sys Sector IR-W c1-25"
+    },
+    {
+      "coords": {
+        "x": 12.03125,
+        "y": -19.75,
+        "z": 19.4375
+      },
+      "distance": 5.5400706504971575,
+      "id64": 628952664427,
+      "mainstar": "F (White) Star",
+      "name": "Gamma Pavonis"
+    },
+    {
+      "coords": {
+        "x": 16.09375,
+        "y": -19.90625,
+        "z": 24.46875
+      },
+      "distance": 5.6793382371980625,
+      "id64": 6406111498970,
+      "mainstar": "K",
+      "name": "Iman Caber"
+    },
+    {
+      "coords": {
+        "x": 18.40625,
+        "y": -18.375,
+        "z": 23.3125
+      },
+      "distance": 6.961739747541558,
+      "id64": 4099303016811,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Scori"
+    },
+    {
+      "coords": {
+        "x": 18.875,
+        "y": -15.84375,
+        "z": 22.03125
+      },
+      "distance": 7.312099347998494,
+      "id64": 6680989405914,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Mombaluma"
+    },
+    {
+      "coords": {
+        "x": 12.25,
+        "y": -13.8125,
+        "z": 31.1875
+      },
+      "distance": 7.850532426211613,
+      "id64": 7268024198577,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 3413"
+    },
+    {
+      "coords": {
+        "x": 10.5625,
+        "y": -10.53125,
+        "z": 29.75
+      },
+      "distance": 8.399276847592297,
+      "id64": 7230678110938,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Santy"
+    }
+  ]
+}

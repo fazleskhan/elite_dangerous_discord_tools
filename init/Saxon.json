@@ -1,0 +1,89 @@
+{
+  "coords": {
+    "x": 7.53125,
+    "y": -24.625,
+    "z": 30.09375
+  },
+  "id64": 2007997879002,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Saxon",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 7.53125,
+        "y": -24.625,
+        "z": 30.09375
+      },
+      "distance": 0.0,
+      "id64": 2007997879002,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Saxon"
+    },
+    {
+      "coords": {
+        "x": 10.78125,
+        "y": -27.125,
+        "z": 29.46875
+      },
+      "distance": 4.147665005759264,
+      "id64": 670954366385,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1594"
+    },
+    {
+      "coords": {
+        "x": 6.15625,
+        "y": -20.53125,
+        "z": 31.96875
+      },
+      "distance": 4.707976111080004,
+      "id64": 5069000943025,
+      "mainstar": "K (Yellow-Orange giant) Star",
+      "name": "Plutarch"
+    },
+    {
+      "coords": {
+        "x": 6.71875,
+        "y": -30.25,
+        "z": 35.5625
+      },
+      "distance": 7.887205323338552,
+      "id64": 22960358181744,
+      "mainstar": "T Tauri Star",
+      "name": "Drahlian"
+    },
+    {
+      "coords": {
+        "x": 7.46875,
+        "y": -32.78125,
+        "z": 31.78125
+      },
+      "distance": 8.329224247341406,
+      "id64": 40552544226152,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Sandafarr"
+    },
+    {
+      "coords": {
+        "x": 12.28125,
+        "y": -28.46875,
+        "z": 23.78125
+      },
+      "distance": 8.785474962260151,
+      "id64": 7268024133041,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1672"
+    },
+    {
+      "coords": {
+        "x": -0.15625,
+        "y": -29.15625,
+        "z": 27.28125
+      },
+      "distance": 9.356283400073984,
+      "id64": 40551470484328,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector HH-M a7-2"
+    }
+  ]
+}

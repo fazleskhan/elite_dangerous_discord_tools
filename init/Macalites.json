@@ -1,0 +1,144 @@
+{
+  "coords": {
+    "x": 31.53125,
+    "y": -18.21875,
+    "z": 0.46875
+  },
+  "id64": 4855217260907,
+  "mainstar": "F (White) Star",
+  "name": "Macalites",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 31.53125,
+        "y": -18.21875,
+        "z": 0.46875
+      },
+      "distance": 0.0,
+      "id64": 4855217260907,
+      "mainstar": "F (White) Star",
+      "name": "Macalites"
+    },
+    {
+      "coords": {
+        "x": 30.46875,
+        "y": -22.65625,
+        "z": -2.125
+      },
+      "distance": 5.248604725305574,
+      "id64": 83919639250,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Benoit"
+    },
+    {
+      "coords": {
+        "x": 30.40625,
+        "y": -22.65625,
+        "z": -2.1875
+      },
+      "distance": 5.2927020804594695,
+      "id64": 44853889387,
+      "mainstar": "F (White) Star",
+      "name": "Zeta Doradus"
+    },
+    {
+      "coords": {
+        "x": 27.71875,
+        "y": -15.21875,
+        "z": -3.15625
+      },
+      "distance": 6.0560532733786285,
+      "id64": 4889576999275,
+      "mainstar": "M",
+      "name": "Puppis Sector DL-Y d142"
+    },
+    {
+      "coords": {
+        "x": 36.59375,
+        "y": -21.375,
+        "z": -0.78125
+      },
+      "distance": 6.095352353432901,
+      "id64": 358797546194,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Cet"
+    },
+    {
+      "coords": {
+        "x": 28.21875,
+        "y": -22.53125,
+        "z": -2.90625
+      },
+      "distance": 6.40007324176841,
+      "id64": 5069269378473,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-56 1032"
+    },
+    {
+      "coords": {
+        "x": 26.6875,
+        "y": -21.40625,
+        "z": -2.6875
+      },
+      "distance": 6.601816748062612,
+      "id64": 5370319752016,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Gwaelod"
+    },
+    {
+      "coords": {
+        "x": 28.9375,
+        "y": -11.53125,
+        "z": 3.46875
+      },
+      "distance": 7.77497236731424,
+      "id64": 4786497784171,
+      "mainstar": "F (White) Star",
+      "name": "Ditibi"
+    },
+    {
+      "coords": {
+        "x": 28.0,
+        "y": -16.09375,
+        "z": 7.90625
+      },
+      "distance": 8.503044032139314,
+      "id64": 1659761592683,
+      "mainstar": null,
+      "name": "Witch's Reach"
+    },
+    {
+      "coords": {
+        "x": 31.3125,
+        "y": -13.34375,
+        "z": 7.625
+      },
+      "distance": 8.661719842213785,
+      "id64": 5370319883096,
+      "mainstar": "Y",
+      "name": "Donner"
+    },
+    {
+      "coords": {
+        "x": 39.59375,
+        "y": -17.375,
+        "z": -3.5
+      },
+      "distance": 9.025895904285624,
+      "id64": 2870514558377,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CD-55 1514"
+    },
+    {
+      "coords": {
+        "x": 25.46875,
+        "y": -11.5625,
+        "z": 1.125
+      },
+      "distance": 9.027194158485791,
+      "id64": 5370319883088,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "WISE 0647-6232"
+    }
+  ]
+}

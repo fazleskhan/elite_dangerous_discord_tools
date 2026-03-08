@@ -1,0 +1,221 @@
+{
+  "coords": {
+    "x": 22.9375,
+    "y": -35.75,
+    "z": 24.15625
+  },
+  "id64": 2832698675930,
+  "mainstar": "K (Yellow-Orange) Star",
+  "name": "Nanabozho",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 22.9375,
+        "y": -35.75,
+        "z": 24.15625
+      },
+      "distance": 0.0,
+      "id64": 2832698675930,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Nanabozho"
+    },
+    {
+      "coords": {
+        "x": 25.03125,
+        "y": -37.78125,
+        "z": 24.34375
+      },
+      "distance": 2.9231698334171416,
+      "id64": 22962505534304,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-1"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -37.46875,
+        "z": 21.0625
+      },
+      "distance": 4.387816049870368,
+      "id64": 3657332396762,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Esege Malan"
+    },
+    {
+      "coords": {
+        "x": 19.46875,
+        "y": -37.34375,
+        "z": 26.46875
+      },
+      "distance": 4.4631739687132965,
+      "id64": 58145803881320,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Ipoix"
+    },
+    {
+      "coords": {
+        "x": 26.28125,
+        "y": -39.15625,
+        "z": 21.5
+      },
+      "distance": 5.462496424483955,
+      "id64": 83919606490,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Chup Kamui"
+    },
+    {
+      "coords": {
+        "x": 18.0,
+        "y": -31.40625,
+        "z": 23.1875
+      },
+      "distance": 6.647220988879488,
+      "id64": 5069269312945,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LFT 1728"
+    },
+    {
+      "coords": {
+        "x": 16.75,
+        "y": -37.96875,
+        "z": 26.0625
+      },
+      "distance": 6.84410672586277,
+      "id64": 40553617836904,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Udaiyuna"
+    },
+    {
+      "coords": {
+        "x": 26.3125,
+        "y": -42.34375,
+        "z": 22.0
+      },
+      "distance": 7.714763646736042,
+      "id64": 671222801841,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CQ Tucani"
+    },
+    {
+      "coords": {
+        "x": 15.8125,
+        "y": -32.4375,
+        "z": 24.65625
+      },
+      "distance": 7.873263697476416,
+      "id64": 40553617967968,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector FB-O a6-2"
+    },
+    {
+      "coords": {
+        "x": 21.875,
+        "y": -40.15625,
+        "z": 17.21875
+      },
+      "distance": 8.286908444196786,
+      "id64": 22961431792480,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector HW-N a6-1"
+    },
+    {
+      "coords": {
+        "x": 16.125,
+        "y": -37.5,
+        "z": 28.6875
+      },
+      "distance": 8.366892064111978,
+      "id64": 5369245748072,
+      "mainstar": "T",
+      "name": "Cranhcat"
+    },
+    {
+      "coords": {
+        "x": 24.625,
+        "y": -29.15625,
+        "z": 19.15625
+      },
+      "distance": 8.445424519377342,
+      "id64": 5369245879136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Fergus"
+    },
+    {
+      "coords": {
+        "x": 26.9375,
+        "y": -33.59375,
+        "z": 31.28125
+      },
+      "distance": 8.450741923789886,
+      "id64": 4756844024538,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "AY Indi"
+    },
+    {
+      "coords": {
+        "x": 19.1875,
+        "y": -40.21875,
+        "z": 17.40625
+      },
+      "distance": 8.921587670504618,
+      "id64": 5369245748064,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector HW-N a6-0"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -30.375,
+        "z": 17.8125
+      },
+      "distance": 9.033466423527571,
+      "id64": 22962505665376,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector GB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 18.5625,
+        "y": -32.75,
+        "z": 31.6875
+      },
+      "distance": 9.211967844195941,
+      "id64": 5369245879144,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "Thuleppa"
+    },
+    {
+      "coords": {
+        "x": 31.0,
+        "y": -31.625,
+        "z": 26.53125
+      },
+      "distance": 9.362700264880853,
+      "id64": 40554691709800,
+      "mainstar": "Y",
+      "name": "Owaha"
+    },
+    {
+      "coords": {
+        "x": 28.125,
+        "y": -40.5625,
+        "z": 30.78125
+      },
+      "distance": 9.693345010882465,
+      "id64": 22962505534312,
+      "mainstar": "TTS",
+      "name": "Arare"
+    },
+    {
+      "coords": {
+        "x": 14.34375,
+        "y": -33.34375,
+        "z": 28.34375
+      },
+      "distance": 9.857876768097682,
+      "id64": 5368172137320,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Kedre Ralis"
+    }
+  ]
+}

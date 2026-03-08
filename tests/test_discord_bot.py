@@ -28,6 +28,10 @@ class FakeRoute:
 
     def __init__(self):
         self.last_path_args = None
+        self.last_init_import_dir = None
+
+    async def init_datasource(self, import_dir: str = "./init"):
+        self.last_init_import_dir = import_dir
 
     async def get_system_info(self, name):
         # just echo the name with a suffix so assertions can match
@@ -339,6 +343,18 @@ async def test_dump_system_cache_names(bot):
     assert re.match(
         r"^Total number of systems in cache: 3 \(\d+ ms\)$", sent_messages[-1]
     )
+
+
+@pytest.mark.asyncio
+async def test_init_datasource_command(bot):
+    ctx = MockContext()
+    await bot.init_datasource(ctx, "./custom-init")
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 1
+    assert re.match(
+        r"^Datasource initialized from \./custom-init \(\d+ ms\)$", sent_messages[0]
+    )
+    assert bot.ed_route.last_init_import_dir == "./custom-init"
 
 
 if __name__ == "__main__":

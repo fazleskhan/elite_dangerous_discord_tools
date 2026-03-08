@@ -1,8 +1,8 @@
 import asyncio
+import json
 import os
-import shutil
 import threading
-from typing import Any, Callable
+from typing import Any
 
 from loguru import logger
 from tinydb import Query
@@ -28,45 +28,63 @@ class EDTinyDB:
         self.logger = logger
         self.logger.info("DB backend: aiotinydb")
 
-    def _resolve_preload_source_path(
+    def init_datasource(
         self,
-        script_file: str,
-        preinit_db_filename: str,
-        file_exists: Callable[[str], bool],
-    ) -> str:
-        if os.path.isabs(preinit_db_filename):
-            return preinit_db_filename
-
-        script_dir = os.path.dirname(os.path.realpath(script_file))
-        repo_root = os.path.normpath(os.path.join(script_dir, ".."))
-        repo_source_path = os.path.join(repo_root, preinit_db_filename)
-        # Prefer repo-relative preload location (e.g. init/edgis_bulk_load.db).
-        if file_exists(repo_source_path):
-            return repo_source_path
-
-        return os.path.join(script_dir, preinit_db_filename)
-
-    def init_db(
-        self,
-        script_file: str,
-        preinit_db_filename: str = constants.pre_initiazlied_db_filename,
-        file_exists: Callable[[str], bool] = os.path.exists,
-        copy_file: Callable[[str, str], str] = shutil.copy,
+        import_dir: str = "./init",
     ) -> None:
-        # First run: copy preloaded DB to the configured writable target.
-        if file_exists(self._database_name):
-            self.logger.debug("DB already exists at {}", self._database_name)
-            return
         db_dir = os.path.dirname(self._database_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
-        source_path = self._resolve_preload_source_path(
-            script_file, preinit_db_filename, file_exists
+        self.import_datasource(import_dir)
+
+    def import_datasource(self, import_dir: str) -> None:
+        if not os.path.isdir(import_dir):
+            raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
+        # Deterministic order keeps imports reproducible across runs.
+        json_filenames = sorted(
+            filename for filename in os.listdir(import_dir) if filename.endswith(".json")
         )
         self.logger.info(
-            "Copying preloaded DB from {} to {}", source_path, self._database_name
+            "Importing TinyDB datasource from {} JSON files in {}",
+            len(json_filenames),
+            import_dir,
         )
-        copy_file(source_path, self._database_name)
+        for filename in json_filenames:
+            json_path = os.path.join(import_dir, filename)
+            with open(json_path, encoding="utf-8") as json_file:
+                payload = json.load(json_file)
+
+            records = payload if isinstance(payload, list) else [payload]
+            for record in records:
+                if isinstance(record, dict):
+                    self.insert_system(record)
+
+    def export_datasource(self, export_dir: str) -> None:
+        os.makedirs(export_dir, exist_ok=True)
+        systems = self.get_all_systems()
+        for system in systems:
+            system_name = system.get(constants.system_info_name_field)
+            if not isinstance(system_name, str) or not system_name:
+                continue
+            full_system = self.get_system(system_name)
+            if full_system is None:
+                continue
+            output_file = os.path.join(
+                export_dir, f"{self._safe_filename(system_name)}.json"
+            )
+            with open(output_file, "w", encoding="utf-8") as file_handle:
+                json.dump(
+                    full_system, file_handle, indent=2, ensure_ascii=False, sort_keys=True
+                )
+                file_handle.write("\n")
+
+    def _safe_filename(self, system_name: str) -> str:
+        return "".join(
+            character
+            if character.isalnum() or character in (" ", "-", "_", ".")
+            else "_"
+            for character in system_name
+        ).strip()
 
     def _run_async(self, coro: Any) -> Any:
         # If we're already inside an event loop, execute the coroutine in a

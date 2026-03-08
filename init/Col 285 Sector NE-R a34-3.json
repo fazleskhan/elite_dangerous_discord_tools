@@ -1,0 +1,210 @@
+{
+  "coords": {
+    "x": 30.65625,
+    "y": -39.03125,
+    "z": 16.125
+  },
+  "id64": 58146877623136,
+  "mainstar": "T (Brown dwarf) Star",
+  "name": "Col 285 Sector NE-R a34-3",
+  "neighbors": [
+    {
+      "coords": {
+        "x": 30.65625,
+        "y": -39.03125,
+        "z": 16.125
+      },
+      "distance": 0.0,
+      "id64": 58146877623136,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-3"
+    },
+    {
+      "coords": {
+        "x": 31.84375,
+        "y": -35.0,
+        "z": 16.125
+      },
+      "distance": 4.202515057974213,
+      "id64": 5370319620960,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Weir"
+    },
+    {
+      "coords": {
+        "x": 27.1875,
+        "y": -42.65625,
+        "z": 17.625
+      },
+      "distance": 5.236683259707426,
+      "id64": 5370319489888,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-0"
+    },
+    {
+      "coords": {
+        "x": 34.46875,
+        "y": -43.1875,
+        "z": 19.65625
+      },
+      "distance": 6.654269071430761,
+      "id64": 40554691578720,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Col 285 Sector NE-R a34-2"
+    },
+    {
+      "coords": {
+        "x": 35.15625,
+        "y": -40.15625,
+        "z": 21.21875
+      },
+      "distance": 6.889260777652418,
+      "id64": 5371393231712,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector OE-R a34-0"
+    },
+    {
+      "coords": {
+        "x": 31.9375,
+        "y": -33.0,
+        "z": 13.03125
+      },
+      "distance": 6.898468466804788,
+      "id64": 58146877754200,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-3"
+    },
+    {
+      "coords": {
+        "x": 26.28125,
+        "y": -39.15625,
+        "z": 21.5
+      },
+      "distance": 6.931585316505886,
+      "id64": 83919606490,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Chup Kamui"
+    },
+    {
+      "coords": {
+        "x": 30.9375,
+        "y": -31.96875,
+        "z": 14.6875
+      },
+      "distance": 7.212795162937875,
+      "id64": 5370319620952,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-0"
+    },
+    {
+      "coords": {
+        "x": 25.53125,
+        "y": -37.46875,
+        "z": 21.0625
+      },
+      "distance": 7.2860097103970425,
+      "id64": 3657332396762,
+      "mainstar": "K (Yellow-Orange) Star",
+      "name": "Esege Malan"
+    },
+    {
+      "coords": {
+        "x": 26.40625,
+        "y": -32.90625,
+        "z": 14.1875
+      },
+      "distance": 7.702728818412343,
+      "id64": 40554691709784,
+      "mainstar": "T Tauri Star",
+      "name": "Core Sys Sector CV-P a5-2"
+    },
+    {
+      "coords": {
+        "x": 29.84375,
+        "y": -31.875,
+        "z": 12.78125
+      },
+      "distance": 7.940575191697388,
+      "id64": 22962505665368,
+      "mainstar": "Y (Brown dwarf) Star",
+      "name": "Core Sys Sector CV-P a5-1"
+    },
+    {
+      "coords": {
+        "x": 26.3125,
+        "y": -42.34375,
+        "z": 22.0
+      },
+      "distance": 8.022246899248364,
+      "id64": 671222801841,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "CQ Tucani"
+    },
+    {
+      "coords": {
+        "x": 37.6875,
+        "y": -41.71875,
+        "z": 19.28125
+      },
+      "distance": 8.16229421639529,
+      "id64": 22963579276128,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Col 285 Sector OE-R a34-1"
+    },
+    {
+      "coords": {
+        "x": 34.28125,
+        "y": -45.65625,
+        "z": 11.5
+      },
+      "distance": 8.855612627029256,
+      "id64": 2870245991849,
+      "mainstar": "M (Red dwarf) Star",
+      "name": "LHS 1351"
+    },
+    {
+      "coords": {
+        "x": 21.875,
+        "y": -40.15625,
+        "z": 17.21875
+      },
+      "distance": 8.920328784579636,
+      "id64": 22961431792480,
+      "mainstar": "T (Brown dwarf) Star",
+      "name": "Core Sys Sector HW-N a6-1"
+    },
+    {
+      "coords": {
+        "x": 39.1875,
+        "y": -40.28125,
+        "z": 11.875
+      },
+      "distance": 9.612867759545015,
+      "id64": 22963579276120,
+      "mainstar": "T Tauri Star",
+      "name": "Col 285 Sector KY-S a33-1"
+    },
+    {
+      "coords": {
+        "x": 26.46875,
+        "y": -30.375,
+        "z": 17.8125
+      },
+      "distance": 9.762862109161432,
+      "id64": 22962505665376,
+      "mainstar": "L (Brown dwarf) Star",
+      "name": "Core Sys Sector GB-O a6-1"
+    },
+    {
+      "coords": {
+        "x": 38.59375,
+        "y": -33.625,
+        "z": 18.21875
+      },
+      "distance": 9.82930487750787,
+      "id64": 5371393362784,
+      "mainstar": "L",
+      "name": "Ehi"
+    }
+  ]
+}
