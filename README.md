@@ -23,16 +23,22 @@ https://hub.docker.com/repository/docker/fazleskhan/public-images/tags/elite-dan
 
 The image externalizes the configuration, logs, and the database to /config, /logs, and /data
 
-### Starting 
+### Starting
 
-The Discord bot can be started by running the discord_runner.py script. For example, _python ./src/discord_bot.py_
+Run the Discord bot process via the runner script:
+
+`python ./src/discord_runner.py`
 
 ### Configuration
 
 
 #### Environment Variables
 
-* DISCORD_TOKEN: Discord key used to identify and authorize the bot
+* `DISCORD_TOKEN`: Discord key used to identify and authorize the bot
+* `DATASTORE_TYPE`: datastore backend (`tinydb` or `redis`), default is `tinydb`
+* `DB_LOCATION`: TinyDB file path override (default resolves to `data/ed_route.db`)
+* `REDIS_URL`: required when `DATASTORE_TYPE=redis`
+* `REDIS_APP_NAME`: Redis key namespace prefix (default `eddt`)
 
 ### Logging
 
@@ -45,12 +51,12 @@ The Discord bot can be started by running the discord_runner.py script. For exam
 
 ### Discord Commands
 
-* !ping
-* !calc_systems_distance <system_one> <system_two>
-* !system_info <system name> - for example !system_info Sol
-* !path <initial system name> <destination system name> <max systems> <min distance> <max distance> - for example _!path Sol Sirius 1000 6 11_
-* !dump_system_cache_names - for example _!dump_system_cache_names_
-* !init_datasource - load system json file from the init directory into the datasource
+* `!ping`
+* `!system_info <system_name>` (example: `!system_info Sol`)
+* `!calc_systems_distance <system_one> <system_two>`
+* `!path <initial_system_name> <destination_system_name> [max_system_count=100] [min_distance=0] [max_distance=10000]`
+* `!dump_system_cache_names`
+* `!init_datasource [import_dir=./init]`
 
 #### ping
 
@@ -58,7 +64,7 @@ Simple ping-pong command to confirm connectivity
 
 #### system_info
 
-Returns information regarding the provided system name. If the system is not present in the local cache, the information is queried from EDGIS and cached.
+Returns information regarding the provided system name.
 
 #### calc_systems_distance
 
@@ -66,7 +72,7 @@ Calculates the distance between two systems given their coordinates in 3D space
 
 #### path
 
-Performs a breath-first-search from the source system to the destination system. If the current system does not exist, the data is queried from EDGIS. If the system neighbor is not present in the cache, it is queried from EDGIS. The graph search is pruned in two ways.
+Performs a breadth-first-search from the source system to the destination system.
 
 #### Directionality
 
@@ -86,7 +92,7 @@ Iteratively displays all the names currently cached locally.
 
 #### init_datasource
 
-Iteratively loads the json contents of the init directory into the current datasource
+Loads JSON files from the target import directory into the configured datasource.
 
 ### Diagrams
 
@@ -116,61 +122,72 @@ Iteratively loads the json contents of the init directory into the current datas
 
 ## Command line
 
-The tool also provides a command line interaction. To run the command line run main.py
+The tool also provides a CLI entrypoint:
 
-### Example Use
+`python ./src/main.py <command> [options]`
+
+Supported commands:
+
+* `all_loaded_systems`
+* `system_info --system_name <name>`
+* `path --initial <system> --destination <system> --max_systems <n> [--min_distance <n>] [--max_distance <n>]`
+* `calc_systems_distance --initial <system> --destination <system>`
+* `init_datasource [--import_dir <dir>]`
+
+### Example usage
 
 #### Command Line Help
 
 Provide description of the commands and available options
 
-__python ./src/main.py -h__
+`python ./src/main.py -h`
 
 #### System Info
 
 Returns information about the target system. It will retrieve information from EDGIS if not preset.
 
-system_info <system_name>
-
-for example __python ./src/main.py system_info Sol__
+`python ./src/main.py system_info --system_name Sol`
 
 #### Calculate System Distances
 
 Returns the distance between two system in 3D space
 
-calc_systems_distance <system_one> <system_two>
-
-for example __python ./src/main.py calc_systems_distance Sol Sirius__
+`python ./src/main.py calc_systems_distance --initial Sol --destination Sirius`
 
 #### Path
 
 Calculates the path between two systems. 
 
-main.py path <initial system> <destination system> <optional max nodes> <min distance> <max distance>
-
-for example __python ./src/main.py path Sol Sirius 1000 6 11__
+`python ./src/main.py path --initial Sol --destination Sirius --max_systems 1000 --min_distance 6 --max_distance 11`
 
 #### Init Datasource
 
-main.py init_datasource 
+`python ./src/main.py init_datasource --import_dir ./init`
 
 ## Data Transfer Utils
 
 ### Export Redis
 
-Extracts the contents of the redis datasource, generates a json file for each system and writes them to the ./data/ed_redis-export
+Extracts Redis records into one JSON file per system.
+
+`python ./src/export_redis.py [--export-dir ./data/ed_redis-export]`
 
 ### Export TinyDB
 
-Extracts the contents of the tinydb datasource, generates a json file for each system and writes them to the ./data/ed_redis-export
+Extracts TinyDB records into one JSON file per system.
+
+`python ./src/export_tinydb.py [--export-dir ./data/ed_tinydb-export]`
 
 ### Import Redis
 
-Import the contents of the tinydb export directory ./data/ed_tinydb-export
+Imports JSON system files into Redis.
+
+`python ./src/import_redis.py [--import-dir ./data/ed_tinydb-export]`
 
 ### Import TinyDB
 
-Import the contents of the redis export directory ./data/ed_redis-export
+Imports JSON system files into TinyDB.
 
+`python ./src/import_tinydb.py [--import-dir ./data/ed_redis-export]`
 
 
