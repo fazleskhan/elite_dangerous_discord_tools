@@ -17,6 +17,16 @@ ProgressFn = Callable[[str], None]
 def main() -> None: ...
 
 
+def _reconstruct_path(parents: dict[str, str | None], destination_name: str) -> list[str]:
+    path: list[str] = []
+    cursor: str | None = destination_name
+    while cursor is not None:
+        path.append(cursor)
+        cursor = parents.get(cursor)
+    path.reverse()
+    return path
+
+
 def travel(
     func_fetch_info: FetchInfoFn,
     func_fetch_neighbors: FetchNeighborsFn,
@@ -43,8 +53,10 @@ def travel(
     distance_to_destination = func_calc_system_distance(start_name, destination_name)
     previous_distance = distance_to_destination
 
-    queue: deque[list[str]] = deque([[start_name]])
+    system_name_field = constants.system_info_name_field
+    queue: deque[str] = deque([start_name])
     visited: set[str] = {start_name}
+    parents: dict[str, str | None] = {start_name: None}
     # Throttle progress updates so callers (CLI/Discord) aren't spammed.
     last_progress_report = time.monotonic()
 
@@ -56,36 +68,27 @@ def travel(
             break
         else:
             node_count += 1
-            now = time.monotonic()
-            if now - last_progress_report >= 30:
+            if (node_count & 0x1FF) == 0:
+                now = time.monotonic()
+                if now - last_progress_report >= 30:
                 # Message format is consumed by CLI/Discord progress handlers.
-                progress_callback(f"Analyzed {node_count} of {max_count} systems")
-                last_progress_report = now
+                    progress_callback(f"Analyzed {node_count} of {max_count} systems")
+                    last_progress_report = now
 
-        path = queue.popleft()
-        current_node = path[-1]
+        current_node = queue.popleft()
 
         distance_to_destination = func_calc_system_distance(
             current_node, destination_name
         )
-        logger.debug(
-            "Current distance estimate {} -> {}: {}",
-            current_node,
-            destination_name,
-            distance_to_destination,
-        )
 
         if distance_to_destination >= previous_distance * 1.05:
-            logger.debug(
-                r"current node is more than 5% further ways than the previous node"
-            )
             continue
         elif distance_to_destination < previous_distance:
             previous_distance = distance_to_destination
 
         if current_node == destination_name:
             logger.info("Destination reached: {}", destination_name)
-            return path
+            return _reconstruct_path(parents, destination_name)
 
         system_info = func_fetch_info(current_node)
         if not system_info:
@@ -98,7 +101,7 @@ def travel(
             continue
 
         for adjacent_neighbor in neighbors:
-            adjacent_name = adjacent_neighbor[constants.system_info_name_field]
+            adjacent_name = adjacent_neighbor[system_name_field]
             adjacent_distance = adjacent_neighbor.get("distance")
             if adjacent_distance is None:
                 adjacent_distance = func_calc_system_distance(
@@ -106,19 +109,12 @@ def travel(
                 )
 
             if not (min_distance <= adjacent_distance <= max_distance):
-                logger.debug(
-                    f"system distance {adjacent_distance} is not between {min_distance} and {max_distance}"
-                )
                 continue
 
             if adjacent_name not in visited:
-                adjacent_info = func_fetch_info(adjacent_name)
-                if not adjacent_info:
-                    continue
                 visited.add(adjacent_name)
-                new_path = list(path)
-                new_path.append(adjacent_name)
-                queue.append(new_path)
+                parents[adjacent_name] = current_node
+                queue.append(adjacent_name)
     logger.info(
         "No route found from {} to {} within max_count={}",
         start_name,

@@ -5,7 +5,6 @@ import constants
 import os
 import asyncio
 import threading
-from concurrent.futures import Future
 from loguru import logger
 from dotenv import load_dotenv
 from typing import Any, Callable, Protocol, cast
@@ -96,10 +95,11 @@ class EDRouteService:
         if self.database is None:
             self.logger.warning("Database is not initialized for get_all_system_names")
             return []
-        results = []
         system_infos = self.database.get_all_systems()
-        for system_info in system_infos:
-            results.append(system_info[constants.system_info_name_field])
+        results = [
+            system_info[constants.system_info_name_field]
+            for system_info in system_infos
+        ]
         self.logger.debug("Collected {} system names", len(results))
         return results
 
@@ -124,11 +124,10 @@ class EDRouteService:
             min_distance,
             max_distance,
         )
-
-        result: Future[list[str] | None] = Future()
+        loop = asyncio.get_running_loop()
+        result: asyncio.Future[list[str] | None] = loop.create_future()
 
         def _worker() -> None:
-            # Run blocking BFS traversal off the event loop thread.
             try:
                 route_result = self.travel_fn(
                     cache.find_system_info,
@@ -141,22 +140,19 @@ class EDRouteService:
                     self.calc_systems_distance,
                     progress_callback,
                 )
-                result.set_result(route_result)
+                loop.call_soon_threadsafe(result.set_result, route_result)
             except Exception as exc:
-                result.set_exception(exc)
+                loop.call_soon_threadsafe(result.set_exception, exc)
 
         threading.Thread(target=_worker, daemon=True).start()
-        # Poll the worker Future so this async method stays non-blocking.
-        while not result.done():
-            await asyncio.sleep(0.01)
-        route = result.result()
+        route = await result
         self.logger.info("Path calculation complete found={}", route is not None)
         return route
 
     def calc_systems_distance(
         self, system_name_one: str, system_name_two: str
     ) -> float:
-        self.logger.info(
+        self.logger.debug(
             "Calculating distance between systems: {} and {}",
             system_name_one,
             system_name_two,
