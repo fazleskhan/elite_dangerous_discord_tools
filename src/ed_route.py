@@ -51,6 +51,8 @@ class EDRouteService:
         self.travel_fn = travel_fn
         self.script_file = script_file
         self.logger = logger
+        self._coords_cache: dict[str, tuple[float, float, float]] = {}
+        self._coords_cache_lock = threading.Lock()
 
     @staticmethod
     def create(
@@ -157,27 +159,23 @@ class EDRouteService:
             system_name_one,
             system_name_two,
         )
-        system_info_one = self.get_system_info(system_name_one)
-        system_info_two = self.get_system_info(system_name_two)
-        if system_info_one is None or system_info_two is None:
+        coords_one = self._get_system_coords(system_name_one)
+        coords_two = self._get_system_coords(system_name_two)
+        if coords_one is None or coords_two is None:
             missing_systems: list[str] = []
-            if system_info_one is None:
+            if coords_one is None:
                 missing_systems.append(system_name_one)
-            if system_info_two is None:
+            if coords_two is None:
                 missing_systems.append(system_name_two)
             message = f"Could not load system info for: {', '.join(missing_systems)}"
             self.logger.error(message)
             raise ValueError(message)
 
-        # Distance is computed from each system's cartesian coordinates.
-        coords1 = system_info_one[constants.system_info_coords_field]
-        coords2 = system_info_two[constants.system_info_coords_field]
-
         # Euclidean distance in 3D space.
         distance = math.sqrt(
-            (coords2["x"] - coords1["x"]) ** 2
-            + (coords2["y"] - coords1["y"]) ** 2
-            + (coords2["z"] - coords1["z"]) ** 2
+            (coords_two[0] - coords_one[0]) ** 2
+            + (coords_two[1] - coords_one[1]) ** 2
+            + (coords_two[2] - coords_one[2]) ** 2
         )
         self.logger.debug(
             "Distance calculated for {} -> {}: {}",
@@ -186,6 +184,26 @@ class EDRouteService:
             distance,
         )
         return distance
+
+    def _get_system_coords(self, system_name: str) -> tuple[float, float, float] | None:
+        with self._coords_cache_lock:
+            cached_coords = self._coords_cache.get(system_name)
+        if cached_coords is not None:
+            return cached_coords
+
+        system_info = self.get_system_info(system_name)
+        if system_info is None:
+            return None
+
+        coords = system_info[constants.system_info_coords_field]
+        resolved_coords = (
+            float(coords[constants.system_info_x_field]),
+            float(coords[constants.system_info_y_field]),
+            float(coords[constants.system_info_z_field]),
+        )
+        with self._coords_cache_lock:
+            self._coords_cache[system_name] = resolved_coords
+        return resolved_coords
 
 
 if __name__ == "__main__":
