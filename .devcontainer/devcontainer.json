@@ -13,8 +13,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt",
-
+	"postCreateCommand": "sh ./scripts/postCreateCommand.sh",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -43,7 +42,6 @@
     				"plantuml.exportOutDir": "/docs",
     				"plantuml.exportFormat": "png",
     				"plantuml.diagramsRoot": "/docs",
-        			"python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python"
 				}
 			}
 		}
