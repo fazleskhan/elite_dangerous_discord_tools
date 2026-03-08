@@ -23,8 +23,15 @@ def main() -> None: ...
 class EDTinyDB:
     def __init__(self, database_name: str):
         self._database_name = database_name
+        db_dir = os.path.dirname(self._database_name)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         # Serialize write operations to avoid concurrent TinyDB write races.
         self._write_lock = threading.Lock()
+        # Cache hot system lookups to avoid repeated TinyDB file scans.
+        self._cache_lock = threading.RLock()
+        self._system_cache: dict[str, SystemInfo] = {}
+        self._all_systems_cached = False
         self.logger = logger
         self.logger.info("DB backend: aiotinydb")
 
@@ -56,8 +63,8 @@ class EDTinyDB:
             with open(json_path, encoding="utf-8") as json_file:
                 payload = json.load(json_file)
 
-            records = payload if isinstance(payload, list) else [payload]
-            for record in records:
+            file_records = payload if isinstance(payload, list) else [payload]
+            for record in file_records:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
@@ -115,7 +122,15 @@ class EDTinyDB:
 
         return output.get("value")
 
-    async def _insert_system_async(self, system_info: SystemInfo) -> None:
+    def _cache_get(self, system_name: str) -> SystemInfo | None:
+        with self._cache_lock:
+            return self._system_cache.get(system_name)
+
+    def _cache_set(self, system_name: str, system_info: SystemInfo) -> None:
+        with self._cache_lock:
+            self._system_cache[system_name] = system_info
+
+    async def _insert_system_async(self, system_info: SystemInfo) -> bool:
         System = Query()
         system_name = system_info[constants.system_info_name_field]
         async with AIOTinyDB(self._database_name) as db:
@@ -124,10 +139,12 @@ class EDTinyDB:
                 self.logger.debug(
                     "Inserted system={} doc_id={}", system_name, inserted_id
                 )
+                return True
             else:
                 self.logger.debug(
                     "Skipped duplicate system insert for system={}", system_name
                 )
+                return False
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
         System = Query()
@@ -164,12 +181,25 @@ class EDTinyDB:
             return systems
 
     def insert_system(self, system_info: SystemInfo) -> None:
+        system_name = system_info.get(constants.system_info_name_field)
+        if not isinstance(system_name, str):
+            return
+        if self._cache_get(system_name) is not None:
+            return
         with self._write_lock:
-            self._run_async(self._insert_system_async(system_info))
+            inserted = self._run_async(self._insert_system_async(system_info))
+        if inserted:
+            self._cache_set(system_name, system_info)
 
     def get_system(self, system_name: str) -> SystemInfo | None:
+        cached = self._cache_get(system_name)
+        if cached is not None:
+            return cached
         try:
-            return self._run_async(self._get_system_async(system_name))
+            result = self._run_async(self._get_system_async(system_name))
+            if isinstance(result, dict):
+                self._cache_set(system_name, result)
+            return result
         except Exception:
             self.logger.exception("Lookup failed for system={}", system_name)
             return None
@@ -179,9 +209,24 @@ class EDTinyDB:
     ) -> None:
         with self._write_lock:
             self._run_async(self._add_neighbors_async(system_info, new_neighbors))
+        system_name = system_info.get(constants.system_info_name_field)
+        if isinstance(system_name, str):
+            updated_info = dict(system_info)
+            updated_info[constants.system_info_neighbors_field] = new_neighbors
+            self._cache_set(system_name, updated_info)
 
     def get_all_systems(self) -> list[SystemInfo]:
-        return self._run_async(self._get_all_systems_async())
+        with self._cache_lock:
+            if self._all_systems_cached:
+                return list(self._system_cache.values())
+        systems = self._run_async(self._get_all_systems_async())
+        with self._cache_lock:
+            for system_info in systems:
+                system_name = system_info.get(constants.system_info_name_field)
+                if isinstance(system_name, str):
+                    self._system_cache[system_name] = system_info
+            self._all_systems_cached = True
+        return systems
 
 
 if __name__ == "__main__":
