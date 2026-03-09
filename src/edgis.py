@@ -77,5 +77,24 @@ def fetch_system_info(system_name: str) -> dict[str, Any] | None:
         return None
 
 
+class EDGis:
+    """OO gateway wrapper around EDGIS HTTP lookups."""
+
+    def __init__(self, logging_utils: Any):
+        self._logging_utils = logging_utils
+
+    @staticmethod
+    def create(logging_utils: Any) -> "EDGis":
+        return EDGis(logging_utils)
+
+    def fetch_system_info(self, system_name: str) -> dict[str, Any] | None:
+        return fetch_system_info(system_name)
+
+    def fetch_neighbors(
+        self, x: float | int, y: float | int, z: float | int
+    ) -> list[dict[str, Any]] | None:
+        return fetch_neighbors(x, y, z)
+
+
 if __name__ == "__main__":
     main()

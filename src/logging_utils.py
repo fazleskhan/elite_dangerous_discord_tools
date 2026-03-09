@@ -230,3 +230,16 @@ def setup_logging(config_path: str | Path = DEFAULT_CONFIG_PATH) -> None:
         if _WATCHER is None:
             _WATCHER = _LoguruConfigWatcher(resolved_path)
             _WATCHER.start()
+
+
+class EDLoggingUtils:
+    """OO logging utility facade for IoC composition."""
+
+    def __init__(self, config_path: str | Path):
+        self.config_path = Path(config_path)
+
+    @staticmethod
+    def create(config_path: str | Path = DEFAULT_CONFIG_PATH) -> "EDLoggingUtils":
+        logging_utils = EDLoggingUtils(config_path)
+        setup_logging(logging_utils.config_path)
+        return logging_utils

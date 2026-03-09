@@ -26,7 +26,7 @@ class CacheProtocol(Protocol):
     ) -> list[SystemInfo] | None: ...
 
 
-class BulkLoadService:
+class EDBulkLoad:
     """Bulk loader with injected cache functions for IoC-friendly composition."""
 
     def __init__(
@@ -39,8 +39,8 @@ class BulkLoadService:
         logger.debug("BulkLoadService initialized")
 
     @staticmethod
-    def create(cache: CacheProtocol) -> "BulkLoadService":
-        return BulkLoadService(
+    def create(cache: CacheProtocol, logging_utils: Any) -> "EDBulkLoad":
+        return EDBulkLoad(
             fetch_system_info_fn=cache.find_system_info,
             fetch_neighbors_fn=cache.find_system_neighbors,
         )
@@ -54,7 +54,7 @@ class BulkLoadService:
         # Entry point used by CLI and Discord: walk neighbor graph and return
         # deterministic visit order up to the caller-provided node limit.
         logger.debug(
-            "BulkLoadService.load called initial_system_count={} max_nodes_visited={}",
+            "EDBulkLoad.load called initial_system_count={} max_nodes_visited={}",
             len(initial_system_names),
             max_nodes_visited,
         )
@@ -155,7 +155,7 @@ class BulkLoadService:
                         f"Loaded {len(visited)} of {max_nodes_visited} systems"
                     )
 
-        logger.debug("BulkLoadService.load completed visited_count={}", len(visit_order))
+        logger.debug("EDBulkLoad.load completed visited_count={}", len(visit_order))
         return visit_order
 
     def _neighbor_as_system_info(self, neighbor: SystemInfo) -> SystemInfo | None:
@@ -175,6 +175,10 @@ class BulkLoadService:
         return self.fetch_neighbors_fn(system_info) or []
 
 
+# Backward-compatible alias used by existing tests/imports.
+BulkLoadService = EDBulkLoad
+
+
 def _physical_core_count() -> int:
     detected = psutil.cpu_count(logical=False)
     if detected is not None and detected > 0:
@@ -186,14 +190,14 @@ def _physical_core_count() -> int:
 def create_bulk_loader(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
-) -> BulkLoadService:
+) -> EDBulkLoad:
     # Composition root: backend selection is deferred to ed_factory/env config.
     datasource = ed_factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
     cache = edgis_cache.EDGisCache.create(datasource)
-    return BulkLoadService.create(cache)
+    return EDBulkLoad.create(cache, logging_utils=None)
 
 
 def bulk_load(

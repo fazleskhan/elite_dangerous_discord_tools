@@ -23,7 +23,9 @@ def main() -> None: ...
 class EDRedis:
     @staticmethod
     def create(
-        datasource_name: str | None = None, redis_url: str | None = None
+        datasource_name: str | None = None,
+        redis_url: str | None = None,
+        logging_utils: Any = None,
     ) -> "EDRedis":
         # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         return EDRedis(

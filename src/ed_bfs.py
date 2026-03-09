@@ -126,5 +126,46 @@ def travel(
     return None
 
 
+class EDBfs:
+    """OO wrapper for BFS traversal with IoC-friendly construction."""
+
+    def __init__(
+        self,
+        fetch_info_fn: FetchInfoFn,
+        fetch_neighbors_fn: FetchNeighborsFn,
+    ) -> None:
+        self._fetch_info_fn = fetch_info_fn
+        self._fetch_neighbors_fn = fetch_neighbors_fn
+
+    @staticmethod
+    def create(cache: Any, logging_utils: Any) -> "EDBfs":
+        return EDBfs(
+            fetch_info_fn=cache.find_system_info,
+            fetch_neighbors_fn=cache.find_system_neighbors,
+        )
+
+    def travel(
+        self,
+        start_name: str,
+        destination_name: str,
+        max_count: int,
+        min_distance: int,
+        max_distance: int,
+        calc_distance_fn: DistanceFn,
+        progress_callback: ProgressFn,
+    ) -> list[str] | None:
+        return travel(
+            self._fetch_info_fn,
+            self._fetch_neighbors_fn,
+            start_name,
+            destination_name,
+            max_count,
+            min_distance,
+            max_distance,
+            calc_distance_fn,
+            progress_callback,
+        )
+
+
 if __name__ == "__main__":
     main()

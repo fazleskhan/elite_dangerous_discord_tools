@@ -1,0 +1,211 @@
+@startuml ed_class_structure
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+title Elite Dangerous Tools - Class Structure (OO + IoC)
+
+package "Non-OO Python Files" {
+  class discord_runner <<non-oo file>>
+  class ed_constancts <<non-oo file>>
+}
+
+package "Core" {
+  class EDLoggingUtils <<Utility>> {
+    + create(): EDLoggingUtils
+  }
+
+  class EDDatasourceFactory <<Factory>> {
+    + create(logging_utils: EDLoggingUtils): EDDatasourceFactory
+    + create_datasource(logging_utils: EDLoggingUtils): DBProtocol
+  }
+
+  interface DBProtocol
+
+  class EDTinyDB <<Datasource>> {
+    + create(logging_utils: EDLoggingUtils): EDTinyDB
+  }
+
+  class EDRedis <<Datasource>> {
+    + create(logging_utils: EDLoggingUtils): EDRedis
+  }
+
+  class EDGis <<Gateway>> {
+    + create(logging_utils: EDLoggingUtils): EDGis
+  }
+
+  class EDCache <<Cache>> {
+    + create(db: DBProtocol, gis: EDGis, logging_utils: EDLoggingUtils): EDCache
+  }
+
+  class EDBfs <<Algorithm>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDBfs
+  }
+
+  class EDBulkLoad <<Algorithm>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDBulkLoad
+  }
+}
+
+package "Route Services (Thread-safe Delegates)" {
+  class EDInitDatasourceService <<Service>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDInitDatasourceService
+  }
+
+  class EDGetSystemInfoService <<Service>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDGetSystemInfoService
+  }
+
+  class EDGetAllSystemNamesService <<Service>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDGetAllSystemNamesService
+  }
+
+  class EDBulkLoadCacheService <<Service>> {
+    + create(bulk_load: EDBulkLoad, logging_utils: EDLoggingUtils): EDBulkLoadCacheService
+  }
+
+  class EDPathService <<Service>> {
+    + create(bfs: EDBfs, logging_utils: EDLoggingUtils): EDPathService
+  }
+
+  class EDCalcSystemsDistanceService <<Service>> {
+    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDCalcSystemsDistanceService
+  }
+
+  class EDRouteService <<Facade>> {
+    + create(
+      init_datasource_service: EDInitDatasourceService,
+      get_system_info_service: EDGetSystemInfoService,
+      get_all_system_names_service: EDGetAllSystemNamesService,
+      bulk_load_cache_service: EDBulkLoadCacheService,
+      path_service: EDPathService,
+      calc_systems_distance_service: EDCalcSystemsDistanceService,
+      logging_utils: EDLoggingUtils
+    ): EDRouteService
+    --
+    +init_datasource(import_dir)
+    +get_system_info(system_name)
+    +get_all_system_names()
+    +bulk_load_cache(initial_systems, max_nodes)
+    +path(source, destination, max_systems, min_distance, max_distance)
+    +calc_systems_distance(system_a, system_b)
+  }
+}
+
+package "IoC Compositors / Entrypoints" {
+  class EDDiscordBot <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDDiscordBot
+    --
+    +ping()
+    +system_info()
+    +path()
+    +calc_systems_distance()
+    +dump_system_cache_names()
+    +init_datasource()
+    +bulk_load_cache()
+  }
+
+  class EDMain <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDMain
+    --
+    +ping()
+    +system_info()
+    +path()
+    +calc_systems_distance()
+    +dump_system_cache_names()
+    +init_datasource()
+    +bulk_load_cache()
+  }
+
+  class EDGisBulkLoad <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDGisBulkLoad
+  }
+
+  class ImportRedis <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ImportRedis
+  }
+
+  class ExportRedis <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ExportRedis
+  }
+
+  class ImportTinyDB <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ImportTinyDB
+  }
+
+  class ExportTinyDB <<IoC Composer>> {
+    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ExportTinyDB
+  }
+}
+
+' concrete over abstract where possible
+DBProtocol <|.. EDTinyDB
+DBProtocol <|.. EDRedis
+
+EDDatasourceFactory ..> EDTinyDB : create_datasource()
+EDDatasourceFactory ..> EDRedis : create_datasource()
+
+EDCache --> DBProtocol
+EDCache --> EDGis
+
+EDBfs --> EDCache
+EDBulkLoad --> EDCache
+
+EDBulkLoadCacheService --> EDBulkLoad
+EDPathService --> EDBfs
+EDCalcSystemsDistanceService --> EDCache
+EDInitDatasourceService --> EDCache
+EDGetSystemInfoService --> EDCache
+EDGetAllSystemNamesService --> EDCache
+
+EDRouteService --> EDInitDatasourceService
+EDRouteService --> EDGetSystemInfoService
+EDRouteService --> EDGetAllSystemNamesService
+EDRouteService --> EDBulkLoadCacheService
+EDRouteService --> EDPathService
+EDRouteService --> EDCalcSystemsDistanceService
+EDRouteService --> EDLoggingUtils
+
+EDDiscordBot --> EDRouteService
+EDMain --> EDRouteService
+EDGisBulkLoad --> EDRouteService
+ImportRedis --> EDRouteService
+ExportRedis --> EDRouteService
+ImportTinyDB --> EDRouteService
+ExportTinyDB --> EDRouteService
+
+EDDiscordBot --> EDCache
+EDMain --> EDCache
+EDGisBulkLoad --> EDCache
+ImportRedis --> EDCache
+ExportRedis --> EDCache
+ImportTinyDB --> EDCache
+ExportTinyDB --> EDCache
+
+EDDiscordBot --> EDLoggingUtils
+EDMain --> EDLoggingUtils
+EDGisBulkLoad --> EDLoggingUtils
+ImportRedis --> EDLoggingUtils
+ExportRedis --> EDLoggingUtils
+ImportTinyDB --> EDLoggingUtils
+ExportTinyDB --> EDLoggingUtils
+
+discord_runner ..> EDMain : launches
+ed_constancts ..> EDRouteService : constants only
+
+note right of EDRouteService
+Thin shim/facade for clients.
+Delegates behavior to thread-safe
+service classes injected via IoC.
+end note
+
+note bottom of EDDatasourceFactory
+No defaulting logic in create/create_datasource.
+Configuration is owned by IoC compositors.
+end note
+
+note as N_STATIC
+All create(...) methods shown in this diagram are static.
+end note
+
+@enduml
