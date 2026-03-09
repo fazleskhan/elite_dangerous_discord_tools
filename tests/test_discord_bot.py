@@ -357,5 +357,37 @@ async def test_init_datasource_command(bot):
     assert bot.ed_route.last_init_import_dir == "./custom-init"
 
 
+@pytest.mark.asyncio
+async def test_bulk_load_cache_command(bot, monkeypatch):
+    ctx = MockContext()
+    captured = {"initial_system_names": None, "max_nodes_visited": None}
+
+    async def fake_bulk_load_async(
+        initial_system_names, max_nodes_visited, progress_callback=None
+    ):
+        return (
+            captured.update(
+                {
+                    "initial_system_names": initial_system_names,
+                    "max_nodes_visited": max_nodes_visited,
+                }
+            )
+            or ["Sol", "Alpha Centauri"]
+        )
+
+    monkeypatch.setattr("discord_bot.ed_cache.bulk_load_async", fake_bulk_load_async)
+
+    await bot.bulk_load_cache(ctx, "Sol,Alpha Centauri", 50)
+    sent_messages = ctx.retrieve_messages()
+    assert len(sent_messages) == 2
+    assert sent_messages[0].startswith(
+        "Bulk loading cache from seeds ['Sol', 'Alpha Centauri'] with max_nodes_visited=50"
+    )
+    assert sent_messages[1].startswith("Bulk load complete. Loaded 2 systems")
+    assert re.search(r"\(\d+ ms\)$", sent_messages[1])
+    assert captured["initial_system_names"] == ["Sol", "Alpha Centauri"]
+    assert captured["max_nodes_visited"] == 50
+
+
 if __name__ == "__main__":
     main()

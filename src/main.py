@@ -1,4 +1,5 @@
 import ed_factory
+import ed_cache
 import constants
 import argparse
 import asyncio
@@ -23,13 +24,14 @@ def main() -> None:
     )
     parser.add_argument(
         "command",
-        help="enter command (path|system_info|all_loaded_systems|calc_systems_distance|init_datasource)",
+        help="enter command (path|system_info|all_loaded_systems|calc_systems_distance|init_datasource|bulk_load_cache)",
         choices=[
             "path",
             "all_loaded_systems",
             "system_info",
             "calc_systems_distance",
             "init_datasource",
+            "bulk_load_cache",
         ],
     )
     parser.add_argument(
@@ -81,6 +83,21 @@ def main() -> None:
         const=None,
         default=None,
         help="the system name to return info for (for example Beta Hydri) required if comand is system_info",
+    )
+    parser.add_argument(
+        "--initial_systems",
+        nargs="?",
+        const=None,
+        default=None,
+        help="comma-separated seed systems required for bulk_load_cache (for example Sol,Alpha Centauri)",
+    )
+    parser.add_argument(
+        "--max_nodes_visited",
+        nargs="?",
+        const=None,
+        default=None,
+        type=int,
+        help="maximum number of systems to visit required for bulk_load_cache",
     )
 
     args = parser.parse_args()
@@ -179,6 +196,37 @@ def main() -> None:
             init_datasource(args.import_dir)
             print(f"Datasource initialized from {args.import_dir}")
             print(f"Execution time: {_elapsed_ms(start)} ms")
+        case "bulk_load_cache":
+            start = time.perf_counter()
+            if not args.initial_systems:
+                logger.error("Missing required --initial_systems for bulk_load_cache")
+                print(
+                    "Error: The --initial_systems argument is requried with bulk_load_cache command"
+                )
+                parser.print_help()
+                sys.exit(1)
+            if args.max_nodes_visited is None:
+                logger.error(
+                    "Missing required --max_nodes_visited for bulk_load_cache"
+                )
+                print(
+                    "Error: The --max_nodes_visited argument is requried with bulk_load_cache command"
+                )
+                parser.print_help()
+                sys.exit(1)
+            initial_system_names = [
+                system_name.strip()
+                for system_name in args.initial_systems.split(",")
+                if system_name.strip()
+            ]
+            loaded_systems = bulk_load_cache(
+                initial_system_names,
+                args.max_nodes_visited,
+            )
+            print(
+                f"Loaded {len(loaded_systems)} systems from seeds {initial_system_names}"
+            )
+            print(f"Execution time: {_elapsed_ms(start)} ms")
 
 
 def get_all_system_names() -> list[str]:
@@ -214,6 +262,16 @@ def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
 
 def init_datasource(import_dir: str = "./init") -> None:
     ed_service.init_datasource(import_dir)
+
+
+def bulk_load_cache(
+    initial_system_names: list[str], max_nodes_visited: int
+) -> list[str]:
+    return ed_cache.bulk_load(
+        initial_system_names,
+        max_nodes_visited,
+        progress_callback=lambda message: logger.info(message),
+    )
 
 
 if __name__ == "__main__":
