@@ -109,7 +109,7 @@ class EDRedis:
         final_redis_url = redis_url or os.getenv("REDIS_URL")
         if not final_redis_url:
             raise ValueError(
-                "REDIS_URL is required when DATASTORE_TYPE is set to 'redis'"
+                "REDIS_URL is required when DATASOURCE_TYPE is set to 'redis'"
             )
 
         parsed = urlparse(final_redis_url)

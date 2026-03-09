@@ -23,7 +23,7 @@ def main() -> None: ...
 class EDTinyDB:
     @staticmethod
     def create(datasource_name: str | None = None) -> "EDTinyDB":
-        return EDTinyDB(datasource_name or os.getenv("TINYDB_NAME", "ed_route.db"))
+        return EDTinyDB(datasource_name or os.getenv("TINYDB_NAME", "./data/ed_route.db"))
 
     def __init__(self, datasource_name: str):
         self.datasource_name = datasource_name

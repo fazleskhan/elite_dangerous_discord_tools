@@ -10,7 +10,7 @@ import os
 import inspect
 import time
 from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
-import ed_route
+import ed_factory
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -77,7 +77,7 @@ class DiscordBot:
 
     @staticmethod
     def create(
-        route_factory: RouteServiceProtocol = ed_route.EDRouteService.create(),
+        route_factory: RouteServiceProtocol | None = None,
         token_factory: str | None = os.getenv("DISCORD_TOKEN"),
         log_location_factory: str = os.getenv("LOG_LOCATION", "discord_bot.log"),
         intents_factory: discord.Intents = _default_intents(),
@@ -86,7 +86,7 @@ class DiscordBot:
     ) -> DiscordBot:
         load_dotenv()
         logger.debug("Creating DiscordBot with command_prefix={}", command_prefix)
-        resolved_route = route_factory
+        resolved_route = route_factory or ed_factory.create_route_service()
         resolved_token = token_factory
         resolved_log_location = log_location_factory
         resolved_bot = commands.Bot(

@@ -4,7 +4,7 @@ import shutil
 import constants
 import os
 import edgis_cache
-import datasource
+import ed_factory
 import pytest
 
 db_filename = __file__.replace("tests", "data").replace(".py", ".db")
@@ -79,7 +79,9 @@ def test_larger_local_travel_Sol_Wolf_359():
     source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = datasource.DB(db_filename)
+    database = ed_factory.create_datasource(
+        datasource_name=db_filename, datasource_type="tinydb"
+    )
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
@@ -104,7 +106,9 @@ def test_larger_travel_Sol_LTT_3572():
     source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = datasource.DB(db_filename)
+    database = ed_factory.create_datasource(
+        datasource_name=db_filename, datasource_type="tinydb"
+    )
     cache = edgis_cache.EDGisCache.create(database)
 
     visited = ed_bfs.travel(
