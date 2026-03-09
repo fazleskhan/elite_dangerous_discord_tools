@@ -58,6 +58,7 @@ Run the Discord bot process via the runner script:
 * `!path <initial_system_name> <destination_system_name> [max_system_count=100] [min_distance=0] [max_distance=10000]`
 * `!dump_system_cache_names`
 * `!init_datasource [import_dir=./init]`
+* `!bulk_load_cache <initial_systems_csv> <max_nodes_visited>` (example: `!bulk_load_cache Sol,Alpha Centauri 5000`)
 
 #### Ping
 
@@ -95,6 +96,14 @@ Iteratively displays all the names currently cached locally.
 
 Loads JSON files from the target import directory into the configured datasource.
 
+#### Bulk_Load_Cache
+
+Pre-populates the cache by traversing neighbors breadth-first from one or more seed systems.
+
+* `initial_systems_csv`: comma-separated seed systems (for example `Sol,Alpha Centauri`)
+* `max_nodes_visited`: max number of unique systems to visit
+* Executes through `EDRouteService.bulk_load_cache(...)`, which delegates traversal to `ed_cache`
+
 ### Discord Bot Sequence Diagrams
 
 ![Discord Bot Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/discord_bot_initialization.png)
@@ -111,6 +120,8 @@ Loads JSON files from the target import directory into the configured datasource
 
 ![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_init_datasource.png)
 
+![Bulk Load Sequence Diagram](./docs/discord_bot_sequences/discord_bot_bulk_load.png)
+
 
 ## Command Line
 
@@ -125,6 +136,7 @@ Supported commands:
 * `path --initial <system> --destination <system> --max_systems <n> [--min_distance <n>] [--max_distance <n>]`
 * `calc_systems_distance --initial <system> --destination <system>`
 * `init_datasource [--import_dir <dir>]`
+* `bulk_load_cache --initial_systems <seed1,seed2,...> --max_nodes_visited <n>`
 
 ### Example Usage
 
@@ -156,19 +168,25 @@ Calculates the path between two systems.
 
 `python ./src/main.py init_datasource --import_dir ./init`
 
+#### Bulk Load Cache
+
+`python ./src/main.py bulk_load_cache --initial_systems "Sol,Alpha Centauri" --max_nodes_visited 5000`
+
 ## Main Sequence Diagrams
 
 ![Main Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/main_initialization.png)
 
-![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/all_loaded_systems.png)
+![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/main_all_loaded_systems.png)
 
-![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/calc_systems_distance.png)
+![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/main_calc_systems_distance.png)
 
 ![Main Path Sequence Diagram](./docs/main_sequences/path.png)
 
-![Main System Info Sequence Diagram](./docs/main_sequences/system_info.png)
+![Main System Info Sequence Diagram](./docs/main_sequences/main_system_info.png)
 
-![Main Init Datasource Sequence Diagram](./docs/main_sequences/init_datasource.png)
+![Main Init Datasource Sequence Diagram](./docs/main_sequences/main_init_datasource.png)
+
+![Main Init Datasource Sequence Diagram](./docs/main_sequences/main_bulk_load_cache.png)
 
 
 
@@ -223,6 +241,8 @@ Arguments:
 
 Behavior:
 
+* `main.py` and `discord_bot.py` both call `EDRouteService.bulk_load_cache(...)` for bulk load operations.
+* `EDRouteService.bulk_load_cache(...)` delegates traversal execution to `ed_cache`.
 * Uses `ed_factory.create_datasource(...)`, so backend selection comes from environment configuration.
 * `DATASOURCE_TYPE=tinydb` uses TinyDB (`TINYDB_NAME` optional override).
 * `DATASOURCE_TYPE=redis` uses Redis (`REDIS_URL` required, `REDIS_APP_NAME` optional namespace).
@@ -235,4 +255,3 @@ Example:
 `python ./src/edgis_bulk_load.py "Sol,Alpha Centauri" 5000`
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
-
