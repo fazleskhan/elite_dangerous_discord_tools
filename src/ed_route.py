@@ -11,6 +11,13 @@ import ed_bfs
 import ed_cache
 from ed_bfs import EDBfs
 from ed_cache import EDBulkLoad
+from ed_constants import (
+    default_init_dir,
+    system_info_coords_field,
+    system_info_x_field,
+    system_info_y_field,
+    system_info_z_field,
+)
 from ed_route_services import (
     EDBulkLoadCacheService,
     EDCalcSystemsDistanceService,
@@ -27,7 +34,7 @@ ProgressFn = Callable[[str], None]
 
 
 class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = "./init") -> None: ...
+    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
     def get_all_systems(self) -> list[SystemInfo]: ...
 
 
@@ -169,7 +176,7 @@ class EDRouteService:
             logging_utils=logging_utils,
         )
 
-    def init_datasource(self, import_dir: str = "./init") -> None:
+    def init_datasource(self, import_dir: str = default_init_dir) -> None:
         if self._init_datasource_service is None:
             self.logger.warning("Init datasource service is not configured")
             return
@@ -307,11 +314,11 @@ class EDRouteService:
         if system_info is None:
             return None
 
-        coords = system_info["coords"]
+        coords = system_info[system_info_coords_field]
         resolved_coords = (
-            float(coords["x"]),
-            float(coords["y"]),
-            float(coords["z"]),
+            float(coords[system_info_x_field]),
+            float(coords[system_info_y_field]),
+            float(coords[system_info_z_field]),
         )
         with self._coords_cache_lock:
             self._coords_cache[system_name] = resolved_coords

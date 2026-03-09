@@ -4,6 +4,14 @@ import threading
 import aiohttp
 from typing import Any
 
+from ed_constants import (
+    query_param_q,
+    system_info_x_field,
+    system_info_y_field,
+    system_info_z_field,
+    value_key,
+)
+
 """Thin HTTP client wrappers for EDGIS system and neighbor lookups."""
 
 
@@ -21,18 +29,18 @@ def _run_async(coro: Any) -> Any:
 
     def _worker() -> None:
         try:
-            output["value"] = asyncio.run(coro)
+            output[value_key] = asyncio.run(coro)
         except BaseException as exc:
-            error["value"] = exc
+            error[value_key] = exc
 
     worker = threading.Thread(target=_worker, daemon=True)
     worker.start()
     worker.join()
 
-    if "value" in error:
-        raise error["value"]
+    if value_key in error:
+        raise error[value_key]
 
-    return output.get("value")
+    return output.get(value_key)
 
 
 async def _fetch_json(url: str, params: dict[str, Any]) -> Any:
@@ -54,7 +62,16 @@ def fetch_neighbors(
     logger.debug("Fetching neighbors for coordinates x={} y={} z={}", x, y, z)
     try:
         # EDGIS defaults to a 20ly radius when radius is omitted.
-        return _run_async(_fetch_json(fetch_neighbors_uri, {"x": x, "y": y, "z": z}))
+        return _run_async(
+            _fetch_json(
+                fetch_neighbors_uri,
+                {
+                    system_info_x_field: x,
+                    system_info_y_field: y,
+                    system_info_z_field: z,
+                },
+            )
+        )
     except (aiohttp.ClientError, asyncio.TimeoutError):
         logger.exception(
             "Failed to fetch neighbors for coordinates x={} y={} z={}", x, y, z
@@ -71,7 +88,9 @@ def fetch_system_info(system_name: str) -> dict[str, Any] | None:
     logger.debug("Fetching system info for system={}", system_name)
     try:
         # The API expects the system name under the `q` query parameter.
-        return _run_async(_fetch_json(fetch_coords_uri, {"q": system_name}))
+        return _run_async(
+            _fetch_json(fetch_coords_uri, {query_param_q: system_name})
+        )
     except (aiohttp.ClientError, asyncio.TimeoutError):
         logger.exception("Failed to fetch system info for system={}", system_name)
         return None

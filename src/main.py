@@ -4,10 +4,10 @@ import sys
 import time
 from typing import Any
 
-import constants
 import ed_factory
 from loguru import logger
 from logging_utils import setup_logging
+from ed_constants import default_init_dir
 
 """CLI entrypoint for route search and cache inspection commands."""
 
@@ -59,7 +59,7 @@ class EDMain:
     def get_system_info(self, system_names: list[str]) -> list[dict[str, Any] | None]:
         return [self.route_service.get_system_info(system_name) for system_name in system_names]
 
-    def init_datasource(self, import_dir: str = "./init") -> None:
+    def init_datasource(self, import_dir: str = default_init_dir) -> None:
         self.route_service.init_datasource(import_dir)
 
     def bulk_load_cache(
@@ -99,7 +99,7 @@ def main() -> None:
             "ping",
         ],
     )
-    parser.add_argument("--import_dir", default="./init")
+    parser.add_argument("--import_dir", default=default_init_dir)
     parser.add_argument("--initial", nargs="?", const=None, default=None)
     parser.add_argument("--destination", nargs="?", const=None, default=None)
     parser.add_argument("--max_systems", nargs="?", const=None, default=None)
@@ -216,7 +216,7 @@ def get_system_info(system_names: list[str]) -> list[dict[str, Any] | None]:
     return ed_main.get_system_info(system_names)
 
 
-def init_datasource(import_dir: str = "./init") -> None:
+def init_datasource(import_dir: str = default_init_dir) -> None:
     ed_main.init_datasource(import_dir)
 
 
