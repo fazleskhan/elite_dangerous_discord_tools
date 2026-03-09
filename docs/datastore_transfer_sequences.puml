@@ -1,87 +1,63 @@
-@startuml Import Redis Sequence Diagram
-title import_redis.py main()
-
+@startuml import_redis
 actor User
-participant "CLI" as CLI
-participant "argparse.ArgumentParser" as Parser
+participant "CLI (argparse)" as CLI
 participant "import_redis.main" as Main
-participant "EDRedis" as Redis
+participant "EDRedis Factory" as RedisFactory
+participant "EDRedis" as RedisDB
 
-User -> CLI: python src/import_redis.py [--import-dir DIR]
-CLI -> Main: main()
-Main -> Parser: parse_args()
-Parser --> Main: args.import_dir
-Main -> Redis: EDRedis(database_name="ed_route")
-Redis --> Main: redis_db
-Main -> Redis: import_datasource(args.import_dir)
-Redis --> Main: imported
-Main --> CLI: return
+User -> CLI : python src/import_redis.py [--import-dir]
+CLI -> Main : parsed args
+Main -> RedisFactory : EDRedis.create()
+RedisFactory --> Main : redis_db
+Main -> RedisDB : import_datasource(import_dir)
+RedisDB --> Main : done
+Main --> User : process exit
 @enduml
 
-@startuml Export Redis Sequence Diagram
-title export_redis.py main()
-
+@startuml export_redis
 actor User
-participant "CLI" as CLI
-participant "argparse.ArgumentParser" as Parser
+participant "CLI (argparse)" as CLI
 participant "export_redis.main" as Main
-participant "EDRedis" as Redis
+participant "EDRedis Factory" as RedisFactory
+participant "EDRedis" as RedisDB
 
-User -> CLI: python src/export_redis.py [--export-dir DIR]
-CLI -> Main: main()
-Main -> Parser: parse_args()
-Parser --> Main: args.export_dir
-Main -> Redis: EDRedis(database_name="ed_route")
-Redis --> Main: database
-Main -> Redis: export_datasource(args.export_dir)
-Redis --> Main: exported
-Main --> CLI: return
+User -> CLI : python src/export_redis.py [--export-dir]
+CLI -> Main : parsed args
+Main -> RedisFactory : EDRedis.create()
+RedisFactory --> Main : redis_db
+Main -> RedisDB : export_datasource(export_dir)
+RedisDB --> Main : done
+Main --> User : process exit
 @enduml
 
-@startuml Import Tinydb Sequence Diagram
-title import_tinydb.py main()
-
+@startuml import_tinydb
 actor User
-participant "CLI" as CLI
-participant "argparse.ArgumentParser" as Parser
+participant "CLI (argparse)" as CLI
 participant "import_tinydb.main" as Main
-participant "Path/os.getenv" as Env
+participant "EDTinyDB Factory" as TinyFactory
 participant "EDTinyDB" as TinyDB
 
-User -> CLI: python src/import_tinydb.py [--import-dir DIR]
-CLI -> Main: main()
-Main -> Parser: parse_args()
-Parser --> Main: args.import_dir
-Main -> Env: resolve repo_root/data/ed_route.db
-Main -> Env: DB_LOCATION override lookup
-Env --> Main: db_path
-Main -> TinyDB: EDTinyDB(db_path)
-TinyDB --> Main: tinydb
-Main -> TinyDB: import_datasource(args.import_dir)
-TinyDB --> Main: imported
-Main --> CLI: return
+User -> CLI : python src/import_tinydb.py [--import-dir]
+CLI -> Main : parsed args
+Main -> TinyFactory : EDTinyDB.create()
+TinyFactory --> Main : tinydb
+Main -> TinyDB : import_datasource(import_dir)
+TinyDB --> Main : done
+Main --> User : process exit
 @enduml
 
-@startuml Export Tinydb Sequence Diagram
-title export_tinydb.py main()
-
+@startuml export_tinydb
 actor User
-participant "CLI" as CLI
-participant "argparse.ArgumentParser" as Parser
+participant "CLI (argparse)" as CLI
 participant "export_tinydb.main" as Main
-participant "Path/os.getenv" as Env
+participant "EDTinyDB Factory" as TinyFactory
 participant "EDTinyDB" as TinyDB
 
-User -> CLI: python src/export_tinydb.py [--export-dir DIR]
-CLI -> Main: main()
-Main -> Parser: parse_args()
-Parser --> Main: args.export_dir
-Main -> Env: resolve repo_root/data/ed_route.db
-Main -> Env: DB_LOCATION override lookup
-Env --> Main: db_path
-Main -> TinyDB: EDTinyDB(db_path)
-TinyDB --> Main: database
-Main -> TinyDB: export_datasource(args.export_dir)
-TinyDB --> Main: exported
-Main --> CLI: return
+User -> CLI : python src/export_tinydb.py [--export-dir]
+CLI -> Main : parsed args
+Main -> TinyFactory : EDTinyDB.create()
+TinyFactory --> Main : tinydb
+Main -> TinyDB : export_datasource(export_dir)
+TinyDB --> Main : done
+Main --> User : process exit
 @enduml

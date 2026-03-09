@@ -73,7 +73,9 @@ def test_init_datasource():
 def test_main_init_datasource_command(monkeypatch):
     captured = {"import_dir": None}
     monkeypatch.setattr(
-        main, "init_datasource", lambda import_dir="./init": captured.update({"import_dir": import_dir})
+        main,
+        "init_datasource",
+        lambda import_dir="./init": captured.update({"import_dir": import_dir}),
     )
     monkeypatch.setattr(
         sys, "argv", ["main.py", "init_datasource", "--import_dir", "./custom-init"]

@@ -25,6 +25,7 @@ class EDRedis:
     def create(
         datasource_name: str | None = None, redis_url: str | None = None
     ) -> "EDRedis":
+        # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         return EDRedis(
             datasource_name or os.getenv("REDIS_APP_NAME", "eddt"),
             redis_url=redis_url,
@@ -43,18 +44,18 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("DB backend: redis")
 
-    # TODO Need to run this method is a worker thread
-    def init_datasource(
-        self, import_dir: str = "./init"
-    ) -> None:
+    # Synchronous helper used by import scripts and CLI commands.
+    def init_datasource(self, import_dir: str = "./init") -> None:
         self.import_datasource(import_dir)
 
-    # Only executed through command line so no asynchronous logic needed
+    # Import/export entrypoints are sync by design for CLI/script usage.
     def import_datasource(self, import_dir: str) -> None:
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
         json_filenames = sorted(
-            filename for filename in os.listdir(import_dir) if filename.endswith(".json")
+            filename
+            for filename in os.listdir(import_dir)
+            if filename.endswith(".json")
         )
         self.logger.info(
             "Importing Redis datasource from {} JSON files in {}",
@@ -71,7 +72,7 @@ class EDRedis:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
-    # Only executed through command line so no asynchronous logic needed
+    # Import/export entrypoints are sync by design for CLI/script usage.
     def export_datasource(self, export_dir: str) -> None:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
@@ -82,18 +83,26 @@ class EDRedis:
             full_system = self.get_system(system_name)
             if full_system is None:
                 continue
-            output_path = os.path.join(export_dir, f"{self._safe_filename(system_name)}.json")
+            output_path = os.path.join(
+                export_dir, f"{self._safe_filename(system_name)}.json"
+            )
             with open(output_path, "w", encoding="utf-8") as file_handle:
                 json.dump(
-                    full_system, file_handle, indent=2, sort_keys=True, ensure_ascii=False
+                    full_system,
+                    file_handle,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
                 )
                 file_handle.write("\n")
 
     def _safe_filename(self, system_name: str) -> str:
         return "".join(
-            character
-            if character.isalnum() or character in (" ", "-", "_", ".")
-            else "_"
+            (
+                character
+                if character.isalnum() or character in (" ", "-", "_", ".")
+                else "_"
+            )
             for character in system_name
         ).strip()
 

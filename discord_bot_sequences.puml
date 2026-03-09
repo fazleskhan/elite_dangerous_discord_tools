@@ -1,0 +1,120 @@
+@startuml discord_bot_ping
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "Discord Context" as Ctx
+
+User -> Discord : !ping
+Discord -> Bot : ping(ctx)
+Bot -> Ctx : send("Pong (<ms> ms)")
+Ctx --> User : Pong response
+@enduml
+
+@startuml discord_bot_system_info
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "RouteService" as Route
+participant "Discord Context" as Ctx
+
+User -> Discord : !system_info <system>
+Discord -> Bot : system_info(ctx, arg)
+Bot -> Route : get_system_info(arg)
+Route --> Bot : system_info | None
+
+alt payload <= 2000 chars
+  Bot -> Ctx : send("<arg>: <info> (<ms> ms)")
+  Ctx --> User : single message
+else payload > 2000 chars
+  loop each 2000-char chunk
+    Bot -> Ctx : send(chunk)
+    Ctx --> User : chunk
+  end
+  Bot -> Ctx : send("Execution time: <ms> ms")
+  Ctx --> User : timing message
+end
+@enduml
+
+@startuml discord_bot_path
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "RouteService" as Route
+participant "Discord Context" as Ctx
+
+User -> Discord : !path <start> <dest> [max] [min] [maxDist]
+Discord -> Bot : path(ctx, initial, destination, ...)
+Bot -> Ctx : send("Calculate Path ... This may take a while")
+Ctx --> User : queued status
+
+Bot -> Route : path(initial, destination, max, min, maxDist, progress_callback)
+
+loop progress callback events
+  Route -> Bot : progress_callback(message)
+  Bot -> Ctx : send(message)
+  Ctx --> User : progress update
+end
+
+Route --> Bot : route list | None
+alt route found
+  Bot -> Ctx : send("Route from ...: A → B ... (<ms> ms)")
+  Ctx --> User : route message
+else no route
+  Bot -> Ctx : send("No Path found ... (<ms> ms)")
+  Ctx --> User : no-route message
+end
+@enduml
+
+@startuml discord_bot_calc_systems_distance
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "RouteService" as Route
+participant "Discord Context" as Ctx
+
+User -> Discord : !calc_systems_distance <one> <two>
+Discord -> Bot : calc_systems_distance(ctx, one, two)
+Bot -> Route : calc_systems_distance(one, two)
+Route --> Bot : distance
+Bot -> Ctx : send("Distance between ...: <distance> (<ms> ms)")
+Ctx --> User : distance response
+@enduml
+
+@startuml discord_bot_dump_system_cache_names
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "RouteService" as Route
+participant "Discord Context" as Ctx
+
+User -> Discord : !dump_system_cache_names
+Discord -> Bot : dump_system_cache_names(ctx)
+Bot -> Ctx : send("Fetching all system names in cache... This may take a while")
+Ctx --> User : queued status
+
+Bot -> Route : get_all_system_names()
+Route --> Bot : [name...]
+
+loop chunks of 10 names
+  Bot -> Ctx : send("Systems in cache: <chunk>")
+  Ctx --> User : chunk
+end
+
+Bot -> Ctx : send("Total number of systems in cache: <n> (<ms> ms)")
+Ctx --> User : summary
+@enduml
+
+@startuml discord_bot_init_datasource
+actor User
+participant "Discord Gateway" as Discord
+participant "DiscordBot" as Bot
+participant "RouteService" as Route
+participant "Discord Context" as Ctx
+
+User -> Discord : !init_datasource [import_dir]
+Discord -> Bot : init_datasource(ctx, import_dir)
+Bot -> Route : init_datasource(import_dir)
+Route --> Bot : done
+Bot -> Ctx : send("Datasource initialized from <import_dir> (<ms> ms)")
+Ctx --> User : confirmation
+@enduml

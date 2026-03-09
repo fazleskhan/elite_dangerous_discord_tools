@@ -12,8 +12,6 @@ from aiotinydb import AIOTinyDB
 
 """TinyDB persistence helpers for cached system records."""
 
-# https://www.tutorialspoint.com/tinydb/index.htm
-
 SystemInfo = dict[str, Any]
 
 
@@ -23,7 +21,10 @@ def main() -> None: ...
 class EDTinyDB:
     @staticmethod
     def create(datasource_name: str | None = None) -> "EDTinyDB":
-        return EDTinyDB(datasource_name or os.getenv("TINYDB_NAME", "./data/ed_route.db"))
+        # Keep local default under ./data unless caller/env overrides it.
+        return EDTinyDB(
+            datasource_name or os.getenv("TINYDB_NAME", "./data/ed_route.db")
+        )
 
     def __init__(self, datasource_name: str):
         self.datasource_name = datasource_name
@@ -39,7 +40,7 @@ class EDTinyDB:
         self.logger = logger
         self.logger.info("DB backend: aiotinydb")
 
-    # TODO Need to run this method is a worker thread
+    # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(
         self,
         import_dir: str = "./init",
@@ -49,13 +50,15 @@ class EDTinyDB:
             os.makedirs(db_dir, exist_ok=True)
         self.import_datasource(import_dir)
 
-    # Only executed through command line so no asynchronous logic needed
+    # Import/export entrypoints are sync by design for CLI/script usage.
     def import_datasource(self, import_dir: str) -> None:
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
         # Deterministic order keeps imports reproducible across runs.
         json_filenames = sorted(
-            filename for filename in os.listdir(import_dir) if filename.endswith(".json")
+            filename
+            for filename in os.listdir(import_dir)
+            if filename.endswith(".json")
         )
         self.logger.info(
             "Importing TinyDB datasource from {} JSON files in {}",
@@ -72,7 +75,7 @@ class EDTinyDB:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
-    # Only executed through command line so no asynchronous logic needed
+    # Import/export entrypoints are sync by design for CLI/script usage.
     def export_datasource(self, export_dir: str) -> None:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
@@ -88,15 +91,21 @@ class EDTinyDB:
             )
             with open(output_file, "w", encoding="utf-8") as file_handle:
                 json.dump(
-                    full_system, file_handle, indent=2, ensure_ascii=False, sort_keys=True
+                    full_system,
+                    file_handle,
+                    indent=2,
+                    ensure_ascii=False,
+                    sort_keys=True,
                 )
                 file_handle.write("\n")
 
     def _safe_filename(self, system_name: str) -> str:
         return "".join(
-            character
-            if character.isalnum() or character in (" ", "-", "_", ".")
-            else "_"
+            (
+                character
+                if character.isalnum() or character in (" ", "-", "_", ".")
+                else "_"
+            )
             for character in system_name
         ).strip()
 

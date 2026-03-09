@@ -35,10 +35,11 @@ Run the Discord bot process via the runner script:
 #### Environment Variables
 
 * `DISCORD_TOKEN`: Discord key used to identify and authorize the bot
-* `DATASTORE_TYPE`: datastore backend (`tinydb` or `redis`), default is `tinydb`
-* `DB_LOCATION`: TinyDB file path override (default resolves to `data/ed_route.db`)
-* `REDIS_URL`: required when `DATASTORE_TYPE=redis`
+* `DATASOURCE_TYPE`: datasource backend (`tinydb` or `redis`), default is `tinydb`
+* `TINYDB_NAME`: TinyDB file path override (default `./data/ed_route.db`)
+* `REDIS_URL`: required when `DATASOURCE_TYPE=redis`
 * `REDIS_APP_NAME`: Redis key namespace prefix (default `eddt`)
+* `REDIS_MAX_CONNECTIONS`: optional Redis connection pool size override
 
 ### Logging
 
@@ -95,6 +96,8 @@ Iteratively displays all the names currently cached locally.
 Loads JSON files from the target import directory into the configured datasource.
 
 ### Discord Bot Sequence Diagrams
+
+![Discord Bot Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/discord_bot_initialization.png)
 
 ![Ping Sequence Diagram](./docs/discord_bot_sequences/Ping&#32;Sequence&#32;Diagram.png)
 
@@ -160,15 +163,19 @@ Calculates the path between two systems.
 
 ## Main Sequence Diagrams
 
-![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/All&#32;Loaded&#32;Systems&#32;Sequence&#32;Diagram.png)
+![Main Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/main_initialization.png)
 
-![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/Calculate&#32;System&#32;Distance&#32;Sequence&#32;Diagram.png)
+![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/all_loaded_systems.png)
 
-![Main Initialize Datasource Sequence Diagram](./docs/main_sequences/Initialize&#32;Datasource&#32;Sequence&#32;Diagram.png)
+![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/calc_systems_distance.png)
 
-![Main Path Sequence Diagram](./docs/main_sequences/Path&#32;Sequence&#32;Diagram.png)
+![Main Path Sequence Diagram](./docs/main_sequences/path.png)
 
-![Main System Info Sequence Diagram](./docs/main_sequences/System&#32;Info&#32;Sequence&#32;Diagram.png)
+![Main System Info Sequence Diagram](./docs/main_sequences/system_info.png)
+
+![Main Init Datasource Sequence Diagram](./docs/main_sequences/init_datasource.png)
+
+
 
 
 ## Data Transfer Utils
@@ -198,12 +205,11 @@ Imports JSON system files into TinyDB.
 `python ./src/import_tinydb.py [--import-dir ./data/ed_redis-export]`
 
 ## Data Transfer Utils Sequence Diagrams
-![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Redis&#32;Sequence&#32;Diagram.png)
+![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/import_redis.png)
 
-![Export Redis Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Redis&#32;Sequence&#32;Diagram.png)
+![Export Redis Sequence Diagram](./docs/datastore_transfer_sequences/export_redis.png)
 
-![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Import&#32;Tinydb&#32;Sequence&#32;Diagram.png)
+![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/import_tinydb.png)
 
-![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/Export&#32;Tinydb&#32;Sequence&#32;Diagram.png)
-
+![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/export_tinydb.png)
 

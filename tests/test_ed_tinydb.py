@@ -34,7 +34,7 @@ def test_crud_system(database):
     database.insert_system(test_data.sol_data)
     # fetch the Sol system info
     # TODO fix fragile test direct comparison of database Sol and test data Sol is not consistent
-    #assert database.get_system("Sol") == test_data.sol_data
+    # assert database.get_system("Sol") == test_data.sol_data
     # update Sol system info with neighbors
     database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
 
