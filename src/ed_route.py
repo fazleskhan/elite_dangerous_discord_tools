@@ -8,9 +8,11 @@ from typing import Any, Callable
 from loguru import logger
 
 import ed_bfs
-import ed_cache
+import ed_bulk_load_algo
+import ed_factory
+import edgis_cache
 from ed_bfs import EDBfs
-from ed_cache import EDBulkLoad
+from ed_bulk_load_algo import EDBulkLoadAlgo
 from ed_constants import (
     default_init_dir,
     system_info_coords_field,
@@ -99,7 +101,7 @@ class EDRouteService:
                 self.logging_utils,
             )
         if self._bulk_load_cache_service is None and self.cache is not None:
-            bulk_load = EDBulkLoad.create(self.cache, self.logging_utils)
+            bulk_load = EDBulkLoadAlgo.create(self.cache, self.logging_utils)
             self._bulk_load_cache_service = EDBulkLoadCacheService.create(
                 bulk_load,
                 self.logging_utils,
@@ -311,30 +313,28 @@ class EDRouteService:
 def create_bulk_loader(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
-) -> ed_cache.EDBulkLoad:
-    return ed_cache.create_bulk_loader(
+) -> ed_bulk_load_algo.EDBulkLoadAlgo:
+    datasource = ed_factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
-
-
-def bulk_load(
-    initial_system_names: list[str],
-    max_nodes_visited: int,
-    progress_callback: ProgressFn | None = None,
-) -> list[str]:
-    return ed_cache.bulk_load(initial_system_names, max_nodes_visited, progress_callback)
-
+    cache = edgis_cache.EDGisCache.create(datasource)
+    return EDBulkLoadAlgo.create(cache, logging_utils=None)
 
 async def bulk_load_async(
     initial_system_names: list[str],
     max_nodes_visited: int,
     progress_callback: ProgressFn | None = None,
 ) -> list[str]:
-    return await ed_cache.bulk_load_async(
+    datasource = ed_factory.create_datasource()
+    cache = edgis_cache.EDGisCache.create(datasource)
+    bulk_loader = EDBulkLoadAlgo.create(cache, logging_utils=None)
+    on_progress = progress_callback or (lambda message: logger.info(message))
+    return await asyncio.to_thread(
+        bulk_loader.load,
         initial_system_names,
         max_nodes_visited,
-        progress_callback,
+        on_progress,
     )
 
 

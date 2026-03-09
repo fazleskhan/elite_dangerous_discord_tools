@@ -8,7 +8,7 @@ from typing import Any
 from loguru import logger
 
 from ed_bfs import EDBfs
-from ed_cache import EDBulkLoad
+from ed_bulk_load_algo import EDBulkLoadAlgo
 from ed_constants import (
     default_init_dir,
     system_info_coords_field,
@@ -161,12 +161,12 @@ class EDPathService:
 
 
 class EDBulkLoadCacheService:
-    def __init__(self, bulk_load: EDBulkLoad, logging_utils: Any) -> None:
+    def __init__(self, bulk_load: EDBulkLoadAlgo, logging_utils: Any) -> None:
         self._bulk_load = bulk_load
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(bulk_load: EDBulkLoad, logging_utils: Any) -> "EDBulkLoadCacheService":
+    def create(bulk_load: EDBulkLoadAlgo, logging_utils: Any) -> "EDBulkLoadCacheService":
         return EDBulkLoadCacheService(bulk_load, logging_utils)
 
     def run(

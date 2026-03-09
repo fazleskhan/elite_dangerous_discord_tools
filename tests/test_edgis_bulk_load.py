@@ -1,5 +1,6 @@
-import ed_cache
-import edgis_bulk_load
+import ed_bulk_load_algo
+import ed_factory
+import edgis_cache
 
 
 def main(): ...
@@ -21,7 +22,7 @@ def test_bulk_load_service_walks_neighbors_until_max_nodes():
     def fake_find_neighbors(system_info):
         return [{"name": name} for name in graph[system_info["name"]]]
 
-    bulk_loader = ed_cache.BulkLoadService(
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
     )
@@ -53,7 +54,7 @@ def test_bulk_load_service_reuses_neighbor_payload_without_refetch():
             for name in graph[system_info["name"]]
         ]
 
-    bulk_loader = ed_cache.BulkLoadService(
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
     )
@@ -65,9 +66,7 @@ def test_bulk_load_service_reuses_neighbor_payload_without_refetch():
     assert fetch_info_calls == ["Sol"]
 
 
-def test_create_bulk_loader_composes_datasource_and_cache(monkeypatch):
-    datasource_obj = object()
-
+def test_create_bulk_load_composes_datasource_and_cache():
     class FakeCache:
         def find_system_info(self, system_name):
             return {"name": system_name}
@@ -76,40 +75,53 @@ def test_create_bulk_loader_composes_datasource_and_cache(monkeypatch):
             return []
 
     cache_obj = FakeCache()
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(
+        cache=cache_obj,
+        logging_utils=None,
+    )
 
-    datasource_calls: list[tuple[str, str]] = []
-    cache_calls: list[object] = []
+    assert isinstance(bulk_loader, ed_bulk_load_algo.EDBulkLoadAlgo)
+    assert bulk_loader.fetch_system_info_fn("Sol") == {"name": "Sol"}
+    assert bulk_loader.fetch_neighbors_fn({"name": "Sol"}) == []
 
-    def fake_create_datasource(datasource_name: str, datasource_type: str):
-        datasource_calls.append((datasource_name, datasource_type))
-        return datasource_obj
 
-    def fake_create_cache(db_obj):
-        cache_calls.append(db_obj)
-        return cache_obj
+def test_create_bulk_loader_delegates_to_loader(monkeypatch):
+    datasource_obj = object()
+    cache_obj = object()
+    create_calls: list[tuple[object, object]] = []
+
+    class FakeLoader:
+        def load(self, initial_system_names, max_nodes_visited, progress_callback):
+            assert initial_system_names == ["Sol"]
+            assert max_nodes_visited == 1
+            progress_callback("ok")
+            return ["Sol"]
 
     monkeypatch.setattr(
-        ed_cache.ed_factory, "create_datasource", fake_create_datasource
+        ed_factory,
+        "create_datasource",
+        lambda datasource_name=None, datasource_type=None: datasource_obj,
     )
-    monkeypatch.setattr(ed_cache.edgis_cache.EDGisCache, "create", fake_create_cache)
-
-    bulk_loader = ed_cache.create_bulk_loader(
-        datasource_name="test.db",
-        datasource_type="tinydb",
-    )
-
-    assert isinstance(bulk_loader, ed_cache.BulkLoadService)
-    assert datasource_calls == [("test.db", "tinydb")]
-    assert cache_calls == [datasource_obj]
-
-
-def test_edgis_bulk_load_logic_delegates_to_ed_cache(monkeypatch):
     monkeypatch.setattr(
-        edgis_bulk_load.ed_cache,
-        "bulk_load",
-        lambda initial_system_names, max_nodes_visited: ["Sol"],
+        edgis_cache.EDGisCache,
+        "create",
+        lambda db_obj: cache_obj,
     )
-    assert edgis_bulk_load.logic(["Sol"], 1) == ["Sol"]
+    monkeypatch.setattr(
+        ed_bulk_load_algo.EDBulkLoadAlgo,
+        "create",
+        staticmethod(
+            lambda cache, logging_utils: (
+                create_calls.append((cache, logging_utils)) or FakeLoader()
+            )
+        ),
+    )
+
+    datasource = ed_factory.create_datasource()
+    cache = edgis_cache.EDGisCache.create(datasource)
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(cache, logging_utils=None)
+    assert bulk_loader.load(["Sol"], 1, lambda _message: None) == ["Sol"]
+    assert create_calls == [(cache_obj, None)]
 
 
 def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch):
@@ -141,10 +153,14 @@ def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch)
     def fake_find_neighbors(system_info):
         return [{"name": name} for name in graph[system_info["name"]]]
 
-    monkeypatch.setattr(ed_cache, "_physical_core_count", lambda: 3)
-    monkeypatch.setattr(ed_cache, "ThreadPoolExecutor", FakeExecutor)
+    monkeypatch.setattr(
+        ed_bulk_load_algo.EDBulkLoadAlgo,
+        "_physical_core_count",
+        staticmethod(lambda: 3),
+    )
+    monkeypatch.setattr(ed_bulk_load_algo, "ThreadPoolExecutor", FakeExecutor)
 
-    bulk_loader = ed_cache.BulkLoadService(
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
     )
