@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN:?set DISCORD_TOKEN}
-      DATASTORE_TYPE: ${DATASTORE_TYPE}
+      DATASOURCE_TYPE: ${DATASOURCE_TYPE}
       REDIS_URL: ${REDIS_URL} 
     volumes:
       # Externalize application logging behavior and output.

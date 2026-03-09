@@ -3,51 +3,68 @@ title edgis_bulk_load.py sequence
 
 actor User
 participant "__main__" as Entry
-participant "resolve_log_level" as ResolveLog
-participant "logging" as Logging
+participant "setup_logging()" as SetupLogging
 participant "main()" as Main
 participant "argparse.ArgumentParser" as ArgParser
-participant "logic(initial_system_name, number_of_systems)" as Logic
-participant "db.DB" as DB
+participant "logic(initial_system_names, max_nodes_visited)" as Logic
+participant "create_bulk_loader()" as CreateBulkLoader
+participant "ed_factory.create_datasource" as CreateDatasource
+participant "datasource" as DB
 participant "EDGisCache.create" as CacheCreate
 participant "EDGisCache instance" as Cache
-participant "ed_bfs.travel" as Travel
+participant "BulkLoadService.create" as CreateService
+participant "BulkLoadService.load" as LoadService
 
-User -> Entry: python src/edgis_bulk_load.py <initial_system> <system_count>
-Entry -> ResolveLog: resolve_log_level(logging.INFO)
-ResolveLog --> Entry: level
-Entry -> Logging: basicConfig(level=...)
+User -> Entry: python src/edgis_bulk_load.py <initial_systems> <max_nodes_visited>
+Entry -> SetupLogging: setup_logging()
 Entry -> Main: main()
 
 Main -> ArgParser: ArgumentParser(...)
-Main -> ArgParser: add_argument("initial_system")
-Main -> ArgParser: add_argument("system_count", type=int)
+Main -> ArgParser: add_argument("initial_systems")
+Main -> ArgParser: add_argument("max_nodes_visited", type=int)
 Main -> ArgParser: parse_args()
-ArgParser --> Main: args.initial_system, args.system_count
-Main -> Logging: logger.info("Bulk load requested", ...)
-Main -> Logic: logic(args.initial_system, args.system_count)
+ArgParser --> Main: args.initial_systems, args.max_nodes_visited
+Main -> Main: split comma-separated seeds
+Main -> Logic: logic(initial_system_names, max_nodes_visited)
 
-Logic -> Logging: logger.info("Starting bulk load traversal", ...)
-Logic -> DB: DB(db_filename)
-DB --> Logic: database
-Logic -> CacheCreate: EDGisCache.create(database)
-CacheCreate --> Logic: cache
+Logic -> CreateBulkLoader: create_bulk_loader()
+CreateBulkLoader -> CreateDatasource: create_datasource(None, None)
+CreateDatasource --> CreateBulkLoader: datasource
+CreateBulkLoader -> CacheCreate: EDGisCache.create(datasource)
+CacheCreate --> CreateBulkLoader: cache
+CreateBulkLoader -> CreateService: BulkLoadService.create(cache)
+CreateService --> CreateBulkLoader: bulk_loader
+CreateBulkLoader --> Logic: bulk_loader
 
-Logic -> Travel: travel(\ncache.find_system_info,\ncache.find_system_neighbors,\ninitial_system_name,\n"Beagle Point",\nnumber_of_systems,\n0,\n10000,\nlambda _a, _b: 1.0,\nlambda message: logger.info(message))
+Logic -> LoadService: load(initial_system_names,\nmax_nodes_visited,\nprogress_callback=logger.info)
 
-activate Travel
-loop BFS traversal (internal)
-  Travel -> Cache: find_system_info(system_name)
-  Cache --> Travel: system_info | None
-  Travel -> Cache: find_system_neighbors(system_info)
-  Cache --> Travel: neighbors | None
-  Travel -> Travel: enqueue/visit/filter nodes
+activate LoadService
+loop Seed initialization
+  LoadService -> Cache: find_system_info(seed_name)
+  Cache --> LoadService: system_info | None
+  LoadService -> LoadService: enqueue seed info when present
 end
-Travel --> Logic: route | None
-deactivate Travel
+loop BFS while queue not empty and visited < max
+  LoadService -> Cache: find_system_neighbors(system_info)
+  Cache --> LoadService: neighbors | []
+  loop each neighbor
+    LoadService -> LoadService: validate name and dedupe visited
+    alt neighbor has coords(x,y,z)
+      LoadService -> LoadService: reuse neighbor as queued system_info
+    else missing coords
+      LoadService -> Cache: find_system_info(neighbor_name)
+      Cache --> LoadService: neighbor_system_info | None
+    end
+    LoadService -> LoadService: append to queue / visit_order
+  end
+  opt every 512 visited systems
+    LoadService --> Logic: progress_callback("Loaded N of MAX systems")
+  end
+end
+LoadService --> Logic: loaded_systems (list[str])
+deactivate LoadService
 
-Logic -> Logging: logger.info("Bulk load traversal completed")
-Logic --> Main: return
+Logic --> Main: loaded_systems
 Main --> Entry: return
 Entry --> User: process exits
 @enduml
