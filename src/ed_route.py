@@ -2,7 +2,6 @@ import edgis_cache
 import datasource
 import ed_bfs
 import constants
-import os
 import asyncio
 import threading
 from loguru import logger
@@ -56,7 +55,10 @@ class EDRouteService:
 
     @staticmethod
     def create(
-        db_factory: Callable[[str], DBProtocol] = datasource.DB,
+        datasource_name: str | None = None,
+        db_factory: Callable[[str | None], DBProtocol] = cast(
+            Callable[[str | None], DBProtocol], datasource.DB.create
+        ),
         cache_factory: Callable[[Any], CacheProtocol] = cast(
             Callable[[Any], CacheProtocol], edgis_cache.EDGisCache.create
         ),
@@ -64,21 +66,20 @@ class EDRouteService:
         script_file: str = __file__,
     ) -> "EDRouteService":
         load_dotenv()
-        # Keep a stable default DB path while allowing env override.
-        default_db_path = script_file.replace("src", "data").replace(".py", ".db")
-        resolved_db_path = os.getenv("DB_LOCATION", default_db_path)
-        logger.debug("Creating EDRouteService with db_path={}", resolved_db_path)
+        logger.debug("Creating EDRouteService with datasource_name={}", datasource_name)
+        resolved_datasource_name = datasource_name or ""
         service = EDRouteService(
-            db_path=resolved_db_path,
+            db_path=resolved_datasource_name,
             database=None,
             cache=None,
             travel_fn=travel_fn,
             script_file=script_file,
         )
-        service.database = db_factory(resolved_db_path)
+        service.database = db_factory(datasource_name)
         service.cache = cache_factory(service.database)
         service.logger.info(
-            "EDRouteService initialized with db_path={}", resolved_db_path
+            "EDRouteService initialized with datasource_name={}",
+            datasource_name or "<backend-default>",
         )
         return service
 

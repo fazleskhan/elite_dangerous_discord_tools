@@ -21,9 +21,13 @@ def main() -> None: ...
 
 
 class EDTinyDB:
-    def __init__(self, database_name: str):
-        self._database_name = database_name
-        db_dir = os.path.dirname(self._database_name)
+    @staticmethod
+    def create(datasource_name: str | None = None) -> "EDTinyDB":
+        return EDTinyDB(datasource_name or os.getenv("TINYDB_NAME", "ed_route.db"))
+
+    def __init__(self, datasource_name: str):
+        self.datasource_name = datasource_name
+        db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         # Serialize write operations to avoid concurrent TinyDB write races.
@@ -40,7 +44,7 @@ class EDTinyDB:
         self,
         import_dir: str = "./init",
     ) -> None:
-        db_dir = os.path.dirname(self._database_name)
+        db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         self.import_datasource(import_dir)
@@ -133,7 +137,7 @@ class EDTinyDB:
     async def _insert_system_async(self, system_info: SystemInfo) -> bool:
         System = Query()
         system_name = system_info[constants.system_info_name_field]
-        async with AIOTinyDB(self._database_name) as db:
+        async with AIOTinyDB(self.datasource_name) as db:
             if not await db.contains(System.name == system_name):
                 inserted_id = await db.insert(system_info)
                 self.logger.debug(
@@ -148,7 +152,7 @@ class EDTinyDB:
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
         System = Query()
-        async with AIOTinyDB(self._database_name) as db:
+        async with AIOTinyDB(self.datasource_name) as db:
             if not await db.contains(System.name == system_name):
                 self.logger.debug("Lookup system={} found=False", system_name)
                 return None
@@ -163,7 +167,7 @@ class EDTinyDB:
     ) -> None:
         System = Query()
         system_name = system_info[constants.system_info_name_field]
-        async with AIOTinyDB(self._database_name) as db:
+        async with AIOTinyDB(self.datasource_name) as db:
             updated = await db.update(
                 {constants.system_info_neighbors_field: new_neighbors},
                 System.name == system_name,
@@ -175,7 +179,7 @@ class EDTinyDB:
             )
 
     async def _get_all_systems_async(self) -> list[SystemInfo]:
-        async with AIOTinyDB(self._database_name) as db:
+        async with AIOTinyDB(self.datasource_name) as db:
             systems = await db.all()
             self.logger.debug("Loaded all systems count={}", len(systems))
             return systems

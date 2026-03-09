@@ -21,8 +21,17 @@ def main() -> None: ...
 
 
 class EDRedis:
-    def __init__(self, database_name: str, redis_url: str | None = None):
-        self._app_name = os.getenv("REDIS_APP_NAME", "eddt")
+    @staticmethod
+    def create(
+        datasource_name: str | None = None, redis_url: str | None = None
+    ) -> "EDRedis":
+        return EDRedis(
+            datasource_name or os.getenv("REDIS_APP_NAME", "eddt"),
+            redis_url=redis_url,
+        )
+
+    def __init__(self, datasource_name: str, redis_url: str | None = None):
+        self.datasource_name = datasource_name
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
@@ -170,11 +179,11 @@ class EDRedis:
 
     def _system_key(self, system_name: str) -> str:
         # Namespace keys by app name so multiple bots can share one Redis safely.
-        return f"{self._app_name}:system:{system_name}"
+        return f"{self.datasource_name}:system:{system_name}"
 
     @property
     def _systems_set_key(self) -> str:
-        return f"{self._app_name}:systems"
+        return f"{self.datasource_name}:systems"
 
     async def _insert_system_async(self, system_info: SystemInfo) -> None:
         system_name = system_info[constants.system_info_name_field]

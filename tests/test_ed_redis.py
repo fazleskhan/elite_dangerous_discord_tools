@@ -168,7 +168,7 @@ def test_redis_app_name_env_used_for_system_key(monkeypatch):
         lambda *_args, **_kwargs: _FakeRedisClient(_FakeRedisStore()),
     )
 
-    database = EDRedis("unit-test-db")
+    database = EDRedis.create()
     assert database._system_key("Sol") == "myapp:system:Sol"
 
 

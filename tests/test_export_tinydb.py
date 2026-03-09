@@ -14,8 +14,13 @@ def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
         def export_datasource(self, export_dir: str):
             self.export_dir = export_dir
 
+    class FakeEDTinyDB:
+        @staticmethod
+        def create(datasource_name: str | None = None):
+            return fake_db
+
     fake_db = FakeTinyDB()
-    monkeypatch.setattr(export_tinydb, "EDTinyDB", lambda database_name: fake_db)
+    monkeypatch.setattr(export_tinydb, "EDTinyDB", FakeEDTinyDB)
     export_dir = tmp_path / "ed_tinydb-export"
     monkeypatch.setattr(
         sys, "argv", ["export_tinydb.py", "--export-dir", str(export_dir)]
