@@ -1,12 +1,12 @@
 """IoC helpers for datasource/cache/route service composition."""
 
+import importlib
 import os
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from dotenv import load_dotenv
 
 import ed_bfs
-import ed_route
 import edgis_cache
 from ed_constants import (
     datasource_type_env,
@@ -15,7 +15,24 @@ from ed_constants import (
 )
 from ed_protocols import DatasourceProtocol
 
+if TYPE_CHECKING:
+    from ed_route import EDRouteService
+
 TravelFn = Callable[..., list[str] | None]
+
+
+class _LazyModuleProxy:
+    """Resolve modules on first attribute access to avoid import cycles."""
+
+    def __init__(self, module_name: str) -> None:
+        self._module_name = module_name
+
+    def __getattr__(self, item: str) -> Any:
+        module = importlib.import_module(self._module_name)
+        return getattr(module, item)
+
+
+ed_route = _LazyModuleProxy("ed_route")
 
 
 def main() -> None: ...
@@ -81,7 +98,7 @@ def create_route_service(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
     travel_fn: TravelFn = ed_bfs.travel,
-) -> ed_route.EDRouteService:
+) -> "EDRouteService":
     datasource_obj = create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
