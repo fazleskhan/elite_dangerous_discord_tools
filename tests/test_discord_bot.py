@@ -373,15 +373,12 @@ async def test_bulk_load_cache_command(bot, monkeypatch):
     async def fake_bulk_load_cache(
         initial_system_names, max_nodes_visited, progress_callback=None
     ):
-        return (
-            captured.update(
-                {
-                    "initial_system_names": initial_system_names,
-                    "max_nodes_visited": max_nodes_visited,
-                }
-            )
-            or ["Sol", "Alpha Centauri"]
-        )
+        return captured.update(
+            {
+                "initial_system_names": initial_system_names,
+                "max_nodes_visited": max_nodes_visited,
+            }
+        ) or ["Sol", "Alpha Centauri"]
 
     monkeypatch.setattr(bot.ed_route, "bulk_load_cache", fake_bulk_load_cache)
 

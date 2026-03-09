@@ -88,7 +88,9 @@ def test_create_bulk_loader_composes_datasource_and_cache(monkeypatch):
         cache_calls.append(db_obj)
         return cache_obj
 
-    monkeypatch.setattr(ed_cache.ed_factory, "create_datasource", fake_create_datasource)
+    monkeypatch.setattr(
+        ed_cache.ed_factory, "create_datasource", fake_create_datasource
+    )
     monkeypatch.setattr(ed_cache.edgis_cache.EDGisCache, "create", fake_create_cache)
 
     bulk_loader = ed_cache.create_bulk_loader(
