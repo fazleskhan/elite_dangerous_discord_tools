@@ -99,17 +99,17 @@ Loads JSON files from the target import directory into the configured datasource
 
 ![Discord Bot Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/discord_bot_initialization.png)
 
-![Ping Sequence Diagram](./docs/discord_bot_sequences/Ping&#32;Sequence&#32;Diagram.png)
+![Ping Sequence Diagram](./docs/discord_bot_sequences/discord_bot_ping.png)
 
-![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/System&#32;Info&#32;Sequence&#32;Diagram.png)
+![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/discord_bot_system_info.png)
 
-![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/Calculate&#32;Systems&#32;Distance&#32;Sequence&#32;Diagram.png)
+![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/discord_bot_calc_systems_distance.png)
 
-![Path Sequence Diagram](./docs/discord_bot_sequences/Path&#32;Sequence&#32;Diagram.png)
+![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_path.png)
 
-![Dump System Cache Names Sequence Diagram](./docs/discord_bot_sequences/Dump&#32;System&#32;Cache&#32;Names&#32;Sequence&#32;Diagram.png)
+![Dump System Cache Names Sequence Diagram](./docs/discord_bot_sequences/discord_bot_dump_system_cache_names.png)
 
-![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/Initialize&#32;Datasource&#32;Sequence&#32;Diagram.png)
+![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_init_datasource.png)
 
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
