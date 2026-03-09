@@ -11,7 +11,8 @@ services:
       REDIS_URL: ${REDIS_URL} 
     volumes:
       # Externalize application logging behavior and output.
-      - ./config/loguru.json:/app/config/loguru.json:ro
+      # Mount the full config directory so inotify events propagate on file rewrites/replaces.
+      - ./config:/app/config:ro
       - ./logs:/app/logs
       # Persist application data across container redeploys.
       - ed_data:/app/data
