@@ -86,7 +86,7 @@ def test_main_init_datasource_command(monkeypatch):
 
 def test_bulk_load_cache():
     captured = {"initial_system_names": None, "max_nodes_visited": None}
-    main.ed_cache.bulk_load = (
+    main.ed_service.bulk_load_cache = (
         lambda initial_system_names, max_nodes_visited, progress_callback=None: (
             captured.update(
                 {

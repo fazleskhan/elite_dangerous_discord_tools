@@ -38,6 +38,14 @@ class FakeRoute:
     ):
         return [initial, dest]
 
+    async def bulk_load_cache(
+        self,
+        initial_system_names,
+        max_nodes_visited,
+        progress_callback=None,
+    ):
+        return initial_system_names[:max_nodes_visited]
+
 
 def create_mock_context():
     """Create a mock context object that simulates Discord message context."""
