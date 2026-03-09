@@ -205,9 +205,7 @@ def main() -> None:
                 parser.print_help()
                 sys.exit(1)
             if args.max_nodes_visited is None:
-                logger.error(
-                    "Missing required --max_nodes_visited for bulk_load_cache"
-                )
+                logger.error("Missing required --max_nodes_visited for bulk_load_cache")
                 print(
                     "Error: The --max_nodes_visited argument is requried with bulk_load_cache command"
                 )
