@@ -1,8 +1,20 @@
 import argparse
+from typing import Any
 
 from ed_redis import EDRedis
 
 """Export cached Redis systems into per-system pretty-printed JSON files."""
+
+
+class ExportRedis:
+    def __init__(self, route_service: Any, cache: Any, logging_utils: Any) -> None:
+        self.route_service = route_service
+        self.cache = cache
+        self.logging_utils = logging_utils
+
+    @staticmethod
+    def create(route_service: Any, cache: Any, logging_utils: Any) -> "ExportRedis":
+        return ExportRedis(route_service, cache, logging_utils)
 
 
 def main() -> None:
@@ -16,7 +28,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Export each cached system into a standalone JSON file.
     database = EDRedis.create()
     database.export_datasource(args.export_dir)
 

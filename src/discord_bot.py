@@ -44,7 +44,7 @@ class RouteServiceProtocol(Protocol):
     ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
-class DiscordBot:
+class EDDiscordBot:
     """Inversion‑of‑control wrapper around a :class:`commands.Bot` instance.
 
     Dependencies such as the routing module and configuration values are
@@ -83,13 +83,32 @@ class DiscordBot:
 
     @staticmethod
     def create(
+        route_service: RouteServiceProtocol,
+        cache: Any,
+        logging_utils: Any,
+        token: str,
+        log_location: str,
+        log_level: int | str | None,
+        bot: commands.Bot,
+    ) -> "EDDiscordBot":
+        return EDDiscordBot(
+            ed_route_service=route_service,
+            token=token,
+            log_location=log_location,
+            log_level=log_level,
+            log_handler=None,
+            bot=bot,
+        )
+
+    @staticmethod
+    def create_from_env(
         route_factory: RouteServiceProtocol | None = None,
         token_factory: str | None = os.getenv("DISCORD_TOKEN"),
         log_location_factory: str = os.getenv("LOG_LOCATION", "discord_bot.log"),
         intents_factory: discord.Intents = _default_intents(),
         command_prefix: str = "!",
         log_level: int | str | None = None,
-    ) -> DiscordBot:
+    ) -> "EDDiscordBot":
         load_dotenv()
         logger.debug("Creating DiscordBot with command_prefix={}", command_prefix)
         resolved_route = route_factory or ed_factory.create_route_service()
@@ -99,7 +118,7 @@ class DiscordBot:
             command_prefix=command_prefix,
             intents=intents_factory,
         )
-        return DiscordBot(
+        return EDDiscordBot(
             ed_route_service=resolved_route,
             token=resolved_token,
             log_location=resolved_log_location,
@@ -371,3 +390,7 @@ class DiscordBot:
 
 if __name__ == "__main__":
     main()
+
+
+# Backward-compatible alias for existing imports/tests.
+DiscordBot = EDDiscordBot

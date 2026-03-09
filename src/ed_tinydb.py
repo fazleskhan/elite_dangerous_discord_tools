@@ -20,7 +20,10 @@ def main() -> None: ...
 
 class EDTinyDB:
     @staticmethod
-    def create(datasource_name: str | None = None) -> "EDTinyDB":
+    def create(
+        datasource_name: str | None = None,
+        logging_utils: Any = None,
+    ) -> "EDTinyDB":
         # Keep local default under ./data unless caller/env overrides it.
         return EDTinyDB(
             datasource_name or os.getenv("TINYDB_NAME", "./data/ed_route.db")

@@ -8,7 +8,7 @@ from logging_utils import setup_logging
 def main() -> None:
     logger.info("Starting Discord runner")
     try:
-        bot = DiscordBot.create()
+        bot = DiscordBot.create_from_env()
         logger.debug("DiscordBot instance created")
         bot.run()
     except Exception:

@@ -103,5 +103,21 @@ class EDGisCache:
         return neighbors
 
 
+class EDCache(EDGisCache):
+    """Project-level cache class with explicit IoC create signature."""
+
+    @staticmethod
+    def create(
+        db_obj: DBProtocol,
+        gis: Any,
+        logging_utils: Any,
+    ) -> "EDCache":
+        return EDCache(
+            db_obj,
+            fetch_system_info_fn=gis.fetch_system_info,
+            fetch_neighbors_fn=gis.fetch_neighbors,
+        )
+
+
 if __name__ == "__main__":
     main()

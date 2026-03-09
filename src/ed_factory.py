@@ -1,7 +1,7 @@
 """IoC helpers for datasource/cache/route service composition."""
 
 import os
-from typing import Any, Callable
+from typing import Any, Callable, Protocol
 
 from dotenv import load_dotenv
 
@@ -14,6 +14,39 @@ TravelFn = Callable[..., list[str] | None]
 
 
 def main() -> None: ...
+
+
+class DBProtocol(Protocol):
+    def init_datasource(self, import_dir: str = "./init") -> None: ...
+    def get_all_systems(self) -> list[SystemInfo]: ...
+
+
+class EDDatasourceFactory:
+    """Factory for selecting concrete datasource implementations."""
+
+    def __init__(self, logging_utils: Any) -> None:
+        self._logging_utils = logging_utils
+
+    @staticmethod
+    def create(logging_utils: Any) -> "EDDatasourceFactory":
+        return EDDatasourceFactory(logging_utils)
+
+    @staticmethod
+    def create_datasource(
+        logging_utils: Any,
+        datasource_name: str | None,
+        datasource_type: str | None,
+    ) -> DBProtocol:
+        load_dotenv()
+        resolved_type = resolve_datasource_type(datasource_type)
+        if resolved_type == "tinydb":
+            from ed_tinydb import EDTinyDB
+
+            return EDTinyDB.create(datasource_name=datasource_name)
+
+        from ed_redis import EDRedis
+
+        return EDRedis.create(datasource_name=datasource_name)
 
 
 def resolve_datasource_type(datasource_type: str | None = None) -> str:
@@ -31,16 +64,11 @@ def resolve_datasource_type(datasource_type: str | None = None) -> str:
 def create_datasource(
     datasource_name: str | None = None, datasource_type: str | None = None
 ) -> Any:
-    load_dotenv()
-    resolved_type = resolve_datasource_type(datasource_type)
-    if resolved_type == "tinydb":
-        from ed_tinydb import EDTinyDB
-
-        return EDTinyDB.create(datasource_name=datasource_name)
-
-    from ed_redis import EDRedis
-
-    return EDRedis.create(datasource_name=datasource_name)
+    return EDDatasourceFactory.create_datasource(
+        logging_utils=None,
+        datasource_name=datasource_name,
+        datasource_type=datasource_type,
+    )
 
 
 def create_route_service(
