@@ -1,12 +1,19 @@
 import asyncio
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Protocol
+from typing import Any
 
 import ed_factory
 import edgis_cache
 import psutil
 from loguru import logger
+from ed_protocols import (
+    CacheProtocol,
+    FetchInfoFn,
+    FetchNeighborsFn,
+    ProgressFn,
+    SystemInfo,
+)
 from ed_constants import (
     system_info_coords_field,
     system_info_name_field,
@@ -17,20 +24,7 @@ from ed_constants import (
 
 """Cache bulk-load helpers shared by CLI and Discord entrypoints."""
 
-SystemInfo = dict[str, Any]
-FetchInfoFn = Callable[[str], SystemInfo | None]
-FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo] | None]
-ProgressFn = Callable[[str], None]
-
-
 def main() -> None: ...
-
-
-class CacheProtocol(Protocol):
-    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
-    def find_system_neighbors(
-        self, system_info: SystemInfo
-    ) -> list[SystemInfo] | None: ...
 
 
 class EDBulkLoad:

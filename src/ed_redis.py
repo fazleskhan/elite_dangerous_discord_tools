@@ -10,6 +10,7 @@ import psutil
 from loguru import logger
 from redis import asyncio as redis
 
+from ed_protocols import SystemInfo
 from ed_constants import (
     default_init_dir,
     default_redis_store_name,
@@ -29,8 +30,6 @@ from ed_constants import (
 )
 
 """Redis persistence helpers for cached system records."""
-
-SystemInfo = dict[str, Any]
 
 
 def main() -> None: ...

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import math
 import threading
-from typing import Any, Callable, Protocol
+from typing import Any, Callable
 
 from loguru import logger
 
@@ -18,6 +18,7 @@ from ed_constants import (
     system_info_y_field,
     system_info_z_field,
 )
+from ed_protocols import CacheProtocol, DatasourceProtocol, ProgressFn, SystemInfo
 from ed_route_services import (
     EDBulkLoadCacheService,
     EDCalcSystemsDistanceService,
@@ -29,25 +30,6 @@ from ed_route_services import (
 
 """Service layer that composes datasource/cache dependencies and route search."""
 
-SystemInfo = dict[str, Any]
-ProgressFn = Callable[[str], None]
-
-
-class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
-    def get_all_systems(self) -> list[SystemInfo]: ...
-
-
-class CacheProtocol(Protocol):
-    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
-    def find_system_neighbors(
-        self, system_info: SystemInfo
-    ) -> list[SystemInfo] | None: ...
-    def calc_systems_distance(
-        self, system_name_one: str, system_name_two: str
-    ) -> float: ...
-
-
 def main() -> None: ...
 
 
@@ -57,7 +39,7 @@ class EDRouteService:
     def __init__(
         self,
         db_path: str,
-        database: DBProtocol | None,
+        database: DatasourceProtocol | None,
         cache: CacheProtocol | None,
         travel_fn: Callable[..., list[str] | None] | None,
         script_file: str,
@@ -125,7 +107,7 @@ class EDRouteService:
 
     @staticmethod
     def create(
-        datasource: DBProtocol | None = None,
+        datasource: DatasourceProtocol | None = None,
         cache: CacheProtocol | None = None,
         travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
         script_file: str = __file__,

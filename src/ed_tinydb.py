@@ -9,6 +9,7 @@ from tinydb import Query, TinyDB
 from tinydb.storages import JSONStorage
 from tinydb_smartcache import SmartCacheTable
 
+from ed_protocols import SystemInfo
 from ed_constants import (
     default_init_dir,
     default_tinydb_name,
@@ -20,8 +21,6 @@ from ed_constants import (
 )
 
 """TinyDB persistence helpers for cached system records."""
-
-SystemInfo = dict[str, Any]
 
 
 def main() -> None: ...

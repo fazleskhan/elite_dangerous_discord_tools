@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import math
 import threading
-from typing import Any, Callable, Protocol
+from typing import Any
 
 from loguru import logger
 
@@ -17,31 +17,17 @@ from ed_constants import (
     system_info_y_field,
     system_info_z_field,
 )
-
-SystemInfo = dict[str, Any]
-ProgressFn = Callable[[str], None]
-
-
-class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
-    def get_all_systems(self) -> list[SystemInfo]: ...
-
-
-class CacheProtocol(Protocol):
-    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
-    def find_system_neighbors(
-        self, system_info: SystemInfo
-    ) -> list[SystemInfo] | None: ...
+from ed_protocols import CacheProtocol, DatasourceProtocol, ProgressFn, SystemInfo
 
 
 class EDInitDatasourceService:
-    def __init__(self, database: DBProtocol, logging_utils: Any) -> None:
+    def __init__(self, database: DatasourceProtocol, logging_utils: Any) -> None:
         self._database = database
         self._lock = threading.RLock()
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(database: DBProtocol, logging_utils: Any) -> "EDInitDatasourceService":
+    def create(database: DatasourceProtocol, logging_utils: Any) -> "EDInitDatasourceService":
         return EDInitDatasourceService(database, logging_utils)
 
     def run(self, import_dir: str = default_init_dir) -> None:
@@ -65,14 +51,14 @@ class EDGetSystemInfoService:
 
 
 class EDGetAllSystemNamesService:
-    def __init__(self, database: DBProtocol, logging_utils: Any) -> None:
+    def __init__(self, database: DatasourceProtocol, logging_utils: Any) -> None:
         self._database = database
         self._lock = threading.RLock()
         self._logging_utils = logging_utils
 
     @staticmethod
     def create(
-        database: DBProtocol, logging_utils: Any
+        database: DatasourceProtocol, logging_utils: Any
     ) -> "EDGetAllSystemNamesService":
         return EDGetAllSystemNamesService(database, logging_utils)
 
