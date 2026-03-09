@@ -1,52 +1,50 @@
 @startuml main_all_loaded_systems
-title main.py all_loaded_systems
-actor User
-participant "CLI (argparse)" as CLI
-participant "main.main" as Main
-participant "EDRouteService" as Route
+title main.py - all_loaded_systems
 
-User -> CLI : python src/main.py all_loaded_systems
-CLI -> Main : parsed args
+actor User
+participant "main.main" as Main
+participant "EDRouteService.get_all_system_names" as Route
+
+User -> Main : command=all_loaded_systems
 Main -> Route : get_all_system_names()
-Route --> Main : [system names]
+Route --> Main : names
 Main --> User : print("All Loaded Systems: ...")
 Main --> User : print("Execution time: <ms> ms")
 @enduml
 
 @startuml main_system_info
-title main.py system_info
+title main.py - system_info
+
 actor User
-participant "CLI (argparse)" as CLI
 participant "main.main" as Main
-participant "EDRouteService" as Route
+participant "main.get_system_info" as GetInfo
+participant "EDRouteService.get_system_info" as Route
 
-User -> CLI : python src/main.py system_info --system_name <name>
-CLI -> Main : parsed args
-
+User -> Main : command=system_info --system_name <name>
 alt missing --system_name
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
-  Main -> Route : get_system_info(name)
-  Route --> Main : system_info | None
+  Main -> GetInfo : get_system_info([name])
+  GetInfo -> Route : get_system_info(name)
+  Route --> GetInfo : payload | None
+  GetInfo --> Main : [payload | None]
   Main --> User : print(name)
-  Main --> User : print([system_info])
+  Main --> User : print(payload list)
   Main --> User : print("Execution time: <ms> ms")
 end
 @enduml
 
 @startuml main_path
-title main.py path
+title main.py - path
+
 actor User
-participant "CLI (argparse)" as CLI
 participant "main.main" as Main
 participant "main.calc_route" as CalcRoute
-participant "EDRouteService" as Route
+participant "EDRouteService.path" as Route
 
-User -> CLI : python src/main.py path --initial A --destination B --max_systems N [--min_distance] [--max_distance]
-CLI -> Main : parsed args
-
-alt missing required args
+User -> Main : command=path --initial A --destination B --max_systems N ...
+alt missing --initial or --destination
   Main --> User : print error + help
   Main --> User : exit(1)
 else max_systems > 1000
@@ -54,12 +52,12 @@ else max_systems > 1000
   Main --> User : exit(1)
 else valid args
   Main -> CalcRoute : calc_route(A, B, N, min, max)
-  CalcRoute -> Route : path(A, B, N, min, max, progress_callback)
+  CalcRoute -> Route : path(..., progress_callback=logger.info)
   Route --> CalcRoute : route | None
   CalcRoute --> Main : route | None
   alt route found
     Main --> User : print("A → ... → B")
-  else no route found
+  else route not found
     Main --> User : print("No route found")
   end
   Main --> User : print("Execution time: <ms> ms")
@@ -67,61 +65,62 @@ end
 @enduml
 
 @startuml main_calc_systems_distance
-title main.py calc_systems_distance
+title main.py - calc_systems_distance
+
 actor User
-participant "CLI (argparse)" as CLI
 participant "main.main" as Main
-participant "EDRouteService" as Route
+participant "main.calc_systems_distance" as Calc
+participant "EDRouteService.calc_systems_distance" as Route
 
-User -> CLI : python src/main.py calc_systems_distance --initial A --destination B
-CLI -> Main : parsed args
-
+User -> Main : command=calc_systems_distance --initial A --destination B
 alt missing required args
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
-  Main -> Route : calc_systems_distance(A, B)
-  Route --> Main : distance
+  Main -> Calc : calc_systems_distance(A, B)
+  Calc -> Route : calc_systems_distance(A, B)
+  Route --> Calc : distance
+  Calc --> Main : distance
   Main --> User : print(distance)
   Main --> User : print("Execution time: <ms> ms")
 end
 @enduml
 
 @startuml main_init_datasource
-title main.py init_datasource
-actor User
-participant "CLI (argparse)" as CLI
-participant "main.main" as Main
-participant "EDRouteService" as Route
+title main.py - init_datasource
 
-User -> CLI : python src/main.py init_datasource [--import_dir]
-CLI -> Main : parsed args
-Main -> Route : init_datasource(import_dir)
-Route --> Main : done
+actor User
+participant "main.main" as Main
+participant "main.init_datasource" as Init
+participant "EDRouteService.init_datasource" as Route
+
+User -> Main : command=init_datasource [--import_dir]
+Main -> Init : init_datasource(import_dir)
+Init -> Route : init_datasource(import_dir)
+Route --> Init : done
+Init --> Main : done
 Main --> User : print("Datasource initialized from <import_dir>")
 Main --> User : print("Execution time: <ms> ms")
 @enduml
 
 @startuml main_bulk_load_cache
-title main.py bulk_load_cache
+title main.py - bulk_load_cache
+
 actor User
-participant "CLI (argparse)" as CLI
 participant "main.main" as Main
-participant "main.bulk_load_cache" as BulkLoad
-participant "EDRouteService" as Route
+participant "main.bulk_load_cache" as Bulk
+participant "EDRouteService.bulk_load_cache" as Route
 
-User -> CLI : python src/main.py bulk_load_cache --initial_systems <seed1,seed2,...> --max_nodes_visited N
-CLI -> Main : parsed args
-
-alt missing --initial_systems or --max_nodes_visited
+User -> Main : command=bulk_load_cache --initial_systems <csv> --max_nodes_visited N
+alt missing required args
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
-  Main -> Main : split comma-separated seeds
-  Main -> BulkLoad : bulk_load_cache(initial_system_names, N)
-  BulkLoad -> Route : bulk_load_cache(initial_system_names, N, progress_callback)
-  Route --> BulkLoad : loaded_systems
-  BulkLoad --> Main : loaded_systems
+  Main -> Main : split and trim initial_systems CSV
+  Main -> Bulk : bulk_load_cache(initial_system_names, N)
+  Bulk -> Route : bulk_load_cache(initial_system_names, N, progress_callback=logger.info)
+  Route --> Bulk : loaded_systems
+  Bulk --> Main : loaded_systems
   Main --> User : print("Loaded <count> systems from seeds [...]")
   Main --> User : print("Execution time: <ms> ms")
 end

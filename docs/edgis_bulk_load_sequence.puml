@@ -1,70 +1,78 @@
-@startuml
-title edgis_bulk_load.py sequence
+@startuml edgis_bulk_load_script
+title edgis_bulk_load.py - script flow
 
 actor User
 participant "__main__" as Entry
-participant "setup_logging()" as SetupLogging
-participant "main()" as Main
-participant "argparse.ArgumentParser" as ArgParser
-participant "logic(initial_system_names, max_nodes_visited)" as Logic
-participant "create_bulk_loader()" as CreateBulkLoader
-participant "ed_factory.create_datasource" as CreateDatasource
-participant "datasource" as DB
-participant "EDGisCache.create" as CacheCreate
-participant "EDGisCache instance" as Cache
-participant "BulkLoadService.create" as CreateService
-participant "BulkLoadService.load" as LoadService
+participant "setup_logging" as Logging
+participant "edgis_bulk_load.main" as Main
+participant "argparse" as Parser
+participant "edgis_bulk_load.logic" as Logic
+participant "ed_cache.bulk_load" as BulkLoad
 
-User -> Entry: python src/edgis_bulk_load.py <initial_systems> <max_nodes_visited>
-Entry -> SetupLogging: setup_logging()
-Entry -> Main: main()
+User -> Entry : python src/edgis_bulk_load.py <initial_systems_csv> <max_nodes_visited>
+Entry -> Logging : setup_logging()
+Entry -> Main : main()
+Main -> Parser : parse_args()
+Parser --> Main : initial_systems, max_nodes_visited
+Main -> Main : split and trim CSV seeds
+Main -> Logic : logic(initial_system_names, max_nodes_visited)
+Logic -> BulkLoad : bulk_load(initial_system_names, max_nodes_visited)
+BulkLoad --> Logic : loaded_systems
+Logic --> Main : loaded_systems
+@enduml
 
-Main -> ArgParser: ArgumentParser(...)
-Main -> ArgParser: add_argument("initial_systems")
-Main -> ArgParser: add_argument("max_nodes_visited", type=int)
-Main -> ArgParser: parse_args()
-ArgParser --> Main: args.initial_systems, args.max_nodes_visited
-Main -> Main: split comma-separated seeds
-Main -> Logic: logic(initial_system_names, max_nodes_visited)
+@startuml ed_cache_bulk_load_service
+title ed_cache.py - BulkLoadService.load
 
-Logic -> CreateBulkLoader: create_bulk_loader()
-CreateBulkLoader -> CreateDatasource: create_datasource(None, None)
-CreateDatasource --> CreateBulkLoader: datasource
-CreateBulkLoader -> CacheCreate: EDGisCache.create(datasource)
-CacheCreate --> CreateBulkLoader: cache
-CreateBulkLoader -> CreateService: BulkLoadService.create(cache)
-CreateService --> CreateBulkLoader: bulk_loader
-CreateBulkLoader --> Logic: bulk_loader
+participant "ed_cache.bulk_load" as BulkLoadFn
+participant "create_bulk_loader" as Factory
+participant "BulkLoadService.load" as Load
+participant "ThreadPoolExecutor" as Pool
+participant "EDGisCache" as Cache
 
-Logic -> LoadService: load(initial_system_names,\nmax_nodes_visited,\nprogress_callback=logger.info)
+BulkLoadFn -> Factory : create_bulk_loader()
+Factory --> BulkLoadFn : bulk_loader
+BulkLoadFn -> Load : load(initial_system_names, max_nodes_visited, progress_callback)
 
-activate LoadService
-loop Seed initialization
-  LoadService -> Cache: find_system_info(seed_name)
-  Cache --> LoadService: system_info | None
-  LoadService -> LoadService: enqueue seed info when present
+Load -> Load : initialize queue, visited, visit_order
+loop seed systems
+  Load -> Cache : find_system_info(seed)
+  Cache --> Load : seed payload | None
+  Load -> Load : append valid seed payloads to queue
 end
-loop BFS while queue not empty and visited < max
-  LoadService -> Cache: find_system_neighbors(system_info)
-  Cache --> LoadService: neighbors | []
-  loop each neighbor
-    LoadService -> LoadService: validate name and dedupe visited
-    alt neighbor has coords(x,y,z)
-      LoadService -> LoadService: reuse neighbor as queued system_info
-    else missing coords
-      LoadService -> Cache: find_system_info(neighbor_name)
-      Cache --> LoadService: neighbor_system_info | None
+
+Load -> Load : worker_count = _physical_core_count()
+Load -> Pool : create(max_workers=worker_count)
+
+loop while queue not empty and visited < max
+  Load -> Load : frontier = list(queue); queue.clear()
+  Load -> Pool : map(_fetch_neighbors, frontier)
+  loop each system in frontier
+    Pool -> Load : _fetch_neighbors(system_info)
+    Load -> Cache : find_system_neighbors(system_info)
+    Cache --> Load : neighbors
+
+    loop each neighbor
+      alt invalid name or already visited
+        Load -> Load : skip
+      else new neighbor
+        Load -> Load : add to visited + visit_order
+        alt neighbor has coords
+          Load -> Load : reuse neighbor payload
+        else missing coords
+          Load -> Cache : find_system_info(neighbor_name)
+          Cache --> Load : full payload | None
+        end
+        Load -> Load : enqueue payload when available
+      end
     end
-    LoadService -> LoadService: append to queue / visit_order
   end
-  opt every 512 visited systems
-    LoadService --> Logic: progress_callback("Loaded N of MAX systems")
+
+  opt every 512 visited
+    Load --> BulkLoadFn : progress_callback("Loaded N of MAX systems")
   end
 end
-LoadService --> Logic: loaded_systems (list[str])
-deactivate LoadService
 
-Logic --> Main: loaded_systems
-Main --> Entry: return
-Entry --> User: process exits
+Load --> BulkLoadFn : visit_order
+BulkLoadFn --> BulkLoadFn : log completion and return
 @enduml
