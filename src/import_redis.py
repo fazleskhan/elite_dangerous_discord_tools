@@ -17,7 +17,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Load JSON export files into Redis keys/sets.
-    redis_db = EDRedis(database_name="ed_route")
+    redis_db = EDRedis.create()
     redis_db.import_datasource(args.import_dir)
 
 

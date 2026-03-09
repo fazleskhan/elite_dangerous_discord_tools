@@ -1,6 +1,4 @@
 import argparse
-import os
-from pathlib import Path
 
 from ed_tinydb import EDTinyDB
 
@@ -18,12 +16,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    script_file = Path(__file__).resolve()
-    repo_root = script_file.parent.parent
-    default_db_path = str(repo_root / "data" / "ed_route.db")
-    # Allow local override without changing code.
-    db_path = os.getenv("DB_LOCATION", default_db_path)
-    tinydb = EDTinyDB(db_path)
+    tinydb = EDTinyDB.create()
     tinydb.import_datasource(args.import_dir)
 
 

@@ -17,7 +17,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Export each cached system into a standalone JSON file.
-    database = EDRedis(database_name="ed_route")
+    database = EDRedis.create()
     database.export_datasource(args.export_dir)
 
 

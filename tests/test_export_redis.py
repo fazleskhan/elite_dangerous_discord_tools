@@ -14,8 +14,13 @@ def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):
         def export_datasource(self, export_dir: str):
             self.export_dir = export_dir
 
+    class FakeEDRedis:
+        @staticmethod
+        def create(datasource_name: str = "ed_route"):
+            return fake_db
+
     fake_db = FakeRedisDB()
-    monkeypatch.setattr(export_redis, "EDRedis", lambda database_name: fake_db)
+    monkeypatch.setattr(export_redis, "EDRedis", FakeEDRedis)
     export_dir = tmp_path / "ed_redis-export"
     monkeypatch.setattr(
         sys, "argv", ["export_redis.py", "--export-dir", str(export_dir)]
