@@ -1,12 +1,9 @@
-import edgis_cache
-import datasource
 import ed_bfs
 import constants
 import asyncio
 import threading
 from loguru import logger
-from dotenv import load_dotenv
-from typing import Any, Callable, Protocol, cast
+from typing import Any, Callable, Protocol
 import math
 
 """Service layer that composes datasource/cache dependencies and route search."""
@@ -55,32 +52,20 @@ class EDRouteService:
 
     @staticmethod
     def create(
-        datasource_name: str | None = None,
-        db_factory: Callable[[str | None], DBProtocol] = cast(
-            Callable[[str | None], DBProtocol], datasource.DB.create
-        ),
-        cache_factory: Callable[[Any], CacheProtocol] = cast(
-            Callable[[Any], CacheProtocol], edgis_cache.EDGisCache.create
-        ),
+        datasource: DBProtocol,
+        cache: CacheProtocol,
         travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
         script_file: str = __file__,
     ) -> "EDRouteService":
-        load_dotenv()
-        logger.debug("Creating EDRouteService with datasource_name={}", datasource_name)
-        resolved_datasource_name = datasource_name or ""
+        logger.debug("Creating EDRouteService via injected dependencies")
         service = EDRouteService(
-            db_path=resolved_datasource_name,
-            database=None,
-            cache=None,
+            db_path="injected-datasource",
+            database=datasource,
+            cache=cache,
             travel_fn=travel_fn,
             script_file=script_file,
         )
-        service.database = db_factory(datasource_name)
-        service.cache = cache_factory(service.database)
-        service.logger.info(
-            "EDRouteService initialized with datasource_name={}",
-            datasource_name or "<backend-default>",
-        )
+        service.logger.info("EDRouteService initialized with injected dependencies")
         return service
 
     def init_datasource(self, import_dir: str = "./init") -> None:

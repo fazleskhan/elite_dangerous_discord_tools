@@ -1,4 +1,4 @@
-import ed_route
+import ed_factory
 import constants
 import argparse
 import asyncio
@@ -10,7 +10,7 @@ from logging_utils import setup_logging
 
 """CLI entrypoint for route search and cache inspection commands."""
 
-ed_service = ed_route.EDRouteService.create()
+ed_service = ed_factory.create_route_service()
 
 
 def _elapsed_ms(start: float) -> int:

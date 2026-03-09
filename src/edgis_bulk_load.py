@@ -1,7 +1,7 @@
 import argparse
 import ed_bfs
 import edgis_cache
-import datasource
+import ed_factory
 from typing import Any
 from loguru import logger
 from logging_utils import setup_logging
@@ -39,7 +39,9 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
         initial_system_name,
         number_of_systems,
     )
-    database = datasource.DB(db_filename)
+    database = ed_factory.create_datasource(
+        datasource_name=db_filename, datasource_type="tinydb"
+    )
     cache = edgis_cache.EDGisCache.create(database)
 
     # Empty destination means "walk outward" up to `number_of_systems`.
