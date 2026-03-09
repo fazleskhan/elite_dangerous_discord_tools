@@ -8,6 +8,12 @@ from dotenv import load_dotenv
 import ed_bfs
 import ed_route
 import edgis_cache
+from ed_constants import (
+    datasource_type_env,
+    default_init_dir,
+    redis_name,
+    tinydb_name,
+)
 
 SystemInfo = dict[str, Any]
 TravelFn = Callable[..., list[str] | None]
@@ -17,7 +23,7 @@ def main() -> None: ...
 
 
 class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = "./init") -> None: ...
+    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
     def get_all_systems(self) -> list[SystemInfo]: ...
 
 
@@ -39,7 +45,7 @@ class EDDatasourceFactory:
     ) -> DBProtocol:
         load_dotenv()
         resolved_type = resolve_datasource_type(datasource_type)
-        if resolved_type == "tinydb":
+        if resolved_type == tinydb_name:
             from ed_tinydb import EDTinyDB
 
             return EDTinyDB.create(datasource_name=datasource_name)
@@ -52,9 +58,15 @@ class EDDatasourceFactory:
 def resolve_datasource_type(datasource_type: str | None = None) -> str:
     # Explicit arg wins, then env, then tinydb default.
     resolved = (
-        (datasource_type or os.getenv("DATASOURCE_TYPE") or "tinydb").strip().lower()
+        (
+            datasource_type
+            or os.getenv(datasource_type_env)
+            or tinydb_name
+        )
+        .strip()
+        .lower()
     )
-    if resolved not in {"tinydb", "redis"}:
+    if resolved not in {tinydb_name, redis_name}:
         raise ValueError(
             "Invalid DATASOURCE_TYPE value. Supported values are 'tinydb' and 'redis'."
         )

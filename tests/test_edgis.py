@@ -1,6 +1,6 @@
 from edgis import fetch_system_info
 from edgis import fetch_neighbors
-import constants
+import ed_constants as constants
 
 
 def main(): ...

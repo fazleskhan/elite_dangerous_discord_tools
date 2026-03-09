@@ -1,7 +1,7 @@
 import ed_bfs
 import test_data
 import shutil
-import constants
+import ed_constants as constants
 import os
 import edgis_cache
 import ed_factory

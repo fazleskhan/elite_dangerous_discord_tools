@@ -5,18 +5,25 @@ import math
 import threading
 from typing import Any, Callable, Protocol
 
-import constants
 from loguru import logger
 
 from ed_bfs import EDBfs
 from ed_cache import EDBulkLoad
+from ed_constants import (
+    default_init_dir,
+    system_info_coords_field,
+    system_info_name_field,
+    system_info_x_field,
+    system_info_y_field,
+    system_info_z_field,
+)
 
 SystemInfo = dict[str, Any]
 ProgressFn = Callable[[str], None]
 
 
 class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = "./init") -> None: ...
+    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
     def get_all_systems(self) -> list[SystemInfo]: ...
 
 
@@ -37,7 +44,7 @@ class EDInitDatasourceService:
     def create(database: DBProtocol, logging_utils: Any) -> "EDInitDatasourceService":
         return EDInitDatasourceService(database, logging_utils)
 
-    def run(self, import_dir: str = "./init") -> None:
+    def run(self, import_dir: str = default_init_dir) -> None:
         with self._lock:
             self._database.init_datasource(import_dir)
 
@@ -73,9 +80,9 @@ class EDGetAllSystemNamesService:
         with self._lock:
             system_infos = self._database.get_all_systems()
         return [
-            system_info[constants.system_info_name_field]
+            system_info[system_info_name_field]
             for system_info in system_infos
-            if constants.system_info_name_field in system_info
+            if system_info_name_field in system_info
         ]
 
 
@@ -121,11 +128,11 @@ class EDCalcSystemsDistanceService:
         if system_info is None:
             return None
 
-        coords = system_info[constants.system_info_coords_field]
+        coords = system_info[system_info_coords_field]
         resolved_coords = (
-            float(coords[constants.system_info_x_field]),
-            float(coords[constants.system_info_y_field]),
-            float(coords[constants.system_info_z_field]),
+            float(coords[system_info_x_field]),
+            float(coords[system_info_y_field]),
+            float(coords[system_info_z_field]),
         )
         with self._coords_cache_lock:
             self._coords_cache[system_name] = resolved_coords

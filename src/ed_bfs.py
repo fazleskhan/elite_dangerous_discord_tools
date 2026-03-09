@@ -1,9 +1,9 @@
 from collections import deque
-import constants
 from loguru import logger
 import time
 from typing import Any, Callable
 
+from ed_constants import system_info_name_field
 """Breadth-first traversal used to build/solve routes between systems."""
 
 
@@ -55,7 +55,7 @@ def travel(
     distance_to_destination = func_calc_system_distance(start_name, destination_name)
     previous_distance = distance_to_destination
 
-    system_name_field = constants.system_info_name_field
+    system_name_field = system_info_name_field
     queue: deque[str] = deque([start_name])
     visited: set[str] = {start_name}
     parents: dict[str, str | None] = {start_name: None}

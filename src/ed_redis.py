@@ -10,7 +10,23 @@ import psutil
 from loguru import logger
 from redis import asyncio as redis
 
-import constants
+from ed_constants import (
+    default_init_dir,
+    default_redis_store_name,
+    json_extension,
+    redis_app_name_env,
+    redis_max_connections_env,
+    redis_name,
+    redis_scheme,
+    redis_url_env,
+    rediss_scheme,
+    system_field,
+    system_info_name_field,
+    system_info_neighbors_field,
+    systems_field,
+    unix_scheme,
+    value_key,
+)
 
 """Redis persistence helpers for cached system records."""
 
@@ -29,7 +45,7 @@ class EDRedis:
     ) -> "EDRedis":
         # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         return EDRedis(
-            datasource_name or os.getenv("REDIS_APP_NAME", "eddt"),
+            datasource_name or os.getenv(redis_app_name_env, default_redis_store_name),
             redis_url=redis_url,
         )
 
@@ -41,13 +57,13 @@ class EDRedis:
         self.logger = logger
         self._redis_url = self._resolve_redis_url(redis_url)
         self._max_connections = int(
-            os.getenv("REDIS_MAX_CONNECTIONS", str(self._default_max_connections()))
+            os.getenv(redis_max_connections_env, str(self._default_max_connections()))
         )
         atexit.register(self.close)
-        self.logger.info("DB backend: redis")
+        self.logger.info("DB backend: {}", redis_name)
 
     # Synchronous helper used by import scripts and CLI commands.
-    def init_datasource(self, import_dir: str = "./init") -> None:
+    def init_datasource(self, import_dir: str = default_init_dir) -> None:
         self.import_datasource(import_dir)
 
     # Import/export entrypoints are sync by design for CLI/script usage.
@@ -57,7 +73,7 @@ class EDRedis:
         json_filenames = sorted(
             filename
             for filename in os.listdir(import_dir)
-            if filename.endswith(".json")
+            if filename.endswith(json_extension)
         )
         self.logger.info(
             "Importing Redis datasource from {} JSON files in {}",
@@ -79,14 +95,15 @@ class EDRedis:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
         for system in systems:
-            system_name = system.get(constants.system_info_name_field)
+            system_name = system.get(system_info_name_field)
             if not isinstance(system_name, str) or not system_name:
                 continue
             full_system = self.get_system(system_name)
             if full_system is None:
                 continue
             output_path = os.path.join(
-                export_dir, f"{self._safe_filename(system_name)}.json"
+                export_dir,
+                f"{self._safe_filename(system_name)}{json_extension}",
             )
             with open(output_path, "w", encoding="utf-8") as file_handle:
                 json.dump(
@@ -117,18 +134,22 @@ class EDRedis:
 
     @staticmethod
     def _resolve_redis_url(redis_url: str | None) -> str:
-        final_redis_url = redis_url or os.getenv("REDIS_URL")
+        final_redis_url = redis_url or os.getenv(redis_url_env)
         if not final_redis_url:
             raise ValueError(
                 "REDIS_URL is required when DATASOURCE_TYPE is set to 'redis'"
             )
 
         parsed = urlparse(final_redis_url)
-        if parsed.scheme not in {"redis", "rediss", "unix"}:
+        if parsed.scheme not in {
+            redis_scheme,
+            rediss_scheme,
+            unix_scheme,
+        }:
             raise ValueError(
                 "REDIS_URL must use one of these schemes: redis, rediss, unix"
             )
-        if parsed.scheme in {"redis", "rediss"} and not parsed.hostname:
+        if parsed.scheme in {redis_scheme, rediss_scheme} and not parsed.hostname:
             raise ValueError("REDIS_URL must include a host for redis/rediss schemes")
 
         return final_redis_url
@@ -148,18 +169,18 @@ class EDRedis:
             try:
                 # If caller is already inside an event loop, run in a helper
                 # thread so sync methods can still block on completion.
-                output["value"] = asyncio.run(coro)
+                output[value_key] = asyncio.run(coro)
             except BaseException as exc:
-                error["value"] = exc
+                error[value_key] = exc
 
         worker = threading.Thread(target=_worker, daemon=True)
         worker.start()
         worker.join()
 
-        if "value" in error:
-            raise error["value"]
+        if value_key in error:
+            raise error[value_key]
 
-        return output.get("value")
+        return output.get(value_key)
 
     def _new_client(self) -> Any:
         # Each client uses redis-py's internal connection pool; max pool size is
@@ -190,14 +211,14 @@ class EDRedis:
 
     def _system_key(self, system_name: str) -> str:
         # Namespace keys by app name so multiple bots can share one Redis safely.
-        return f"{self.datasource_name}:system:{system_name}"
+        return f"{self.datasource_name}:{system_field}:{system_name}"
 
     @property
     def _systems_set_key(self) -> str:
-        return f"{self.datasource_name}:systems"
+        return f"{self.datasource_name}:{systems_field}"
 
     async def _insert_system_async(self, system_info: SystemInfo) -> None:
-        system_name = system_info[constants.system_info_name_field]
+        system_name = system_info[system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
         try:
@@ -230,7 +251,7 @@ class EDRedis:
     async def _add_neighbors_async(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> None:
-        system_name = system_info[constants.system_info_name_field]
+        system_name = system_info[system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
         try:
@@ -242,7 +263,7 @@ class EDRedis:
                 return
 
             system_payload = json.loads(current)
-            system_payload[constants.system_info_neighbors_field] = new_neighbors
+            system_payload[system_info_neighbors_field] = new_neighbors
             await client.set(system_key, json.dumps(system_payload))
             self.logger.debug(
                 "Updated neighbors for system={} updated_rows={}",

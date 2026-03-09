@@ -11,6 +11,7 @@ import inspect
 import time
 from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
 import ed_factory
+from ed_constants import default_discord_log_name, default_init_dir, discord_token_env, log_location_env
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -21,7 +22,7 @@ def main() -> None: ...
 
 
 class RouteServiceProtocol(Protocol):
-    def init_datasource(self, import_dir: str = "./init") -> None | Awaitable[None]: ...
+    def init_datasource(self, import_dir: str = default_init_dir) -> None | Awaitable[None]: ...
     def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
     def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
     def calc_systems_distance(
@@ -103,8 +104,10 @@ class EDDiscordBot:
     @staticmethod
     def create_from_env(
         route_factory: RouteServiceProtocol | None = None,
-        token_factory: str | None = os.getenv("DISCORD_TOKEN"),
-        log_location_factory: str = os.getenv("LOG_LOCATION", "discord_bot.log"),
+        token_factory: str | None = os.getenv(discord_token_env),
+        log_location_factory: str = os.getenv(
+            log_location_env, default_discord_log_name
+        ),
         intents_factory: discord.Intents = _default_intents(),
         command_prefix: str = "!",
         log_level: int | str | None = None,
@@ -273,7 +276,7 @@ class EDDiscordBot:
         )
 
     async def init_datasource(
-        self, ctx: commands.Context, import_dir: str = "./init"
+        self, ctx: commands.Context, import_dir: str = default_init_dir
     ) -> None:
         start = time.perf_counter()
         self.logger.info("init_datasource command: import_dir={}", import_dir)
@@ -362,7 +365,7 @@ class EDDiscordBot:
 
         @self.bot.command()
         async def init_datasource(
-            ctx: commands.Context, import_dir: str = "./init"
+            ctx: commands.Context, import_dir: str = default_init_dir
         ) -> None:
             return await self.init_datasource(ctx, import_dir)
 

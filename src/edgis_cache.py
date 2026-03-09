@@ -1,7 +1,14 @@
 from edgis import fetch_system_info, fetch_neighbors
-import constants
 from loguru import logger
 from typing import Any, Callable, Protocol
+from ed_constants import (
+    system_info_coords_field,
+    system_info_name_field,
+    system_info_neighbors_field,
+    system_info_x_field,
+    system_info_y_field,
+    system_info_z_field,
+)
 
 """Caching wrapper around EDGIS fetchers backed by the local DB."""
 
@@ -68,26 +75,20 @@ class EDGisCache:
 
     # Cache-through read for neighboring systems.
     def find_system_neighbors(self, system_info: SystemInfo) -> list[SystemInfo] | None:
-        system_name = system_info[constants.system_info_name_field]
+        system_name = system_info[system_info_name_field]
         # Always re-read from DB in case neighbors were populated by a prior call.
         db_system_info = self.db.get_system(system_name)
         neighbors = (
-            db_system_info.get(constants.system_info_neighbors_field, None)
+            db_system_info.get(system_info_neighbors_field, None)
             if db_system_info
             else None
         )
         # Fetch neighbors once per system and store them in the DB cache.
         if not neighbors:
             self.logger.debug("Neighbor cache miss for system={}", system_name)
-            x = system_info[constants.system_info_coords_field][
-                constants.system_info_x_field
-            ]
-            y = system_info[constants.system_info_coords_field][
-                constants.system_info_y_field
-            ]
-            z = system_info[constants.system_info_coords_field][
-                constants.system_info_z_field
-            ]
+            x = system_info[system_info_coords_field][system_info_x_field]
+            y = system_info[system_info_coords_field][system_info_y_field]
+            z = system_info[system_info_coords_field][system_info_z_field]
             neighbors = self.fetch_neighbors_fn(x, y, z)
             if neighbors is not None:
                 self.db.add_neighbors(system_info, neighbors)

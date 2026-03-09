@@ -2,13 +2,22 @@ import asyncio
 import json
 import os
 import threading
-from typing import Any
+from typing import Any, cast
 
 from loguru import logger
-from tinydb import Query
+from tinydb import Query, TinyDB
+from tinydb.storages import JSONStorage
+from tinydb_smartcache import SmartCacheTable
 
-import constants
-from aiotinydb import AIOTinyDB
+from ed_constants import (
+    default_init_dir,
+    default_tinydb_name,
+    json_extension,
+    system_info_name_field,
+    system_info_neighbors_field,
+    tinydb_name_env,
+    value_key,
+)
 
 """TinyDB persistence helpers for cached system records."""
 
@@ -16,6 +25,50 @@ SystemInfo = dict[str, Any]
 
 
 def main() -> None: ...
+
+
+class SmartCacheTinyDB(TinyDB):
+    # Swap TinyDB's default table with SmartCache's query-cache table.
+    table_class = SmartCacheTable
+
+
+class AIOTinyDB:
+    """Minimal async-compatible wrapper around TinyDB."""
+
+    def __init__(self, path: str):
+        self._path = path
+        self._db: TinyDB | None = None
+
+    async def __aenter__(self) -> "AIOTinyDB":
+        # Use SmartCache table implementation for cached query results.
+        self._db = SmartCacheTinyDB(self._path, storage=JSONStorage)
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        if self._db is not None:
+            self._db.close()
+            self._db = None
+
+    def _require_db(self) -> TinyDB:
+        # Central guard so async wrapper methods fail fast if misused.
+        if self._db is None:
+            raise RuntimeError("AIOTinyDB must be used within 'async with'")
+        return self._db
+
+    async def contains(self, cond: Any) -> bool:
+        return self._require_db().contains(cond)
+
+    async def insert(self, document: dict[str, Any]) -> int:
+        return self._require_db().insert(document)
+
+    async def get(self, cond: Any) -> dict[str, Any] | None:
+        return cast(dict[str, Any] | None, self._require_db().get(cond))
+
+    async def update(self, fields: dict[str, Any], cond: Any) -> list[int]:
+        return self._require_db().update(fields, cond)
+
+    async def all(self) -> list[dict[str, Any]]:
+        return cast(list[dict[str, Any]], self._require_db().all())
 
 
 class EDTinyDB:
@@ -26,7 +79,7 @@ class EDTinyDB:
     ) -> "EDTinyDB":
         # Keep local default under ./data unless caller/env overrides it.
         return EDTinyDB(
-            datasource_name or os.getenv("TINYDB_NAME", "./data/ed_route.db")
+            datasource_name or os.getenv(tinydb_name_env, default_tinydb_name)
         )
 
     def __init__(self, datasource_name: str):
@@ -46,7 +99,7 @@ class EDTinyDB:
     # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(
         self,
-        import_dir: str = "./init",
+        import_dir: str = default_init_dir,
     ) -> None:
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
@@ -61,7 +114,7 @@ class EDTinyDB:
         json_filenames = sorted(
             filename
             for filename in os.listdir(import_dir)
-            if filename.endswith(".json")
+            if filename.endswith(json_extension)
         )
         self.logger.info(
             "Importing TinyDB datasource from {} JSON files in {}",
@@ -83,14 +136,15 @@ class EDTinyDB:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
         for system in systems:
-            system_name = system.get(constants.system_info_name_field)
+            system_name = system.get(system_info_name_field)
             if not isinstance(system_name, str) or not system_name:
                 continue
             full_system = self.get_system(system_name)
             if full_system is None:
                 continue
             output_file = os.path.join(
-                export_dir, f"{self._safe_filename(system_name)}.json"
+                export_dir,
+                f"{self._safe_filename(system_name)}{json_extension}",
             )
             with open(output_file, "w", encoding="utf-8") as file_handle:
                 json.dump(
@@ -125,18 +179,18 @@ class EDTinyDB:
 
         def _worker() -> None:
             try:
-                output["value"] = asyncio.run(coro)
+                output[value_key] = asyncio.run(coro)
             except BaseException as exc:
-                error["value"] = exc
+                error[value_key] = exc
 
         worker = threading.Thread(target=_worker, daemon=True)
         worker.start()
         worker.join()
 
-        if "value" in error:
-            raise error["value"]
+        if value_key in error:
+            raise error[value_key]
 
-        return output.get("value")
+        return output.get(value_key)
 
     def _cache_get(self, system_name: str) -> SystemInfo | None:
         with self._cache_lock:
@@ -148,7 +202,7 @@ class EDTinyDB:
 
     async def _insert_system_async(self, system_info: SystemInfo) -> bool:
         System = Query()
-        system_name = system_info[constants.system_info_name_field]
+        system_name = system_info[system_info_name_field]
         async with AIOTinyDB(self.datasource_name) as db:
             if not await db.contains(System.name == system_name):
                 inserted_id = await db.insert(system_info)
@@ -178,10 +232,10 @@ class EDTinyDB:
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> None:
         System = Query()
-        system_name = system_info[constants.system_info_name_field]
+        system_name = system_info[system_info_name_field]
         async with AIOTinyDB(self.datasource_name) as db:
             updated = await db.update(
-                {constants.system_info_neighbors_field: new_neighbors},
+                {system_info_neighbors_field: new_neighbors},
                 System.name == system_name,
             )
             self.logger.debug(
@@ -197,7 +251,7 @@ class EDTinyDB:
             return systems
 
     def insert_system(self, system_info: SystemInfo) -> None:
-        system_name = system_info.get(constants.system_info_name_field)
+        system_name = system_info.get(system_info_name_field)
         if not isinstance(system_name, str):
             return
         if self._cache_get(system_name) is not None:
@@ -225,10 +279,10 @@ class EDTinyDB:
     ) -> None:
         with self._write_lock:
             self._run_async(self._add_neighbors_async(system_info, new_neighbors))
-        system_name = system_info.get(constants.system_info_name_field)
+        system_name = system_info.get(system_info_name_field)
         if isinstance(system_name, str):
             updated_info = dict(system_info)
-            updated_info[constants.system_info_neighbors_field] = new_neighbors
+            updated_info[system_info_neighbors_field] = new_neighbors
             self._cache_set(system_name, updated_info)
 
     def get_all_systems(self) -> list[SystemInfo]:
@@ -238,7 +292,7 @@ class EDTinyDB:
         systems = self._run_async(self._get_all_systems_async())
         with self._cache_lock:
             for system_info in systems:
-                system_name = system_info.get(constants.system_info_name_field)
+                system_name = system_info.get(system_info_name_field)
                 if isinstance(system_name, str):
                     self._system_cache[system_name] = system_info
             self._all_systems_cached = True

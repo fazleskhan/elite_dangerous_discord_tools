@@ -7,6 +7,13 @@ import ed_factory
 import edgis_cache
 import psutil
 from loguru import logger
+from ed_constants import (
+    system_info_coords_field,
+    system_info_name_field,
+    system_info_x_field,
+    system_info_y_field,
+    system_info_z_field,
+)
 
 """Cache bulk-load helpers shared by CLI and Discord entrypoints."""
 
@@ -110,7 +117,7 @@ class EDBulkLoad:
                 for neighbors in executor.map(self._fetch_neighbors, frontier):
                     logger.debug("Fetched neighbor_count={}", len(neighbors))
                     for neighbor in neighbors:
-                        neighbor_name = neighbor.get("name")
+                        neighbor_name = neighbor.get(system_info_name_field)
                         if not isinstance(neighbor_name, str):
                             logger.debug("Skipping neighbor with invalid name payload={}", neighbor)
                             continue
@@ -161,16 +168,20 @@ class EDBulkLoad:
     def _neighbor_as_system_info(self, neighbor: SystemInfo) -> SystemInfo | None:
         # We only treat neighbor payloads as expandable system records when
         # the coordinate triplet is present.
-        coords = neighbor.get("coords")
+        coords = neighbor.get(system_info_coords_field)
         if not isinstance(coords, dict):
             return None
-        if "x" not in coords or "y" not in coords or "z" not in coords:
+        if (
+            system_info_x_field not in coords
+            or system_info_y_field not in coords
+            or system_info_z_field not in coords
+        ):
             return None
         return neighbor
 
     def _fetch_neighbors(self, system_info: SystemInfo) -> list[SystemInfo]:
         # Worker task: isolate neighbor expansion call for thread pool mapping.
-        system_name = system_info.get("name")
+        system_name = system_info.get(system_info_name_field)
         logger.debug("Fetching neighbors for system={}", system_name)
         return self.fetch_neighbors_fn(system_info) or []
 
