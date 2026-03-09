@@ -1,143 +1,135 @@
 @startuml discord_bot_ping
-title DiscordBot ping command
+title discord_bot.py - !ping
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.ping" as Bot
 participant "Discord Context" as Ctx
 
-User -> Discord : !ping
-Discord -> Bot : ping(ctx)
+User -> Gateway : !ping
+Gateway -> Bot : ping(ctx)
 Bot -> Ctx : send("Pong (<ms> ms)")
-Ctx --> User : pong response
 @enduml
 
 @startuml discord_bot_system_info
-title DiscordBot system_info command
+title discord_bot.py - !system_info
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.system_info" as Bot
+participant "RouteService.get_system_info" as Route
 participant "Discord Context" as Ctx
 
-User -> Discord : !system_info <system>
-Discord -> Bot : system_info(ctx, arg)
+User -> Gateway : !system_info <system>
+Gateway -> Bot : system_info(ctx, arg)
 Bot -> Route : get_system_info(arg)
-Route --> Bot : system_info payload
+Route --> Bot : payload | None
 
 alt payload <= 2000 chars
   Bot -> Ctx : send("<arg>: <payload> (<ms> ms)")
-  Ctx --> User : single response
 else payload > 2000 chars
-  loop for each 2000-char chunk
+  loop each 2000-char chunk
     Bot -> Ctx : send(chunk)
-    Ctx --> User : chunk
   end
   Bot -> Ctx : send("Execution time: <ms> ms")
-  Ctx --> User : timing response
 end
 @enduml
 
 @startuml discord_bot_path
-title DiscordBot path command
+title discord_bot.py - !path
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.path" as Bot
+participant "RouteService.path" as Route
 participant "Discord Context" as Ctx
+participant "Event Loop" as Loop
 
-User -> Discord : !path <initial> <destination> [max] [min] [max_distance]
-Discord -> Bot : path(ctx, initial, destination, ...)
+User -> Gateway : !path <initial> <destination> [max] [min] [max_distance]
+Gateway -> Bot : path(ctx, initial, destination, ...)
 Bot -> Ctx : send("Calculate Path ... This may take a while")
-Ctx --> User : queued status
+Bot -> Route : path(..., progress_callback)
 
-Bot -> Route : path(initial, destination, max, min, max_distance, progress_callback)
 loop progress callback
   Route -> Bot : progress_callback(message)
-  Bot -> Ctx : send(message)
-  Ctx --> User : progress update
+  Bot -> Loop : run_coroutine_threadsafe(ctx.send(message), loop)
+  Loop -> Ctx : send(message)
 end
-Route --> Bot : route | None
 
+Route --> Bot : route | None
 alt route found
   Bot -> Ctx : send("Route from ... (<ms> ms)")
-  Ctx --> User : route response
-else no route found
+else no route
   Bot -> Ctx : send("No Path found ... (<ms> ms)")
-  Ctx --> User : no-route response
 end
 @enduml
 
 @startuml discord_bot_calc_systems_distance
-title DiscordBot calc_systems_distance command
+title discord_bot.py - !calc_systems_distance
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.calc_systems_distance" as Bot
+participant "RouteService.calc_systems_distance" as Route
 participant "Discord Context" as Ctx
 
-User -> Discord : !calc_systems_distance <system_one> <system_two>
-Discord -> Bot : calc_systems_distance(ctx, one, two)
+User -> Gateway : !calc_systems_distance <system_one> <system_two>
+Gateway -> Bot : calc_systems_distance(ctx, one, two)
 Bot -> Route : calc_systems_distance(one, two)
 Route --> Bot : distance
 Bot -> Ctx : send("Distance between ... : <distance> (<ms> ms)")
-Ctx --> User : distance response
 @enduml
 
 @startuml discord_bot_dump_system_cache_names
-title DiscordBot dump_system_cache_names command
+title discord_bot.py - !dump_system_cache_names
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.dump_system_cache_names" as Bot
+participant "RouteService.get_all_system_names" as Route
 participant "Discord Context" as Ctx
 
-User -> Discord : !dump_system_cache_names
-Discord -> Bot : dump_system_cache_names(ctx)
+User -> Gateway : !dump_system_cache_names
+Gateway -> Bot : dump_system_cache_names(ctx)
 Bot -> Ctx : send("Fetching all system names in cache... This may take a while")
-Ctx --> User : queued status
-
 Bot -> Route : get_all_system_names()
-Route --> Bot : [system names]
+Route --> Bot : system names
 loop chunks of 10
   Bot -> Ctx : send("Systems in cache: <chunk>")
-  Ctx --> User : chunk response
 end
 Bot -> Ctx : send("Total number of systems in cache: <n> (<ms> ms)")
-Ctx --> User : summary response
 @enduml
 
 @startuml discord_bot_init_datasource
-title DiscordBot init_datasource command
+title discord_bot.py - !init_datasource
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.init_datasource" as Bot
+participant "RouteService.init_datasource" as Route
 participant "Discord Context" as Ctx
 
-User -> Discord : !init_datasource [import_dir]
-Discord -> Bot : init_datasource(ctx, import_dir)
+User -> Gateway : !init_datasource [import_dir]
+Gateway -> Bot : init_datasource(ctx, import_dir)
 Bot -> Route : init_datasource(import_dir)
 Route --> Bot : done
 Bot -> Ctx : send("Datasource initialized from <import_dir> (<ms> ms)")
-Ctx --> User : confirmation
 @enduml
 
 @startuml discord_bot_bulk_load_cache
-title DiscordBot bulk_load_cache command
+title discord_bot.py - !bulk_load_cache
+
 actor User
-participant "Discord Gateway" as Discord
-participant "DiscordBot" as Bot
-participant "RouteService" as Route
+participant "Discord Gateway" as Gateway
+participant "DiscordBot.bulk_load_cache" as Bot
+participant "RouteService.bulk_load_cache" as Route
 participant "Discord Context" as Ctx
 
-User -> Discord : !bulk_load_cache <seed1,seed2,...> <max_nodes_visited>
-Discord -> Bot : bulk_load_cache(ctx, initial_systems, max_nodes_visited)
-Bot -> Bot : split and normalize seed list
-Bot -> Ctx : send("Bulk loading cache ... This may take a while")
-Ctx --> User : queued status
-
+User -> Gateway : !bulk_load_cache <seed1,seed2,...> <max_nodes_visited>
+Gateway -> Bot : bulk_load_cache(ctx, initial_systems, max_nodes_visited)
+Bot -> Bot : split and trim seed CSV
+Bot -> Ctx : send("Bulk loading cache ...")
 Bot -> Route : bulk_load_cache(initial_system_names, max_nodes_visited, progress_callback)
 Route --> Bot : loaded_systems
 Bot -> Ctx : send("Bulk load complete. Loaded <n> systems (<ms> ms)")
-Ctx --> User : completion response
 @enduml

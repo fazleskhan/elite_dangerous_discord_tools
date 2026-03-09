@@ -48,6 +48,7 @@ Run the Discord bot process via the runner script:
 * Config changes are hot-reloaded (no restart required) via watchdog file events.
 * File logs rotate daily at midnight, compressed archives are stored in logs/archive, and logs older than 14 days are removed.
 * Console logs are colorized.
+* Console and file log formats include thread id (`tid={thread.id}`) on every log line.
 
 
 ### Discord Commands
@@ -103,6 +104,7 @@ Pre-populates the cache by traversing neighbors breadth-first from one or more s
 * `initial_systems_csv`: comma-separated seed systems (for example `Sol,Alpha Centauri`)
 * `max_nodes_visited`: max number of unique systems to visit
 * Executes through `EDRouteService.bulk_load_cache(...)`, which delegates traversal to `ed_cache`
+* Traversal uses a worker pool sized to available physical CPU cores.
 
 ### Discord Bot Sequence Diagrams
 
@@ -120,7 +122,7 @@ Pre-populates the cache by traversing neighbors breadth-first from one or more s
 
 ![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_init_datasource.png)
 
-![Bulk Load Sequence Diagram](./docs/discord_bot_sequences/discord_bot_bulk_load.png)
+![Bulk Load Sequence Diagram](./docs/discord_bot_sequences/discord_bot_bulk_load_cache.png)
 
 
 ## Command Line
@@ -180,13 +182,17 @@ Calculates the path between two systems.
 
 ![Main Calculate Systems Distance Sequence Diagram](./docs/main_sequences/main_calc_systems_distance.png)
 
-![Main Path Sequence Diagram](./docs/main_sequences/path.png)
+![Main Path Sequence Diagram](./docs/main_sequences/main_path.png)
 
 ![Main System Info Sequence Diagram](./docs/main_sequences/main_system_info.png)
 
 ![Main Init Datasource Sequence Diagram](./docs/main_sequences/main_init_datasource.png)
 
 ![Main Init Datasource Sequence Diagram](./docs/main_sequences/main_bulk_load_cache.png)
+
+![Main Startup Sequence Diagram](./docs/main_sequences/main_startup.png)
+
+![Main Misc Commands Sequence Diagram](./docs/main_sequences/main_misc_commands.png)
 
 
 
@@ -247,6 +253,7 @@ Behavior:
 * `DATASOURCE_TYPE=tinydb` uses TinyDB (`TINYDB_NAME` optional override).
 * `DATASOURCE_TYPE=redis` uses Redis (`REDIS_URL` required, `REDIS_APP_NAME` optional namespace).
 * Traverses neighbor systems level-by-level until `max_nodes_visited` is reached.
+* Uses `ThreadPoolExecutor` workers sized by physical core count (`psutil.cpu_count(logical=False)`).
 * Reuses neighbor payloads when possible to reduce extra info lookups.
 * Emits periodic progress logs while loading.
 
@@ -255,3 +262,7 @@ Example:
 `python ./src/edgis_bulk_load.py "Sol,Alpha Centauri" 5000`
 
 ![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
+
+![EDGIS Bulk Load Script Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_script.png)
+
+![ED Cache Bulk Load Service Sequence Diagram](./docs/edgis_bulk_load_sequence/ed_cache_bulk_load_service.png)
