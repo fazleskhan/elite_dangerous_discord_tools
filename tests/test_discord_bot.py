@@ -56,6 +56,14 @@ class FakeRoute:
         # mimic the real return value used by tests
         return [initial, dest]
 
+    async def bulk_load_cache(
+        self,
+        initial_system_names,
+        max_nodes_visited,
+        progress_callback=None,
+    ):
+        return initial_system_names[:max_nodes_visited]
+
 
 @pytest.fixture
 def bot():
@@ -362,7 +370,7 @@ async def test_bulk_load_cache_command(bot, monkeypatch):
     ctx = MockContext()
     captured = {"initial_system_names": None, "max_nodes_visited": None}
 
-    async def fake_bulk_load_async(
+    async def fake_bulk_load_cache(
         initial_system_names, max_nodes_visited, progress_callback=None
     ):
         return (
@@ -375,7 +383,7 @@ async def test_bulk_load_cache_command(bot, monkeypatch):
             or ["Sol", "Alpha Centauri"]
         )
 
-    monkeypatch.setattr("discord_bot.ed_cache.bulk_load_async", fake_bulk_load_async)
+    monkeypatch.setattr(bot.ed_route, "bulk_load_cache", fake_bulk_load_cache)
 
     await bot.bulk_load_cache(ctx, "Sol,Alpha Centauri", 50)
     sent_messages = ctx.retrieve_messages()

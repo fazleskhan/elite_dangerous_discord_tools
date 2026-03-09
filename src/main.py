@@ -1,5 +1,4 @@
 import ed_factory
-import ed_cache
 import constants
 import argparse
 import asyncio
@@ -267,7 +266,7 @@ def init_datasource(import_dir: str = "./init") -> None:
 def bulk_load_cache(
     initial_system_names: list[str], max_nodes_visited: int
 ) -> list[str]:
-    return ed_cache.bulk_load(
+    return ed_service.bulk_load_cache(
         initial_system_names,
         max_nodes_visited,
         progress_callback=lambda message: logger.info(message),

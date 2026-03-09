@@ -11,7 +11,6 @@ import inspect
 import time
 from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
 import ed_factory
-import ed_cache
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -37,6 +36,12 @@ class RouteServiceProtocol(Protocol):
         max_distance: int,
         progress_callback: Callable[[str], None],
     ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
+    def bulk_load_cache(
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback: Callable[[str], None],
+    ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
 class DiscordBot:
@@ -277,10 +282,12 @@ class DiscordBot:
         await ctx.send(
             f"Bulk loading cache from seeds {initial_system_names} with max_nodes_visited={max_nodes_visited}... This may take a while"
         )
-        loaded_systems = await ed_cache.bulk_load_async(
-            initial_system_names,
-            max_nodes_visited,
-            lambda message: self.logger.info(message),
+        loaded_systems = await self._resolve(
+            self.ed_route.bulk_load_cache(
+                initial_system_names,
+                max_nodes_visited,
+                progress_callback=lambda message: self.logger.info(message),
+            )
         )
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(

@@ -1,4 +1,5 @@
 import ed_bfs
+import ed_cache
 import constants
 import asyncio
 import threading
@@ -91,6 +92,23 @@ class EDRouteService:
         ]
         self.logger.debug("Collected {} system names", len(results))
         return results
+
+    def bulk_load_cache(
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback: ProgressFn,
+    ) -> list[str]:
+        self.logger.info(
+            "Bulk loading cache from seeds={} max_nodes_visited={}",
+            initial_system_names,
+            max_nodes_visited,
+        )
+        return ed_cache.bulk_load(
+            initial_system_names=initial_system_names,
+            max_nodes_visited=max_nodes_visited,
+            progress_callback=progress_callback,
+        )
 
     async def path(
         self,
