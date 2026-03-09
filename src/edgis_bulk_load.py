@@ -44,7 +44,7 @@ def logic(initial_system_name: str, number_of_systems: int) -> None:
     )
     cache = edgis_cache.EDGisCache.create(database)
 
-    # Empty destination means "walk outward" up to `number_of_systems`.
+    # Use a distant anchor destination to force outward traversal for warm-up.
     ed_bfs.travel(
         cache.find_system_info,
         cache.find_system_neighbors,

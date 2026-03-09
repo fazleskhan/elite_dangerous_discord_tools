@@ -17,7 +17,9 @@ ProgressFn = Callable[[str], None]
 def main() -> None: ...
 
 
-def _reconstruct_path(parents: dict[str, str | None], destination_name: str) -> list[str]:
+def _reconstruct_path(
+    parents: dict[str, str | None], destination_name: str
+) -> list[str]:
     path: list[str] = []
     cursor: str | None = destination_name
     while cursor is not None:
@@ -71,7 +73,7 @@ def travel(
             if (node_count & 0x1FF) == 0:
                 now = time.monotonic()
                 if now - last_progress_report >= 30:
-                # Message format is consumed by CLI/Discord progress handlers.
+                    # Message format is consumed by CLI/Discord progress handlers.
                     progress_callback(f"Analyzed {node_count} of {max_count} systems")
                     last_progress_report = now
 

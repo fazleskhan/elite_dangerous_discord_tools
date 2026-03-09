@@ -30,6 +30,7 @@ class CacheProtocol(Protocol):
 
 def main() -> None: ...
 
+
 class EDRouteService:
     """Routing service with injected dependencies for easier testing."""
 

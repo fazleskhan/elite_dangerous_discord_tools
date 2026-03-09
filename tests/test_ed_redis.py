@@ -231,7 +231,9 @@ def test_redis_init_datasource_skips_loading_when_target_exists(monkeypatch, tmp
     assert inserted == []
 
 
-def test_redis_init_datasource_loads_records_from_init_json_files(monkeypatch, tmp_path):
+def test_redis_init_datasource_loads_records_from_init_json_files(
+    monkeypatch, tmp_path
+):
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
     init_dir = tmp_path / "init"
     init_dir.mkdir(parents=True, exist_ok=True)

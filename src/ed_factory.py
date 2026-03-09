@@ -17,11 +17,10 @@ def main() -> None: ...
 
 
 def resolve_datasource_type(datasource_type: str | None = None) -> str:
+    # Explicit arg wins, then env, then tinydb default.
     resolved = (
-        datasource_type
-        or os.getenv("DATASOURCE_TYPE")
-        or "tinydb"
-    ).strip().lower()
+        (datasource_type or os.getenv("DATASOURCE_TYPE") or "tinydb").strip().lower()
+    )
     if resolved not in {"tinydb", "redis"}:
         raise ValueError(
             "Invalid DATASOURCE_TYPE value. Supported values are 'tinydb' and 'redis'."

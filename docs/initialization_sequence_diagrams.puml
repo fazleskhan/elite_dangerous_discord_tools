@@ -1,0 +1,41 @@
+@startuml discord_bot_initialization
+actor User
+participant "discord_runner.main" as Runner
+participant "DiscordBot.create" as BotCreate
+participant "ed_factory" as Factory
+participant "EDRouteService" as Route
+participant "discord.commands.Bot" as DiscordBotRuntime
+
+User -> Runner : start bot process
+Runner -> BotCreate : DiscordBot.create()
+BotCreate -> Factory : create_route_service()
+Factory -> Factory : create_datasource()
+Factory -> Factory : EDGisCache.create(datasource)
+Factory -> Route : EDRouteService.create(datasource, cache, travel_fn)
+Route --> BotCreate : route service
+BotCreate -> DiscordBotRuntime : commands.Bot(command_prefix, intents)
+BotCreate -> BotCreate : DiscordBot(...)
+BotCreate -> BotCreate : register_commands()
+BotCreate --> Runner : DiscordBot instance
+Runner -> BotCreate : run()
+@enduml
+
+@startuml main_initialization
+actor User
+participant "module import" as Import
+participant "ed_factory" as Factory
+participant "EDRouteService" as Route
+participant "main.main" as Main
+participant "CLI (argparse)" as CLI
+
+User -> Import : python src/main.py <command>
+Import -> Factory : create_route_service()
+Factory -> Factory : create_datasource()
+Factory -> Factory : EDGisCache.create(datasource)
+Factory -> Route : EDRouteService.create(datasource, cache, travel_fn)
+Route --> Import : ed_service
+Import -> Main : main()
+Main -> CLI : parse args
+CLI --> Main : command + options
+Main -> Route : invoke selected command handler
+@enduml
