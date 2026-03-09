@@ -9,9 +9,10 @@ from dotenv import load_dotenv
 import os
 import inspect
 import time
-from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
+from typing import Any, Awaitable, Callable, Iterator, Sequence, TypeVar
 import ed_factory
 from ed_constants import default_discord_log_name, default_init_dir, discord_token_env, log_location_env
+from ed_protocols import RouteServiceProtocol
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -19,30 +20,6 @@ T = TypeVar("T")
 
 
 def main() -> None: ...
-
-
-class RouteServiceProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None | Awaitable[None]: ...
-    def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
-    def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
-    def calc_systems_distance(
-        self, system_name_one: str, system_name_two: str
-    ) -> float | Awaitable[float]: ...
-    def path(
-        self,
-        initial_system_name: str,
-        destination_system_name: str,
-        max_systems: int,
-        min_distance: int,
-        max_distance: int,
-        progress_callback: Callable[[str], None],
-    ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
-    def bulk_load_cache(
-        self,
-        initial_system_names: list[str],
-        max_nodes_visited: int,
-        progress_callback: Callable[[str], None],
-    ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
 class EDDiscordBot:

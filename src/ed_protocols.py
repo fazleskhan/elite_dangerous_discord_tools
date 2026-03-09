@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+from typing import Any, Awaitable, Callable, Protocol, Sequence
+
+from ed_constants import default_init_dir
+
+SystemInfo = dict[str, Any]
+FetchInfoFn = Callable[[str], SystemInfo | None]
+FetchSystemInfoFn = Callable[[str], SystemInfo | None]
+FetchNeighborsFn = Callable[..., list[SystemInfo] | None]
+DistanceFn = Callable[[str, str], float]
+ProgressFn = Callable[[str], None]
+
+
+class DatasourceProtocol(Protocol):
+    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
+    def get_all_systems(self) -> list[SystemInfo]: ...
+    def get_system(self, system_name: str) -> SystemInfo | None: ...
+    def insert_system(self, system_info: SystemInfo) -> None: ...
+    def add_neighbors(
+        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
+    ) -> None: ...
+
+
+class CacheProtocol(Protocol):
+    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
+    def find_system_neighbors(
+        self, system_info: SystemInfo
+    ) -> list[SystemInfo] | None: ...
+
+
+class RouteServiceProtocol(Protocol):
+    def init_datasource(self, import_dir: str = default_init_dir) -> None | Awaitable[None]: ...
+    def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
+    def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
+    def calc_systems_distance(
+        self, system_name_one: str, system_name_two: str
+    ) -> float | Awaitable[float]: ...
+    def path(
+        self,
+        initial_system_name: str,
+        destination_system_name: str,
+        max_systems: int,
+        min_distance: int,
+        max_distance: int,
+        progress_callback: ProgressFn,
+    ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
+    def bulk_load_cache(
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback: ProgressFn,
+    ) -> Sequence[str] | Awaitable[Sequence[str]]: ...

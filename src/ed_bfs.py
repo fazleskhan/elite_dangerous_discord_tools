@@ -1,17 +1,17 @@
 from collections import deque
 from loguru import logger
 import time
-from typing import Any, Callable
+from typing import Any
 
 from ed_constants import system_info_name_field
+from ed_protocols import (
+    DistanceFn,
+    FetchInfoFn,
+    FetchNeighborsFn,
+    ProgressFn,
+    SystemInfo,
+)
 """Breadth-first traversal used to build/solve routes between systems."""
-
-
-SystemInfo = dict[str, Any]
-FetchInfoFn = Callable[[str], SystemInfo | None]
-FetchNeighborsFn = Callable[[SystemInfo], list[SystemInfo] | None]
-DistanceFn = Callable[[str, str], float]
-ProgressFn = Callable[[str], None]
 
 
 def main() -> None: ...

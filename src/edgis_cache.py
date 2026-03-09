@@ -1,6 +1,6 @@
 from edgis import fetch_system_info, fetch_neighbors
 from loguru import logger
-from typing import Any, Callable, Protocol
+from typing import Any
 from ed_constants import (
     system_info_coords_field,
     system_info_name_field,
@@ -9,24 +9,14 @@ from ed_constants import (
     system_info_y_field,
     system_info_z_field,
 )
+from ed_protocols import (
+    DatasourceProtocol,
+    FetchNeighborsFn,
+    FetchSystemInfoFn,
+    SystemInfo,
+)
 
 """Caching wrapper around EDGIS fetchers backed by the local DB."""
-
-
-SystemInfo = dict[str, Any]
-FetchSystemInfoFn = Callable[[str], SystemInfo | None]
-FetchNeighborsFn = Callable[
-    [float | int, float | int, float | int], list[SystemInfo] | None
-]
-
-
-class DBProtocol(Protocol):
-    def get_system(self, system_name: str) -> SystemInfo | None: ...
-    def insert_system(self, system_info: SystemInfo) -> None: ...
-    def add_neighbors(
-        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> None: ...
-
 
 def main() -> None: ...
 
@@ -36,7 +26,7 @@ class EDGisCache:
 
     def __init__(
         self,
-        db: DBProtocol,
+        db: DatasourceProtocol,
         fetch_system_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
     ) -> None:
@@ -47,7 +37,7 @@ class EDGisCache:
 
     @staticmethod
     def create(
-        db_obj: DBProtocol,
+        db_obj: DatasourceProtocol,
         fetch_system_info_fn: FetchSystemInfoFn = fetch_system_info,
         fetch_neighbors_fn: FetchNeighborsFn = fetch_neighbors,
     ) -> "EDGisCache":
@@ -109,7 +99,7 @@ class EDCache(EDGisCache):
 
     @staticmethod
     def create(
-        db_obj: DBProtocol,
+        db_obj: DatasourceProtocol,
         gis: Any,
         logging_utils: Any,
     ) -> "EDCache":

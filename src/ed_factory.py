@@ -1,7 +1,7 @@
 """IoC helpers for datasource/cache/route service composition."""
 
 import os
-from typing import Any, Callable, Protocol
+from typing import Any, Callable
 
 from dotenv import load_dotenv
 
@@ -10,21 +10,15 @@ import ed_route
 import edgis_cache
 from ed_constants import (
     datasource_type_env,
-    default_init_dir,
     redis_name,
     tinydb_name,
 )
+from ed_protocols import DatasourceProtocol
 
-SystemInfo = dict[str, Any]
 TravelFn = Callable[..., list[str] | None]
 
 
 def main() -> None: ...
-
-
-class DBProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
-    def get_all_systems(self) -> list[SystemInfo]: ...
 
 
 class EDDatasourceFactory:
@@ -42,7 +36,7 @@ class EDDatasourceFactory:
         logging_utils: Any,
         datasource_name: str | None,
         datasource_type: str | None,
-    ) -> DBProtocol:
+    ) -> DatasourceProtocol:
         load_dotenv()
         resolved_type = resolve_datasource_type(datasource_type)
         if resolved_type == tinydb_name:
