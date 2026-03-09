@@ -112,5 +112,48 @@ def test_edgis_bulk_load_logic_delegates_to_ed_cache(monkeypatch):
     assert edgis_bulk_load.logic(["Sol"], 1) == ["Sol"]
 
 
+def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch):
+    graph = {
+        "Sol": ["Alpha Centauri", "Barnard_s Star"],
+        "Alpha Centauri": [],
+        "Barnard_s Star": [],
+    }
+    seen: dict[str, object] = {"max_workers": None, "batches": []}
+
+    class FakeExecutor:
+        def __init__(self, max_workers):
+            seen["max_workers"] = max_workers
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def map(self, fn, iterable):
+            batch = list(iterable)
+            seen["batches"].append([item["name"] for item in batch])
+            return [fn(item) for item in batch]
+
+    def fake_find_system_info(system_name: str):
+        return {"name": system_name}
+
+    def fake_find_neighbors(system_info):
+        return [{"name": name} for name in graph[system_info["name"]]]
+
+    monkeypatch.setattr(ed_cache, "_physical_core_count", lambda: 3)
+    monkeypatch.setattr(ed_cache, "ThreadPoolExecutor", FakeExecutor)
+
+    bulk_loader = ed_cache.BulkLoadService(
+        fetch_system_info_fn=fake_find_system_info,
+        fetch_neighbors_fn=fake_find_neighbors,
+    )
+    visited = bulk_loader.load(["Sol"], 3, lambda _message: None)
+
+    assert visited == ["Sol", "Alpha Centauri", "Barnard_s Star"]
+    assert seen["max_workers"] == 3
+    assert seen["batches"] == [["Sol"]]
+
+
 if __name__ == "__main__":
     main()

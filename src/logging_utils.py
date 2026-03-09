@@ -26,6 +26,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         "format": (
             "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
             "<level>{level: <8}</level> | "
+            "<cyan>tid={thread.id}</cyan> | "
             "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
             "<level>{message}</level>"
         ),
@@ -37,7 +38,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         "rotation": "00:00",
         "retention_days": 14,
         "archive_directory": "logs/archive",
-        "format": "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+        "format": "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | tid={thread.id} | {name}:{function}:{line} | {message}",
     },
     "watch": {
         "enabled": True,
