@@ -11,6 +11,7 @@ import inspect
 import time
 from typing import Any, Awaitable, Callable, Iterator, Protocol, Sequence, TypeVar
 import ed_factory
+import ed_cache
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -256,6 +257,36 @@ class DiscordBot:
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(f"Datasource initialized from {import_dir} ({elapsed_ms} ms)")
 
+    async def bulk_load_cache(
+        self,
+        ctx: commands.Context,
+        initial_systems: str,
+        max_nodes_visited: int,
+    ) -> None:
+        start = time.perf_counter()
+        initial_system_names = [
+            system_name.strip()
+            for system_name in initial_systems.split(",")
+            if system_name.strip()
+        ]
+        self.logger.info(
+            "bulk_load_cache command: initial_systems={} max_nodes_visited={}",
+            initial_system_names,
+            max_nodes_visited,
+        )
+        await ctx.send(
+            f"Bulk loading cache from seeds {initial_system_names} with max_nodes_visited={max_nodes_visited}... This may take a while"
+        )
+        loaded_systems = await ed_cache.bulk_load_async(
+            initial_system_names,
+            max_nodes_visited,
+            lambda message: self.logger.info(message),
+        )
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        await ctx.send(
+            f"Bulk load complete. Loaded {len(loaded_systems)} systems ({elapsed_ms} ms)"
+        )
+
     def register_commands(self) -> None:
         self.logger.debug("Registering bot commands")
         # ``discord.ext.commands`` expects plain callables whose first
@@ -308,6 +339,16 @@ class DiscordBot:
             ctx: commands.Context, import_dir: str = "./init"
         ) -> None:
             return await self.init_datasource(ctx, import_dir)
+
+        @self.bot.command()
+        async def bulk_load_cache(
+            ctx: commands.Context, initial_systems: str, max_nodes_visited: int
+        ) -> None:
+            return await self.bulk_load_cache(
+                ctx,
+                initial_systems,
+                max_nodes_visited,
+            )
 
     def run(self) -> None:
         """Start the bot using the configured token/logging.

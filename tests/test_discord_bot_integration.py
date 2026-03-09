@@ -174,6 +174,7 @@ async def test_command_availability(bot):
     assert "path" in commands_dict
     assert "calc_systems_distance" in commands_dict
     assert "dump_system_cache_names" in commands_dict
+    assert "bulk_load_cache" in commands_dict
 
 
 def test_bot_ready_event(bot):

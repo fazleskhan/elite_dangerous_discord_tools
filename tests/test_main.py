@@ -84,5 +84,55 @@ def test_main_init_datasource_command(monkeypatch):
     assert captured["import_dir"] == "./custom-init"
 
 
+def test_bulk_load_cache():
+    captured = {"initial_system_names": None, "max_nodes_visited": None}
+    main.ed_cache.bulk_load = (
+        lambda initial_system_names, max_nodes_visited, progress_callback=None: (
+            captured.update(
+                {
+                    "initial_system_names": initial_system_names,
+                    "max_nodes_visited": max_nodes_visited,
+                }
+            )
+            or ["Sol"]
+        )
+    )
+    assert main.bulk_load_cache(["Sol"], 10) == ["Sol"]
+    assert captured["initial_system_names"] == ["Sol"]
+    assert captured["max_nodes_visited"] == 10
+
+
+def test_main_bulk_load_cache_command(monkeypatch):
+    captured = {"initial_system_names": None, "max_nodes_visited": None}
+    monkeypatch.setattr(
+        main,
+        "bulk_load_cache",
+        lambda initial_system_names, max_nodes_visited: (
+            captured.update(
+                {
+                    "initial_system_names": initial_system_names,
+                    "max_nodes_visited": max_nodes_visited,
+                }
+            )
+            or ["Sol"]
+        ),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "main.py",
+            "bulk_load_cache",
+            "--initial_systems",
+            "Sol,Alpha Centauri",
+            "--max_nodes_visited",
+            "25",
+        ],
+    )
+    main.main()
+    assert captured["initial_system_names"] == ["Sol", "Alpha Centauri"]
+    assert captured["max_nodes_visited"] == 25
+
+
 if __name__ == "__main__":
     main()
