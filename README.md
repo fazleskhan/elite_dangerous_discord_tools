@@ -112,11 +112,6 @@ Loads JSON files from the target import directory into the configured datasource
 ![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_init_datasource.png)
 
 
-![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
-
-
-
-
 ## Command Line
 
 The tool also provides a CLI entrypoint:
@@ -212,4 +207,32 @@ Imports JSON system files into TinyDB.
 ![Import Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/import_tinydb.png)
 
 ![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/export_tinydb.png)
+
+## Bulk Data Load Util
+
+Pre-populates the configured datasource cache by doing a breadth-first traversal from one or more seed systems.
+
+Command:
+
+`python ./src/edgis_bulk_load.py <initial_systems> <max_nodes_visited>`
+
+Arguments:
+
+* `initial_systems`: comma-separated list of seed systems (example: `Sol,Alpha Centauri`)
+* `max_nodes_visited`: maximum number of unique systems to visit
+
+Behavior:
+
+* Uses `ed_factory.create_datasource(...)`, so backend selection comes from environment configuration.
+* `DATASOURCE_TYPE=tinydb` uses TinyDB (`TINYDB_NAME` optional override).
+* `DATASOURCE_TYPE=redis` uses Redis (`REDIS_URL` required, `REDIS_APP_NAME` optional namespace).
+* Traverses neighbor systems level-by-level until `max_nodes_visited` is reached.
+* Reuses neighbor payloads when possible to reduce extra info lookups.
+* Emits periodic progress logs while loading.
+
+Example:
+
+`python ./src/edgis_bulk_load.py "Sol,Alpha Centauri" 5000`
+
+![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
 
