@@ -87,6 +87,7 @@ class EDRouteService:
         self._bfs = bfs
 
     def init_datasource(self, import_dir: str = default_init_dir) -> None:
+        # Delegate orchestration details to focused service objects.
         self._init_datasource_service.run(import_dir)
 
     def get_system_info(self, system_name: str) -> SystemInfo | None:
@@ -101,6 +102,7 @@ class EDRouteService:
         max_nodes_visited: int,
         progress_callback: ProgressFn,
     ) -> list[str]:
+        # Keep EDRouteService thin: it routes calls, services implement behavior.
         return self._bulk_load_cache_service.load(
             initial_system_names,
             max_nodes_visited,
@@ -129,6 +131,7 @@ class EDRouteService:
         self, system_name_one: str, system_name_two: str
     ) -> float:
         return self._calc_systems_distance_service.run(system_name_one, system_name_two)
+
 
 if __name__ == "__main__":
     main()

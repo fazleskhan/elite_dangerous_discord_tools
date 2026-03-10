@@ -23,12 +23,14 @@ class EDCalcSystemsDistanceService:
         else:
             self._logging_utils = logging_utils
         if get_system_info_service is None:
-            raise ValueError("get_system_info_service of type GetSystemInfoProtocol is required")
+            raise ValueError(
+                "get_system_info_service of type GetSystemInfoProtocol is required"
+            )
         else:
-            self._get_system_info_service = get_system_info_service           
+            self._get_system_info_service = get_system_info_service
         self._coords_cache: dict[str, tuple[float, float, float]] = {}
         self._coords_cache_lock = threading.Lock()
-        self._logging_utils.debug("EDCalcSystemsDistanceService initialized")        
+        self._logging_utils.debug("EDCalcSystemsDistanceService initialized")
 
     @staticmethod
     def create(
@@ -43,6 +45,7 @@ class EDCalcSystemsDistanceService:
             system_name_one,
             system_name_two,
         )
+        # Pull from memoized coordinates first to avoid repeated datasource/cache lookups.
         coords_one = self._get_system_coords(system_name_one)
         coords_two = self._get_system_coords(system_name_two)
         if coords_one is None or coords_two is None:
@@ -68,6 +71,7 @@ class EDCalcSystemsDistanceService:
         return distance
 
     def _get_system_coords(self, system_name: str) -> tuple[float, float, float] | None:
+        # Coordinate cache is shared by calls, so read/write under a lock.
         with self._coords_cache_lock:
             cached = self._coords_cache.get(system_name)
         if cached is not None:

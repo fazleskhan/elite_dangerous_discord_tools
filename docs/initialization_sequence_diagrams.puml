@@ -1,41 +1,169 @@
-@startuml discord_bot_initialization
-actor User
-participant "discord_runner.main" as Runner
-participant "DiscordBot.create" as BotCreate
-participant "ed_factory" as Factory
-participant "EDRouteService" as Route
-participant "discord.commands.Bot" as DiscordBotRuntime
+@startuml ed_logging_utils_initialization
+title EDLoggingUtils singleton initialization
 
-User -> Runner : start bot process
-Runner -> BotCreate : DiscordBot.create()
-BotCreate -> Factory : create_route_service()
-Factory -> Factory : create_datasource()
-Factory -> Factory : EDGisCache.create(datasource)
-Factory -> Route : EDRouteService.create(datasource, cache, travel_fn)
-Route --> BotCreate : route service
-BotCreate -> DiscordBotRuntime : commands.Bot(command_prefix, intents)
-BotCreate -> BotCreate : DiscordBot(...)
-BotCreate -> BotCreate : register_commands()
-BotCreate --> Runner : DiscordBot instance
-Runner -> BotCreate : run()
+actor Caller
+participant "EDLoggingUtils.create" as Create
+participant "EDLoggingUtils.__init__" as Init
+participant "EDLoggingUtils._initialize_watcher" as InitWatcher
+participant "_LoguruConfigWatcher" as Watcher
+
+Caller -> Create : create(config_path)
+alt first call (_instance is None)
+  Create -> Init : EDLoggingUtils(config_path)
+  Init --> Create : logging_utils
+  Create -> InitWatcher : _initialize_watcher(config_path)
+  InitWatcher -> Watcher : _LoguruConfigWatcher(resolved_path)
+  InitWatcher -> Watcher : start()
+  Create --> Caller : singleton instance
+else instance already exists
+  Create --> Caller : existing singleton instance
+end
 @enduml
 
-@startuml main_initialization
-actor User
-participant "module import" as Import
-participant "ed_factory" as Factory
-participant "EDRouteService" as Route
-participant "main.main" as Main
-participant "CLI (argparse)" as CLI
+@startuml ed_datasource_factory_initialization
+title EDDatasourceFactory initialization and datasource creation
 
-User -> Import : python src/main.py <command>
-Import -> Factory : create_route_service()
-Factory -> Factory : create_datasource()
-Factory -> Factory : EDGisCache.create(datasource)
-Factory -> Route : EDRouteService.create(datasource, cache, travel_fn)
-Route --> Import : ed_service
-Import -> Main : main()
-Main -> CLI : parse args
-CLI --> Main : command + options
-Main -> Route : invoke selected command handler
+actor Caller
+participant "EDDatasourceFactory.create" as FactoryCreate
+participant "EDDatasourceFactory.__init__" as FactoryInit
+participant "EDDatasourceFactory.create_datasource" as CreateDatasource
+participant "resolve_datasource_type" as ResolveType
+participant "EDTinyDB.create" as TinyCreate
+participant "EDRedis.create" as RedisCreate
+
+Caller -> FactoryCreate : create(logging_utils)
+FactoryCreate -> FactoryInit : EDDatasourceFactory(logging_utils)
+FactoryInit --> FactoryCreate : factory
+FactoryCreate --> Caller : factory
+
+Caller -> CreateDatasource : create_datasource(datasource_name, datasource_type)
+CreateDatasource -> ResolveType : resolve_datasource_type(datasource_type)
+ResolveType --> CreateDatasource : tinydb | redis
+
+alt resolved_type == tinydb
+  CreateDatasource -> TinyCreate : EDTinyDB.create(datasource_name, logging_utils)
+  TinyCreate --> CreateDatasource : datasource
+else resolved_type == redis
+  CreateDatasource -> RedisCreate : EDRedis.create(datasource_name, logging_utils)
+  RedisCreate --> CreateDatasource : datasource
+end
+
+CreateDatasource --> Caller : DatasourceProtocol
+@enduml
+
+@startuml ed_route_service_factory_initialization
+title EDRouteServiceFactory.create initialization chain
+
+actor Caller
+participant "EDRouteServiceFactory.create" as RouteFactory
+participant "EDDatasourceFactory" as DatasourceFactory
+participant "EDGis" as Gis
+participant "EDGisCache" as Cache
+participant "EDInitDatasourceService" as InitDatasourceSvc
+participant "EDGetSystemInfoService" as GetInfoSvc
+participant "EDGetAllSystemNamesService" as GetAllNamesSvc
+participant "EDCalcSystemsDistanceService" as DistanceSvc
+participant "EDBfsAlgo" as Bfs
+participant "EDPathService" as PathSvc
+participant "EDBulkLoadAlgo" as BulkLoad
+participant "EDRouteService.__init__" as RouteInit
+
+Caller -> RouteFactory : create(logging_utils, ...)
+RouteFactory -> DatasourceFactory : EDDatasourceFactory.create(logging_utils)
+DatasourceFactory --> RouteFactory : datasource_factory
+RouteFactory -> DatasourceFactory : create_datasource()
+DatasourceFactory --> RouteFactory : datasource
+
+RouteFactory -> InitDatasourceSvc : create(datasource, logging_utils)
+InitDatasourceSvc --> RouteFactory : init_datasource_service
+RouteFactory -> Gis : create(logging_utils)
+Gis --> RouteFactory : edgis
+RouteFactory -> Cache : create(datasource, logging_utils, edgis.fetch_system_info, edgis.fetch_neighbors)
+Cache --> RouteFactory : cache
+RouteFactory -> GetInfoSvc : create(cache, logging_utils)
+GetInfoSvc --> RouteFactory : get_system_info_service
+RouteFactory -> GetAllNamesSvc : create(datasource, logging_utils)
+GetAllNamesSvc --> RouteFactory : get_all_system_names_service
+RouteFactory -> DistanceSvc : create(get_system_info_service, logging_utils)
+DistanceSvc --> RouteFactory : calc_systems_distance_service
+RouteFactory -> Bfs : create(cache.find_system_info, cache.find_system_neighbors, calc_systems_distance_service.run, logging_utils)
+Bfs --> RouteFactory : bfs
+RouteFactory -> PathSvc : create(bfs, calc_systems_distance_service, logging_utils)
+PathSvc --> RouteFactory : path_service
+RouteFactory -> BulkLoad : create(cache, logging_utils)
+BulkLoad --> RouteFactory : bulk_load_cache_service
+
+RouteFactory -> RouteInit : EDRouteService(...all composed dependencies...)
+RouteInit --> RouteFactory : route_service
+RouteFactory --> Caller : EDRouteService
+@enduml
+
+@startuml ed_main_initialization
+title EDMain.create initialization sequence
+
+actor Caller
+participant "EDMain.create" as MainCreate
+participant "EDLoggingUtils.create" as LoggingCreate
+participant "EDRouteServiceFactory.create" as RouteFactory
+participant "EDMain.__init__" as MainInit
+
+Caller -> MainCreate : create(logging_utils=None, route_service=None)
+alt logging_utils is None
+  MainCreate -> LoggingCreate : EDLoggingUtils.create()
+  LoggingCreate --> MainCreate : logging_utils
+else logging_utils provided
+  MainCreate --> MainCreate : use provided logging_utils
+end
+
+alt route_service is None
+  MainCreate -> RouteFactory : create(logging_utils)
+  RouteFactory --> MainCreate : route_service
+else route_service provided
+  MainCreate --> MainCreate : use provided route_service
+end
+
+MainCreate -> MainInit : EDMain(route_service, logging_utils)
+MainInit --> MainCreate : ed_main
+MainCreate --> Caller : EDMain
+@enduml
+
+@startuml ed_discord_bot_initialization
+title EDDiscordBot.create initialization sequence
+
+actor Caller
+participant "EDDiscordBot.create" as BotCreate
+participant "dotenv.load_dotenv" as Dotenv
+participant "ed_datasource_factory.create_datasource" as CreateDatasource
+participant "EDGis.create" as GisCreate
+participant "EDGisCache.create" as CacheCreate
+participant "EDRouteServiceFactory.create" as RouteFactory
+participant "discord.commands.Bot" as DiscordRuntime
+participant "EDDiscordBot.__init__" as BotInit
+
+Caller -> BotCreate : create(route_service=None, cache=None, logging_utils, token, ...)
+BotCreate -> Dotenv : load_dotenv()
+
+alt route_service is None
+  BotCreate -> CreateDatasource : create_datasource()
+  CreateDatasource --> BotCreate : datasource
+  BotCreate -> GisCreate : EDGis.create(logging_utils)
+  GisCreate --> BotCreate : gis
+  BotCreate -> CacheCreate : EDGisCache.create(datasource, logging_utils, gis.fetch_system_info, gis.fetch_neighbors)
+  CacheCreate --> BotCreate : cache
+  BotCreate -> RouteFactory : EDRouteServiceFactory.create(datasource, cache, logging_utils)
+  RouteFactory --> BotCreate : route_service
+else route_service provided
+  BotCreate --> BotCreate : use provided route_service
+end
+
+alt bot argument is None
+  BotCreate -> DiscordRuntime : commands.Bot(command_prefix, intents)
+  DiscordRuntime --> BotCreate : bot
+else bot provided
+  BotCreate --> BotCreate : use provided bot
+end
+
+BotCreate -> BotInit : EDDiscordBot(route_service, token, bot, logging_utils)
+BotInit --> BotCreate : ed_discord_bot
+BotCreate --> Caller : EDDiscordBot
 @enduml

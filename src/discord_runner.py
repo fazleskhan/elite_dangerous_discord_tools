@@ -8,6 +8,7 @@ from ed_logging_utils import EDLoggingUtils
 def main() -> None:
     logger.info("Starting Discord runner")
     try:
+        # Build the fully wired bot from environment/default composition.
         bot = EDDiscordBot.create()
         logger.debug("EDDiscordBot instance created")
         bot.run()

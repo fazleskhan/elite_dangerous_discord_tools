@@ -1,13 +1,33 @@
+@startuml main_ping
+title main.py - ping
+
+actor User
+participant "main.main" as Main
+participant "EDMain" as EDMain
+
+User -> Main : command=ping
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+Main -> EDMain : ping()
+EDMain --> Main : "Pong"
+Main --> User : print("Pong")
+@enduml
+
 @startuml main_all_loaded_systems
 title main.py - all_loaded_systems
 
 actor User
 participant "main.main" as Main
-participant "EDRouteService.get_all_system_names" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=all_loaded_systems
-Main -> Route : get_all_system_names()
-Route --> Main : names
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+Main -> EDMain : get_all_system_names()
+EDMain -> Route : get_all_system_names()
+Route --> EDMain : names
+EDMain --> Main : names
 Main --> User : print("All Loaded Systems: ...")
 Main --> User : print("Execution time: <ms> ms")
 @enduml
@@ -17,18 +37,21 @@ title main.py - system_info
 
 actor User
 participant "main.main" as Main
-participant "main.get_system_info" as GetInfo
-participant "EDRouteService.get_system_info" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=system_info --system_name <name>
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+
 alt missing --system_name
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
-  Main -> GetInfo : get_system_info([name])
-  GetInfo -> Route : get_system_info(name)
-  Route --> GetInfo : payload | None
-  GetInfo --> Main : [payload | None]
+  Main -> EDMain : get_system_info([name])
+  EDMain -> Route : get_system_info(name)
+  Route --> EDMain : payload | None
+  EDMain --> Main : [payload | None]
   Main --> User : print(name)
   Main --> User : print(payload list)
   Main --> User : print("Execution time: <ms> ms")
@@ -40,10 +63,13 @@ title main.py - path
 
 actor User
 participant "main.main" as Main
-participant "main.calc_route" as CalcRoute
-participant "EDRouteService.path" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=path --initial A --destination B --max_systems N ...
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+
 alt missing --initial or --destination
   Main --> User : print error + help
   Main --> User : exit(1)
@@ -51,14 +77,14 @@ else max_systems > 1000
   Main --> User : print max_systems error
   Main --> User : exit(1)
 else valid args
-  Main -> CalcRoute : calc_route(A, B, N, min, max)
-  CalcRoute -> Route : path(..., progress_callback=logger.info)
-  Route --> CalcRoute : route | None
-  CalcRoute --> Main : route | None
+  Main -> EDMain : calc_route(A, B, N, min, max)
+  EDMain -> Route : path(..., progress_callback=logging_utils.info)
+  Route --> EDMain : route | None
+  EDMain --> Main : route | None
   alt route found
     Main --> User : print("A → ... → B")
   else route not found
-    Main --> User : print("No route found")
+    Main --> User : print("Execution time only")
   end
   Main --> User : print("Execution time: <ms> ms")
 end
@@ -69,18 +95,21 @@ title main.py - calc_systems_distance
 
 actor User
 participant "main.main" as Main
-participant "main.calc_systems_distance" as Calc
-participant "EDRouteService.calc_systems_distance" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=calc_systems_distance --initial A --destination B
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+
 alt missing required args
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
-  Main -> Calc : calc_systems_distance(A, B)
-  Calc -> Route : calc_systems_distance(A, B)
-  Route --> Calc : distance
-  Calc --> Main : distance
+  Main -> EDMain : calc_systems_distance(A, B)
+  EDMain -> Route : calc_systems_distance(A, B)
+  Route --> EDMain : distance
+  EDMain --> Main : distance
   Main --> User : print(distance)
   Main --> User : print("Execution time: <ms> ms")
 end
@@ -91,14 +120,16 @@ title main.py - init_datasource
 
 actor User
 participant "main.main" as Main
-participant "main.init_datasource" as Init
-participant "EDRouteService.init_datasource" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=init_datasource [--import_dir]
-Main -> Init : init_datasource(import_dir)
-Init -> Route : init_datasource(import_dir)
-Route --> Init : done
-Init --> Main : done
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+Main -> EDMain : init_datasource(import_dir)
+EDMain -> Route : init_datasource(import_dir)
+Route --> EDMain : done
+EDMain --> Main : done
 Main --> User : print("Datasource initialized from <import_dir>")
 Main --> User : print("Execution time: <ms> ms")
 @enduml
@@ -108,19 +139,22 @@ title main.py - bulk_load_cache
 
 actor User
 participant "main.main" as Main
-participant "main.bulk_load_cache" as Bulk
-participant "EDRouteService.bulk_load_cache" as Route
+participant "EDMain" as EDMain
+participant "EDRouteService" as Route
 
 User -> Main : command=bulk_load_cache --initial_systems <csv> --max_nodes_visited N
+Main -> EDMain : create()
+EDMain --> Main : ed_main
+
 alt missing required args
   Main --> User : print error + help
   Main --> User : exit(1)
 else valid args
   Main -> Main : split and trim initial_systems CSV
-  Main -> Bulk : bulk_load_cache(initial_system_names, N)
-  Bulk -> Route : bulk_load_cache(initial_system_names, N, progress_callback=logger.info)
-  Route --> Bulk : loaded_systems
-  Bulk --> Main : loaded_systems
+  Main -> EDMain : bulk_load_cache(initial_system_names, N)
+  EDMain -> Route : bulk_load_cache(initial_system_names, N, progress_callback=logging_utils.info)
+  Route --> EDMain : loaded_systems
+  EDMain --> Main : loaded_systems
   Main --> User : print("Loaded <count> systems from seeds [...]")
   Main --> User : print("Execution time: <ms> ms")
 end

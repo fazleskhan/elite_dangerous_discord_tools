@@ -40,14 +40,15 @@ class EDGisCache:
         else:
             self.datasource = datasource
         if fetch_system_info_fn is None:
-            raise ValueError("fetch_system_info_fn of type FetchSystemInfoFn is required")
+            raise ValueError(
+                "fetch_system_info_fn of type FetchSystemInfoFn is required"
+            )
         else:
             self.fetch_system_info_fn = fetch_system_info_fn
         if fetch_neighbors_fn is None:
             raise ValueError("fetch_neighbors_fn of type FetchNeighborsFn is required")
         else:
             self.fetch_neighbors_fn = fetch_neighbors_fn
-        
 
     @staticmethod
     def create(
@@ -112,6 +113,7 @@ class EDGisCache:
         else:
             self.logger.debug("Neighbor cache hit for system={}", system_name)
         return neighbors
+
 
 if __name__ == "__main__":
     main()

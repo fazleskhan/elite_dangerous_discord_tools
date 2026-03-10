@@ -10,6 +10,7 @@ from ed_protocols import (
     ProgressFn,
     SystemInfo,
 )
+
 """Breadth-first traversal used to build/solve routes between systems."""
 
 
@@ -42,7 +43,6 @@ class EDBfsAlgo:
             raise ValueError("distance_fn of type DistanceFn is required")
         else:
             self._distance_fn = distance_fn
-        
 
     @staticmethod
     def create(
@@ -116,14 +116,14 @@ class EDBfsAlgo:
                     now = time.monotonic()
                     if now - last_progress_report >= 30:
                         # Message format is consumed by CLI/Discord progress handlers.
-                        progress_callback(f"Analyzed {node_count} of {max_count} systems")
+                        progress_callback(
+                            f"Analyzed {node_count} of {max_count} systems"
+                        )
                         last_progress_report = now
 
             current_node = queue.popleft()
 
-            distance_to_destination = self._distance_fn(
-                current_node, destination_name
-            )
+            distance_to_destination = self._distance_fn(current_node, destination_name)
 
             if distance_to_destination >= previous_distance * 1.05:
                 continue
@@ -131,9 +131,7 @@ class EDBfsAlgo:
                 previous_distance = distance_to_destination
 
             if current_node == destination_name:
-                self._logging_utils.info(
-                    "Destination reached: {}", destination_name
-                )
+                self._logging_utils.info("Destination reached: {}", destination_name)
                 return EDBfsAlgo._reconstruct_path(parents, destination_name)
 
             system_info = self._fetch_info_fn(current_node)
@@ -152,9 +150,7 @@ class EDBfsAlgo:
                 adjacent_name = adjacent_neighbor[system_name_field]
                 adjacent_distance = adjacent_neighbor.get(distance)
                 if adjacent_distance is None:
-                    adjacent_distance = self._distance_fn(
-                        current_node, adjacent_name
-                    )
+                    adjacent_distance = self._distance_fn(current_node, adjacent_name)
 
                 if not (min_distance <= adjacent_distance <= max_distance):
                     continue

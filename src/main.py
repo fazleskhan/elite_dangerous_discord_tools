@@ -37,10 +37,13 @@ class EDMain:
         logging_utils: LoggingProtocol | None = None,
         route_service: EDRouteService | None = None,
     ) -> "EDMain":
+        # Keep create() convenient for app entrypoints while still allowing
+        # tests/composition roots to inject fully built dependencies.
         resolved_logging_utils = logging_utils or EDLoggingUtils()
         resolved_route_service = route_service
 
         if resolved_route_service is None:
+            # Route service is composed once here; command handlers only call it.
             resolved_route_service = EDRouteServiceFactory.create(
                 logging_utils=resolved_logging_utils,
             )
@@ -79,7 +82,10 @@ class EDMain:
         return self.route_service.calc_systems_distance(source_system, target_system)
 
     def get_system_info(self, system_names: list[str]) -> list[dict[str, Any] | None]:
-        return [self.route_service.get_system_info(system_name) for system_name in system_names]
+        return [
+            self.route_service.get_system_info(system_name)
+            for system_name in system_names
+        ]
 
     def init_datasource(self, import_dir: str = default_init_dir) -> None:
         self.route_service.init_datasource(import_dir)
@@ -118,15 +124,21 @@ def main() -> None:
     parser.add_argument("--destination", nargs="?", const=None, default=None)
     parser.add_argument("--max_systems", nargs="?", const=None, default=None)
     parser.add_argument("--min_distance", nargs="?", const=None, default=0, type=int)
-    parser.add_argument("--max_distance", nargs="?", const=None, default=10000, type=int)
+    parser.add_argument(
+        "--max_distance", nargs="?", const=None, default=10000, type=int
+    )
     parser.add_argument("--system_name", nargs="?", const=None, default=None)
     parser.add_argument("--initial_systems", nargs="?", const=None, default=None)
-    parser.add_argument("--max_nodes_visited", nargs="?", const=None, default=None, type=int)
+    parser.add_argument(
+        "--max_nodes_visited", nargs="?", const=None, default=None, type=int
+    )
 
     args = parser.parse_args()
     ed_main = EDMain.create()
     ed_main.logging_utils.info("CLI command received: {}", args.command)
 
+    # Keep command dispatch in one match so each branch owns its own
+    # argument validation and output formatting.
     match args.command:
         case "ping":
             print(ed_main.ping())
@@ -137,7 +149,9 @@ def main() -> None:
         case "system_info":
             start = time.perf_counter()
             if not args.system_name:
-                print("Error: The --system_name argument is requried with system_info command")
+                print(
+                    "Error: The --system_name argument is requried with system_info command"
+                )
                 parser.print_help()
                 sys.exit(1)
             print(args.system_name)
@@ -145,6 +159,7 @@ def main() -> None:
             print(f"Execution time: {_elapsed_ms(start)} ms")
         case "path":
             start = time.perf_counter()
+            # Fail fast on missing required args before invoking services.
             if not args.initial:
                 print("Error: The --initial argument is requried with path command")
                 parser.print_help()
@@ -169,11 +184,15 @@ def main() -> None:
         case "calc_systems_distance":
             start = time.perf_counter()
             if not args.initial:
-                print("Error: The --initial argument is requried with calc_systems_distance command")
+                print(
+                    "Error: The --initial argument is requried with calc_systems_distance command"
+                )
                 parser.print_help()
                 sys.exit(1)
             if not args.destination:
-                print("Error: The --destination argument is requried with calc_systems_distance command")
+                print(
+                    "Error: The --destination argument is requried with calc_systems_distance command"
+                )
                 parser.print_help()
                 sys.exit(1)
             print(
@@ -191,11 +210,15 @@ def main() -> None:
         case "bulk_load_cache":
             start = time.perf_counter()
             if not args.initial_systems:
-                print("Error: The --initial_systems argument is requried with bulk_load_cache command")
+                print(
+                    "Error: The --initial_systems argument is requried with bulk_load_cache command"
+                )
                 parser.print_help()
                 sys.exit(1)
             if args.max_nodes_visited is None:
-                print("Error: The --max_nodes_visited argument is requried with bulk_load_cache command")
+                print(
+                    "Error: The --max_nodes_visited argument is requried with bulk_load_cache command"
+                )
                 parser.print_help()
                 sys.exit(1)
             initial_system_names = [
@@ -203,11 +226,14 @@ def main() -> None:
                 for system_name in args.initial_systems.split(",")
                 if system_name.strip()
             ]
+            # Delegate traversal/progress internals to route service layer.
             loaded_systems = ed_main.bulk_load_cache(
                 initial_system_names,
                 args.max_nodes_visited,
             )
-            print(f"Loaded {len(loaded_systems)} systems from seeds {initial_system_names}")
+            print(
+                f"Loaded {len(loaded_systems)} systems from seeds {initial_system_names}"
+            )
             print(f"Execution time: {_elapsed_ms(start)} ms")
 
 

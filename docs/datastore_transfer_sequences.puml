@@ -1,63 +1,79 @@
-@startuml import_redis
-actor User
-participant "CLI (argparse)" as CLI
-participant "import_redis.main" as Main
-participant "EDRedis Factory" as RedisFactory
-participant "EDRedis" as RedisDB
-
-User -> CLI : python src/import_redis.py [--import-dir]
-CLI -> Main : parsed args
-Main -> RedisFactory : EDRedis.create()
-RedisFactory --> Main : redis_db
-Main -> RedisDB : import_datasource(import_dir)
-RedisDB --> Main : done
-Main --> User : process exit
-@enduml
-
-@startuml export_redis
-actor User
-participant "CLI (argparse)" as CLI
-participant "export_redis.main" as Main
-participant "EDRedis Factory" as RedisFactory
-participant "EDRedis" as RedisDB
-
-User -> CLI : python src/export_redis.py [--export-dir]
-CLI -> Main : parsed args
-Main -> RedisFactory : EDRedis.create()
-RedisFactory --> Main : redis_db
-Main -> RedisDB : export_datasource(export_dir)
-RedisDB --> Main : done
-Main --> User : process exit
-@enduml
-
 @startuml import_tinydb
+title import_tinydb.py
+
 actor User
 participant "CLI (argparse)" as CLI
 participant "import_tinydb.main" as Main
-participant "EDTinyDB Factory" as TinyFactory
+participant "EDLoggingUtils" as Logging
 participant "EDTinyDB" as TinyDB
 
 User -> CLI : python src/import_tinydb.py [--import-dir]
-CLI -> Main : parsed args
-Main -> TinyFactory : EDTinyDB.create()
-TinyFactory --> Main : tinydb
-Main -> TinyDB : import_datasource(import_dir)
+CLI -> Main : parse_args()
+Main -> Logging : EDLoggingUtils.create()
+Logging --> Main : logging_utils
+Main -> TinyDB : EDTinyDB.create(logging_utils)
+TinyDB --> Main : tinydb
+Main -> TinyDB : import_datasource(args.import_dir)
 TinyDB --> Main : done
 Main --> User : process exit
 @enduml
 
 @startuml export_tinydb
+title export_tinydb.py
+
 actor User
 participant "CLI (argparse)" as CLI
 participant "export_tinydb.main" as Main
-participant "EDTinyDB Factory" as TinyFactory
+participant "EDLoggingUtils" as Logging
 participant "EDTinyDB" as TinyDB
 
 User -> CLI : python src/export_tinydb.py [--export-dir]
-CLI -> Main : parsed args
-Main -> TinyFactory : EDTinyDB.create()
-TinyFactory --> Main : tinydb
-Main -> TinyDB : export_datasource(export_dir)
+CLI -> Main : parse_args()
+Main -> Logging : EDLoggingUtils.create()
+Logging --> Main : logging_utils
+Main -> TinyDB : EDTinyDB.create(logging_utils)
+TinyDB --> Main : database
+Main -> TinyDB : export_datasource(args.export_dir)
 TinyDB --> Main : done
+Main --> User : process exit
+@enduml
+
+@startuml import_redis
+title import_redis.py
+
+actor User
+participant "CLI (argparse)" as CLI
+participant "import_redis.main" as Main
+participant "EDLoggingUtils" as Logging
+participant "EDRedis" as RedisDB
+
+User -> CLI : python src/import_redis.py [--import-dir]
+CLI -> Main : parse_args()
+Main -> Logging : EDLoggingUtils.create()
+Logging --> Main : logging_utils
+Main -> RedisDB : EDRedis.create(logging_utils)
+RedisDB --> Main : redis_db
+Main -> RedisDB : import_datasource(args.import_dir)
+RedisDB --> Main : done
+Main --> User : process exit
+@enduml
+
+@startuml export_redis
+title export_redis.py
+
+actor User
+participant "CLI (argparse)" as CLI
+participant "export_redis.main" as Main
+participant "EDLoggingUtils" as Logging
+participant "EDRedis" as RedisDB
+
+User -> CLI : python src/export_redis.py [--export-dir]
+CLI -> Main : parse_args()
+Main -> Logging : EDLoggingUtils.create()
+Logging --> Main : logging_utils
+Main -> RedisDB : EDRedis.create(logging_utils)
+RedisDB --> Main : database
+Main -> RedisDB : export_datasource(args.export_dir)
+RedisDB --> Main : done
 Main --> User : process exit
 @enduml

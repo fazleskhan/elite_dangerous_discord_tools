@@ -19,6 +19,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Reuse shared logging singleton and backend factory composition.
     redis_db = EDRedis.create(logging_utils=EDLoggingUtils.create())
     redis_db.import_datasource(args.import_dir)
 

@@ -4,7 +4,9 @@ from ed_protocols import BulkLoadProtocol, LoggingProtocol, ProgressFn
 
 
 class EDBulkLoadCacheService:
-    def __init__(self, bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol) -> None:
+    def __init__(
+        self, bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol
+    ) -> None:
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
         else:
@@ -27,6 +29,7 @@ class EDBulkLoadCacheService:
         max_nodes_visited: int,
         progress_callback: ProgressFn,
     ) -> list[str]:
+        # Thin service wrapper so route layer depends on protocol, not algorithm concrete.
         self._logging_utils.info(
             "Bulk loading cache from seeds={} max_nodes_visited={}",
             initial_system_names,

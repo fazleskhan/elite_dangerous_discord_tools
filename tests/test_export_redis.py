@@ -16,9 +16,7 @@ def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):
 
     class FakeEDRedis:
         @staticmethod
-        def create(
-            datasource_name: str = "ed_route", *, logging_utils=None
-        ):
+        def create(datasource_name: str = "ed_route", *, logging_utils=None):
             return fake_db
 
     fake_db = FakeRedisDB()

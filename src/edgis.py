@@ -15,6 +15,7 @@ from ed_constants import (
 
 """Thin HTTP client wrappers for EDGIS system and neighbor lookups."""
 
+
 def main() -> None: ...
 
 

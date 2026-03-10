@@ -19,6 +19,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Reuse shared logging singleton and backend factory composition.
     tinydb = EDTinyDB.create(logging_utils=EDLoggingUtils.create())
     tinydb.import_datasource(args.import_dir)
 
