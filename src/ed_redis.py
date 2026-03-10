@@ -37,38 +37,58 @@ def main() -> None: ...
 class EDRedis:
     @staticmethod
     def create(
+        logging_utils: LoggingProtocol,
         datasource_name: str | None = None,
         redis_url: str | None = None,
-        *,
-        logging_utils: LoggingProtocol,
+        max_connections: int | None = None
     ) -> "EDRedis":
         # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
+        resolved_redis_url = (
+            redis_url if redis_url is not None else EDRedis._resolve_redis_url()
+        )
         return EDRedis(
             datasource_name or os.getenv(redis_app_name_env, default_redis_store_name),
-            redis_url=redis_url,
+            redis_url=resolved_redis_url,
             logging_utils=logging_utils,
+            max_connections=max_connections
         )
 
     def __init__(
         self,
         datasource_name: str,
-        redis_url: str | None = None,
-        *,
+        redis_url: str,
         logging_utils: LoggingProtocol,
+        max_connections: int
     ):
+        if redis_url is None:
+            raise ValueError("Redis URL of type str is a required argument")
+        else:
+            self._redis_url = redis_url
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
-        self.datasource_name = datasource_name
+        else:
+            self.logger = logging_utils
+        if datasource_name is None:
+            raise ValueError("datasource_name of type str is required")
+        else:
+            self.datasource_name = datasource_name
+        
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
-        self.logger = logging_utils
-        self._redis_url = self._resolve_redis_url(redis_url)
-        self._max_connections = int(
-            os.getenv(redis_max_connections_env, str(self._default_max_connections()))
+        
+        self._max_connections = (
+            max_connections
+            if max_connections is not None
+            else int(
+                os.getenv(
+                    redis_max_connections_env,
+                    str(self._default_max_connections()),
+                )
+            )
         )
         atexit.register(self.close)
-        self.logger.info("DB backend: {}", redis_name)
+        self.logger.info("Redis backend: {}", redis_name)
 
     # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(self, import_dir: str = default_init_dir) -> None:
@@ -141,7 +161,7 @@ class EDRedis:
         return physical_cores
 
     @staticmethod
-    def _resolve_redis_url(redis_url: str | None) -> str:
+    def _resolve_redis_url(redis_url: str | None = None) -> str:
         final_redis_url = redis_url or os.getenv(redis_url_env)
         if not final_redis_url:
             raise ValueError(
