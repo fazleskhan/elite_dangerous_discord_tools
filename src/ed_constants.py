@@ -25,10 +25,13 @@ systems_field: str = "systems"
 
 # Common defaults and filenames.
 default_init_dir: str = "./init"
+default_export_dir: str = "./data/export"
 json_extension: str = ".json"
 default_tinydb_name: str = "./data/ed_route.db"
 default_discord_log_name: str = "discord_bot.log"
 default_redis_store_name: str = "eddt"
+import_dir_arg: str = "--import-dir"
+export_dir_arg: str = "--export-dir"
 
 # Datasource/backend names.
 datasource_type_env: str = "DATASOURCE_TYPE"

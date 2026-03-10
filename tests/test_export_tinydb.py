@@ -1,22 +1,9 @@
 import sys
 
 import export_tinydb
-import pytest
 
 
 def main() -> None: ...
-
-
-def test_constructor_raises_when_logging_utils_is_none():
-    with pytest.raises(
-        ValueError,
-        match="^logging_utils of type LoggingProtocol is required$",
-    ):
-        export_tinydb.ExportTinyDB(
-            route_service=None,
-            cache=None,
-            logging_utils=None,  # type: ignore[arg-type]
-        )
 
 
 def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):

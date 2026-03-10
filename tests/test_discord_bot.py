@@ -6,7 +6,7 @@ import asyncio
 from discord.ext import commands
 from unittest.mock import MagicMock
 
-from discord_bot import DiscordBot
+from ed_discord_bot import EDDiscordBot
 from ed_logging_utils import EDLoggingUtils
 
 
@@ -73,7 +73,7 @@ def bot():
     intents.message_content = True
     intents.members = True
     bot_instance = commands.Bot(command_prefix="!", intents=intents)
-    return DiscordBot(
+    return EDDiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
         bot=bot_instance,
@@ -100,7 +100,7 @@ def test_constructor_raises_when_logging_utils_is_none():
         ValueError,
         match="^logging_utils of type LoggingProtocol is required$",
     ):
-        DiscordBot(
+        EDDiscordBot(
             ed_route_service=FakeRoute(),
             token="test-token",
             bot=bot_instance,

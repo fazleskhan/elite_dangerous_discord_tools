@@ -1,4 +1,4 @@
-"""Integration tests for DiscordBot using mock Discord objects.
+"""Integration tests for EDDiscordBot using mock Discord objects.
 
 Tests the bot's command handlers by simulating Discord interactions without
 requiring a live Discord connection. Creates mock guilds, channels, and users
@@ -12,7 +12,7 @@ import re
 from discord.ext import commands
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from discord_bot import DiscordBot
+from ed_discord_bot import EDDiscordBot
 from ed_logging_utils import EDLoggingUtils
 
 
@@ -71,7 +71,7 @@ def bot():
         command_prefix="!",
         intents=intents,
     )
-    return DiscordBot(
+    return EDDiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
         bot=bot_instance,
@@ -241,7 +241,7 @@ def test_default_intents_configuration():
     intents.message_content = True
     intents.members = True
     bot_instance = commands.Bot(command_prefix="!", intents=intents)
-    bot = DiscordBot(
+    bot = EDDiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
         bot=bot_instance,
