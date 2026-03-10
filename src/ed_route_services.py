@@ -3,10 +3,8 @@ from __future__ import annotations
 import asyncio
 import math
 import threading
-from typing import Any
 
-from ed_bfs import EDBfs
-from ed_bulk_load_algo import EDBulkLoadAlgo
+from ed_bfs_algo import EDBfsAlgo
 from ed_constants import (
     default_init_dir,
     system_info_coords_field,
@@ -16,6 +14,8 @@ from ed_constants import (
     system_info_z_field,
 )
 from ed_protocols import (
+    BfsProtocol,
+    BulkLoadProtocol,
     CacheProtocol,
     DatasourceProtocol,
     LoggingProtocol,
@@ -40,6 +40,7 @@ class EDInitDatasourceService:
         return EDInitDatasourceService(database, logging_utils)
 
     def run(self, import_dir: str = default_init_dir) -> None:
+        self._logging_utils.info("Initializing datasource from {}", import_dir)
         with self._lock:
             self._database.init_datasource(import_dir)
 
@@ -55,6 +56,10 @@ class EDGetSystemInfoService:
         return EDGetSystemInfoService(cache, logging_utils)
 
     def run(self, system_name: str) -> SystemInfo | None:
+        self._logging_utils.debug(
+            "Fetching system info via service for system={}",
+            system_name,
+        )
         with self._lock:
             return self._cache.find_system_info(system_name)
 
@@ -74,11 +79,13 @@ class EDGetAllSystemNamesService:
     def run(self) -> list[str]:
         with self._lock:
             system_infos = self._database.get_all_systems()
-        return [
+        results = [
             system_info[system_info_name_field]
             for system_info in system_infos
             if system_info_name_field in system_info
         ]
+        self._logging_utils.debug("Collected {} system names", len(results))
+        return results
 
 
 class EDCalcSystemsDistanceService:
@@ -100,6 +107,11 @@ class EDCalcSystemsDistanceService:
         return EDCalcSystemsDistanceService(get_system_info_service, logging_utils)
 
     def run(self, system_name_one: str, system_name_two: str) -> float:
+        self._logging_utils.debug(
+            "Calculating distance between systems: {} and {}",
+            system_name_one,
+            system_name_two,
+        )
         coords_one = self._get_system_coords(system_name_one)
         coords_two = self._get_system_coords(system_name_two)
         if coords_one is None or coords_two is None:
@@ -111,11 +123,18 @@ class EDCalcSystemsDistanceService:
             message = f"Could not load system info for: {', '.join(missing_systems)}"
             self._logging_utils.error(message)
             raise ValueError(message)
-        return math.sqrt(
+        distance = math.sqrt(
             (coords_two[0] - coords_one[0]) ** 2
             + (coords_two[1] - coords_one[1]) ** 2
             + (coords_two[2] - coords_one[2]) ** 2
         )
+        self._logging_utils.debug(
+            "Distance calculated for {} -> {}: {}",
+            system_name_one,
+            system_name_two,
+            distance,
+        )
+        return distance
 
     def _get_system_coords(self, system_name: str) -> tuple[float, float, float] | None:
         with self._coords_cache_lock:
@@ -141,7 +160,7 @@ class EDCalcSystemsDistanceService:
 class EDPathService:
     def __init__(
         self,
-        bfs: EDBfs,
+        bfs: BfsProtocol,
         calc_distance_service: EDCalcSystemsDistanceService,
         logging_utils: LoggingProtocol,
     ) -> None:
@@ -151,7 +170,7 @@ class EDPathService:
 
     @staticmethod
     def create(
-        bfs: EDBfs,
+        bfs: BfsProtocol,
         calc_distance_service: EDCalcSystemsDistanceService,
         logging_utils: LoggingProtocol,
     ) -> "EDPathService":
@@ -166,7 +185,7 @@ class EDPathService:
         max_distance: int,
         progress_callback: ProgressFn,
     ) -> list[str] | None:
-        return await asyncio.to_thread(
+        route = await asyncio.to_thread(
             self._bfs.travel,
             initial_system_name,
             destination_name,
@@ -175,25 +194,32 @@ class EDPathService:
             max_distance,
             progress_callback,
         )
+        self._logging_utils.info("Path calculation complete found={}", route is not None)
+        return route
 
 
 class EDBulkLoadCacheService:
-    def __init__(self, bulk_load: EDBulkLoadAlgo, logging_utils: LoggingProtocol) -> None:
+    def __init__(self, bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol) -> None:
         self._bulk_load = bulk_load
         self._logging_utils = logging_utils
 
     @staticmethod
     def create(
-        bulk_load: EDBulkLoadAlgo, logging_utils: LoggingProtocol
+        bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol
     ) -> "EDBulkLoadCacheService":
         return EDBulkLoadCacheService(bulk_load, logging_utils)
 
-    def run(
+    def load(
         self,
         initial_system_names: list[str],
         max_nodes_visited: int,
         progress_callback: ProgressFn,
     ) -> list[str]:
+        self._logging_utils.info(
+            "Bulk loading cache from seeds={} max_nodes_visited={}",
+            initial_system_names,
+            max_nodes_visited,
+        )
         return self._bulk_load.load(
             initial_system_names=initial_system_names,
             max_nodes_visited=max_nodes_visited,

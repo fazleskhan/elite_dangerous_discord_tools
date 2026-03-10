@@ -9,7 +9,10 @@ import os
 import inspect
 import time
 from typing import Awaitable, Callable, Iterator, Sequence, TypeVar
-import ed_factory
+import ed_datasource_factory
+import edgis_cache
+from edgis import EDGis
+from ed_route_service_factory import EDRouteServiceFactory
 from ed_logging_utils import EDLoggingUtils
 from ed_constants import default_init_dir, discord_token_env
 from ed_protocols import LoggingProtocol, RouteServiceProtocol
@@ -71,7 +74,21 @@ class EDDiscordBot:
         resolved_logging_utils.debug(
             "Creating DiscordBot with command_prefix={}", command_prefix
         )
-        resolved_route = route_service or ed_factory.create_route_service()
+        resolved_route = route_service
+        if resolved_route is None:
+            datasource = ed_datasource_factory.create_datasource()
+            gis = EDGis.create(resolved_logging_utils)
+            cache = edgis_cache.EDGisCache.create(
+                datasource,
+                logging_utils=resolved_logging_utils,
+                fetch_system_info_fn=gis.fetch_system_info,
+                fetch_neighbors_fn=gis.fetch_neighbors,
+            )
+            resolved_route = EDRouteServiceFactory.create(
+                datasource=datasource,
+                cache=cache,
+                logging_utils=resolved_logging_utils,
+            )
         resolved_bot = bot or commands.Bot(
             command_prefix=command_prefix,
             intents=intents_factory or EDDiscordBot._default_intents(),

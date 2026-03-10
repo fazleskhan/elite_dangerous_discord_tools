@@ -4,7 +4,10 @@ import sys
 import time
 from typing import Any
 
-import ed_factory
+import ed_datasource_factory
+import edgis_cache
+from edgis import EDGis
+from ed_route_service_factory import EDRouteServiceFactory
 from ed_logging_utils import EDLoggingUtils
 from ed_constants import default_init_dir
 from ed_protocols import LoggingProtocol
@@ -80,8 +83,20 @@ class EDMain:
         )
 
 
-ed_service = ed_factory.create_route_service()
 app_logging_utils = EDLoggingUtils()
+ed_datasource = ed_datasource_factory.create_datasource()
+ed_gis = EDGis.create(app_logging_utils)
+ed_cache = edgis_cache.EDGisCache.create(
+    ed_datasource,
+    logging_utils=app_logging_utils,
+    fetch_system_info_fn=ed_gis.fetch_system_info,
+    fetch_neighbors_fn=ed_gis.fetch_neighbors,
+)
+ed_service = EDRouteServiceFactory.create(
+    datasource=ed_datasource,
+    cache=ed_cache,
+    logging_utils=app_logging_utils,
+)
 ed_main = EDMain.create(
     ed_service,
     cache=getattr(ed_service, "cache", None),

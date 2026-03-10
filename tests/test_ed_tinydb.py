@@ -1,4 +1,4 @@
-import ed_factory
+import ed_datasource_factory
 import ed_tinydb
 import pytest
 import test_data
@@ -41,7 +41,7 @@ def del_prior_database():
 
 @pytest.fixture(scope="module")
 def database(del_prior_database):
-    yield ed_factory.create_datasource(
+    yield ed_datasource_factory.create_datasource(
         datasource_name=test_db_filename, datasource_type="tinydb"
     )
 
@@ -76,7 +76,7 @@ def test_constructor_raises_when_logging_utils_is_none(tmp_path):
 
 
 def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
-    database = ed_factory.create_datasource(
+    database = ed_datasource_factory.create_datasource(
         datasource_name=str(tmp_path / "write_lock_test.db"),
         datasource_type="tinydb",
     )
