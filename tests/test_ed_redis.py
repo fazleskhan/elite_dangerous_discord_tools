@@ -1,179 +1,500 @@
+import asyncio
+import json
 import threading
 import time
+from pathlib import Path
+from typing import Any
 
 import pytest
-import test_data
 
-from ed_redis import EDRedis
-
-REDIS_TEST_URL = "redis://localhost:6379/0"
+import ed_redis
+from ed_constants import (
+    default_redis_store_name,
+    redis_app_name_env,
+    redis_max_connections_env,
+    redis_name,
+    redis_url_env,
+    system_info_name_field,
+    system_info_neighbors_field,
+    value_key,
+)
 
 
 def main() -> None: ...
 
 
-class _FakeRedisStore:
-    def __init__(self):
+class ThreadSafeLogger:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self.calls: list[tuple[str, str, tuple[Any, ...]]] = []
+
+    def _record(self, level: str, message: str, args: tuple[Any, ...]) -> None:
+        with self._lock:
+            self.calls.append((level, message, args))
+
+    def debug(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("debug", message, args)
+
+    def info(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("info", message, args)
+
+    def warning(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("warning", message, args)
+
+    def error(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("error", message, args)
+
+    def exception(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("exception", message, args)
+
+    def opt(self, *args: Any, **kwargs: Any) -> "ThreadSafeLogger":
+        return self
+
+    def messages(self, level: str) -> list[tuple[str, tuple[Any, ...]]]:
+        with self._lock:
+            return [
+                (message, args)
+                for call_level, message, args in self.calls
+                if call_level == level
+            ]
+
+
+class FakeRedisStore:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
         self.strings: dict[str, str] = {}
         self.sets: dict[str, set[str]] = {}
 
+    def exists(self, key: str) -> int:
+        with self._lock:
+            return 1 if key in self.strings else 0
 
-class _FakeRedisClient:
-    def __init__(self, store: _FakeRedisStore):
+    def set(self, key: str, value: str) -> bool:
+        with self._lock:
+            self.strings[key] = value
+        return True
+
+    def get(self, key: str) -> str | None:
+        with self._lock:
+            return self.strings.get(key)
+
+    def sadd(self, key: str, member: str) -> int:
+        with self._lock:
+            members = self.sets.setdefault(key, set())
+            size_before = len(members)
+            members.add(member)
+            return len(members) - size_before
+
+    def smembers(self, key: str) -> set[str]:
+        with self._lock:
+            return set(self.sets.get(key, set()))
+
+    def mget(self, keys: list[str]) -> list[str | None]:
+        with self._lock:
+            return [self.strings.get(key) for key in keys]
+
+
+class FakeRedisClient:
+    def __init__(self, store: FakeRedisStore) -> None:
         self._store = store
         self.closed = False
 
     async def exists(self, key: str) -> int:
-        return 1 if key in self._store.strings else 0
+        return self._store.exists(key)
 
     async def set(self, key: str, value: str) -> bool:
-        self._store.strings[key] = value
-        return True
+        return self._store.set(key, value)
 
     async def get(self, key: str) -> str | None:
-        return self._store.strings.get(key)
+        return self._store.get(key)
 
     async def sadd(self, key: str, member: str) -> int:
-        members = self._store.sets.setdefault(key, set())
-        size_before = len(members)
-        members.add(member)
-        return len(members) - size_before
+        return self._store.sadd(key, member)
 
     async def smembers(self, key: str) -> set[str]:
-        return self._store.sets.get(key, set())
+        return self._store.smembers(key)
 
     async def mget(self, keys: list[str]) -> list[str | None]:
-        return [self._store.strings.get(key) for key in keys]
+        return self._store.mget(keys)
 
     async def aclose(self) -> None:
         self.closed = True
 
 
-class _FakeLoggingUtils:
-    def debug(self, _message: str, *_args, **_kwargs) -> None:
-        return None
+class LegacyCloseRedisClient:
+    def __init__(self, store: FakeRedisStore) -> None:
+        self._store = store
+        self.closed = False
+        self.sync_close_calls = 0
 
-    def info(self, _message: str, *_args, **_kwargs) -> None:
-        return None
+    def close(self) -> None:
+        self.sync_close_calls += 1
+        self.closed = True
 
-    def warning(self, _message: str, *_args, **_kwargs) -> None:
-        return None
 
-    def error(self, _message: str, *_args, **_kwargs) -> None:
-        return None
+class CoroutineCloseRedisClient:
+    def __init__(self, store: FakeRedisStore) -> None:
+        self._store = store
+        self.closed = False
+        self.close_calls = 0
+
+    async def close(self) -> None:
+        self.close_calls += 1
+        self.closed = True
+
+
+class FakeRedisFactory:
+    def __init__(self, store: FakeRedisStore) -> None:
+        self.store = store
+        self.clients: list[FakeRedisClient] = []
+        self.calls: list[dict[str, Any]] = []
+        self.client_cls: type[FakeRedisClient] = FakeRedisClient
+
+    def from_url(
+        self, url: str, decode_responses: bool = False, max_connections: int | None = None
+    ) -> FakeRedisClient:
+        self.calls.append(
+            {
+                "url": url,
+                "decode_responses": decode_responses,
+                "max_connections": max_connections,
+            }
+        )
+        client = self.client_cls(self.store)
+        self.clients.append(client)
+        return client
 
 
 @pytest.fixture()
-def fake_logging():
-    return _FakeLoggingUtils()
+def logger() -> ThreadSafeLogger:
+    return ThreadSafeLogger()
 
 
 @pytest.fixture()
-def fake_redis(monkeypatch):
-    import ed_redis
-
-    store = _FakeRedisStore()
-    fake_client = _FakeRedisClient(store)
-    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 8)
-    monkeypatch.delenv("REDIS_MAX_CONNECTIONS", raising=False)
-
-    def _fake_from_url(
-        _url: str, decode_responses: bool = False, max_connections: int | None = None
-    ):
-        assert decode_responses is True
-        assert max_connections == 8
-        return fake_client
-
-    monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    return {"store": store, "client": fake_client}
+def sample_system() -> dict[str, Any]:
+    return {
+        "name": "Sol",
+        "id64": 1,
+        "coords": {"x": 0, "y": 0, "z": 0},
+    }
 
 
-def test_redis_crud_system(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db",
-        REDIS_TEST_URL,
-        logging_utils=fake_logging,
-        max_connections=8,
+@pytest.fixture()
+def sample_neighbors() -> list[dict[str, Any]]:
+    return [
+        {"name": "Alpha Centauri", "id64": 2},
+        {"name": "Barnard's Star", "id64": 3},
+    ]
+
+
+@pytest.fixture()
+def fake_redis(monkeypatch: pytest.MonkeyPatch) -> FakeRedisFactory:
+    store = FakeRedisStore()
+    factory = FakeRedisFactory(store)
+    monkeypatch.setattr(ed_redis.redis, "from_url", factory.from_url)
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 4)
+    monkeypatch.setenv(redis_url_env, "redis://localhost:6379/0")
+    monkeypatch.delenv(redis_max_connections_env, raising=False)
+    return factory
+
+
+@pytest.fixture()
+def redis_backend(logger: ThreadSafeLogger, fake_redis: FakeRedisFactory) -> ed_redis.EDRedis:
+    return ed_redis.EDRedis.create(logging_utils=logger)
+
+
+@pytest.mark.asyncio
+async def test_close_client_async_prefers_aclose() -> None:
+    client = FakeRedisClient(FakeRedisStore())
+    await ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)._close_client_async(client)
+    assert client.closed is True
+
+
+@pytest.mark.asyncio
+async def test_close_client_async_supports_legacy_sync_close() -> None:
+    client = LegacyCloseRedisClient(FakeRedisStore())
+
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)
+    await backend._close_client_async(client)
+
+    assert client.closed is True
+    assert client.sync_close_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_close_client_async_supports_legacy_coroutine_close() -> None:
+    client = CoroutineCloseRedisClient(FakeRedisStore())
+
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)
+    await backend._close_client_async(client)
+
+    assert client.closed is True
+    assert client.close_calls == 1
+
+
+def test_create_uses_explicit_name_then_env_then_default(
+    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
+) -> None:
+    explicit = ed_redis.EDRedis.create(
+        logging_utils=logger,
+        datasource_name="explicit-app",
+        redis_url="redis://explicit:6379/0",
+        max_connections=7,
     )
+    assert explicit.datasource_name == "explicit-app"
+    assert explicit._redis_url == "redis://explicit:6379/0"
+    assert explicit._max_connections == 7
 
-    database.insert_system(test_data.sol_data)
-    database.insert_system(test_data.sol_data)
-    assert database.get_system("Sol") == test_data.sol_data
-    database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
-    assert database.get_system("Sol")["neighbors"] == test_data.sol_complete_neighbors
+    monkeypatch.setenv(redis_app_name_env, "env-app")
+    from_env = ed_redis.EDRedis.create(logging_utils=logger)
+    assert from_env.datasource_name == "env-app"
 
-
-def test_redis_get_all_systems(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db",
-        REDIS_TEST_URL,
-        logging_utils=fake_logging,
-        max_connections=None,  # type: ignore[arg-type]
-    )
-    database.insert_system(test_data.sol_data)
-    database.insert_system(test_data.wise_data)
-
-    systems = database.get_all_systems()
-    system_names = {entry["name"] for entry in systems}
-    assert system_names == {"Sol", "WISE 0410+1502"}
+    monkeypatch.delenv(redis_app_name_env, raising=False)
+    defaulted = ed_redis.EDRedis.create(logging_utils=logger)
+    assert defaulted.datasource_name == default_redis_store_name
 
 
-def test_redis_get_system_when_record_not_available(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db",
-        REDIS_TEST_URL,
-        logging_utils=fake_logging,
-        max_connections=None,  # type: ignore[arg-type]
-    )
-    assert database.get_system("NonExistentSystem") is None
+def test_constructor_validates_inputs_and_logs_backend(logger: ThreadSafeLogger) -> None:
+    with pytest.raises(ValueError, match="Redis URL of type str is a required argument"):
+        ed_redis.EDRedis("test", None, logger, 1)  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+        ed_redis.EDRedis("test", "redis://localhost:6379/0", None, 1)  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match="datasource_name of type str is required"):
+        ed_redis.EDRedis(None, "redis://localhost:6379/0", logger, 1)  # type: ignore[arg-type]
+
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, 1)
+    assert backend.datasource_name == "test"
+    assert ("Redis backend: {}", (redis_name,)) in logger.messages("info")
 
 
-def test_redis_add_neighbors_when_record_not_available(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db",
-        REDIS_TEST_URL,
-        logging_utils=fake_logging,
-        max_connections=None,  # type: ignore[arg-type]
-    )
-    database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
+def test_default_max_connections_handles_cpu_count_fallbacks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: None)
+    assert ed_redis.EDRedis._default_max_connections() == 1
+
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 0)
+    assert ed_redis.EDRedis._default_max_connections() == 1
+
+    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 6)
+    assert ed_redis.EDRedis._default_max_connections() == 6
 
 
-def test_redis_requires_redis_url(monkeypatch, fake_logging):
-    monkeypatch.delenv("REDIS_URL", raising=False)
+def test_resolve_redis_url_validates_supported_schemes_and_hosts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv(redis_url_env, raising=False)
     with pytest.raises(ValueError, match="REDIS_URL is required"):
-        EDRedis.create(logging_utils=fake_logging, max_connections=8)
+        ed_redis.EDRedis._resolve_redis_url()
+
+    with pytest.raises(ValueError, match="must use one of these schemes"):
+        ed_redis.EDRedis._resolve_redis_url("http://localhost:6379/0")
+
+    with pytest.raises(ValueError, match="must include a host"):
+        ed_redis.EDRedis._resolve_redis_url("redis:///0")
+
+    assert ed_redis.EDRedis._resolve_redis_url("redis://localhost:6379/0") == "redis://localhost:6379/0"
+    assert ed_redis.EDRedis._resolve_redis_url("rediss://localhost:6379/0") == "rediss://localhost:6379/0"
+    assert ed_redis.EDRedis._resolve_redis_url("unix:///tmp/redis.sock") == "unix:///tmp/redis.sock"
 
 
-def test_redis_constructor_raises_when_redis_url_is_none(fake_logging):
-    with pytest.raises(
-        ValueError, match="Redis URL of type str is a required argument"
-    ):
-        EDRedis("unit-test-db", None, logging_utils=fake_logging, max_connections=8)  # type: ignore[arg-type]
+def test_run_async_handles_plain_calls_and_existing_event_loop(
+    redis_backend: ed_redis.EDRedis,
+) -> None:
+    async def returns_value() -> str:
+        await asyncio.sleep(0)
+        return "ok"
+
+    assert redis_backend._run_async(returns_value()) == "ok"
+
+    async def run_inside_loop() -> str:
+        return redis_backend._run_async(returns_value())
+
+    assert asyncio.run(run_inside_loop()) == "ok"
 
 
-def test_redis_constructor_raises_when_logging_utils_is_none(monkeypatch):
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
-        EDRedis("unit-test-db", REDIS_TEST_URL, logging_utils=None, max_connections=8)  # type: ignore[arg-type]
+def test_run_async_propagates_worker_thread_exceptions(
+    redis_backend: ed_redis.EDRedis,
+) -> None:
+    async def raises() -> None:
+        await asyncio.sleep(0)
+        raise RuntimeError("boom")
+
+    async def run_inside_loop() -> None:
+        redis_backend._run_async(raises())
+
+    with pytest.raises(RuntimeError, match="boom"):
+        asyncio.run(run_inside_loop())
 
 
-def test_redis_write_lock_serializes_insert_and_add_neighbors(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db",
-        REDIS_TEST_URL,
-        logging_utils=fake_logging,
-        max_connections=None,  # type: ignore[arg-type]
+def test_insert_get_add_neighbors_and_get_all_systems_round_trip(
+    redis_backend: ed_redis.EDRedis,
+    logger: ThreadSafeLogger,
+    sample_system: dict[str, Any],
+    sample_neighbors: list[dict[str, Any]],
+) -> None:
+    second_system = {"name": "Lave", "id64": 4}
+
+    redis_backend.insert_system(sample_system)
+    redis_backend.insert_system(sample_system)
+    redis_backend.insert_system(second_system)
+
+    assert redis_backend.get_system("Sol") == sample_system
+
+    redis_backend.add_neighbors(sample_system, sample_neighbors)
+    updated = redis_backend.get_system("Sol")
+    assert updated is not None
+    assert updated[system_info_neighbors_field] == sample_neighbors
+
+    systems = redis_backend.get_all_systems()
+    assert [system[system_info_name_field] for system in systems] == ["Lave", "Sol"]
+
+    debug_messages = logger.messages("debug")
+    assert ("Inserted system={}", ("Sol",)) in debug_messages
+    assert ("Skipped duplicate system insert for system={}", ("Sol",)) in debug_messages
+    assert (
+        "Updated neighbors for system={} updated_rows={}",
+        ("Sol", 1),
+    ) in debug_messages
+    assert ("Loaded all systems count={}", (2,)) in debug_messages
+
+
+def test_get_system_returns_none_for_missing_record_and_logs_lookup(
+    redis_backend: ed_redis.EDRedis, logger: ThreadSafeLogger
+) -> None:
+    assert redis_backend.get_system("Missing") is None
+    assert ("Lookup system={} found=False", ("Missing",)) in logger.messages("debug")
+
+
+def test_get_system_logs_exception_on_lookup_failure(
+    redis_backend: ed_redis.EDRedis, logger: ThreadSafeLogger
+) -> None:
+    def fake_run_async(coro: Any) -> Any:
+        if hasattr(coro, "close"):
+            coro.close()
+        raise RuntimeError("lookup failed")
+
+    redis_backend._run_async = fake_run_async  # type: ignore[method-assign]
+
+    assert redis_backend.get_system("Sol") is None
+    assert ("Lookup failed for system={}", ("Sol",)) in logger.messages("exception")
+
+
+def test_add_neighbors_for_missing_record_logs_zero_updates(
+    redis_backend: ed_redis.EDRedis,
+    logger: ThreadSafeLogger,
+    sample_system: dict[str, Any],
+    sample_neighbors: list[dict[str, Any]],
+) -> None:
+    redis_backend.add_neighbors(sample_system, sample_neighbors)
+    assert (
+        "Updated neighbors for system={} updated_rows=0",
+        ("Sol",),
+    ) in logger.messages("debug")
+
+
+def test_get_all_systems_returns_empty_when_store_has_no_members(
+    redis_backend: ed_redis.EDRedis, logger: ThreadSafeLogger
+) -> None:
+    assert redis_backend.get_all_systems() == []
+    assert ("Loaded all systems count=0", ()) in logger.messages("debug")
+
+
+def test_import_datasource_validates_dir_and_imports_json_payloads(
+    tmp_path: Path, redis_backend: ed_redis.EDRedis
+) -> None:
+    missing_dir = tmp_path / "missing"
+    with pytest.raises(FileNotFoundError, match="Import directory does not exist"):
+        redis_backend.import_datasource(str(missing_dir))
+
+    import_dir = tmp_path / "import"
+    import_dir.mkdir()
+    (import_dir / "systems.json").write_text(
+        json.dumps(
+            [
+                {"name": "Sol", "id64": 1},
+                {"name": "Lave", "id64": 2},
+                "ignored",
+            ]
+        ),
+        encoding="utf-8",
     )
+    (import_dir / "single.json").write_text(
+        json.dumps({"name": "Achenar", "id64": 3}),
+        encoding="utf-8",
+    )
+    (import_dir / "skip.txt").write_text("ignored", encoding="utf-8")
+
+    redis_backend.init_datasource(str(import_dir))
+
+    assert [system["name"] for system in redis_backend.get_all_systems()] == [
+        "Achenar",
+        "Lave",
+        "Sol",
+    ]
+
+
+def test_export_datasource_writes_safe_filenames_and_skips_missing_records(
+    tmp_path: Path, redis_backend: ed_redis.EDRedis
+) -> None:
+    redis_backend.insert_system({"name": "Sol/Prime", "id64": 1})
+    redis_backend.insert_system({"name": "Lave", "id64": 2})
+
+    export_dir = tmp_path / "export"
+    redis_backend.export_datasource(str(export_dir))
+
+    sol_path = export_dir / "Sol_Prime.json"
+    lave_path = export_dir / "Lave.json"
+
+    assert sol_path.exists() is True
+    assert lave_path.exists() is True
+    assert json.loads(sol_path.read_text(encoding="utf-8"))["name"] == "Sol/Prime"
+    assert json.loads(lave_path.read_text(encoding="utf-8"))["name"] == "Lave"
+
+
+def test_export_datasource_skips_blank_names_and_lookup_misses(tmp_path: Path) -> None:
+    logger = ThreadSafeLogger()
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, 1)
+    export_dir = tmp_path / "export"
+
+    backend.get_all_systems = lambda: [  # type: ignore[method-assign]
+        {"name": ""},
+        {"name": "Sol"},
+    ]
+    backend.get_system = lambda system_name: None if system_name == "Sol" else {"name": system_name}  # type: ignore[method-assign]
+
+    backend.export_datasource(str(export_dir))
+
+    assert list(export_dir.iterdir()) == []
+
+
+def test_new_client_uses_env_max_connections_when_not_explicit(
+    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
+) -> None:
+    monkeypatch.setenv(redis_max_connections_env, "13")
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, None)  # type: ignore[arg-type]
+
+    client = backend._new_client()
+
+    assert isinstance(client, FakeRedisClient)
+    assert fake_redis.calls[-1]["decode_responses"] is True
+    assert fake_redis.calls[-1]["max_connections"] == 13
+
+
+def test_write_lock_serializes_multithreaded_mutations(
+    redis_backend: ed_redis.EDRedis,
+    sample_system: dict[str, Any],
+    sample_neighbors: list[dict[str, Any]],
+) -> None:
     barrier = threading.Barrier(2)
     tracker_lock = threading.Lock()
     active_writes = 0
     max_active_writes = 0
     call_count = 0
 
-    def fake_run_async(coro):
+    def fake_run_async(coro: Any) -> None:
         nonlocal active_writes, max_active_writes, call_count
         with tracker_lock:
             call_count += 1
@@ -189,150 +510,89 @@ def test_redis_write_lock_serializes_insert_and_add_neighbors(fake_redis, fake_l
             coro.close()
         return None
 
-    database._run_async = fake_run_async  # type: ignore[method-assign]
+    redis_backend._run_async = fake_run_async  # type: ignore[method-assign]
 
     def do_insert() -> None:
         barrier.wait()
-        database.insert_system(test_data.sol_data)
+        redis_backend.insert_system(sample_system)
 
     def do_add_neighbors() -> None:
         barrier.wait()
-        database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
+        redis_backend.add_neighbors(sample_system, sample_neighbors)
 
-    insert_thread = threading.Thread(target=do_insert)
-    add_neighbors_thread = threading.Thread(target=do_add_neighbors)
-    insert_thread.start()
-    add_neighbors_thread.start()
-    insert_thread.join()
-    add_neighbors_thread.join()
+    threads = [
+        threading.Thread(target=do_insert),
+        threading.Thread(target=do_add_neighbors),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
     assert call_count == 2
     assert max_active_writes == 1
 
 
-def test_redis_close_closes_client_and_prevents_operations(fake_redis, fake_logging):
-    database = EDRedis(
-        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
-    )
-    database.close()
+def test_close_is_idempotent_and_prevents_future_operations(
+    redis_backend: ed_redis.EDRedis, sample_system: dict[str, Any]
+) -> None:
+    redis_backend.close()
+    redis_backend.close()
+
     with pytest.raises(RuntimeError, match="Redis client is closed"):
-        database.insert_system(test_data.sol_data)
+        redis_backend.insert_system(sample_system)
+
+    with pytest.raises(RuntimeError, match="Redis client is closed"):
+        redis_backend.get_all_systems()
 
 
-def test_redis_app_name_env_used_for_system_key(monkeypatch, fake_logging):
-    import ed_redis
+def test_close_lock_is_thread_safe(redis_backend: ed_redis.EDRedis) -> None:
+    threads = [threading.Thread(target=redis_backend.close) for _ in range(8)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    monkeypatch.setenv("REDIS_APP_NAME", "myapp")
-    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 4)
-    monkeypatch.setattr(
-        ed_redis.redis,
-        "from_url",
-        lambda *_args, **_kwargs: _FakeRedisClient(_FakeRedisStore()),
-    )
-
-    database = EDRedis.create(logging_utils=fake_logging, max_connections=8)
-    assert database._system_key("Sol") == "myapp:system:Sol"
+    assert redis_backend._closed is True
 
 
-def test_redis_max_connections_explicit_arg_overrides_env(monkeypatch, fake_logging):
-    import ed_redis
+def test_logger_collects_multithreaded_messages_without_losing_entries(
+    logger: ThreadSafeLogger,
+) -> None:
+    barrier = threading.Barrier(4)
 
-    captured: dict[str, int | None] = {"max_connections": None}
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    monkeypatch.setenv("REDIS_MAX_CONNECTIONS", "13")
+    def worker(index: int) -> None:
+        barrier.wait()
+        for offset in range(25):
+            logger.debug("message {}", index * 25 + offset)
 
-    def _fake_from_url(
-        _url: str, decode_responses: bool = False, max_connections: int | None = None
-    ):
-        assert decode_responses is True
-        captured["max_connections"] = max_connections
-        return _FakeRedisClient(_FakeRedisStore())
+    threads = [threading.Thread(target=worker, args=(index,)) for index in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
-    monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
-
-    database = EDRedis(
-        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
-    )
-    database._new_client()
-
-    assert captured["max_connections"] == 8
+    debug_messages = logger.messages("debug")
+    assert len(debug_messages) == 100
+    assert len({args[0] for _, args in debug_messages}) == 100
 
 
-def test_redis_url_env_and_explicit_arg_precedence(monkeypatch, fake_logging):
-    import ed_redis
-
-    captured: dict[str, str] = {"url": ""}
-    monkeypatch.setenv("REDIS_URL", "redis://env-host:6379/0")
-    monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 2)
-
-    def _fake_from_url(
-        _url: str, decode_responses: bool = False, max_connections: int | None = None
-    ):
-        captured["url"] = _url
-        return _FakeRedisClient(_FakeRedisStore())
-
-    monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
-
-    database_from_env = EDRedis.create(
-        datasource_name="unit-test-db",
-        logging_utils=fake_logging,
-    )
-    database_from_env._new_client()
-    assert captured["url"] == "redis://env-host:6379/0"
-
-    database_from_arg = EDRedis.create(
-        datasource_name="unit-test-db",
-        redis_url="redis://arg-host:6379/0",
-        logging_utils=fake_logging,
-    )
-    database_from_arg._new_client()
-    assert captured["url"] == "redis://arg-host:6379/0"
+def test_system_key_namespaces_by_datasource(redis_backend: ed_redis.EDRedis) -> None:
+    assert redis_backend._system_key("Sol") == f"{default_redis_store_name}:system:Sol"
+    assert redis_backend._systems_set_key == f"{default_redis_store_name}:systems"
 
 
-def test_redis_init_datasource_skips_loading_when_target_exists(
-    monkeypatch, tmp_path, fake_logging
-):
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    database = EDRedis(
-        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
-    )
-    inserted: list[dict] = []
-    database.insert_system = inserted.append  # type: ignore[method-assign]
-    empty_init = tmp_path / "init"
-    empty_init.mkdir(parents=True, exist_ok=True)
+def test_run_async_rejects_calls_after_close(redis_backend: ed_redis.EDRedis) -> None:
+    redis_backend.close()
 
-    database.init_datasource(str(empty_init))
+    async def returns_value() -> str:
+        return value_key
 
-    assert inserted == []
+    coro = returns_value()
+    with pytest.raises(RuntimeError, match="Redis client is closed"):
+        redis_backend._run_async(coro)
+    coro.close()
 
 
-def test_redis_init_datasource_loads_records_from_init_json_files(
-    monkeypatch, tmp_path, fake_logging
-):
-    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
-    init_dir = tmp_path / "init"
-    init_dir.mkdir(parents=True, exist_ok=True)
-    (init_dir / "single.json").write_text(
-        '{"name":"Sol","id64":1,"coords":{"x":0,"y":0,"z":0}}',
-        encoding="utf-8",
-    )
-    (init_dir / "bulk.json").write_text(
-        '[{"name":"Sirius","id64":2},{"name":"Lave","id64":3}]',
-        encoding="utf-8",
-    )
-    (init_dir / "ignore.txt").write_text("not json", encoding="utf-8")
-
-    database = EDRedis(
-        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
-    )
-    inserted: list[dict] = []
-    database.insert_system = inserted.append  # type: ignore[method-assign]
-
-    database.init_datasource(str(init_dir))
-
-    assert {entry["name"] for entry in inserted} == {"Sol", "Sirius", "Lave"}
-
-
-if __name__ == "__main__":
-    main()
+def test_module_main_is_a_noop() -> None:
+    assert ed_redis.main() is None

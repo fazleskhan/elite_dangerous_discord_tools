@@ -1,112 +1,77 @@
-import ed_route
-from ed_route_service_factory import EDRouteServiceFactory
 import pytest
-import test_data
+
+import ed_route
+from tests.helpers import ThreadSafeLogger
 
 
-def main(): ...
+class FakeBulkLoad:
+    def load(self, initial_system_names, max_nodes_visited, progress_callback):  # type: ignore[no-untyped-def]
+        progress_callback("loaded")
+        return initial_system_names[:max_nodes_visited]
 
 
-class FakeLoggingUtils:
-    def debug(self, _message: str, *_args, **_kwargs):
-        return None
-
-    def info(self, _message: str, *_args, **_kwargs):
-        return None
-
-    def warning(self, _message: str, *_args, **_kwargs):
-        return None
-
-    def error(self, _message: str, *_args, **_kwargs):
-        return None
+class FakePathService:
+    async def run(self, initial, destination, max_systems, min_distance, max_distance, progress_callback):  # type: ignore[no-untyped-def]
+        progress_callback("path")
+        return [initial, destination]
 
 
-class FakeDB:
-    def init_datasource(self, import_dir: str = "./init"):
-        return None
+class FakeInitService:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
 
-    def get_all_systems(self):
-        return [{"name": "Sol"}, {"name": "Sirius"}]
+    def run(self, import_dir: str = "./init") -> None:
+        self.calls.append(import_dir)
 
 
-class FakeCache:
-    def find_system_info(self, system_name: str):
+class FakeSystemInfoService:
+    def run(self, system_name: str) -> dict[str, str]:
         return {"name": system_name}
 
-    def find_system_neighbors(self, system_info):
-        return []
+
+class FakeSystemNamesService:
+    def run(self) -> list[str]:
+        return ["Sol", "Lave"]
 
 
-class FakeBfs:
-    def travel(
-        self,
-        source,
-        destination,
-        max_systems,
-        min_distance,
-        max_distance,
-        progress_callback,
-    ):
-        if source == "Sol" and destination == "Sirius":
-            return ["Sol", "Sirius"]
-        if source == "Sol" and destination == "Ross 248":
-            return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
-        return None
+class FakeDistanceService:
+    def run(self, one: str, two: str) -> float:
+        return 5.0
 
 
-def make_service():
-    return EDRouteServiceFactory.create(
-        logging_utils=FakeLoggingUtils(),
-        datasource=FakeDB(),
-        cache=FakeCache(),
-        bfs=FakeBfs(),
+def build_route_service() -> ed_route.EDRouteService:
+    return ed_route.EDRouteService(
+        datasource=object(),  # type: ignore[arg-type]
+        cache=object(),  # type: ignore[arg-type]
+        bfs=object(),  # type: ignore[arg-type]
+        logging_utils=ThreadSafeLogger(),
+        init_datasource_service=FakeInitService(),
+        get_system_info_service=FakeSystemInfoService(),
+        get_all_system_names_service=FakeSystemNamesService(),
+        bulk_load_cache_service=FakeBulkLoad(),
+        path_service=FakePathService(),
+        calc_systems_distance_service=FakeDistanceService(),
     )
 
 
-@pytest.mark.asyncio
-async def test_small_path():
-    ed_service = make_service()
-    assert await ed_service.path(
-        "Sol", "Sirius", 100, 0, 10000, lambda _message: None
-    ) == ["Sol", "Sirius"]
+def test_route_service_validates_constructor_args() -> None:
+    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+        ed_route.EDRouteService(None, None, None, None, None, None, None, None, None, None)  # type: ignore[arg-type]
 
 
 @pytest.mark.asyncio
-async def test_large_path():
-    ed_service = make_service()
-    assert await ed_service.path(
-        "Sol", "Ross 248", 100, 0, 10000, lambda _message: None
-    ) == [
-        "Sol",
-        "Barnard's Star",
-        "61 Cygni",
-        "Ross 248",
-    ]
+async def test_route_service_delegates_to_subservices() -> None:
+    service = build_route_service()
+    progress: list[str] = []
+
+    service.init_datasource("./seed")
+    assert service.get_system_info("Sol") == {"name": "Sol"}
+    assert service.get_all_system_names() == ["Sol", "Lave"]
+    assert service.bulk_load_cache(["Sol"], 1, progress.append) == ["Sol"]
+    assert await service.path("Sol", "Lave", 10, 0, 100, progress.append) == ["Sol", "Lave"]
+    assert service.calc_systems_distance("Sol", "Lave") == 5.0
+    assert progress == ["loaded", "path"]
 
 
-def test_get_all_system_names():
-    ed_service = make_service()
-    assert ed_service.get_all_system_names() != None
-
-
-def test_get_system_info():
-    ed_service = make_service()
-    assert ed_service.get_system_info("Sol") != None
-
-
-def test_calc_systems_distance():
-    ed_service = make_service()
-    systems = {
-        "Sol": test_data.sol_data,
-        "Alpha Centauri": test_data.alpha_centauri_data,
-    }
-    ed_service._calc_systems_distance_service._get_system_info_service.run = (
-        lambda name: systems.get(name)
-    )
-
-    distance = ed_service.calc_systems_distance("Sol", "Alpha Centauri")
-    assert distance == pytest.approx(4.377120022057882)
-
-
-if __name__ == "__main__":
-    main()
+def test_route_service_main_is_a_noop() -> None:
+    assert ed_route.main() is None

@@ -14,3 +14,5 @@ tuna
 redis[hiredis]
 psutil
 austin-python
+coverage
+pytest-cov

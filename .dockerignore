@@ -7,11 +7,10 @@
 /docs
 /logs
 /tests
-/__pycache__
 /.git
 /venv
 /scripts
-/src/__pycache__
+**/__pycache__/
 
 
 # excluded files
@@ -22,3 +21,4 @@ mypy.ini
 pytest.ini
 .docker-compose.yml
 Dockerfile
+.coverage

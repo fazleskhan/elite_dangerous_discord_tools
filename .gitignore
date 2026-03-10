@@ -272,3 +272,6 @@ __marimo__/
 
 # logs directory
 /logs
+
+# coverage file
+.coverage
