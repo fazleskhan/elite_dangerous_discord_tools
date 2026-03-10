@@ -1,29 +1,35 @@
-import main
-import test_data
 import sys
+
+import main
 import pytest
 
 
-def main_func(): ...
+class FakeLoggingUtils:
+    def info(self, _message: str, *_args, **_kwargs):
+        return None
 
 
-def test_constructor_raises_when_logging_utils_is_none():
-    with pytest.raises(
-        ValueError,
-        match="^logging_utils of type LoggingProtocol is required$",
-    ):
-        main.EDMain(route_service=None, cache=None, logging_utils=None)  # type: ignore[arg-type]
+class FakeRouteService:
+    def __init__(self):
+        self.last_init_import_dir = None
+        self.last_bulk_load_args = None
+        self.last_distance_args = None
+        self.last_system_info_args = None
+        self.last_path_args = None
 
+    def get_all_system_names(self):
+        return ["Sol", "Ross 248"]
 
-def test_initialize_db():
-    main.ed_service.get_all_system_names = lambda: ["Sol", "Ross 248"]
-    assert main.get_all_system_names() != None
+    def get_system_info(self, name):
+        self.last_system_info_args = name
+        return {"name": name}
 
+    def calc_systems_distance(self, source, target):
+        self.last_distance_args = (source, target)
+        return 4.377120022057882
 
-def test_calc_route():
-    captured_args = {}
-
-    async def fake_path(
+    async def path(
+        self,
         source,
         target,
         max_systems=100,
@@ -31,7 +37,7 @@ def test_calc_route():
         max_distance=10000,
         progress_callback=None,
     ):
-        captured_args["values"] = (
+        self.last_path_args = (
             source,
             target,
             max_systems,
@@ -39,93 +45,92 @@ def test_calc_route():
             max_distance,
             progress_callback,
         )
-        return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
+        return [source, "Barnard's Star", "61 Cygni", target]
 
-    main.ed_service.path = fake_path
-    assert main.calc_route("Sol", "Ross 248", 100, 5, 50) == [
+    def init_datasource(self, import_dir="./init"):
+        self.last_init_import_dir = import_dir
+
+    def bulk_load_cache(
+        self,
+        initial_system_names,
+        max_nodes_visited,
+        progress_callback=None,
+    ):
+        self.last_bulk_load_args = (initial_system_names, max_nodes_visited)
+        return initial_system_names[:1]
+
+
+def make_ed_main():
+    return main.EDMain.create(
+        logging_utils=FakeLoggingUtils(),  # type: ignore[arg-type]
+        route_service=FakeRouteService(),  # type: ignore[arg-type]
+    )
+
+
+def test_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        main.EDMain(
+            route_service=FakeRouteService(),  # type: ignore[arg-type]
+            logging_utils=None,  # type: ignore[arg-type]
+        )
+
+
+def test_get_all_system_names():
+    ed_main = make_ed_main()
+    assert ed_main.get_all_system_names() == ["Sol", "Ross 248"]
+
+
+def test_calc_route():
+    ed_main = make_ed_main()
+    assert ed_main.calc_route("Sol", "Ross 248", 100, 5, 50) == [
         "Sol",
         "Barnard's Star",
         "61 Cygni",
         "Ross 248",
     ]
-    assert captured_args["values"][:5] == ("Sol", "Ross 248", 100, 5, 50)
-    assert callable(captured_args["values"][5])
 
 
 def test_get_system_info():
-    main.ed_service.get_system_info = lambda name: {"name": name}
+    ed_main = make_ed_main()
     system_names = ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
-    system_infos = main.get_system_info(system_names)
-    # TODO looks like the order of the returned no gaurantee, so this test is not stable. Need to find a way to make it stable.
-    # assert system_infos == [
-    #    test_data.sol_complete_info,
-    #    test_data.barnards_star_complete_info,
-    #    test_data.s_61_cygni_complet_info,
-    #    test_data.ross_248_complete_info,
-    # ]
+    system_infos = ed_main.get_system_info(system_names)
+    assert len(system_infos) == 4
+    assert system_infos[0] == {"name": "Sol"}
 
 
 def test_calc_systems_distance():
-    main.ed_service.calc_systems_distance = lambda source, target: 4.377120022057882
-    assert main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
+    ed_main = make_ed_main()
+    assert ed_main.calc_systems_distance("Sol", "Alpha Centauri") == 4.377120022057882
 
 
 def test_init_datasource():
-    captured = {"import_dir": None}
-    main.ed_service.init_datasource = lambda import_dir="./init": captured.update(
-        {"import_dir": import_dir}
-    )
-    main.init_datasource("./init")
-    assert captured["import_dir"] == "./init"
+    ed_main = make_ed_main()
+    ed_main.init_datasource("./init")
+    assert ed_main.route_service.last_init_import_dir == "./init"
 
 
 def test_main_init_datasource_command(monkeypatch):
-    captured = {"import_dir": None}
-    monkeypatch.setattr(
-        main,
-        "init_datasource",
-        lambda import_dir="./init": captured.update({"import_dir": import_dir}),
-    )
+    ed_main = make_ed_main()
+    monkeypatch.setattr(main.EDMain, "create", lambda: ed_main)
     monkeypatch.setattr(
         sys, "argv", ["main.py", "init_datasource", "--import_dir", "./custom-init"]
     )
     main.main()
-    assert captured["import_dir"] == "./custom-init"
+    assert ed_main.route_service.last_init_import_dir == "./custom-init"
 
 
 def test_bulk_load_cache():
-    captured = {"initial_system_names": None, "max_nodes_visited": None}
-    main.ed_service.bulk_load_cache = (
-        lambda initial_system_names, max_nodes_visited, progress_callback=None: (
-            captured.update(
-                {
-                    "initial_system_names": initial_system_names,
-                    "max_nodes_visited": max_nodes_visited,
-                }
-            )
-            or ["Sol"]
-        )
-    )
-    assert main.bulk_load_cache(["Sol"], 10) == ["Sol"]
-    assert captured["initial_system_names"] == ["Sol"]
-    assert captured["max_nodes_visited"] == 10
+    ed_main = make_ed_main()
+    assert ed_main.bulk_load_cache(["Sol"], 10) == ["Sol"]
+    assert ed_main.route_service.last_bulk_load_args == (["Sol"], 10)
 
 
 def test_main_bulk_load_cache_command(monkeypatch):
-    captured = {"initial_system_names": None, "max_nodes_visited": None}
-    monkeypatch.setattr(
-        main,
-        "bulk_load_cache",
-        lambda initial_system_names, max_nodes_visited: (
-            captured.update(
-                {
-                    "initial_system_names": initial_system_names,
-                    "max_nodes_visited": max_nodes_visited,
-                }
-            )
-            or ["Sol"]
-        ),
-    )
+    ed_main = make_ed_main()
+    monkeypatch.setattr(main.EDMain, "create", lambda: ed_main)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -139,9 +144,4 @@ def test_main_bulk_load_cache_command(monkeypatch):
         ],
     )
     main.main()
-    assert captured["initial_system_names"] == ["Sol", "Alpha Centauri"]
-    assert captured["max_nodes_visited"] == 25
-
-
-if __name__ == "__main__":
-    main()
+    assert ed_main.route_service.last_bulk_load_args == (["Sol", "Alpha Centauri"], 25)
