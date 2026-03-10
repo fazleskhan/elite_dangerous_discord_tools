@@ -30,6 +30,7 @@ class FakeBot:
         return fn
 
     def command(self, *args: Any, **kwargs: Any):  # type: ignore[no-untyped-def]
+        # Mirror discord.py's decorator shape closely enough for registration tests.
         def decorator(fn):  # type: ignore[no-untyped-def]
             self.commands[fn.__name__] = fn
             return fn
@@ -194,6 +195,8 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
         future: concurrent.futures.Future[None] = concurrent.futures.Future()
 
         async def consume() -> None:
+            # Execute the scheduled send on the active test loop and expose completion
+            # through a concurrent future like asyncio.run_coroutine_threadsafe().
             await coro
             scheduled.append("sent")
             future.set_result(None)
@@ -205,6 +208,8 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
 
     path_ctx = FakeContext()
     await discord_bot.path(path_ctx, "Sol", "Lave", 10, 1, 20)
+    # The command schedules progress sends off-loop, so yield twice to let the
+    # fake thread-safe future complete before asserting on collected messages.
     await asyncio.sleep(0)
     await asyncio.sleep(0)
     assert path_ctx.messages[0].startswith("Calculate Path between Sol and Lave")

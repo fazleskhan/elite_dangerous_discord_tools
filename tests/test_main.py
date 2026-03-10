@@ -78,6 +78,8 @@ def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
     ed_main = build_main()
     monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
 
+    # Walk every CLI branch once with a fake route service instead of invoking
+    # separate parser/unit tests per command.
     command_sets = [
         ["main.py", "ping"],
         ["main.py", "all_loaded_systems"],
@@ -103,6 +105,8 @@ def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no
     ed_main = build_main()
     monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
 
+    # Each argv set intentionally misses one required argument so we verify the
+    # command-level exit paths without depending on stderr formatting.
     invalid_argvs = [
         ["main.py", "system_info"],
         ["main.py", "path", "--destination", "Lave", "--max_systems", "10"],
