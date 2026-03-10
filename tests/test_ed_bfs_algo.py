@@ -8,18 +8,27 @@ from tests.helpers import ThreadSafeLogger
 
 def test_bfs_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_bfs_algo.EDBfsAlgo(lambda _name: None, lambda _info: None, lambda _a, _b: 0.0, None)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"):
+    with pytest.raises(
+        ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"
+    ):
         ed_bfs_algo.EDBfsAlgo(None, lambda _info: None, lambda _a, _b: 0.0, logger)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"):
+    with pytest.raises(
+        ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"
+    ):
         ed_bfs_algo.EDBfsAlgo(lambda _name: None, None, lambda _a, _b: 0.0, logger)  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="distance_fn of type DistanceFn is required"):
         ed_bfs_algo.EDBfsAlgo(lambda _name: None, lambda _info: None, None, logger)  # type: ignore[arg-type]
 
 
 def test_bfs_reconstruct_path_and_same_start() -> None:
-    assert ed_bfs_algo.EDBfsAlgo._reconstruct_path({"B": "A", "A": None}, "B") == ["A", "B"]
+    assert ed_bfs_algo.EDBfsAlgo._reconstruct_path({"B": "A", "A": None}, "B") == [
+        "A",
+        "B",
+    ]
     bfs = ed_bfs_algo.EDBfsAlgo.create(
         lambda name: {"name": name},
         lambda _info: [],
@@ -47,7 +56,9 @@ def test_bfs_travel_finds_path_and_filters_edges() -> None:
     assert bfs.travel("A", "T", 10, 2, 5, lambda _message: None) == ["A", "C", "T"]
 
 
-def test_bfs_reports_progress_and_missing_nodes(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_bfs_reports_progress_and_missing_nodes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     logger = ThreadSafeLogger()
     progress: list[str] = []
     graph = {"A": [{"name": f"N{index}", "distance": 3} for index in range(1, 512)]}
@@ -64,7 +75,9 @@ def test_bfs_reports_progress_and_missing_nodes(monkeypatch: pytest.MonkeyPatch)
 
     assert bfs.travel("A", "Missing", 600, 0, 10, progress.append) is None
     assert progress == ["Analyzed 512 of 600 systems"]
-    assert ("Skipping node with missing system info: {}", ("N1",)) in logger.messages("debug")
+    assert ("Skipping node with missing system info: {}", ("N1",)) in logger.messages(
+        "debug"
+    )
 
 
 def test_bfs_respects_max_count() -> None:

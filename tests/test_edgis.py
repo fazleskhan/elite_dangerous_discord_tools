@@ -8,7 +8,9 @@ from tests.helpers import ThreadSafeLogger
 
 
 @pytest.mark.asyncio
-async def test_edgis_fetch_json_uses_client_session(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_edgis_fetch_json_uses_client_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     captured: dict[str, object] = {}
 
     class FakeResponse:
@@ -48,7 +50,9 @@ async def test_edgis_fetch_json_uses_client_session(monkeypatch: pytest.MonkeyPa
 
 
 def test_edgis_validates_dependencies_and_create() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         edgis.EDGis(None)  # type: ignore[arg-type]
     assert isinstance(edgis.EDGis.create(ThreadSafeLogger()), edgis.EDGis)
 
@@ -77,7 +81,9 @@ def test_run_async_propagates_exceptions() -> None:
         asyncio.run(run_inside_loop())
 
 
-def test_fetch_system_info_and_neighbors_handle_success_and_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_fetch_system_info_and_neighbors_handle_success_and_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     logger = ThreadSafeLogger()
     gis = edgis.EDGis(logger)
     monkeypatch.setattr(

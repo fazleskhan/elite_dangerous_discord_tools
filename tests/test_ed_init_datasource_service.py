@@ -17,17 +17,23 @@ class FakeDatasource:
 
 
 def test_init_datasource_service_validates_dependencies() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_init_datasource_service.EDInitDatasourceService(FakeDatasource(), None)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="datasource of type DatasourceProtocol is required"):
+    with pytest.raises(
+        ValueError, match="datasource of type DatasourceProtocol is required"
+    ):
         ed_init_datasource_service.EDInitDatasourceService(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
 
 def test_init_datasource_service_runs_and_logs() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
-    service = ed_init_datasource_service.EDInitDatasourceService.create(datasource, logger)
+    service = ed_init_datasource_service.EDInitDatasourceService.create(
+        datasource, logger
+    )
     service.run("./seed")
 
     assert datasource.import_dirs == ["./seed"]

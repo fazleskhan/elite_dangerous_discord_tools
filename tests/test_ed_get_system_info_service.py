@@ -18,7 +18,9 @@ class FakeCache:
 
 
 def test_get_system_info_service_validates_dependencies() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_get_system_info_service.EDGetSystemInfoService(FakeCache(), None)  # type: ignore[arg-type]
 
     with pytest.raises(ValueError, match="cache of type CacheProtocol is required"):
@@ -31,7 +33,10 @@ def test_get_system_info_service_runs_through_cache() -> None:
         FakeCache(), logger
     )
     assert service.run("Sol") == {"name": "Sol"}
-    assert ("Fetching system info via service for system={}", ("Sol",)) in logger.messages("debug")
+    assert (
+        "Fetching system info via service for system={}",
+        ("Sol",),
+    ) in logger.messages("debug")
 
 
 def test_get_system_info_service_lock_allows_threaded_access() -> None:

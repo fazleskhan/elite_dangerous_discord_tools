@@ -18,10 +18,14 @@ class FakeDatasource:
 
 
 def test_get_all_system_names_service_validates_dependencies() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_get_all_system_names_service.EDGetAllSystemNamesService(FakeDatasource(), None)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="datasource of type DatasourceProtocol is required"):
+    with pytest.raises(
+        ValueError, match="datasource of type DatasourceProtocol is required"
+    ):
         ed_get_all_system_names_service.EDGetAllSystemNamesService(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
 

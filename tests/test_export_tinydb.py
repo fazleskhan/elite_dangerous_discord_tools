@@ -12,9 +12,19 @@ def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):  # type: ign
             self.export_dir = export_dir
 
     fake = FakeTinyDB()
-    monkeypatch.setattr(export_tinydb, "EDTinyDB", type("FakeEDTinyDB", (), {"create": staticmethod(lambda logging_utils=None: fake)}))
+    monkeypatch.setattr(
+        export_tinydb,
+        "EDTinyDB",
+        type(
+            "FakeEDTinyDB",
+            (),
+            {"create": staticmethod(lambda logging_utils=None: fake)},
+        ),
+    )
     monkeypatch.setattr(export_tinydb.EDLoggingUtils, "create", lambda: object())
-    monkeypatch.setattr(sys, "argv", ["export_tinydb.py", "--export-dir", str(tmp_path)])
+    monkeypatch.setattr(
+        sys, "argv", ["export_tinydb.py", "--export-dir", str(tmp_path)]
+    )
 
     export_tinydb.main()
     assert fake.export_dir == str(tmp_path)

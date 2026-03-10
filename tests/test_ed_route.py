@@ -55,7 +55,9 @@ def build_route_service() -> ed_route.EDRouteService:
 
 
 def test_route_service_validates_constructor_args() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_route.EDRouteService(None, None, None, None, None, None, None, None, None, None)  # type: ignore[arg-type]
 
 
@@ -68,7 +70,10 @@ async def test_route_service_delegates_to_subservices() -> None:
     assert service.get_system_info("Sol") == {"name": "Sol"}
     assert service.get_all_system_names() == ["Sol", "Lave"]
     assert service.bulk_load_cache(["Sol"], 1, progress.append) == ["Sol"]
-    assert await service.path("Sol", "Lave", 10, 0, 100, progress.append) == ["Sol", "Lave"]
+    assert await service.path("Sol", "Lave", 10, 0, 100, progress.append) == [
+        "Sol",
+        "Lave",
+    ]
     assert service.calc_systems_distance("Sol", "Lave") == 5.0
     assert progress == ["loaded", "path"]
 

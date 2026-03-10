@@ -15,7 +15,9 @@ class FakeDatasource:
     def insert_system(self, system_info: dict[str, object]) -> None:
         self.systems[system_info["name"]] = dict(system_info)
 
-    def add_neighbors(self, system_info: dict[str, object], neighbors: list[dict[str, object]]) -> None:
+    def add_neighbors(
+        self, system_info: dict[str, object], neighbors: list[dict[str, object]]
+    ) -> None:
         entry = dict(self.systems.get(system_info["name"], system_info))
         entry["neighbors"] = neighbors
         self.systems[system_info["name"]] = entry
@@ -29,13 +31,21 @@ def sample_system() -> dict[str, object]:
 def test_edgis_cache_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         edgis_cache.EDGisCache(datasource, lambda _name: None, lambda _x, _y, _z: None, logging_utils=None)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="datasource of type DatasourceProtocol is required"):
+    with pytest.raises(
+        ValueError, match="datasource of type DatasourceProtocol is required"
+    ):
         edgis_cache.EDGisCache(None, lambda _name: None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"):
+    with pytest.raises(
+        ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"
+    ):
         edgis_cache.EDGisCache(datasource, None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"):
+    with pytest.raises(
+        ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"
+    ):
         edgis_cache.EDGisCache(datasource, lambda _name: None, None, logging_utils=logger)  # type: ignore[arg-type]
 
 
@@ -51,9 +61,15 @@ def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:
 
     assert cache.find_system_info("Sol") == sample_system()
     assert cache.find_system_info("Sol") == sample_system()
-    assert cache.find_system_neighbors(sample_system()) == [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}]
-    assert cache.find_system_neighbors(sample_system()) == [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}]
-    assert datasource.added_neighbors == [("Sol", [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}])]
+    assert cache.find_system_neighbors(sample_system()) == [
+        {"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}
+    ]
+    assert cache.find_system_neighbors(sample_system()) == [
+        {"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}
+    ]
+    assert datasource.added_neighbors == [
+        ("Sol", [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}])
+    ]
 
 
 def test_edgis_cache_logs_failures() -> None:

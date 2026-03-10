@@ -12,7 +12,13 @@ def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):  # type: igno
             self.export_dir = export_dir
 
     fake = FakeRedis()
-    monkeypatch.setattr(export_redis, "EDRedis", type("FakeEDRedis", (), {"create": staticmethod(lambda logging_utils=None: fake)}))
+    monkeypatch.setattr(
+        export_redis,
+        "EDRedis",
+        type(
+            "FakeEDRedis", (), {"create": staticmethod(lambda logging_utils=None: fake)}
+        ),
+    )
     monkeypatch.setattr(export_redis.EDLoggingUtils, "create", lambda: object())
     monkeypatch.setattr(sys, "argv", ["export_redis.py", "--export-dir", str(tmp_path)])
 

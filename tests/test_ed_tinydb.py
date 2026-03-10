@@ -84,9 +84,7 @@ def database_path(tmp_path: Path) -> Path:
 
 
 @pytest.fixture()
-def tinydb_backend(
-    database_path: Path, logger: ThreadSafeLogger
-) -> ed_tinydb.EDTinyDB:
+def tinydb_backend(database_path: Path, logger: ThreadSafeLogger) -> ed_tinydb.EDTinyDB:
     return ed_tinydb.EDTinyDB(str(database_path), logging_utils=logger)
 
 
@@ -110,8 +108,12 @@ async def test_aiotinydb_crud_round_trip(tmp_path: Path) -> None:
         assert inserted_id == 1
         assert await db.contains(system_query.name == "Sol") is True
         assert await db.get(system_query.name == "Sol") == system
-        assert await db.update({"neighbors": [{"name": "Lave"}]}, system_query.name == "Sol") == [1]
-        assert await db.all() == [{"name": "Sol", "id64": 1, "neighbors": [{"name": "Lave"}]}]
+        assert await db.update(
+            {"neighbors": [{"name": "Lave"}]}, system_query.name == "Sol"
+        ) == [1]
+        assert await db.all() == [
+            {"name": "Sol", "id64": 1, "neighbors": [{"name": "Lave"}]}
+        ]
 
 
 def test_smartcache_tinydb_uses_smartcache_table() -> None:
@@ -136,8 +138,12 @@ def test_create_uses_explicit_name_then_env_then_default(
     assert defaulted.datasource_name == default_tinydb_name
 
 
-def test_constructor_validates_inputs_and_logs_backend(logger: ThreadSafeLogger) -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+def test_constructor_validates_inputs_and_logs_backend(
+    logger: ThreadSafeLogger,
+) -> None:
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_tinydb.EDTinyDB("ignored.json", logging_utils=None)  # type: ignore[arg-type]
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
@@ -281,7 +287,10 @@ def test_init_and_import_datasource_load_sorted_json_records(
     backend.init_datasource(str(import_dir))
 
     assert [entry["name"] for entry in inserted] == ["Sol", "Achenar", "Lave"]
-    assert ("Importing TinyDB datasource from {} JSON files in {}", (2, str(import_dir))) in logger.messages("info")
+    assert (
+        "Importing TinyDB datasource from {} JSON files in {}",
+        (2, str(import_dir)),
+    ) in logger.messages("info")
 
 
 def test_import_datasource_requires_existing_directory(
@@ -294,7 +303,9 @@ def test_import_datasource_requires_existing_directory(
 def test_export_datasource_writes_safe_sorted_json_files(
     tmp_path: Path, logger: ThreadSafeLogger, sample_neighbors: list[dict[str, Any]]
 ) -> None:
-    backend = ed_tinydb.EDTinyDB(str(tmp_path / "db" / "target.json"), logging_utils=logger)
+    backend = ed_tinydb.EDTinyDB(
+        str(tmp_path / "db" / "target.json"), logging_utils=logger
+    )
     export_dir = tmp_path / "export"
     exported_systems = [
         {"name": "Alpha/Beta"},
