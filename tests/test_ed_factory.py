@@ -98,7 +98,9 @@ def test_create_route_service_composes_datasource_cache_and_route(monkeypatch):
     monkeypatch.setattr(
         ed_factory.edgis_cache.EDGisCache,
         "create",
-        lambda db_obj, *, logging_utils: cache_calls.append(db_obj) or cache_obj,
+        lambda db_obj, *, logging_utils, fetch_system_info_fn, fetch_neighbors_fn: (
+            cache_calls.append(db_obj) or cache_obj
+        ),
     )
 
     route_calls: dict[str, object] = {}

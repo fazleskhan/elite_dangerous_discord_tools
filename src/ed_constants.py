@@ -19,6 +19,7 @@ system_info_z_field: str = "z"
 value_key: str = "value"
 query_param_q: str = "q"
 distance_field: str = "distance"
+distance: str = "distance"
 system_field: str = "system"
 systems_field: str = "systems"
 
