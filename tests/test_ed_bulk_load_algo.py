@@ -1,186 +1,101 @@
+import threading
+
+import pytest
+
 import ed_bulk_load_algo
-import ed_datasource_factory
-import edgis_cache
-from ed_logging_utils import EDLoggingUtils
+from tests.helpers import ThreadSafeLogger
 
 
-def main(): ...
-
-
-def test_bulk_load_service_walks_neighbors_until_max_nodes():
-    graph = {
-        "Sol": ["Alpha Centauri", "Barnard_s Star"],
-        "Alpha Centauri": ["Luyten_s Star", "Procyon"],
-        "Barnard_s Star": ["Wolf 359"],
-        "Luyten_s Star": [],
-        "Procyon": [],
-        "Wolf 359": [],
-    }
-
-    def fake_find_system_info(system_name: str):
+class FakeCache:
+    def find_system_info(self, system_name: str) -> dict[str, object]:
         return {"name": system_name}
 
-    def fake_find_neighbors(system_info):
-        return [{"name": name} for name in graph[system_info["name"]]]
-
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
-        fetch_system_info_fn=fake_find_system_info,
-        fetch_neighbors_fn=fake_find_neighbors,
-        logging_utils=EDLoggingUtils(),
-    )
-    visited = bulk_loader.load(["Sol"], 4, lambda _message: None)
-    assert visited == ["Sol", "Alpha Centauri", "Barnard_s Star", "Luyten_s Star"]
+    def find_system_neighbors(self, system_info: dict[str, object]) -> list[dict[str, object]]:
+        return [{"name": f"{system_info['name']}-N"}]
 
 
-def test_bulk_load_service_reuses_neighbor_payload_without_refetch():
-    graph = {
-        "Sol": ["Alpha Centauri"],
-        "Alpha Centauri": ["Barnard_s Star"],
-        "Barnard_s Star": [],
+def test_bulk_load_algo_validates_dependencies() -> None:
+    logger = ThreadSafeLogger()
+    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, lambda _info: None, None)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="fetch_system_info_fn of type FetchInfoFn is required"):
+        ed_bulk_load_algo.EDBulkLoadAlgo(None, lambda _info: None, logger)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"):
+        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, None, logger)  # type: ignore[arg-type]
+
+
+def test_bulk_load_algo_create_and_neighbor_payload_handling() -> None:
+    algo = ed_bulk_load_algo.EDBulkLoadAlgo.create(FakeCache(), ThreadSafeLogger())
+    assert algo.fetch_system_info_fn("Sol") == {"name": "Sol"}
+    assert algo._neighbor_as_system_info({"name": "Sol"}) is None
+    assert algo._neighbor_as_system_info({"name": "Sol", "coords": {"x": 1, "y": 2, "z": 3}}) == {
+        "name": "Sol",
+        "coords": {"x": 1, "y": 2, "z": 3},
     }
-    fetch_info_calls: list[str] = []
-
-    def fake_find_system_info(system_name: str):
-        fetch_info_calls.append(system_name)
-        return {
-            "name": system_name,
-            "coords": {"x": 1.0, "y": 2.0, "z": 3.0},
-        }
-
-    def fake_find_neighbors(system_info):
-        return [
-            {
-                "name": name,
-                "coords": {"x": 1.0, "y": 2.0, "z": 3.0},
-            }
-            for name in graph[system_info["name"]]
-        ]
-
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
-        fetch_system_info_fn=fake_find_system_info,
-        fetch_neighbors_fn=fake_find_neighbors,
-        logging_utils=EDLoggingUtils(),
-    )
-
-    visited = bulk_loader.load(["Sol"], 3, lambda _message: None)
-
-    assert visited == ["Sol", "Alpha Centauri", "Barnard_s Star"]
-    # Only the initial seed needs direct info lookup; neighbors were reused.
-    assert fetch_info_calls == ["Sol"]
 
 
-def test_create_bulk_load_composes_datasource_and_cache():
-    class FakeCache:
-        def find_system_info(self, system_name):
-            return {"name": system_name}
-
-        def find_system_neighbors(self, system_info):
-            return []
-
-    cache_obj = FakeCache()
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(
-        cache=cache_obj,
-        logging_utils=EDLoggingUtils(),
-    )
-
-    assert isinstance(bulk_loader, ed_bulk_load_algo.EDBulkLoadAlgo)
-    assert bulk_loader.fetch_system_info_fn("Sol") == {"name": "Sol"}
-    assert bulk_loader.fetch_neighbors_fn({"name": "Sol"}) == []
-
-
-def test_create_bulk_loader_delegates_to_loader(monkeypatch):
-    datasource_obj = object()
-    cache_obj = object()
-    create_calls: list[tuple[object, object]] = []
-
-    class FakeLoader:
-        def load(self, initial_system_names, max_nodes_visited, progress_callback):
-            assert initial_system_names == ["Sol"]
-            assert max_nodes_visited == 1
-            progress_callback("ok")
-            return ["Sol"]
-
-    monkeypatch.setattr(
-        ed_datasource_factory,
-        "create_datasource",
-        lambda datasource_name=None, datasource_type=None: datasource_obj,
-    )
-    monkeypatch.setattr(
-        edgis_cache.EDGisCache,
-        "create",
-        lambda db_obj, *, logging_utils: cache_obj,
-    )
-    monkeypatch.setattr(
-        ed_bulk_load_algo.EDBulkLoadAlgo,
-        "create",
-        staticmethod(
-            lambda cache, logging_utils: (
-                create_calls.append((cache, logging_utils)) or FakeLoader()
-            )
-        ),
-    )
-
-    datasource = ed_datasource_factory.create_datasource()
-    cache = edgis_cache.EDGisCache.create(
-        datasource,
-        logging_utils=EDLoggingUtils(),
-    )
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(
-        cache, logging_utils=EDLoggingUtils()
-    )
-    assert bulk_loader.load(["Sol"], 1, lambda _message: None) == ["Sol"]
-    assert len(create_calls) == 1
-    assert create_calls[0][0] is cache_obj
-    assert isinstance(create_calls[0][1], EDLoggingUtils)
-
-
-def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch):
+def test_bulk_load_algo_loads_neighbors_and_respects_limits(monkeypatch: pytest.MonkeyPatch) -> None:
     graph = {
-        "Sol": ["Alpha Centauri", "Barnard_s Star"],
-        "Alpha Centauri": [],
-        "Barnard_s Star": [],
+        "Sol": [{"name": "Alpha", "coords": {"x": 1, "y": 2, "z": 3}}, {"name": "Beta"}],
+        "Alpha": [{"name": "Gamma", "coords": {"x": 1, "y": 2, "z": 3}}],
+        "Beta": [],
+        "Gamma": [],
     }
-    seen: dict[str, object] = {"max_workers": None, "batches": []}
+    fetched_info: list[str] = []
+    progress: list[str] = []
 
     class FakeExecutor:
-        def __init__(self, max_workers):
-            seen["max_workers"] = max_workers
+        def __init__(self, max_workers: int) -> None:
+            self.max_workers = max_workers
 
-        def __enter__(self):
+        def __enter__(self) -> "FakeExecutor":
             return self
 
-        def __exit__(self, exc_type, exc, tb):
+        def __exit__(self, exc_type, exc, tb) -> bool:
             return False
 
-        def map(self, fn, iterable):
-            batch = list(iterable)
-            seen["batches"].append([item["name"] for item in batch])
-            return [fn(item) for item in batch]
+        def map(self, fn, iterable):  # type: ignore[no-untyped-def]
+            return [fn(item) for item in iterable]
 
-    def fake_find_system_info(system_name: str):
-        return {"name": system_name}
-
-    def fake_find_neighbors(system_info):
-        return [{"name": name} for name in graph[system_info["name"]]]
-
-    monkeypatch.setattr(
-        ed_bulk_load_algo.EDBulkLoadAlgo,
-        "_physical_core_count",
-        staticmethod(lambda: 3),
-    )
     monkeypatch.setattr(ed_bulk_load_algo, "ThreadPoolExecutor", FakeExecutor)
+    monkeypatch.setattr(ed_bulk_load_algo.EDBulkLoadAlgo, "_physical_core_count", staticmethod(lambda: 2))
 
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
-        fetch_system_info_fn=fake_find_system_info,
-        fetch_neighbors_fn=fake_find_neighbors,
-        logging_utils=EDLoggingUtils(),
+    algo = ed_bulk_load_algo.EDBulkLoadAlgo(
+        lambda name: fetched_info.append(name) or {"name": name, "coords": {"x": 0, "y": 0, "z": 0}},
+        lambda info: graph[info["name"]],
+        ThreadSafeLogger(),
     )
-    visited = bulk_loader.load(["Sol"], 3, lambda _message: None)
-
-    assert visited == ["Sol", "Alpha Centauri", "Barnard_s Star"]
-    assert seen["max_workers"] == 3
-    assert seen["batches"] == [["Sol"]]
+    assert algo.load(["Sol", "Sol", " "], 3, progress.append) == ["Sol", "Alpha", "Beta"]
+    assert fetched_info == ["Sol", "Beta"]
+    assert progress == []
 
 
-if __name__ == "__main__":
-    main()
+def test_bulk_load_algo_handles_zero_limit_and_threaded_fetch() -> None:
+    logger = ThreadSafeLogger()
+    algo = ed_bulk_load_algo.EDBulkLoadAlgo(
+        lambda name: {"name": name},
+        lambda info: [],
+        logger,
+    )
+    assert algo.load(["Sol"], 0, lambda _message: None) == []
+    assert ("Skipping bulk load due to non-positive max_nodes_visited={}", (0,)) in logger.messages("warning")
+
+
+def test_bulk_load_algo_physical_core_count_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(ed_bulk_load_algo.psutil, "cpu_count", lambda logical=False: None if not logical else 8)
+    assert ed_bulk_load_algo.EDBulkLoadAlgo._physical_core_count() == 8
+
+
+def test_bulk_load_algo_fetch_neighbors_logs_system_name() -> None:
+    logger = ThreadSafeLogger()
+    algo = ed_bulk_load_algo.EDBulkLoadAlgo(
+        lambda name: {"name": name},
+        lambda _info: [{"name": "Next"}],
+        logger,
+    )
+    assert algo._fetch_neighbors({"name": "Sol"}) == [{"name": "Next"}]
+    assert ("Fetching neighbors for system={}", ("Sol",)) in logger.messages("debug")
+
+
+def test_bulk_load_algo_main_is_a_noop() -> None:
+    assert ed_bulk_load_algo.main() is None

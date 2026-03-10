@@ -3,36 +3,18 @@ import sys
 import import_tinydb
 
 
-def main() -> None: ...
-
-
-def test_import_tinydb_delegates_to_backend(tmp_path, monkeypatch):
+def test_import_tinydb_delegates_to_backend(tmp_path, monkeypatch):  # type: ignore[no-untyped-def]
     class FakeTinyDB:
-        def __init__(self):
+        def __init__(self) -> None:
             self.import_dir = None
 
-        def import_datasource(self, import_dir: str):
+        def import_datasource(self, import_dir: str) -> None:
             self.import_dir = import_dir
 
-    class FakeEDTinyDB:
-        @staticmethod
-        def create(datasource_name: str | None = None, *, logging_utils=None):
-            return fake_db
-
-    fake_db = FakeTinyDB()
-    monkeypatch.setattr(import_tinydb, "EDTinyDB", FakeEDTinyDB)
+    fake = FakeTinyDB()
+    monkeypatch.setattr(import_tinydb, "EDTinyDB", type("FakeEDTinyDB", (), {"create": staticmethod(lambda logging_utils=None: fake)}))
     monkeypatch.setattr(import_tinydb.EDLoggingUtils, "create", lambda: object())
+    monkeypatch.setattr(sys, "argv", ["import_tinydb.py", "--import-dir", str(tmp_path)])
 
-    import_dir = tmp_path / "ed_redis-export"
-    import_dir.mkdir(parents=True, exist_ok=True)
-
-    monkeypatch.setattr(
-        sys, "argv", ["import_tinydb.py", "--import-dir", str(import_dir)]
-    )
     import_tinydb.main()
-
-    assert fake_db.import_dir == str(import_dir)
-
-
-if __name__ == "__main__":
-    main()
+    assert fake.import_dir == str(tmp_path)

@@ -1,137 +1,74 @@
-import ed_datasource_factory
 import pytest
-import test_data
-import os
+
 import edgis_cache
-from ed_logging_utils import EDLoggingUtils
-
-test_db_filename = __file__.replace("tests", "data").replace(".py", ".db")
+from tests.helpers import ThreadSafeLogger
 
 
-def main(): ...
+class FakeDatasource:
+    def __init__(self) -> None:
+        self.systems: dict[str, dict[str, object]] = {}
+        self.added_neighbors: list[tuple[str, list[dict[str, object]]]] = []
+
+    def get_system(self, system_name: str) -> dict[str, object] | None:
+        return self.systems.get(system_name)
+
+    def insert_system(self, system_info: dict[str, object]) -> None:
+        self.systems[system_info["name"]] = dict(system_info)
+
+    def add_neighbors(self, system_info: dict[str, object], neighbors: list[dict[str, object]]) -> None:
+        entry = dict(self.systems.get(system_info["name"], system_info))
+        entry["neighbors"] = neighbors
+        self.systems[system_info["name"]] = entry
+        self.added_neighbors.append((system_info["name"], neighbors))
 
 
-@pytest.fixture(scope="module")
-def del_prior_database():
-    if os.path.exists(test_db_filename):
-        os.remove(test_db_filename)
-    return "deleted"
+def sample_system() -> dict[str, object]:
+    return {"name": "Sol", "coords": {"x": 0, "y": 0, "z": 0}}
 
 
-@pytest.fixture(scope="module")
-def database(del_prior_database):
-    yield ed_datasource_factory.create_datasource(
-        datasource_name=test_db_filename, datasource_type="tinydb"
+def test_edgis_cache_validates_dependencies() -> None:
+    logger = ThreadSafeLogger()
+    datasource = FakeDatasource()
+    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+        edgis_cache.EDGisCache(datasource, lambda _name: None, lambda _x, _y, _z: None, logging_utils=None)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="datasource of type DatasourceProtocol is required"):
+        edgis_cache.EDGisCache(None, lambda _name: None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"):
+        edgis_cache.EDGisCache(datasource, None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"):
+        edgis_cache.EDGisCache(datasource, lambda _name: None, None, logging_utils=logger)  # type: ignore[arg-type]
+
+
+def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:
+    logger = ThreadSafeLogger()
+    datasource = FakeDatasource()
+    cache = edgis_cache.EDGisCache.create(
+        datasource,
+        logger,
+        lambda system_name: sample_system() if system_name == "Sol" else None,
+        lambda x, y, z: [{"name": "Alpha", "coords": {"x": x, "y": y, "z": z}}],
     )
 
+    assert cache.find_system_info("Sol") == sample_system()
+    assert cache.find_system_info("Sol") == sample_system()
+    assert cache.find_system_neighbors(sample_system()) == [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}]
+    assert cache.find_system_neighbors(sample_system()) == [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}]
+    assert datasource.added_neighbors == [("Sol", [{"name": "Alpha", "coords": {"x": 0, "y": 0, "z": 0}}])]
 
-@pytest.fixture(scope="module")
-def ed(database):
-    def fetch_system_info_stub(system_name: str):
-        if system_name == "Sol":
-            return test_data.sol_data
-        return None
 
-    def fetch_neighbors_stub(x: float | int, y: float | int, z: float | int):
-        if x == 0 and y == 0 and z == 0:
-            return test_data.sol_complete_neighbors
-        return None
-
-    yield edgis_cache.EDGisCache.create(
-        database,
-        fetch_system_info_fn=fetch_system_info_stub,
-        fetch_neighbors_fn=fetch_neighbors_stub,
-        logging_utils=EDLoggingUtils(),
+def test_edgis_cache_logs_failures() -> None:
+    logger = ThreadSafeLogger()
+    cache = edgis_cache.EDGisCache.create(
+        FakeDatasource(),
+        logger,
+        lambda _system_name: None,
+        lambda _x, _y, _z: None,
     )
 
-
-################# TESTS ####################
-
-
-def test_constructor_raises_when_logging_utils_is_none(database):
-    with pytest.raises(
-        ValueError,
-        match="^logging_utils of type LoggingProtocol is required$",
-    ):
-        edgis_cache.EDGisCache(
-            datasource=database,
-            fetch_system_info_fn=lambda _system_name: None,
-            fetch_neighbors_fn=lambda _x, _y, _z: None,
-            logging_utils=None,  # type: ignore[arg-type]
-        )
+    assert cache.find_system_info("Missing") is None
+    assert cache.find_system_neighbors(sample_system()) is None
+    assert logger.messages("warning")
 
 
-def test_constructor_raises_when_datasource_is_none():
-    with pytest.raises(
-        ValueError,
-        match="^datasource of type DatasourceProtocol is required$",
-    ):
-        edgis_cache.EDGisCache(
-            datasource=None,  # type: ignore[arg-type]
-            fetch_system_info_fn=lambda _system_name: None,
-            fetch_neighbors_fn=lambda _x, _y, _z: None,
-            logging_utils=EDLoggingUtils(),
-        )
-
-
-def test_constructor_raises_when_fetch_system_info_fn_is_none(database):
-    with pytest.raises(
-        ValueError,
-        match="^fetch_system_info_fn of type FetchSystemInfoFn is required$",
-    ):
-        edgis_cache.EDGisCache(
-            datasource=database,
-            fetch_system_info_fn=None,  # type: ignore[arg-type]
-            fetch_neighbors_fn=lambda _x, _y, _z: None,
-            logging_utils=EDLoggingUtils(),
-        )
-
-
-def test_constructor_raises_when_fetch_neighbors_fn_is_none(database):
-    with pytest.raises(
-        ValueError,
-        match="^fetch_neighbors_fn of type FetchNeighborsFn is required$",
-    ):
-        edgis_cache.EDGisCache(
-            datasource=database,
-            fetch_system_info_fn=lambda _system_name: None,
-            fetch_neighbors_fn=None,  # type: ignore[arg-type]
-            logging_utils=EDLoggingUtils(),
-        )
-
-
-@pytest.mark.skip(reason="this logic is currently broken")
-def test_egris_cache(ed, database):
-    # check Sol not present in database
-    assert database.get_system("Sol") == None
-
-    # initial fetch system_info from EDGRIS
-    assert ed.find_system_info("Sol") == test_data.sol_data
-
-    # check Sol not present in database
-    assert database.get_system("Sol") == test_data.sol_data
-
-    # reload system_info from db
-    assert ed.find_system_info("Sol") != None
-
-    # search for invalid system
-    assert ed.find_system_info("Invalid") == None
-
-    # check Sol does not yet have neighbors
-    sol_system_info = ed.find_system_info("Sol")
-    with pytest.raises(KeyError):
-        _ = sol_system_info["neighbors"]
-
-    # search for Sol neighbors for the first time
-    ed.find_system_neighbors(sol_system_info) == test_data.sol_complete_neighbors
-
-    # TODO direct comparison of JSON is fragile need to find a replacement
-    # check Sol info complete
-    # assert database.get_system("Sol") == test_data.sol_complete_info
-
-    # reload for Sol neighbors from db
-    ed.find_system_neighbors(sol_system_info) == test_data.sol_complete_neighbors
-
-
-if __name__ == "__main__":
-    main()
+def test_edgis_cache_main_is_a_noop() -> None:
+    assert edgis_cache.main() is None

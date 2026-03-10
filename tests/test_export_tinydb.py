@@ -3,34 +3,18 @@ import sys
 import export_tinydb
 
 
-def main() -> None: ...
-
-
-def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
+def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):  # type: ignore[no-untyped-def]
     class FakeTinyDB:
-        def __init__(self):
+        def __init__(self) -> None:
             self.export_dir = None
 
-        def export_datasource(self, export_dir: str):
+        def export_datasource(self, export_dir: str) -> None:
             self.export_dir = export_dir
 
-    class FakeEDTinyDB:
-        @staticmethod
-        def create(datasource_name: str | None = None, *, logging_utils=None):
-            return fake_db
-
-    fake_db = FakeTinyDB()
-    monkeypatch.setattr(export_tinydb, "EDTinyDB", FakeEDTinyDB)
+    fake = FakeTinyDB()
+    monkeypatch.setattr(export_tinydb, "EDTinyDB", type("FakeEDTinyDB", (), {"create": staticmethod(lambda logging_utils=None: fake)}))
     monkeypatch.setattr(export_tinydb.EDLoggingUtils, "create", lambda: object())
-    export_dir = tmp_path / "ed_tinydb-export"
-    monkeypatch.setattr(
-        sys, "argv", ["export_tinydb.py", "--export-dir", str(export_dir)]
-    )
+    monkeypatch.setattr(sys, "argv", ["export_tinydb.py", "--export-dir", str(tmp_path)])
 
     export_tinydb.main()
-
-    assert fake_db.export_dir == str(export_dir)
-
-
-if __name__ == "__main__":
-    main()
+    assert fake.export_dir == str(tmp_path)
