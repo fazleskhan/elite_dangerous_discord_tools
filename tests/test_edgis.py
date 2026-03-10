@@ -1,11 +1,17 @@
-from edgis import fetch_system_info
-from edgis import fetch_neighbors
 from edgis import EDGis
 import ed_constants as constants
 import pytest
 
 
 def main(): ...
+
+
+class _FakeLoggingUtils:
+    def debug(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def exception(self, _message: str, *_args, **_kwargs):
+        return None
 
 
 def test_constructor_raises_when_logging_utils_is_none():
@@ -17,7 +23,8 @@ def test_constructor_raises_when_logging_utils_is_none():
 
 
 def test_fetch_system_info():
-    sol_data = fetch_system_info("Sol")
+    gis = EDGis(_FakeLoggingUtils())
+    sol_data = gis.fetch_system_info("Sol")
     assert sol_data[constants.system_info_id64_field] == 10477373803
     assert sol_data[constants.system_info_name_field] == "Sol"
     assert sol_data[constants.system_info_mainstar_field] == "G"
@@ -36,7 +43,8 @@ def test_fetch_system_info():
 
 
 def test_fetch_neighbors():
-    sol_neighbors = fetch_neighbors(0, 0, 0)
+    gis = EDGis(_FakeLoggingUtils())
+    sol_neighbors = gis.fetch_neighbors(0, 0, 0)
     print(f"sol_neighbors: {sol_neighbors}")
     assert sol_neighbors[0][constants.system_info_id64_field] == 10477373803
     assert sol_neighbors[0][constants.system_info_name_field] == "Sol"
