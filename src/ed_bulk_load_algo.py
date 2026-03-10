@@ -22,6 +22,7 @@ from ed_constants import (
 
 """Cache bulk-load helpers shared by CLI and Discord entrypoints."""
 
+
 def main() -> None: ...
 
 
@@ -36,9 +37,16 @@ class EDBulkLoadAlgo:
     ) -> None:
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
-        self.fetch_system_info_fn = fetch_system_info_fn
-        self.fetch_neighbors_fn = fetch_neighbors_fn
-        self._logging_utils = logging_utils
+        else:
+            self._logging_utils = logging_utils
+        if fetch_system_info_fn is None:
+            raise ValueError("fetch_system_info_fn of type FetchInfoFn is required")
+        else:
+            self.fetch_system_info_fn = fetch_system_info_fn
+        if fetch_neighbors_fn is None:
+            raise ValueError("fetch_neighbors_fn of type FetchNeighborsFn is required")
+        else:
+            self.fetch_neighbors_fn = fetch_neighbors_fn
         self._logging_utils.debug("EDBulkLoadAlgo initialized")
 
     @staticmethod
@@ -213,6 +221,7 @@ class EDBulkLoadAlgo:
             return detected
         # Fallback: logical core count when physical count isn't available.
         return max(1, psutil.cpu_count(logical=True) or 1)
+
 
 if __name__ == "__main__":
     main()

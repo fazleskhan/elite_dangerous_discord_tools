@@ -14,6 +14,6 @@ def test_constructor_raises_when_logging_utils_is_none():
         match="^logging_utils of type LoggingProtocol is required$",
     ):
         EDInitDatasourceService(
-            database=_FakeDatasource(),
+            datasource=_FakeDatasource(),
             logging_utils=None,  # type: ignore[arg-type]
         )
