@@ -109,9 +109,13 @@ def discord_bot(logger: ThreadSafeLogger) -> ed_discord_bot.EDDiscordBot:
 def test_discord_bot_validates_dependencies(logger: ThreadSafeLogger) -> None:
     route = FakeRouteService()
     bot = FakeBot()
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_discord_bot.EDDiscordBot(route, "token", bot, None)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="ed_route_service of type RouteServiceProtocol is required"):
+    with pytest.raises(
+        ValueError, match="ed_route_service of type RouteServiceProtocol is required"
+    ):
         ed_discord_bot.EDDiscordBot(None, "token", bot, logger)  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="token of type str is required"):
         ed_discord_bot.EDDiscordBot(route, None, bot, logger)  # type: ignore[arg-type]
@@ -125,7 +129,9 @@ def test_default_intents_enable_required_flags() -> None:
     assert intents.members is True
 
 
-def test_create_uses_injected_route_and_bot(monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger) -> None:
+def test_create_uses_injected_route_and_bot(
+    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger
+) -> None:
     route = FakeRouteService()
     bot = FakeBot("?")
     monkeypatch.setattr(ed_discord_bot, "load_dotenv", lambda: None)
@@ -136,16 +142,47 @@ def test_create_uses_injected_route_and_bot(monkeypatch: pytest.MonkeyPatch, log
     assert created.bot is bot
 
 
-def test_create_builds_default_dependencies(monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger) -> None:
+def test_create_builds_default_dependencies(
+    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger
+) -> None:
     route = FakeRouteService()
     datasource = object()
     cache = object()
     monkeypatch.setattr(ed_discord_bot, "load_dotenv", lambda: None)
-    monkeypatch.setattr(ed_discord_bot.ed_datasource_factory, "create_datasource", lambda: datasource)
-    monkeypatch.setattr(ed_discord_bot.EDGis, "create", staticmethod(lambda logging_utils: type("GIS", (), {"fetch_system_info": lambda self, name: {"name": name}, "fetch_neighbors": lambda self, x, y, z: []})()))
-    monkeypatch.setattr(ed_discord_bot.edgis_cache.EDGisCache, "create", staticmethod(lambda datasource, logging_utils, fetch_system_info_fn, fetch_neighbors_fn: cache))
-    monkeypatch.setattr(ed_discord_bot.EDRouteServiceFactory, "create", staticmethod(lambda datasource=None, cache=None, logging_utils=None: route))
-    monkeypatch.setattr(ed_discord_bot.commands, "Bot", lambda command_prefix, intents: FakeBot(command_prefix))
+    monkeypatch.setattr(
+        ed_discord_bot.ed_datasource_factory, "create_datasource", lambda: datasource
+    )
+    monkeypatch.setattr(
+        ed_discord_bot.EDGis,
+        "create",
+        staticmethod(
+            lambda logging_utils: type(
+                "GIS",
+                (),
+                {
+                    "fetch_system_info": lambda self, name: {"name": name},
+                    "fetch_neighbors": lambda self, x, y, z: [],
+                },
+            )()
+        ),
+    )
+    monkeypatch.setattr(
+        ed_discord_bot.edgis_cache.EDGisCache,
+        "create",
+        staticmethod(
+            lambda datasource, logging_utils, fetch_system_info_fn, fetch_neighbors_fn: cache
+        ),
+    )
+    monkeypatch.setattr(
+        ed_discord_bot.EDRouteServiceFactory,
+        "create",
+        staticmethod(lambda datasource=None, cache=None, logging_utils=None: route),
+    )
+    monkeypatch.setattr(
+        ed_discord_bot.commands,
+        "Bot",
+        lambda command_prefix, intents: FakeBot(command_prefix),
+    )
 
     created = ed_discord_bot.EDDiscordBot.create(logging_utils=logger, token="token")
 
@@ -154,7 +191,9 @@ def test_create_builds_default_dependencies(monkeypatch: pytest.MonkeyPatch, log
 
 
 @pytest.mark.asyncio
-async def test_on_ready_ping_and_resolve(discord_bot: ed_discord_bot.EDDiscordBot, logger: ThreadSafeLogger) -> None:
+async def test_on_ready_ping_and_resolve(
+    discord_bot: ed_discord_bot.EDDiscordBot, logger: ThreadSafeLogger
+) -> None:
     await discord_bot.on_ready()
     ctx = FakeContext()
     await discord_bot.ping(ctx)
@@ -165,7 +204,9 @@ async def test_on_ready_ping_and_resolve(discord_bot: ed_discord_bot.EDDiscordBo
 
 
 @pytest.mark.asyncio
-async def test_system_info_short_and_long_payloads(discord_bot: ed_discord_bot.EDDiscordBot) -> None:
+async def test_system_info_short_and_long_payloads(
+    discord_bot: ed_discord_bot.EDDiscordBot,
+) -> None:
     ctx = FakeContext()
     await discord_bot.system_info(ctx, "Sol")
     assert "Sol: {'name': 'Sol'}" in ctx.messages[0]
@@ -204,7 +245,11 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
         loop.create_task(consume())
         return future
 
-    monkeypatch.setattr(ed_discord_bot.asyncio, "run_coroutine_threadsafe", fake_run_coroutine_threadsafe)
+    monkeypatch.setattr(
+        ed_discord_bot.asyncio,
+        "run_coroutine_threadsafe",
+        fake_run_coroutine_threadsafe,
+    )
 
     path_ctx = FakeContext()
     await discord_bot.path(path_ctx, "Sol", "Lave", 10, 1, 20)
@@ -213,7 +258,9 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
     await asyncio.sleep(0)
     await asyncio.sleep(0)
     assert path_ctx.messages[0].startswith("Calculate Path between Sol and Lave")
-    assert any("Route from Sol to Lave: Sol → Lave" in message for message in path_ctx.messages)
+    assert any(
+        "Route from Sol to Lave: Sol → Lave" in message for message in path_ctx.messages
+    )
     assert scheduled == ["sent"]
 
     async def no_route(*args: Any, **kwargs: Any) -> None:
@@ -235,7 +282,9 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
 
     bulk_ctx = FakeContext()
     await discord_bot.bulk_load_cache(bulk_ctx, "Sol, Lave", 2)
-    assert bulk_ctx.messages[0].startswith("Bulk loading cache from seeds ['Sol', 'Lave']")
+    assert bulk_ctx.messages[0].startswith(
+        "Bulk loading cache from seeds ['Sol', 'Lave']"
+    )
     assert bulk_ctx.messages[-1].startswith("Bulk load complete. Loaded 2 systems")
 
 

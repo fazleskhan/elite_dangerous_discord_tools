@@ -8,7 +8,9 @@ from tests.helpers import ThreadSafeLogger
 
 
 def test_factory_constructor_and_create_validate_logging_utils() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_datasource_factory.EDDatasourceFactory(None)  # type: ignore[arg-type]
 
     factory = ed_datasource_factory.EDDatasourceFactory.create(ThreadSafeLogger())
@@ -42,8 +44,14 @@ def test_create_datasource_uses_tinydb_backend(monkeypatch: pytest.MonkeyPatch) 
             return "tinydb"
 
     monkeypatch.setattr(ed_datasource_factory, "load_dotenv", lambda: None)
-    monkeypatch.setattr(ed_datasource_factory, "resolve_datasource_type", lambda *_args, **_kwargs: "tinydb")
-    monkeypatch.setitem(sys.modules, "ed_tinydb", types.SimpleNamespace(EDTinyDB=FakeTinyDB))
+    monkeypatch.setattr(
+        ed_datasource_factory,
+        "resolve_datasource_type",
+        lambda *_args, **_kwargs: "tinydb",
+    )
+    monkeypatch.setitem(
+        sys.modules, "ed_tinydb", types.SimpleNamespace(EDTinyDB=FakeTinyDB)
+    )
 
     factory = ed_datasource_factory.EDDatasourceFactory(ThreadSafeLogger())
     assert factory.create_datasource(datasource_name="db.json") == "tinydb"
@@ -62,8 +70,14 @@ def test_create_datasource_uses_redis_backend(monkeypatch: pytest.MonkeyPatch) -
             return "redis"
 
     monkeypatch.setattr(ed_datasource_factory, "load_dotenv", lambda: None)
-    monkeypatch.setattr(ed_datasource_factory, "resolve_datasource_type", lambda *_args, **_kwargs: "redis")
-    monkeypatch.setitem(sys.modules, "ed_redis", types.SimpleNamespace(EDRedis=FakeRedis))
+    monkeypatch.setattr(
+        ed_datasource_factory,
+        "resolve_datasource_type",
+        lambda *_args, **_kwargs: "redis",
+    )
+    monkeypatch.setitem(
+        sys.modules, "ed_redis", types.SimpleNamespace(EDRedis=FakeRedis)
+    )
 
     factory = ed_datasource_factory.EDDatasourceFactory(ThreadSafeLogger())
     assert factory.create_datasource(datasource_name="cache") == "redis"
@@ -71,7 +85,9 @@ def test_create_datasource_uses_redis_backend(monkeypatch: pytest.MonkeyPatch) -
     assert captured["logger"] is not None
 
 
-def test_module_create_datasource_uses_edloggingutils(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_module_create_datasource_uses_edloggingutils(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     created_with: list[object] = []
 
     class FakeFactory:
@@ -82,7 +98,9 @@ def test_module_create_datasource_uses_edloggingutils(monkeypatch: pytest.Monkey
     monkeypatch.setattr(
         ed_datasource_factory.EDDatasourceFactory,
         "create",
-        staticmethod(lambda logging_utils: created_with.append(logging_utils) or FakeFactory()),
+        staticmethod(
+            lambda logging_utils: created_with.append(logging_utils) or FakeFactory()
+        ),
     )
 
     assert ed_datasource_factory.create_datasource("name", "redis") == ("name", "redis")

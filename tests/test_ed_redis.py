@@ -151,7 +151,10 @@ class FakeRedisFactory:
         self.client_cls: type[FakeRedisClient] = FakeRedisClient
 
     def from_url(
-        self, url: str, decode_responses: bool = False, max_connections: int | None = None
+        self,
+        url: str,
+        decode_responses: bool = False,
+        max_connections: int | None = None,
     ) -> FakeRedisClient:
         self.calls.append(
             {
@@ -199,14 +202,18 @@ def fake_redis(monkeypatch: pytest.MonkeyPatch) -> FakeRedisFactory:
 
 
 @pytest.fixture()
-def redis_backend(logger: ThreadSafeLogger, fake_redis: FakeRedisFactory) -> ed_redis.EDRedis:
+def redis_backend(
+    logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
+) -> ed_redis.EDRedis:
     return ed_redis.EDRedis.create(logging_utils=logger)
 
 
 @pytest.mark.asyncio
 async def test_close_client_async_prefers_aclose() -> None:
     client = FakeRedisClient(FakeRedisStore())
-    await ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)._close_client_async(client)
+    await ed_redis.EDRedis(
+        "test", "redis://localhost:6379/0", ThreadSafeLogger(), 1
+    )._close_client_async(client)
     assert client.closed is True
 
 
@@ -214,7 +221,9 @@ async def test_close_client_async_prefers_aclose() -> None:
 async def test_close_client_async_supports_legacy_sync_close() -> None:
     client = LegacyCloseRedisClient(FakeRedisStore())
 
-    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)
+    backend = ed_redis.EDRedis(
+        "test", "redis://localhost:6379/0", ThreadSafeLogger(), 1
+    )
     await backend._close_client_async(client)
 
     assert client.closed is True
@@ -225,7 +234,9 @@ async def test_close_client_async_supports_legacy_sync_close() -> None:
 async def test_close_client_async_supports_legacy_coroutine_close() -> None:
     client = CoroutineCloseRedisClient(FakeRedisStore())
 
-    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", ThreadSafeLogger(), 1)
+    backend = ed_redis.EDRedis(
+        "test", "redis://localhost:6379/0", ThreadSafeLogger(), 1
+    )
     await backend._close_client_async(client)
 
     assert client.closed is True
@@ -233,7 +244,9 @@ async def test_close_client_async_supports_legacy_coroutine_close() -> None:
 
 
 def test_create_uses_explicit_name_then_env_then_default(
-    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
+    monkeypatch: pytest.MonkeyPatch,
+    logger: ThreadSafeLogger,
+    fake_redis: FakeRedisFactory,
 ) -> None:
     explicit = ed_redis.EDRedis.create(
         logging_utils=logger,
@@ -254,11 +267,17 @@ def test_create_uses_explicit_name_then_env_then_default(
     assert defaulted.datasource_name == default_redis_store_name
 
 
-def test_constructor_validates_inputs_and_logs_backend(logger: ThreadSafeLogger) -> None:
-    with pytest.raises(ValueError, match="Redis URL of type str is a required argument"):
+def test_constructor_validates_inputs_and_logs_backend(
+    logger: ThreadSafeLogger,
+) -> None:
+    with pytest.raises(
+        ValueError, match="Redis URL of type str is a required argument"
+    ):
         ed_redis.EDRedis("test", None, logger, 1)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_redis.EDRedis("test", "redis://localhost:6379/0", None, 1)  # type: ignore[arg-type]
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
@@ -295,9 +314,18 @@ def test_resolve_redis_url_validates_supported_schemes_and_hosts(
     with pytest.raises(ValueError, match="must include a host"):
         ed_redis.EDRedis._resolve_redis_url("redis:///0")
 
-    assert ed_redis.EDRedis._resolve_redis_url("redis://localhost:6379/0") == "redis://localhost:6379/0"
-    assert ed_redis.EDRedis._resolve_redis_url("rediss://localhost:6379/0") == "rediss://localhost:6379/0"
-    assert ed_redis.EDRedis._resolve_redis_url("unix:///tmp/redis.sock") == "unix:///tmp/redis.sock"
+    assert (
+        ed_redis.EDRedis._resolve_redis_url("redis://localhost:6379/0")
+        == "redis://localhost:6379/0"
+    )
+    assert (
+        ed_redis.EDRedis._resolve_redis_url("rediss://localhost:6379/0")
+        == "rediss://localhost:6379/0"
+    )
+    assert (
+        ed_redis.EDRedis._resolve_redis_url("unix:///tmp/redis.sock")
+        == "unix:///tmp/redis.sock"
+    )
 
 
 def test_run_async_handles_plain_calls_and_existing_event_loop(
@@ -471,7 +499,9 @@ def test_export_datasource_skips_blank_names_and_lookup_misses(tmp_path: Path) -
 
 
 def test_new_client_uses_env_max_connections_when_not_explicit(
-    monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
+    monkeypatch: pytest.MonkeyPatch,
+    logger: ThreadSafeLogger,
+    fake_redis: FakeRedisFactory,
 ) -> None:
     monkeypatch.setenv(redis_max_connections_env, "13")
     backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, None)  # type: ignore[arg-type]

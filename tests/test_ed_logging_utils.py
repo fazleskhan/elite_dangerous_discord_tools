@@ -309,7 +309,9 @@ def test_event_targets_config_checks_source_and_dest_paths(tmp_path: Path) -> No
     )
 
 
-def test_event_targets_config_returns_false_when_event_has_no_dest_path(tmp_path: Path) -> None:
+def test_event_targets_config_returns_false_when_event_has_no_dest_path(
+    tmp_path: Path,
+) -> None:
     watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "loguru.json")
 
     class Event:
@@ -410,7 +412,9 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     observer = FakeObserver()
     apply_calls: list[bool] = []
 
-    monkeypatch.setattr(watcher, "_apply_if_needed", lambda force: apply_calls.append(force))
+    monkeypatch.setattr(
+        watcher, "_apply_if_needed", lambda force: apply_calls.append(force)
+    )
     monkeypatch.setattr(
         watcher,
         "_load_config",
@@ -440,7 +444,9 @@ def test_start_skips_observer_when_watch_disabled(
     watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "loguru.json")
     apply_calls: list[bool] = []
 
-    monkeypatch.setattr(watcher, "_apply_if_needed", lambda force: apply_calls.append(force))
+    monkeypatch.setattr(
+        watcher, "_apply_if_needed", lambda force: apply_calls.append(force)
+    )
     monkeypatch.setattr(
         watcher,
         "_load_config",
@@ -559,7 +565,9 @@ def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
         time.sleep(0.02)
         init_calls.append(Path(config_path))
 
-    monkeypatch.setattr(ed_logging_utils.EDLoggingUtils, "_initialize_watcher", fake_initialize)
+    monkeypatch.setattr(
+        ed_logging_utils.EDLoggingUtils, "_initialize_watcher", fake_initialize
+    )
 
     def worker(index: int) -> None:
         barrier.wait()

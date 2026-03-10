@@ -25,7 +25,15 @@ class FakeRouteService:
         self.last_distance_args = (source, target)
         return 4.0
 
-    async def path(self, source, target, max_systems=100, min_distance=0, max_distance=10000, progress_callback=None):
+    async def path(
+        self,
+        source,
+        target,
+        max_systems=100,
+        min_distance=0,
+        max_distance=10000,
+        progress_callback=None,
+    ):
         self.last_path_args = (source, target, max_systems, min_distance, max_distance)
         if progress_callback:
             progress_callback("step")
@@ -34,7 +42,9 @@ class FakeRouteService:
     def init_datasource(self, import_dir="./init"):
         self.last_init_import_dir = import_dir
 
-    def bulk_load_cache(self, initial_system_names, max_nodes_visited, progress_callback=None):
+    def bulk_load_cache(
+        self, initial_system_names, max_nodes_visited, progress_callback=None
+    ):
         self.last_bulk_load_args = (initial_system_names, max_nodes_visited)
         if progress_callback:
             progress_callback("loaded")
@@ -46,13 +56,21 @@ def build_main() -> main.EDMain:
 
 
 def test_edmain_validates_constructor_and_create(monkeypatch):  # type: ignore[no-untyped-def]
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         main.EDMain(FakeRouteService(), None)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="route_service of type RouteServiceProtocol is required"):
+    with pytest.raises(
+        ValueError, match="route_service of type RouteServiceProtocol is required"
+    ):
         main.EDMain(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
     monkeypatch.setattr(main, "EDLoggingUtils", lambda: "logger")
-    monkeypatch.setattr(main.EDRouteServiceFactory, "create", staticmethod(lambda logging_utils: "route"))
+    monkeypatch.setattr(
+        main.EDRouteServiceFactory,
+        "create",
+        staticmethod(lambda logging_utils: "route"),
+    )
     created = main.EDMain.create()
     assert created.logging_utils == "logger"
     assert created.route_service == "route"
@@ -84,10 +102,33 @@ def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
         ["main.py", "ping"],
         ["main.py", "all_loaded_systems"],
         ["main.py", "system_info", "--system_name", "Sol"],
-        ["main.py", "path", "--initial", "Sol", "--destination", "Lave", "--max_systems", "10"],
-        ["main.py", "calc_systems_distance", "--initial", "Sol", "--destination", "Lave"],
+        [
+            "main.py",
+            "path",
+            "--initial",
+            "Sol",
+            "--destination",
+            "Lave",
+            "--max_systems",
+            "10",
+        ],
+        [
+            "main.py",
+            "calc_systems_distance",
+            "--initial",
+            "Sol",
+            "--destination",
+            "Lave",
+        ],
         ["main.py", "init_datasource", "--import_dir", "./seed"],
-        ["main.py", "bulk_load_cache", "--initial_systems", "Sol,Lave", "--max_nodes_visited", "2"],
+        [
+            "main.py",
+            "bulk_load_cache",
+            "--initial_systems",
+            "Sol,Lave",
+            "--max_nodes_visited",
+            "2",
+        ],
     ]
 
     for argv in command_sets:
@@ -111,7 +152,16 @@ def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no
         ["main.py", "system_info"],
         ["main.py", "path", "--destination", "Lave", "--max_systems", "10"],
         ["main.py", "path", "--initial", "Sol", "--max_systems", "10"],
-        ["main.py", "path", "--initial", "Sol", "--destination", "Lave", "--max_systems", "1001"],
+        [
+            "main.py",
+            "path",
+            "--initial",
+            "Sol",
+            "--destination",
+            "Lave",
+            "--max_systems",
+            "1001",
+        ],
         ["main.py", "calc_systems_distance", "--destination", "Lave"],
         ["main.py", "calc_systems_distance", "--initial", "Sol"],
         ["main.py", "bulk_load_cache", "--max_nodes_visited", "2"],

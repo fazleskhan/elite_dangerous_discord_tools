@@ -21,10 +21,15 @@ class FakeGetSystemInfoService:
 
 
 def test_calc_distance_service_validates_dependencies() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_calc_systems_distance_service.EDCalcSystemsDistanceService(FakeGetSystemInfoService(), None)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="get_system_info_service of type GetSystemInfoProtocol is required"):
+    with pytest.raises(
+        ValueError,
+        match="get_system_info_service of type GetSystemInfoProtocol is required",
+    ):
         ed_calc_systems_distance_service.EDCalcSystemsDistanceService(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
 
@@ -38,7 +43,10 @@ def test_calc_distance_service_calculates_and_caches_coords() -> None:
     assert service.run("Sol", "Alpha Centauri") == pytest.approx(5.0)
     assert service.run("Sol", "Alpha Centauri") == pytest.approx(5.0)
     assert info_service.calls == ["Sol", "Alpha Centauri"]
-    assert ("Distance calculated for {} -> {}: {}", ("Sol", "Alpha Centauri", 5.0)) in logger.messages("debug")
+    assert (
+        "Distance calculated for {} -> {}: {}",
+        ("Sol", "Alpha Centauri", 5.0),
+    ) in logger.messages("debug")
 
 
 def test_calc_distance_service_raises_for_missing_systems() -> None:

@@ -15,17 +15,23 @@ class FakeBulkLoad:
 
 
 def test_bulk_load_cache_service_validates_dependencies() -> None:
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_bulk_load_cache_service.EDBulkLoadCacheService(FakeBulkLoad(), None)  # type: ignore[arg-type]
 
-    with pytest.raises(ValueError, match="bulk_load of type BulkLoadProtocol is required"):
+    with pytest.raises(
+        ValueError, match="bulk_load of type BulkLoadProtocol is required"
+    ):
         ed_bulk_load_cache_service.EDBulkLoadCacheService(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
 
 def test_bulk_load_cache_service_delegates_and_logs() -> None:
     logger = ThreadSafeLogger()
     bulk_load = FakeBulkLoad()
-    service = ed_bulk_load_cache_service.EDBulkLoadCacheService.create(bulk_load, logger)
+    service = ed_bulk_load_cache_service.EDBulkLoadCacheService.create(
+        bulk_load, logger
+    )
     progress: list[str] = []
 
     assert service.load(["Sol", "Lave"], 1, progress.append) == ["Sol"]

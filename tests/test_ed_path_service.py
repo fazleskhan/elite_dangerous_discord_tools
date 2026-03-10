@@ -24,11 +24,16 @@ class FakeDistanceService:
 
 def test_path_service_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
-    with pytest.raises(ValueError, match="logging_utils of type LoggingProtocol is required"):
+    with pytest.raises(
+        ValueError, match="logging_utils of type LoggingProtocol is required"
+    ):
         ed_path_service.EDPathService(FakeBfs(), FakeDistanceService(), None)  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="bfs of type BfsProtocol is required"):
         ed_path_service.EDPathService(None, FakeDistanceService(), logger)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="calc_distance_service of type CalcSystemsDistanceProtocol is required"):
+    with pytest.raises(
+        ValueError,
+        match="calc_distance_service of type CalcSystemsDistanceProtocol is required",
+    ):
         ed_path_service.EDPathService(FakeBfs(), None, logger)  # type: ignore[arg-type]
 
 
