@@ -15,7 +15,7 @@ from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
 from ed_logging_utils import EDLoggingUtils
 from ed_constants import default_init_dir, discord_token_env
-from ed_protocols import LoggingProtocol, RouteServiceProtocol
+from ed_protocols import CacheProtocol, LoggingProtocol, RouteServiceProtocol
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -42,11 +42,21 @@ class EDDiscordBot:
     ) -> None:
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
-        self.ed_route = ed_route_service
-        self.token = token
-        self.bot = bot
-        self.logger = logging_utils
-        self.logger.debug(
+        else:
+            self._logging_utils = logging_utils
+        if ed_route_service is None:
+            raise ValueError("ed_route_service of type RouteServiceProtocol is required")
+        else:
+            self.ed_route = ed_route_service
+        if token is None:
+            raise ValueError("token of type str is required")
+        else:
+            self.token = token
+        if bot is None:
+            raise ValueError("bot of type commands.Bot is required")
+        else:
+            self.bot = bot
+        self._logging_utils.debug(
             "Initializing DiscordBot with prefix={}", self.bot.command_prefix
         )
         self.bot.event(self.on_ready)
@@ -62,7 +72,7 @@ class EDDiscordBot:
     @staticmethod
     def create(
         route_service: RouteServiceProtocol | None = None,
-        cache: object | None = None,
+        cache: CacheProtocol | None = None,
         logging_utils: LoggingProtocol = EDLoggingUtils(),
         token: str | None = os.getenv(discord_token_env),
         bot: commands.Bot | None = None,
@@ -102,11 +112,11 @@ class EDDiscordBot:
 
     async def on_ready(self) -> None:
         user_name = self.bot.user.name if self.bot.user is not None else "<unknown>"
-        self.logger.info("Elite Dangerous Tools is ready: user={}", user_name)
+        self._logging_utils.info("Elite Dangerous Tools is ready: user={}", user_name)
 
     async def ping(self, ctx: commands.Context) -> None:
         start = time.perf_counter()
-        self.logger.debug("Received ping command")
+        self._logging_utils.debug("Received ping command")
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(f"Pong ({elapsed_ms} ms)")
 
@@ -118,9 +128,9 @@ class EDDiscordBot:
 
     async def system_info(self, ctx: commands.Context, arg: str) -> None:
         start = time.perf_counter()
-        self.logger.info("system_info command: system={}", arg)
+        self._logging_utils.info("system_info command: system={}", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
-        self.logger.debug(
+        self._logging_utils.debug(
             "system_info command completed: found={}", system_info is not None
         )
         s_info = str(system_info)
@@ -142,7 +152,7 @@ class EDDiscordBot:
         system_name_two: str,
     ) -> None:
         start = time.perf_counter()
-        self.logger.info(
+        self._logging_utils.info(
             "calc_systems_distance command: system_one={} system_two={}",
             system_name_one,
             system_name_two,
@@ -165,7 +175,7 @@ class EDDiscordBot:
         max_distance: int = 10000,
     ) -> None:
         start = time.perf_counter()
-        self.logger.info(
+        self._logging_utils.info(
             "path command: source={} destination={} max_system_count={} min_distance={} max_distance={}",
             initial_system_name,
             destination_system_name,
@@ -185,12 +195,12 @@ class EDDiscordBot:
             # failures in logs instead of failing the command coroutine.
             exc = send_result.exception()
             if exc is not None:
-                self.logger.opt(exception=exc).error(
+                self._logging_utils.opt(exception=exc).error(
                     "Failed to send progress update to Discord"
                 )
 
         def progress_callback(message: str) -> None:
-            self.logger.info(message)
+            self._logging_utils.info(message)
             # Route progress callback executes off-loop; schedule send safely.
             send_future = asyncio.run_coroutine_threadsafe(ctx.send(message), loop)
             send_future.add_done_callback(handle_progress_send_result)
@@ -206,7 +216,7 @@ class EDDiscordBot:
             )
         )
         if not route:
-            self.logger.warning(
+            self._logging_utils.warning(
                 "No route found: source={} destination={} max_system_count={}",
                 initial_system_name,
                 destination_system_name,
@@ -214,7 +224,7 @@ class EDDiscordBot:
             )
             message = f"No Path found between {initial_system_name} and {destination_system_name} with max system count {max_system_count}"
         else:
-            self.logger.info(
+            self._logging_utils.info(
                 "Route found: source={} destination={} hops={}",
                 initial_system_name,
                 destination_system_name,
@@ -233,10 +243,10 @@ class EDDiscordBot:
 
     async def dump_system_cache_names(self, ctx: commands.Context) -> None:
         start = time.perf_counter()
-        self.logger.info("dump_system_cache_names command")
+        self._logging_utils.info("dump_system_cache_names command")
         await ctx.send("Fetching all system names in cache... This may take a while")
         system_names = await self._resolve(self.ed_route.get_all_system_names())
-        self.logger.debug("Fetched {} cached system names", len(system_names))
+        self._logging_utils.debug("Fetched {} cached system names", len(system_names))
         for chunk in self.chunked_system_list(system_names, size=10):
             system_names_message = ", ".join(chunk)
             await ctx.send(f"Systems in cache: {system_names_message}")
@@ -249,7 +259,7 @@ class EDDiscordBot:
         self, ctx: commands.Context, import_dir: str = default_init_dir
     ) -> None:
         start = time.perf_counter()
-        self.logger.info("init_datasource command: import_dir={}", import_dir)
+        self._logging_utils.info("init_datasource command: import_dir={}", import_dir)
         await self._resolve(self.ed_route.init_datasource(import_dir))
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(f"Datasource initialized from {import_dir} ({elapsed_ms} ms)")
@@ -266,7 +276,7 @@ class EDDiscordBot:
             for system_name in initial_systems.split(",")
             if system_name.strip()
         ]
-        self.logger.info(
+        self._logging_utils.info(
             "bulk_load_cache command: initial_systems={} max_nodes_visited={}",
             initial_system_names,
             max_nodes_visited,
@@ -278,7 +288,7 @@ class EDDiscordBot:
             self.ed_route.bulk_load_cache(
                 initial_system_names,
                 max_nodes_visited,
-                progress_callback=lambda message: self.logger.info(message),
+                progress_callback=lambda message: self._logging_utils.info(message),
             )
         )
         elapsed_ms = int((time.perf_counter() - start) * 1000)
@@ -287,7 +297,7 @@ class EDDiscordBot:
         )
 
     def register_commands(self) -> None:
-        self.logger.debug("Registering bot commands")
+        self._logging_utils.debug("Registering bot commands")
         # ``discord.ext.commands`` expects plain callables whose first
         # parameter is ``ctx`` (plus any user arguments).  Using a bound
         # method would insert ``self`` as the first argument, causing
@@ -357,13 +367,9 @@ class EDDiscordBot:
         """
         if self.token is None:
             raise RuntimeError("DISCORD_TOKEN is not configured")
-        self.logger.info("Starting Discord bot run loop")
+        self._logging_utils.info("Starting Discord bot run loop")
         self.bot.run(self.token, log_handler=None, log_level=None)
 
 
 if __name__ == "__main__":
     main()
-
-
-# Backward-compatible alias for existing imports/tests.
-DiscordBot = EDDiscordBot
