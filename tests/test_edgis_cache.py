@@ -3,8 +3,9 @@ import pytest
 import test_data
 import os
 import edgis_cache
+from ed_logging_utils import EDLoggingUtils
 
-test_db_filename = f"{__file__.replace("tests", "data").replace(".py", ".db")}"
+test_db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 
 
 def main(): ...
@@ -40,10 +41,24 @@ def ed(database):
         database,
         fetch_system_info_fn=fetch_system_info_stub,
         fetch_neighbors_fn=fetch_neighbors_stub,
+        logging_utils=EDLoggingUtils(),
     )
 
 
 ################# TESTS ####################
+
+
+def test_constructor_raises_when_logging_utils_is_none(database):
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        edgis_cache.EDGisCache(
+            db=database,
+            fetch_system_info_fn=lambda _system_name: None,
+            fetch_neighbors_fn=lambda _x, _y, _z: None,
+            logging_utils=None,  # type: ignore[arg-type]
+        )
 
 
 @pytest.mark.skip(reason="this logic is currently broken")

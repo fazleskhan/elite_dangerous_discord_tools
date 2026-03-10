@@ -1,5 +1,4 @@
 from edgis import fetch_system_info, fetch_neighbors
-from loguru import logger
 from typing import Any
 from ed_constants import (
     system_info_coords_field,
@@ -13,6 +12,7 @@ from ed_protocols import (
     DatasourceProtocol,
     FetchNeighborsFn,
     FetchSystemInfoFn,
+    LoggingProtocol,
     SystemInfo,
 )
 
@@ -29,19 +29,30 @@ class EDGisCache:
         db: DatasourceProtocol,
         fetch_system_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
+        *,
+        logging_utils: LoggingProtocol,
     ) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.db = db
         self.fetch_system_info_fn = fetch_system_info_fn
         self.fetch_neighbors_fn = fetch_neighbors_fn
-        self.logger = logger
+        self.logger = logging_utils
 
     @staticmethod
     def create(
         db_obj: DatasourceProtocol,
         fetch_system_info_fn: FetchSystemInfoFn = fetch_system_info,
         fetch_neighbors_fn: FetchNeighborsFn = fetch_neighbors,
+        *,
+        logging_utils: LoggingProtocol,
     ) -> "EDGisCache":
-        return EDGisCache(db_obj, fetch_system_info_fn, fetch_neighbors_fn)
+        return EDGisCache(
+            db_obj,
+            fetch_system_info_fn,
+            fetch_neighbors_fn,
+            logging_utils=logging_utils,
+        )
 
     # Cache-through read for system metadata.
     def find_system_info(self, system_name: str) -> SystemInfo | None:
@@ -101,12 +112,13 @@ class EDCache(EDGisCache):
     def create(
         db_obj: DatasourceProtocol,
         gis: Any,
-        logging_utils: Any,
+        logging_utils: LoggingProtocol | None,
     ) -> "EDCache":
         return EDCache(
             db_obj,
             fetch_system_info_fn=gis.fetch_system_info,
             fetch_neighbors_fn=gis.fetch_neighbors,
+            logging_utils=logging_utils,
         )
 
 

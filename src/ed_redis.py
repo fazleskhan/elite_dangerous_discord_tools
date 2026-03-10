@@ -7,10 +7,9 @@ from typing import Any
 from urllib.parse import urlparse
 
 import psutil
-from loguru import logger
 from redis import asyncio as redis
 
-from ed_protocols import SystemInfo
+from ed_protocols import LoggingProtocol, SystemInfo
 from ed_constants import (
     default_init_dir,
     default_redis_store_name,
@@ -40,20 +39,30 @@ class EDRedis:
     def create(
         datasource_name: str | None = None,
         redis_url: str | None = None,
-        logging_utils: Any = None,
+        *,
+        logging_utils: LoggingProtocol,
     ) -> "EDRedis":
         # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         return EDRedis(
             datasource_name or os.getenv(redis_app_name_env, default_redis_store_name),
             redis_url=redis_url,
+            logging_utils=logging_utils,
         )
 
-    def __init__(self, datasource_name: str, redis_url: str | None = None):
+    def __init__(
+        self,
+        datasource_name: str,
+        redis_url: str | None = None,
+        *,
+        logging_utils: LoggingProtocol,
+    ):
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.datasource_name = datasource_name
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
-        self.logger = logger
+        self.logger = logging_utils
         self._redis_url = self._resolve_redis_url(redis_url)
         self._max_connections = int(
             os.getenv(redis_max_connections_env, str(self._default_max_connections()))

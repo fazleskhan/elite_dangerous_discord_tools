@@ -4,10 +4,12 @@ import time
 from typing import Any
 
 from ed_constants import system_info_name_field
+from ed_logging_utils import EDLoggingUtils
 from ed_protocols import (
     DistanceFn,
     FetchInfoFn,
     FetchNeighborsFn,
+    LoggingProtocol,
     ProgressFn,
     SystemInfo,
 )
@@ -133,15 +135,20 @@ class EDBfs:
         self,
         fetch_info_fn: FetchInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
+        logging_utils: LoggingProtocol,
     ) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self._fetch_info_fn = fetch_info_fn
         self._fetch_neighbors_fn = fetch_neighbors_fn
+        self._logging_utils = logging_utils
 
     @staticmethod
-    def create(cache: Any, logging_utils: Any) -> "EDBfs":
+    def create(cache: Any, logging_utils: LoggingProtocol | None) -> "EDBfs":
         return EDBfs(
             fetch_info_fn=cache.find_system_info,
             fetch_neighbors_fn=cache.find_system_neighbors,
+            logging_utils=logging_utils,
         )
 
     def travel(

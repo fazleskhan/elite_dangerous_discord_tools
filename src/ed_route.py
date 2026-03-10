@@ -5,8 +5,6 @@ import math
 import threading
 from typing import Any, Callable
 
-from loguru import logger
-
 import ed_bfs
 import ed_bulk_load_algo
 import ed_factory
@@ -20,7 +18,13 @@ from ed_constants import (
     system_info_y_field,
     system_info_z_field,
 )
-from ed_protocols import CacheProtocol, DatasourceProtocol, ProgressFn, SystemInfo
+from ed_protocols import (
+    CacheProtocol,
+    DatasourceProtocol,
+    LoggingProtocol,
+    ProgressFn,
+    SystemInfo,
+)
 from ed_route_services import (
     EDBulkLoadCacheService,
     EDCalcSystemsDistanceService,
@@ -29,6 +33,7 @@ from ed_route_services import (
     EDInitDatasourceService,
     EDPathService,
 )
+from ed_logging_utils import EDLoggingUtils
 
 """Service layer that composes datasource/cache dependencies and route search."""
 
@@ -46,21 +51,23 @@ class EDRouteService:
         travel_fn: Callable[..., list[str] | None] | None,
         script_file: str,
         *,
+        logging_utils: LoggingProtocol,
         init_datasource_service: EDInitDatasourceService | None = None,
         get_system_info_service: EDGetSystemInfoService | None = None,
         get_all_system_names_service: EDGetAllSystemNamesService | None = None,
         bulk_load_cache_service: EDBulkLoadCacheService | None = None,
         path_service: EDPathService | None = None,
         calc_systems_distance_service: EDCalcSystemsDistanceService | None = None,
-        logging_utils: Any = None,
     ) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.db_path = db_path
         self.database = database
         self.cache = cache
         self.travel_fn = travel_fn
         self.script_file = script_file
-        self.logger = logger
         self.logging_utils = logging_utils
+        self.logger = self.logging_utils
         self._coords_cache: dict[str, tuple[float, float, float]] = {}
         self._coords_cache_lock = threading.Lock()
 
@@ -114,14 +121,16 @@ class EDRouteService:
         travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
         script_file: str = __file__,
         *,
+        logging_utils: LoggingProtocol,
         init_datasource_service: EDInitDatasourceService | None = None,
         get_system_info_service: EDGetSystemInfoService | None = None,
         get_all_system_names_service: EDGetAllSystemNamesService | None = None,
         bulk_load_cache_service: EDBulkLoadCacheService | None = None,
         path_service: EDPathService | None = None,
         calc_systems_distance_service: EDCalcSystemsDistanceService | None = None,
-        logging_utils: Any = None,
     ) -> "EDRouteService":
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         # New IoC create signature (delegate services) takes precedence.
         if (
             init_datasource_service is not None
@@ -131,7 +140,9 @@ class EDRouteService:
             or path_service is not None
             or calc_systems_distance_service is not None
         ):
-            logger.debug("Creating EDRouteService via delegate service composition")
+            logging_utils.debug(
+                "Creating EDRouteService via delegate service composition"
+            )
             return EDRouteService(
                 db_path="ioc-route-service",
                 database=None,
@@ -150,7 +161,9 @@ class EDRouteService:
         # Backward-compatible create signature used by existing code/tests.
         if datasource is None or cache is None:
             raise ValueError("datasource and cache are required for legacy create()")
-        logger.debug("Creating EDRouteService via datasource/cache composition")
+        logging_utils.debug(
+            "Creating EDRouteService via datasource/cache composition"
+        )
         return EDRouteService(
             db_path="injected-datasource",
             database=datasource,
@@ -313,23 +326,35 @@ class EDRouteService:
 def create_bulk_loader(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
+    logging_utils: LoggingProtocol | None = None,
 ) -> ed_bulk_load_algo.EDBulkLoadAlgo:
+    resolved_logging_utils = logging_utils or EDLoggingUtils()
     datasource = ed_factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
-    cache = edgis_cache.EDGisCache.create(datasource)
-    return EDBulkLoadAlgo.create(cache, logging_utils=None)
+    cache = edgis_cache.EDGisCache.create(
+        datasource,
+        logging_utils=resolved_logging_utils,
+    )
+    return EDBulkLoadAlgo.create(cache, logging_utils=resolved_logging_utils)
 
 async def bulk_load_async(
     initial_system_names: list[str],
     max_nodes_visited: int,
     progress_callback: ProgressFn | None = None,
+    logging_utils: LoggingProtocol | None = None,
 ) -> list[str]:
+    resolved_logging_utils = logging_utils or EDLoggingUtils()
     datasource = ed_factory.create_datasource()
-    cache = edgis_cache.EDGisCache.create(datasource)
-    bulk_loader = EDBulkLoadAlgo.create(cache, logging_utils=None)
-    on_progress = progress_callback or (lambda message: logger.info(message))
+    cache = edgis_cache.EDGisCache.create(
+        datasource,
+        logging_utils=resolved_logging_utils,
+    )
+    bulk_loader = EDBulkLoadAlgo.create(cache, logging_utils=resolved_logging_utils)
+    on_progress = progress_callback or (
+        lambda message: resolved_logging_utils.info(message)
+    )
     return await asyncio.to_thread(
         bulk_loader.load,
         initial_system_names,

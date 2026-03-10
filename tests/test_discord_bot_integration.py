@@ -13,6 +13,7 @@ from discord.ext import commands
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from discord_bot import DiscordBot
+from ed_logging_utils import EDLoggingUtils
 
 
 class FakeRoute:
@@ -73,10 +74,8 @@ def bot():
     return DiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
-        log_location="logs/discord_bot.log",
-        log_level=logging.DEBUG,
-        log_handler=MagicMock(),
         bot=bot_instance,
+        logging_utils=EDLoggingUtils(),
     )
 
 
@@ -245,10 +244,8 @@ def test_default_intents_configuration():
     bot = DiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
-        log_location="logs/discord_bot.log",
-        log_level=logging.DEBUG,
-        log_handler=logging.StreamHandler(),
         bot=bot_instance,
+        logging_utils=EDLoggingUtils(),
     )
 
     assert bot.bot.intents.message_content is True

@@ -1,9 +1,19 @@
 from edgis import fetch_system_info
 from edgis import fetch_neighbors
+from edgis import EDGis
 import ed_constants as constants
+import pytest
 
 
 def main(): ...
+
+
+def test_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        EDGis(logging_utils=None)  # type: ignore[arg-type]
 
 
 def test_fetch_system_info():

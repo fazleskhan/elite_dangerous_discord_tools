@@ -5,8 +5,6 @@ import math
 import threading
 from typing import Any
 
-from loguru import logger
-
 from ed_bfs import EDBfs
 from ed_bulk_load_algo import EDBulkLoadAlgo
 from ed_constants import (
@@ -17,17 +15,28 @@ from ed_constants import (
     system_info_y_field,
     system_info_z_field,
 )
-from ed_protocols import CacheProtocol, DatasourceProtocol, ProgressFn, SystemInfo
+from ed_protocols import (
+    CacheProtocol,
+    DatasourceProtocol,
+    LoggingProtocol,
+    ProgressFn,
+    SystemInfo,
+)
+from ed_logging_utils import EDLoggingUtils
 
 
 class EDInitDatasourceService:
-    def __init__(self, database: DatasourceProtocol, logging_utils: Any) -> None:
+    def __init__(self, database: DatasourceProtocol, logging_utils: LoggingProtocol) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self._database = database
         self._lock = threading.RLock()
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(database: DatasourceProtocol, logging_utils: Any) -> "EDInitDatasourceService":
+    def create(
+        database: DatasourceProtocol, logging_utils: LoggingProtocol
+    ) -> "EDInitDatasourceService":
         return EDInitDatasourceService(database, logging_utils)
 
     def run(self, import_dir: str = default_init_dir) -> None:
@@ -36,13 +45,13 @@ class EDInitDatasourceService:
 
 
 class EDGetSystemInfoService:
-    def __init__(self, cache: CacheProtocol, logging_utils: Any) -> None:
+    def __init__(self, cache: CacheProtocol, logging_utils: LoggingProtocol) -> None:
         self._cache = cache
         self._lock = threading.RLock()
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(cache: CacheProtocol, logging_utils: Any) -> "EDGetSystemInfoService":
+    def create(cache: CacheProtocol, logging_utils: LoggingProtocol) -> "EDGetSystemInfoService":
         return EDGetSystemInfoService(cache, logging_utils)
 
     def run(self, system_name: str) -> SystemInfo | None:
@@ -51,14 +60,14 @@ class EDGetSystemInfoService:
 
 
 class EDGetAllSystemNamesService:
-    def __init__(self, database: DatasourceProtocol, logging_utils: Any) -> None:
+    def __init__(self, database: DatasourceProtocol, logging_utils: LoggingProtocol) -> None:
         self._database = database
         self._lock = threading.RLock()
         self._logging_utils = logging_utils
 
     @staticmethod
     def create(
-        database: DatasourceProtocol, logging_utils: Any
+        database: DatasourceProtocol, logging_utils: LoggingProtocol
     ) -> "EDGetAllSystemNamesService":
         return EDGetAllSystemNamesService(database, logging_utils)
 
@@ -73,7 +82,11 @@ class EDGetAllSystemNamesService:
 
 
 class EDCalcSystemsDistanceService:
-    def __init__(self, get_system_info_service: EDGetSystemInfoService, logging_utils: Any) -> None:
+    def __init__(
+        self,
+        get_system_info_service: EDGetSystemInfoService,
+        logging_utils: LoggingProtocol,
+    ) -> None:
         self._get_system_info_service = get_system_info_service
         self._coords_cache: dict[str, tuple[float, float, float]] = {}
         self._coords_cache_lock = threading.Lock()
@@ -82,7 +95,7 @@ class EDCalcSystemsDistanceService:
     @staticmethod
     def create(
         get_system_info_service: EDGetSystemInfoService,
-        logging_utils: Any,
+        logging_utils: LoggingProtocol,
     ) -> "EDCalcSystemsDistanceService":
         return EDCalcSystemsDistanceService(get_system_info_service, logging_utils)
 
@@ -96,7 +109,7 @@ class EDCalcSystemsDistanceService:
             if coords_two is None:
                 missing_systems.append(system_name_two)
             message = f"Could not load system info for: {', '.join(missing_systems)}"
-            logger.error(message)
+            self._logging_utils.error(message)
             raise ValueError(message)
         return math.sqrt(
             (coords_two[0] - coords_one[0]) ** 2
@@ -126,7 +139,12 @@ class EDCalcSystemsDistanceService:
 
 
 class EDPathService:
-    def __init__(self, bfs: EDBfs, calc_distance_service: EDCalcSystemsDistanceService, logging_utils: Any) -> None:
+    def __init__(
+        self,
+        bfs: EDBfs,
+        calc_distance_service: EDCalcSystemsDistanceService,
+        logging_utils: LoggingProtocol,
+    ) -> None:
         self._bfs = bfs
         self._calc_distance_service = calc_distance_service
         self._logging_utils = logging_utils
@@ -135,7 +153,7 @@ class EDPathService:
     def create(
         bfs: EDBfs,
         calc_distance_service: EDCalcSystemsDistanceService,
-        logging_utils: Any,
+        logging_utils: LoggingProtocol,
     ) -> "EDPathService":
         return EDPathService(bfs, calc_distance_service, logging_utils)
 
@@ -161,12 +179,14 @@ class EDPathService:
 
 
 class EDBulkLoadCacheService:
-    def __init__(self, bulk_load: EDBulkLoadAlgo, logging_utils: Any) -> None:
+    def __init__(self, bulk_load: EDBulkLoadAlgo, logging_utils: LoggingProtocol) -> None:
         self._bulk_load = bulk_load
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(bulk_load: EDBulkLoadAlgo, logging_utils: Any) -> "EDBulkLoadCacheService":
+    def create(
+        bulk_load: EDBulkLoadAlgo, logging_utils: LoggingProtocol
+    ) -> "EDBulkLoadCacheService":
         return EDBulkLoadCacheService(bulk_load, logging_utils)
 
     def run(

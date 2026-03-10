@@ -1,9 +1,22 @@
 import sys
 
 import import_tinydb
+import pytest
 
 
 def main() -> None: ...
+
+
+def test_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        import_tinydb.ImportTinyDB(
+            route_service=None,
+            cache=None,
+            logging_utils=None,  # type: ignore[arg-type]
+        )
 
 
 def test_import_tinydb_delegates_to_backend(tmp_path, monkeypatch):
@@ -16,11 +29,14 @@ def test_import_tinydb_delegates_to_backend(tmp_path, monkeypatch):
 
     class FakeEDTinyDB:
         @staticmethod
-        def create(datasource_name: str | None = None):
+        def create(
+            datasource_name: str | None = None, *, logging_utils=None
+        ):
             return fake_db
 
     fake_db = FakeTinyDB()
     monkeypatch.setattr(import_tinydb, "EDTinyDB", FakeEDTinyDB)
+    monkeypatch.setattr(import_tinydb.EDLoggingUtils, "create", lambda: object())
 
     import_dir = tmp_path / "ed_redis-export"
     import_dir.mkdir(parents=True, exist_ok=True)
