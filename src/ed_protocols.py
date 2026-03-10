@@ -67,3 +67,52 @@ class RouteServiceProtocol(Protocol):
         max_nodes_visited: int,
         progress_callback: ProgressFn,
     ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
+
+
+class BfsProtocol(Protocol):
+    def travel(
+        self,
+        start_name: str,
+        destination_name: str,
+        max_count: int,
+        min_distance: int,
+        max_distance: int,
+        progress_callback: ProgressFn,
+    ) -> list[str] | None: ...
+
+
+class BulkLoadProtocol(Protocol):
+    def load(
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback: ProgressFn,
+    ) -> list[str]: ...
+
+
+class InitDatasourceProtocol(Protocol):
+    def run(self, import_dir: str = default_init_dir) -> None: ...
+
+
+class GetSystemInfoProtocol(Protocol):
+    def run(self, system_name: str) -> SystemInfo | None: ...
+
+
+class GetAllSystemNamesProtocol(Protocol):
+    def run(self) -> list[str]: ...
+
+
+class PathProtocol(Protocol):
+    async def run(
+        self,
+        initial_system_name: str,
+        destination_name: str,
+        max_systems: int,
+        min_distance: int,
+        max_distance: int,
+        progress_callback: ProgressFn,
+    ) -> list[str] | None: ...
+
+
+class CalcSystemsDistanceProtocol(Protocol):
+    def run(self, system_name_one: str, system_name_two: str) -> float: ...

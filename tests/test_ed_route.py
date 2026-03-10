@@ -1,9 +1,11 @@
 import ed_route
+from ed_route_service_factory import EDRouteServiceFactory
 import pytest
 import test_data
 
 
 def main(): ...
+
 
 class FakeLoggingUtils:
     def debug(self, _message: str, *_args, **_kwargs):
@@ -35,32 +37,29 @@ class FakeCache:
         return []
 
 
-def fake_travel_fn(
-    fetch_info,
-    fetch_neighbors,
-    source,
-    destination,
-    max_systems,
-    min_distance,
-    max_distance,
-    calc_distance,
-    progress_callback,
-):
-    if source == "Sol" and destination == "Sirius":
-        return ["Sol", "Sirius"]
-    if source == "Sol" and destination == "Ross 248":
-        return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
-    return None
+class FakeBfs:
+    def travel(
+        self,
+        source,
+        destination,
+        max_systems,
+        min_distance,
+        max_distance,
+        progress_callback,
+    ):
+        if source == "Sol" and destination == "Sirius":
+            return ["Sol", "Sirius"]
+        if source == "Sol" and destination == "Ross 248":
+            return ["Sol", "Barnard's Star", "61 Cygni", "Ross 248"]
+        return None
 
 
 def make_service():
-    return ed_route.EDRouteService(
-        db_path="test.db",
-        database=FakeDB(),
-        cache=FakeCache(),
-        travel_fn=fake_travel_fn,
-        script_file=__file__,
+    return EDRouteServiceFactory.create(
         logging_utils=FakeLoggingUtils(),
+        datasource=FakeDB(),
+        cache=FakeCache(),
+        bfs=FakeBfs(),
     )
 
 
@@ -101,7 +100,9 @@ def test_calc_systems_distance():
         "Sol": test_data.sol_data,
         "Alpha Centauri": test_data.alpha_centauri_data,
     }
-    ed_service.get_system_info = lambda name: systems.get(name)
+    ed_service._calc_systems_distance_service._get_system_info_service.run = (
+        lambda name: systems.get(name)
+    )
 
     distance = ed_service.calc_systems_distance("Sol", "Alpha Centauri")
     assert distance == pytest.approx(4.377120022057882)

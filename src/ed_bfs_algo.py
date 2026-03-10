@@ -16,7 +16,7 @@ from ed_protocols import (
 def main() -> None: ...
 
 
-class EDBfs:
+class EDBfsAlgo:
     """OO wrapper for BFS traversal with IoC-friendly construction."""
 
     def __init__(
@@ -50,8 +50,8 @@ class EDBfs:
         fetch_neighbors_fn: FetchNeighborsFn,
         distance_fn: DistanceFn,
         logging_utils: LoggingProtocol,
-    ) -> "EDBfs":
-        return EDBfs(
+    ) -> "EDBfsAlgo":
+        return EDBfsAlgo(
             fetch_info_fn=fetch_system_info_fn,
             fetch_neighbors_fn=fetch_neighbors_fn,
             distance_fn=distance_fn,
@@ -134,7 +134,7 @@ class EDBfs:
                 self._logging_utils.info(
                     "Destination reached: {}", destination_name
                 )
-                return EDBfs._reconstruct_path(parents, destination_name)
+                return EDBfsAlgo._reconstruct_path(parents, destination_name)
 
             system_info = self._fetch_info_fn(current_node)
             if not system_info:

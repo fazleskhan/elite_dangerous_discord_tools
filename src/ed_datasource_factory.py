@@ -1,14 +1,10 @@
 """IoC helpers for datasource/cache/route service composition."""
 
-import importlib
 import os
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any
 
 from dotenv import load_dotenv
 
-import ed_bfs
-import edgis_cache
-from edgis import EDGis
 from ed_constants import (
     datasource_type_env,
     redis_name,
@@ -16,25 +12,6 @@ from ed_constants import (
 )
 from ed_logging_utils import EDLoggingUtils
 from ed_protocols import DatasourceProtocol, LoggingProtocol
-
-if TYPE_CHECKING:
-    from ed_route import EDRouteService
-
-TravelFn = Callable[..., list[str] | None]
-
-
-class _LazyModuleProxy:
-    """Resolve modules on first attribute access to avoid import cycles."""
-
-    def __init__(self, module_name: str) -> None:
-        self._module_name = module_name
-
-    def __getattr__(self, item: str) -> Any:
-        module = importlib.import_module(self._module_name)
-        return getattr(module, item)
-
-
-ed_route = _LazyModuleProxy("ed_route")
 
 
 def main() -> None: ...
@@ -102,31 +79,6 @@ def create_datasource(
     return factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
-    )
-
-
-def create_route_service(
-    datasource_name: str | None = None,
-    datasource_type: str | None = None,
-    travel_fn: TravelFn | None = None,
-) -> "EDRouteService":
-    datasource_obj = create_datasource(
-        datasource_name=datasource_name,
-        datasource_type=datasource_type,
-    )
-    logging_utils = EDLoggingUtils()
-    gis = EDGis.create(logging_utils)
-    cache_obj = edgis_cache.EDGisCache.create(
-        datasource_obj,
-        logging_utils=logging_utils,
-        fetch_system_info_fn=gis.fetch_system_info,
-        fetch_neighbors_fn=gis.fetch_neighbors,
-    )
-    return ed_route.EDRouteService.create(
-        datasource=datasource_obj,
-        cache=cache_obj,
-        travel_fn=travel_fn,
-        logging_utils=logging_utils,
     )
 
 

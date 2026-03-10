@@ -1,4 +1,4 @@
-import ed_factory
+import ed_datasource_factory
 import pytest
 import test_data
 import os
@@ -20,7 +20,7 @@ def del_prior_database():
 
 @pytest.fixture(scope="module")
 def database(del_prior_database):
-    yield ed_factory.create_datasource(
+    yield ed_datasource_factory.create_datasource(
         datasource_name=test_db_filename, datasource_type="tinydb"
     )
 

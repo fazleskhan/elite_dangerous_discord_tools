@@ -1,5 +1,5 @@
 import ed_bulk_load_algo
-import ed_factory
+import ed_datasource_factory
 import edgis_cache
 from ed_logging_utils import EDLoggingUtils
 
@@ -101,7 +101,7 @@ def test_create_bulk_loader_delegates_to_loader(monkeypatch):
             return ["Sol"]
 
     monkeypatch.setattr(
-        ed_factory,
+        ed_datasource_factory,
         "create_datasource",
         lambda datasource_name=None, datasource_type=None: datasource_obj,
     )
@@ -120,7 +120,7 @@ def test_create_bulk_loader_delegates_to_loader(monkeypatch):
         ),
     )
 
-    datasource = ed_factory.create_datasource()
+    datasource = ed_datasource_factory.create_datasource()
     cache = edgis_cache.EDGisCache.create(
         datasource,
         logging_utils=EDLoggingUtils(),

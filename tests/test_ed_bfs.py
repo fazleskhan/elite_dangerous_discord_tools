@@ -1,10 +1,10 @@
-import ed_bfs
+import ed_bfs_algo
 import test_data
 import shutil
 import ed_constants as constants
 import os
 import edgis_cache
-import ed_factory
+import ed_datasource_factory
 import pytest
 from ed_logging_utils import EDLoggingUtils
 
@@ -59,7 +59,7 @@ expected_test_travel_list = ["Sol", "Alpha Centauri", "Luhman 16"]
 
 
 def test_simple_travel():
-    bfs = ed_bfs.EDBfs(
+    bfs = ed_bfs_algo.EDBfsAlgo(
         fetch_info_fn=get_system_info_test_data,
         fetch_neighbors_fn=get_neighbors_test_data,
         distance_fn=calc_systems_distance,
@@ -81,7 +81,7 @@ def test_constructor_raises_when_logging_utils_is_none():
         ValueError,
         match="^logging_utils of type LoggingProtocol is required$",
     ):
-        ed_bfs.EDBfs(
+        ed_bfs_algo.EDBfsAlgo(
             fetch_info_fn=lambda _name: None,
             fetch_neighbors_fn=lambda _system_info: None,
             distance_fn=lambda _one, _two: 0.0,
@@ -97,7 +97,7 @@ def test_larger_local_travel_Sol_Wolf_359():
     source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = ed_factory.create_datasource(
+    database = ed_datasource_factory.create_datasource(
         datasource_name=db_filename, datasource_type="tinydb"
     )
     cache = edgis_cache.EDGisCache.create(
@@ -105,7 +105,7 @@ def test_larger_local_travel_Sol_Wolf_359():
         logging_utils=EDLoggingUtils(),
     )
 
-    bfs = ed_bfs.EDBfs(
+    bfs = ed_bfs_algo.EDBfsAlgo(
         fetch_info_fn=cache.find_system_info,
         fetch_neighbors_fn=cache.find_system_neighbors,
         distance_fn=calc_systems_distance_return_10,
@@ -130,7 +130,7 @@ def test_larger_travel_Sol_LTT_3572():
     source_path = os.path.join(project_root, "init/edgis_bulk_load.db")
     shutil.copy(source_path, db_filename)
 
-    database = ed_factory.create_datasource(
+    database = ed_datasource_factory.create_datasource(
         datasource_name=db_filename, datasource_type="tinydb"
     )
     cache = edgis_cache.EDGisCache.create(
@@ -138,7 +138,7 @@ def test_larger_travel_Sol_LTT_3572():
         logging_utils=EDLoggingUtils(),
     )
 
-    bfs = ed_bfs.EDBfs(
+    bfs = ed_bfs_algo.EDBfsAlgo(
         fetch_info_fn=cache.find_system_info,
         fetch_neighbors_fn=cache.find_system_neighbors,
         distance_fn=calc_systems_distance_return_10,
@@ -185,7 +185,7 @@ def test_travel_filters_edges_by_min_and_max_distance():
     def calc_distance(system_one: str, system_two: str) -> float:
         return distance_to_target[system_one]
 
-    bfs = ed_bfs.EDBfs(
+    bfs = ed_bfs_algo.EDBfsAlgo(
         fetch_info_fn=fetch_info,
         fetch_neighbors_fn=fetch_neighbors,
         distance_fn=calc_distance,
