@@ -40,7 +40,7 @@ class EDRedis:
         logging_utils: LoggingProtocol,
         datasource_name: str | None = None,
         redis_url: str | None = None,
-        max_connections: int | None = None
+        max_connections: int | None = None,
     ) -> "EDRedis":
         # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         resolved_redis_url = (
@@ -50,7 +50,7 @@ class EDRedis:
             datasource_name or os.getenv(redis_app_name_env, default_redis_store_name),
             redis_url=resolved_redis_url,
             logging_utils=logging_utils,
-            max_connections=max_connections
+            max_connections=max_connections,
         )
 
     def __init__(
@@ -58,7 +58,7 @@ class EDRedis:
         datasource_name: str,
         redis_url: str,
         logging_utils: LoggingProtocol,
-        max_connections: int
+        max_connections: int,
     ):
         if redis_url is None:
             raise ValueError("Redis URL of type str is a required argument")
@@ -72,11 +72,11 @@ class EDRedis:
             raise ValueError("datasource_name of type str is required")
         else:
             self.datasource_name = datasource_name
-        
+
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
-        
+
         self._max_connections = (
             max_connections
             if max_connections is not None

@@ -45,7 +45,9 @@ class EDDiscordBot:
         else:
             self._logging_utils = logging_utils
         if ed_route_service is None:
-            raise ValueError("ed_route_service of type RouteServiceProtocol is required")
+            raise ValueError(
+                "ed_route_service of type RouteServiceProtocol is required"
+            )
         else:
             self.ed_route = ed_route_service
         if token is None:

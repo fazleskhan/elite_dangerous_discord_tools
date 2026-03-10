@@ -35,6 +35,7 @@ class EDDatasourceFactory:
         datasource_name: str | None = None,
         datasource_type: str | None = None,
     ) -> DatasourceProtocol:
+        # Ensure .env-backed datasource settings are available in CLI/runtime.
         load_dotenv()
         resolved_type = resolve_datasource_type(datasource_type)
         if resolved_type == tinydb_name:
@@ -54,13 +55,9 @@ class EDDatasourceFactory:
 
 
 def resolve_datasource_type(datasource_type: str | None = None) -> str:
-    # Explicit arg wins, then env, then tinydb default.
+    # Resolution order: explicit arg -> env var -> tinydb default.
     resolved = (
-        (
-            datasource_type
-            or os.getenv(datasource_type_env)
-            or tinydb_name
-        )
+        (datasource_type or os.getenv(datasource_type_env) or tinydb_name)
         .strip()
         .lower()
     )
@@ -74,6 +71,8 @@ def resolve_datasource_type(datasource_type: str | None = None) -> str:
 def create_datasource(
     datasource_name: str | None = None, datasource_type: str | None = None
 ) -> Any:
+    # Backward-compatible module helper used by call sites that do not
+    # directly instantiate EDDatasourceFactory.
     factory = EDDatasourceFactory.create(
         logging_utils=EDLoggingUtils(),
     )

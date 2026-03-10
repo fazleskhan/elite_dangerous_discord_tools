@@ -16,9 +16,7 @@ def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
 
     class FakeEDTinyDB:
         @staticmethod
-        def create(
-            datasource_name: str | None = None, *, logging_utils=None
-        ):
+        def create(datasource_name: str | None = None, *, logging_utils=None):
             return fake_db
 
     fake_db = FakeTinyDB()

@@ -45,6 +45,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     },
 }
 
+
 class _LoguruConfigWatcher:
     def __init__(self, config_path: Path):
         self.config_path = config_path.resolve()
@@ -223,8 +224,10 @@ class _ConfigFileEventHandler(FileSystemEventHandler):
     def on_moved(self, event: FileSystemEvent) -> None:
         self._watcher.handle_fs_event(event)
 
+
 class EDLoggingUtils:
     """OO logging utility facade for IoC composition."""
+
     _instance: "EDLoggingUtils | None" = None
     _instance_lock = threading.Lock()
 

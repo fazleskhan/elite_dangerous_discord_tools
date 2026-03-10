@@ -19,7 +19,7 @@ class EDInitDatasourceService:
         else:
             self._database = datasource
         self._lock = threading.RLock()
-        self._logging_utils.debug("EDInitDatasourceService initialized")        
+        self._logging_utils.debug("EDInitDatasourceService initialized")
 
     @staticmethod
     def create(
@@ -29,5 +29,6 @@ class EDInitDatasourceService:
 
     def run(self, import_dir: str = default_init_dir) -> None:
         self._logging_utils.info("Initializing datasource from {}", import_dir)
+        # Initialization can be expensive/mutating; keep it single-threaded per instance.
         with self._lock:
             self._database.init_datasource(import_dir)

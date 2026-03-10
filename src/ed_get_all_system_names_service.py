@@ -7,7 +7,9 @@ from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 
 class EDGetAllSystemNamesService:
-    def __init__(self, datasource: DatasourceProtocol, logging_utils: LoggingProtocol) -> None:
+    def __init__(
+        self, datasource: DatasourceProtocol, logging_utils: LoggingProtocol
+    ) -> None:
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
         else:
@@ -17,7 +19,7 @@ class EDGetAllSystemNamesService:
         else:
             self._database = datasource
         self._lock = threading.RLock()
-        self._logging_utils.debug("EDGetAllSystemNamesService initialized")        
+        self._logging_utils.debug("EDGetAllSystemNamesService initialized")
 
     @staticmethod
     def create(
@@ -26,6 +28,7 @@ class EDGetAllSystemNamesService:
         return EDGetAllSystemNamesService(database, logging_utils)
 
     def run(self) -> list[str]:
+        # Serialize DB reads through a local lock to keep service calls predictable.
         with self._lock:
             system_infos = self._database.get_all_systems()
         results = [

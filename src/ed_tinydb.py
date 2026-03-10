@@ -81,9 +81,7 @@ class EDTinyDB:
             logging_utils=logging_utils,
         )
 
-    def __init__(
-        self, datasource_name: str, logging_utils: LoggingProtocol
-    ):
+    def __init__(self, datasource_name: str, logging_utils: LoggingProtocol):
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
         else:
@@ -92,7 +90,7 @@ class EDTinyDB:
             raise ValueError("datasource_name of type str is required")
         else:
             self.datasource_name = datasource_name
-        
+
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
@@ -102,7 +100,7 @@ class EDTinyDB:
         self._cache_lock = threading.RLock()
         self._system_cache: dict[str, SystemInfo] = {}
         self._all_systems_cached = False
-        
+
         self.logger.info("aiotinydb backend")
 
     # Synchronous helper used by import scripts and CLI commands.

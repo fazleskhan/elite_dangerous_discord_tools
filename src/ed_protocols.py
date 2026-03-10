@@ -4,6 +4,7 @@ from typing import Any, Awaitable, Callable, Protocol, Sequence
 
 from ed_constants import default_init_dir
 
+# Shared callable/type aliases used across route, cache, and algorithm layers.
 SystemInfo = dict[str, Any]
 FetchInfoFn = Callable[[str], SystemInfo | None]
 FetchSystemInfoFn = Callable[[str], SystemInfo | None]
@@ -46,7 +47,9 @@ class GisProtocol(Protocol):
 
 
 class RouteServiceProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None | Awaitable[None]: ...
+    def init_datasource(
+        self, import_dir: str = default_init_dir
+    ) -> None | Awaitable[None]: ...
     def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
     def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
     def calc_systems_distance(

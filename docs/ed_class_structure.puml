@@ -1,211 +1,147 @@
-@startuml ed_class_structure
+@startuml
 skinparam classAttributeIconSize 0
-skinparam linetype ortho
 hide empty members
 
-title Elite Dangerous Tools - Class Structure (OO + IoC)
+package "Protocols (ed_protocols.py)" {
+  interface DatasourceProtocol
+  interface CacheProtocol
+  interface LoggingProtocol
+  interface GisProtocol
+  interface RouteServiceProtocol
 
-package "Non-OO Python Files" {
-  class discord_runner <<non-oo file>>
-  class ed_constancts <<non-oo file>>
+  interface BfsProtocol
+  interface BulkLoadProtocol
+  interface InitDatasourceProtocol
+  interface GetSystemInfoProtocol
+  interface GetAllSystemNamesProtocol
+  interface PathProtocol
+  interface CalcSystemsDistanceProtocol
 }
 
-package "Core" {
-  class EDLoggingUtils <<Utility>> {
-    + create(): EDLoggingUtils
-  }
+package "Core Services" {
+  class EDRouteService
+  class EDRouteServiceFactory
 
-  class EDDatasourceFactory <<Factory>> {
-    + create(logging_utils: EDLoggingUtils): EDDatasourceFactory
-    + create_datasource(logging_utils: EDLoggingUtils): DBProtocol
-  }
-
-  interface DBProtocol
-
-  class EDTinyDB <<Datasource>> {
-    + create(logging_utils: EDLoggingUtils): EDTinyDB
-  }
-
-  class EDRedis <<Datasource>> {
-    + create(logging_utils: EDLoggingUtils): EDRedis
-  }
-
-  class EDGis <<Gateway>> {
-    + create(logging_utils: EDLoggingUtils): EDGis
-  }
-
-  class EDCache <<Cache>> {
-    + create(db: DBProtocol, gis: EDGis, logging_utils: EDLoggingUtils): EDCache
-  }
-
-  class EDBfs <<Algorithm>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDBfs
-  }
-
-  class EDBulkLoad <<Algorithm>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDBulkLoad
-  }
+  class EDInitDatasourceService
+  class EDGetSystemInfoService
+  class EDGetAllSystemNamesService
+  class EDCalcSystemsDistanceService
+  class EDPathService
+  class EDBulkLoadCacheService
 }
 
-package "Route Services (Thread-safe Delegates)" {
-  class EDInitDatasourceService <<Service>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDInitDatasourceService
-  }
-
-  class EDGetSystemInfoService <<Service>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDGetSystemInfoService
-  }
-
-  class EDGetAllSystemNamesService <<Service>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDGetAllSystemNamesService
-  }
-
-  class EDBulkLoadCacheService <<Service>> {
-    + create(bulk_load: EDBulkLoad, logging_utils: EDLoggingUtils): EDBulkLoadCacheService
-  }
-
-  class EDPathService <<Service>> {
-    + create(bfs: EDBfs, logging_utils: EDLoggingUtils): EDPathService
-  }
-
-  class EDCalcSystemsDistanceService <<Service>> {
-    + create(cache: EDCache, logging_utils: EDLoggingUtils): EDCalcSystemsDistanceService
-  }
-
-  class EDRouteService <<Facade>> {
-    + create(
-      init_datasource_service: EDInitDatasourceService,
-      get_system_info_service: EDGetSystemInfoService,
-      get_all_system_names_service: EDGetAllSystemNamesService,
-      bulk_load_cache_service: EDBulkLoadCacheService,
-      path_service: EDPathService,
-      calc_systems_distance_service: EDCalcSystemsDistanceService,
-      logging_utils: EDLoggingUtils
-    ): EDRouteService
-    --
-    +init_datasource(import_dir)
-    +get_system_info(system_name)
-    +get_all_system_names()
-    +bulk_load_cache(initial_systems, max_nodes)
-    +path(source, destination, max_systems, min_distance, max_distance)
-    +calc_systems_distance(system_a, system_b)
-  }
+package "Algorithms" {
+  class EDBfsAlgo
+  class EDBulkLoadAlgo
 }
 
-package "IoC Compositors / Entrypoints" {
-  class EDDiscordBot <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDDiscordBot
-    --
-    +ping()
-    +system_info()
-    +path()
-    +calc_systems_distance()
-    +dump_system_cache_names()
-    +init_datasource()
-    +bulk_load_cache()
-  }
+package "Data Backends / Cache / GIS" {
+  class EDGisCache
+  class EDTinyDB
+  class EDRedis
+  class EDGis
 
-  class EDMain <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDMain
-    --
-    +ping()
-    +system_info()
-    +path()
-    +calc_systems_distance()
-    +dump_system_cache_names()
-    +init_datasource()
-    +bulk_load_cache()
-  }
-
-  class EDGisBulkLoad <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): EDGisBulkLoad
-  }
-
-  class ImportRedis <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ImportRedis
-  }
-
-  class ExportRedis <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ExportRedis
-  }
-
-  class ImportTinyDB <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ImportTinyDB
-  }
-
-  class ExportTinyDB <<IoC Composer>> {
-    + create(route_service: EDRouteService, cache: EDCache, logging_utils: EDLoggingUtils): ExportTinyDB
-  }
+  class AIOTinyDB
+  class SmartCacheTinyDB
 }
 
-' concrete over abstract where possible
-DBProtocol <|.. EDTinyDB
-DBProtocol <|.. EDRedis
+package "App Layer" {
+  class EDMain
+  class EDDiscordBot
+  class EDDatasourceFactory
+}
 
-EDDatasourceFactory ..> EDTinyDB : create_datasource()
-EDDatasourceFactory ..> EDRedis : create_datasource()
+package "Logging" {
+  class EDLoggingUtils
+  class _LoguruConfigWatcher
+  class _ConfigFileEventHandler
+}
 
-EDCache --> DBProtocol
-EDCache --> EDGis
+' Implementations
+EDRouteService ..|> RouteServiceProtocol
+EDInitDatasourceService ..|> InitDatasourceProtocol
+EDGetSystemInfoService ..|> GetSystemInfoProtocol
+EDGetAllSystemNamesService ..|> GetAllSystemNamesProtocol
+EDCalcSystemsDistanceService ..|> CalcSystemsDistanceProtocol
+EDPathService ..|> PathProtocol
+EDBulkLoadCacheService ..|> BulkLoadProtocol
 
-EDBfs --> EDCache
-EDBulkLoad --> EDCache
+EDBfsAlgo ..|> BfsProtocol
+EDBulkLoadAlgo ..|> BulkLoadProtocol
 
-EDBulkLoadCacheService --> EDBulkLoad
-EDPathService --> EDBfs
-EDCalcSystemsDistanceService --> EDCache
-EDInitDatasourceService --> EDCache
-EDGetSystemInfoService --> EDCache
-EDGetAllSystemNamesService --> EDCache
+EDTinyDB ..|> DatasourceProtocol
+EDRedis ..|> DatasourceProtocol
+EDGisCache ..|> CacheProtocol
+EDGis ..|> GisProtocol
+EDLoggingUtils ..|> LoggingProtocol
 
-EDRouteService --> EDInitDatasourceService
-EDRouteService --> EDGetSystemInfoService
-EDRouteService --> EDGetAllSystemNamesService
-EDRouteService --> EDBulkLoadCacheService
-EDRouteService --> EDPathService
-EDRouteService --> EDCalcSystemsDistanceService
-EDRouteService --> EDLoggingUtils
+' Structural / composition relations
+EDRouteService *-- DatasourceProtocol
+EDRouteService *-- CacheProtocol
+EDRouteService *-- LoggingProtocol
+EDRouteService *-- InitDatasourceProtocol
+EDRouteService *-- GetSystemInfoProtocol
+EDRouteService *-- GetAllSystemNamesProtocol
+EDRouteService *-- BulkLoadProtocol
+EDRouteService *-- PathProtocol
+EDRouteService *-- CalcSystemsDistanceProtocol
+EDRouteService *-- BfsProtocol
 
-EDDiscordBot --> EDRouteService
-EDMain --> EDRouteService
-EDGisBulkLoad --> EDRouteService
-ImportRedis --> EDRouteService
-ExportRedis --> EDRouteService
-ImportTinyDB --> EDRouteService
-ExportTinyDB --> EDRouteService
+EDRouteServiceFactory ..> EDDatasourceFactory : uses
+EDRouteServiceFactory ..> EDGisCache : creates
+EDRouteServiceFactory ..> EDGis : creates
+EDRouteServiceFactory ..> EDInitDatasourceService : creates
+EDRouteServiceFactory ..> EDGetSystemInfoService : creates
+EDRouteServiceFactory ..> EDGetAllSystemNamesService : creates
+EDRouteServiceFactory ..> EDCalcSystemsDistanceService : creates
+EDRouteServiceFactory ..> EDBfsAlgo : creates
+EDRouteServiceFactory ..> EDPathService : creates
+EDRouteServiceFactory ..> EDBulkLoadAlgo : creates
+EDRouteServiceFactory ..> EDRouteService : creates
 
-EDDiscordBot --> EDCache
-EDMain --> EDCache
-EDGisBulkLoad --> EDCache
-ImportRedis --> EDCache
-ExportRedis --> EDCache
-ImportTinyDB --> EDCache
-ExportTinyDB --> EDCache
+EDMain *-- EDRouteService
+EDMain *-- LoggingProtocol
+EDMain ..> EDRouteServiceFactory : create()
 
-EDDiscordBot --> EDLoggingUtils
-EDMain --> EDLoggingUtils
-EDGisBulkLoad --> EDLoggingUtils
-ImportRedis --> EDLoggingUtils
-ExportRedis --> EDLoggingUtils
-ImportTinyDB --> EDLoggingUtils
-ExportTinyDB --> EDLoggingUtils
+EDDiscordBot *-- RouteServiceProtocol
+EDDiscordBot *-- LoggingProtocol
+EDDiscordBot ..> EDRouteServiceFactory : create()
+EDDiscordBot ..> EDDatasourceFactory : create_datasource()
+EDDiscordBot ..> EDGisCache : create()
+EDDiscordBot ..> EDGis : create()
 
-discord_runner ..> EDMain : launches
-ed_constancts ..> EDRouteService : constants only
+EDPathService *-- BfsProtocol
+EDPathService *-- CalcSystemsDistanceProtocol
+EDPathService *-- LoggingProtocol
 
-note right of EDRouteService
-Thin shim/facade for clients.
-Delegates behavior to thread-safe
-service classes injected via IoC.
-end note
+EDCalcSystemsDistanceService *-- GetSystemInfoProtocol
+EDCalcSystemsDistanceService *-- LoggingProtocol
 
-note bottom of EDDatasourceFactory
-No defaulting logic in create/create_datasource.
-Configuration is owned by IoC compositors.
-end note
+EDGetSystemInfoService *-- CacheProtocol
+EDGetSystemInfoService *-- LoggingProtocol
 
-note as N_STATIC
-All create(...) methods shown in this diagram are static.
-end note
+EDGetAllSystemNamesService *-- DatasourceProtocol
+EDGetAllSystemNamesService *-- LoggingProtocol
+
+EDInitDatasourceService *-- DatasourceProtocol
+EDInitDatasourceService *-- LoggingProtocol
+
+EDBulkLoadCacheService *-- BulkLoadProtocol
+EDBulkLoadCacheService *-- LoggingProtocol
+
+EDBfsAlgo *-- LoggingProtocol
+EDBulkLoadAlgo *-- LoggingProtocol
+EDBulkLoadAlgo *-- CacheProtocol
+
+EDGisCache *-- DatasourceProtocol
+EDGisCache *-- LoggingProtocol
+
+EDTinyDB *-- LoggingProtocol
+EDRedis *-- LoggingProtocol
+
+AIOTinyDB ..> SmartCacheTinyDB
+
+EDLoggingUtils ..> _LoguruConfigWatcher : initializes
+_LoguruConfigWatcher ..> _ConfigFileEventHandler
 
 @enduml

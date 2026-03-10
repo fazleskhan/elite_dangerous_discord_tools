@@ -103,26 +103,30 @@ Pre-populates the cache by traversing neighbors breadth-first from one or more s
 
 * `initial_systems_csv`: comma-separated seed systems (for example `Sol,Alpha Centauri`)
 * `max_nodes_visited`: max number of unique systems to visit
-* Executes through `EDRouteService.bulk_load_cache(...)`, which delegates traversal to `ed_cache`
+* Executes through `EDRouteService.bulk_load_cache(...)`, which delegates traversal to `EDBulkLoadAlgo.load(...)`
 * Traversal uses a worker pool sized to available physical CPU cores.
+
+### Class Diagram
+
+![Class Diagram](./docs/ed_class_structure/ed_class_structure.png)
 
 ### Discord Bot Sequence Diagrams
 
-![Discord Bot Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/discord_bot_initialization.png)
+![Discord Bot Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/ed_discord_bot_initialization.png)
 
-![Ping Sequence Diagram](./docs/discord_bot_sequences/discord_bot_ping.png)
+![Ping Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_ping.png)
 
-![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/discord_bot_system_info.png)
+![System Info Cache Hit Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_system_info.png)
 
-![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/discord_bot_calc_systems_distance.png)
+![Calc Systems Distance Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_calc_systems_distance.png)
 
-![Path Sequence Diagram](./docs/discord_bot_sequences/discord_bot_path.png)
+![Path Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_path.png)
 
-![Dump System Cache Names Sequence Diagram](./docs/discord_bot_sequences/discord_bot_dump_system_cache_names.png)
+![Dump System Cache Names Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_dump_system_cache_names.png)
 
-![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/discord_bot_init_datasource.png)
+![Init Datasource Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_init_datasource.png)
 
-![Bulk Load Sequence Diagram](./docs/discord_bot_sequences/discord_bot_bulk_load_cache.png)
+![Bulk Load Sequence Diagram](./docs/discord_bot_sequences/ed_discord_bot_bulk_load_cache.png)
 
 
 ## Command Line
@@ -133,6 +137,7 @@ The tool also provides a CLI entrypoint:
 
 Supported commands:
 
+* `ping`
 * `all_loaded_systems`
 * `system_info --system_name <name>`
 * `path --initial <system> --destination <system> --max_systems <n> [--min_distance <n>] [--max_distance <n>]`
@@ -176,7 +181,7 @@ Calculates the path between two systems.
 
 ## Main Sequence Diagrams
 
-![Main Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/main_initialization.png)
+![Main Initialization Sequence Diagram](./docs/initialization_sequence_diagrams/ed_main_initialization.png)
 
 ![Main All Loaded Systems Sequence Diagram](./docs/main_sequences/main_all_loaded_systems.png)
 
@@ -190,10 +195,6 @@ Calculates the path between two systems.
 
 ![Main Init Datasource Sequence Diagram](./docs/main_sequences/main_bulk_load_cache.png)
 
-![Main Startup Sequence Diagram](./docs/main_sequences/main_startup.png)
-
-![Main Misc Commands Sequence Diagram](./docs/main_sequences/main_misc_commands.png)
-
 
 
 
@@ -203,25 +204,25 @@ Calculates the path between two systems.
 
 Extracts Redis records into one JSON file per system.
 
-`python ./src/export_redis.py [--export-dir ./data/ed_redis-export]`
+`python ./src/export_redis.py [--export-dir ./data/export]`
 
 ### Export TinyDB
 
 Extracts TinyDB records into one JSON file per system.
 
-`python ./src/export_tinydb.py [--export-dir ./data/ed_tinydb-export]`
+`python ./src/export_tinydb.py [--export-dir ./data/export]`
 
 ### Import Redis
 
 Imports JSON system files into Redis.
 
-`python ./src/import_redis.py [--import-dir ./data/ed_tinydb-export]`
+`python ./src/import_redis.py [--import-dir ./data/export]`
 
 ### Import TinyDB
 
 Imports JSON system files into TinyDB.
 
-`python ./src/import_tinydb.py [--import-dir ./data/ed_redis-export]`
+`python ./src/import_tinydb.py [--import-dir ./data/export]`
 
 ## Data Transfer Utils Sequence Diagrams
 ![Import Redis Sequence Diagram](./docs/datastore_transfer_sequences/import_redis.png)
@@ -232,37 +233,20 @@ Imports JSON system files into TinyDB.
 
 ![Export Tinydb Sequence Diagram](./docs/datastore_transfer_sequences/export_tinydb.png)
 
-## Bulk Data Load Util
 
-Pre-populates the configured datasource cache by doing a breadth-first traversal from one or more seed systems.
+### Other Initialization Sequences
 
-Command:
+![Dataspirce Sequence Diagram](./docs/initialization_sequence_diagrams/ed_datasource_factory_initialization.png)
 
-`python ./src/edgis_bulk_load.py <initial_systems> <max_nodes_visited>`
+![Logging Sequence Diagram](./docs/initialization_sequence_diagrams/ed_logging_utils_initialization.png)
 
-Arguments:
+![Route Service Factory Sequence Diagram](./docs/initialization_sequence_diagrams/ed_route_service_factory_initialization.png)
 
-* `initial_systems`: comma-separated list of seed systems (example: `Sol,Alpha Centauri`)
-* `max_nodes_visited`: maximum number of unique systems to visit
+## PlantUML Sources
 
-Behavior:
-
-* `main.py` and `discord_bot.py` both call `EDRouteService.bulk_load_cache(...)` for bulk load operations.
-* `EDRouteService.bulk_load_cache(...)` delegates traversal execution to `ed_cache`.
-* Uses `ed_factory.create_datasource(...)`, so backend selection comes from environment configuration.
-* `DATASOURCE_TYPE=tinydb` uses TinyDB (`TINYDB_NAME` optional override).
-* `DATASOURCE_TYPE=redis` uses Redis (`REDIS_URL` required, `REDIS_APP_NAME` optional namespace).
-* Traverses neighbor systems level-by-level until `max_nodes_visited` is reached.
-* Uses `ThreadPoolExecutor` workers sized by physical core count (`psutil.cpu_count(logical=False)`).
-* Reuses neighbor payloads when possible to reduce extra info lookups.
-* Emits periodic progress logs while loading.
-
-Example:
-
-`python ./src/edgis_bulk_load.py "Sol,Alpha Centauri" 5000`
-
-![EDGIS Bulk Load Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_sequence.png)
-
-![EDGIS Bulk Load Script Sequence Diagram](./docs/edgis_bulk_load_sequence/edgis_bulk_load_script.png)
-
-![ED Cache Bulk Load Service Sequence Diagram](./docs/edgis_bulk_load_sequence/ed_cache_bulk_load_service.png)
+* `docs/actual_class_diagram.puml`
+* `docs/ed_class_structure.puml`
+* `docs/discord_bot_sequences.puml`
+* `docs/main_sequences.puml`
+* `docs/datastore_transfer_sequences.puml`
+* `docs/initialization_sequence_diagram.puml`

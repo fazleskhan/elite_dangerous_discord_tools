@@ -16,10 +16,12 @@ class EDGetSystemInfoService:
         else:
             self._cache = cache
         self._lock = threading.RLock()
-        self._logging_utils.debug("EDGetSystemInfoService initialized")        
+        self._logging_utils.debug("EDGetSystemInfoService initialized")
 
     @staticmethod
-    def create(cache: CacheProtocol, logging_utils: LoggingProtocol) -> "EDGetSystemInfoService":
+    def create(
+        cache: CacheProtocol, logging_utils: LoggingProtocol
+    ) -> "EDGetSystemInfoService":
         return EDGetSystemInfoService(cache, logging_utils)
 
     def run(self, system_name: str) -> SystemInfo | None:
@@ -27,5 +29,6 @@ class EDGetSystemInfoService:
             "Fetching system info via service for system={}",
             system_name,
         )
+        # Lock around cache access so concurrent callers share one consistent path.
         with self._lock:
             return self._cache.find_system_info(system_name)
