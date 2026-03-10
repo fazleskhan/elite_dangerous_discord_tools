@@ -9,6 +9,7 @@ import ed_bfs
 import ed_bulk_load_algo
 import ed_factory
 import edgis_cache
+from edgis import EDGis
 from ed_bfs import EDBfs
 from ed_bulk_load_algo import EDBulkLoadAlgo
 from ed_constants import (
@@ -96,12 +97,17 @@ class EDRouteService:
                 self.logging_utils,
             )
         if self._path_service is None and self.cache is not None:
-            bfs = EDBfs.create(self.cache, self.logging_utils)
             if self._calc_systems_distance_service is None:
                 self._calc_systems_distance_service = EDCalcSystemsDistanceService.create(
                     EDGetSystemInfoService.create(self.cache, self.logging_utils),
                     self.logging_utils,
                 )
+            bfs = EDBfs.create(
+                self.cache.find_system_info,
+                self.cache.find_system_neighbors,
+                self._calc_systems_distance_service.run,
+                self.logging_utils,
+            )
             self._path_service = EDPathService.create(
                 bfs,
                 self._calc_systems_distance_service,
@@ -118,7 +124,7 @@ class EDRouteService:
     def create(
         datasource: DatasourceProtocol | None = None,
         cache: CacheProtocol | None = None,
-        travel_fn: Callable[..., list[str] | None] = ed_bfs.travel,
+        travel_fn: Callable[..., list[str] | None] | None = None,
         script_file: str = __file__,
         *,
         logging_utils: LoggingProtocol,
@@ -335,6 +341,7 @@ def create_bulk_loader(
     )
     cache = edgis_cache.EDGisCache.create(
         datasource,
+        gis=EDGis.create(resolved_logging_utils),
         logging_utils=resolved_logging_utils,
     )
     return EDBulkLoadAlgo.create(cache, logging_utils=resolved_logging_utils)
@@ -349,6 +356,7 @@ async def bulk_load_async(
     datasource = ed_factory.create_datasource()
     cache = edgis_cache.EDGisCache.create(
         datasource,
+        gis=EDGis.create(resolved_logging_utils),
         logging_utils=resolved_logging_utils,
     )
     bulk_loader = EDBulkLoadAlgo.create(cache, logging_utils=resolved_logging_utils)

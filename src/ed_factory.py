@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 import ed_bfs
 import edgis_cache
+from edgis import EDGis
 from ed_constants import (
     datasource_type_env,
     redis_name,
@@ -107,21 +108,25 @@ def create_datasource(
 def create_route_service(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
-    travel_fn: TravelFn = ed_bfs.travel,
+    travel_fn: TravelFn | None = None,
 ) -> "EDRouteService":
     datasource_obj = create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
+    logging_utils = EDLoggingUtils()
+    gis = EDGis.create(logging_utils)
     cache_obj = edgis_cache.EDGisCache.create(
         datasource_obj,
-        logging_utils=EDLoggingUtils(),
+        logging_utils=logging_utils,
+        fetch_system_info_fn=gis.fetch_system_info,
+        fetch_neighbors_fn=gis.fetch_neighbors,
     )
     return ed_route.EDRouteService.create(
         datasource=datasource_obj,
         cache=cache_obj,
         travel_fn=travel_fn,
-        logging_utils=EDLoggingUtils(),
+        logging_utils=logging_utils,
     )
 
 

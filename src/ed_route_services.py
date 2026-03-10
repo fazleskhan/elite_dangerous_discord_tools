@@ -173,7 +173,6 @@ class EDPathService:
             max_systems,
             min_distance,
             max_distance,
-            self._calc_distance_service.run,
             progress_callback,
         )
 

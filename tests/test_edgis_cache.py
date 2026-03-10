@@ -54,10 +54,49 @@ def test_constructor_raises_when_logging_utils_is_none(database):
         match="^logging_utils of type LoggingProtocol is required$",
     ):
         edgis_cache.EDGisCache(
-            db=database,
+            datasource=database,
             fetch_system_info_fn=lambda _system_name: None,
             fetch_neighbors_fn=lambda _x, _y, _z: None,
             logging_utils=None,  # type: ignore[arg-type]
+        )
+
+
+def test_constructor_raises_when_datasource_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^datasource of type DatasourceProtocol is required$",
+    ):
+        edgis_cache.EDGisCache(
+            datasource=None,  # type: ignore[arg-type]
+            fetch_system_info_fn=lambda _system_name: None,
+            fetch_neighbors_fn=lambda _x, _y, _z: None,
+            logging_utils=EDLoggingUtils(),
+        )
+
+
+def test_constructor_raises_when_fetch_system_info_fn_is_none(database):
+    with pytest.raises(
+        ValueError,
+        match="^fetch_system_info_fn of type FetchSystemInfoFn is required$",
+    ):
+        edgis_cache.EDGisCache(
+            datasource=database,
+            fetch_system_info_fn=None,  # type: ignore[arg-type]
+            fetch_neighbors_fn=lambda _x, _y, _z: None,
+            logging_utils=EDLoggingUtils(),
+        )
+
+
+def test_constructor_raises_when_fetch_neighbors_fn_is_none(database):
+    with pytest.raises(
+        ValueError,
+        match="^fetch_neighbors_fn of type FetchNeighborsFn is required$",
+    ):
+        edgis_cache.EDGisCache(
+            datasource=database,
+            fetch_system_info_fn=lambda _system_name: None,
+            fetch_neighbors_fn=None,  # type: ignore[arg-type]
+            logging_utils=EDLoggingUtils(),
         )
 
 

@@ -59,15 +59,18 @@ expected_test_travel_list = ["Sol", "Alpha Centauri", "Luhman 16"]
 
 
 def test_simple_travel():
-    visited = ed_bfs.travel(
-        get_system_info_test_data,
-        get_neighbors_test_data,
+    bfs = ed_bfs.EDBfs(
+        fetch_info_fn=get_system_info_test_data,
+        fetch_neighbors_fn=get_neighbors_test_data,
+        distance_fn=calc_systems_distance,
+        logging_utils=EDLoggingUtils(),
+    )
+    visited = bfs.travel(
         "Sol",
         "Luhman 16",
         10,
         0,
         100,
-        calc_systems_distance,
         no_op_progress,
     )
     assert visited == expected_test_travel_list
@@ -81,6 +84,7 @@ def test_constructor_raises_when_logging_utils_is_none():
         ed_bfs.EDBfs(
             fetch_info_fn=lambda _name: None,
             fetch_neighbors_fn=lambda _system_info: None,
+            distance_fn=lambda _one, _two: 0.0,
             logging_utils=None,
         )
 
@@ -101,15 +105,18 @@ def test_larger_local_travel_Sol_Wolf_359():
         logging_utils=EDLoggingUtils(),
     )
 
-    visited = ed_bfs.travel(
-        cache.find_system_info,
-        cache.find_system_neighbors,
+    bfs = ed_bfs.EDBfs(
+        fetch_info_fn=cache.find_system_info,
+        fetch_neighbors_fn=cache.find_system_neighbors,
+        distance_fn=calc_systems_distance_return_10,
+        logging_utils=EDLoggingUtils(),
+    )
+    visited = bfs.travel(
         "Sol",
         "Wolf 359",
         10,
         0,
         100,
-        calc_systems_distance_return_10,
         no_op_progress,
     )
     assert visited == ["Sol", "Wolf 359"]
@@ -131,15 +138,18 @@ def test_larger_travel_Sol_LTT_3572():
         logging_utils=EDLoggingUtils(),
     )
 
-    visited = ed_bfs.travel(
-        cache.find_system_info,
-        cache.find_system_neighbors,
+    bfs = ed_bfs.EDBfs(
+        fetch_info_fn=cache.find_system_info,
+        fetch_neighbors_fn=cache.find_system_neighbors,
+        distance_fn=calc_systems_distance_return_10,
+        logging_utils=EDLoggingUtils(),
+    )
+    visited = bfs.travel(
         "Sol",
         "LTT 3572",
         100,
         0,
         100,
-        calc_systems_distance_return_10,
         no_op_progress,
     )
     assert visited == ["Sol", "Luhman 16", "Luyten 143-23", "LTT 3572"]
@@ -175,15 +185,18 @@ def test_travel_filters_edges_by_min_and_max_distance():
     def calc_distance(system_one: str, system_two: str) -> float:
         return distance_to_target[system_one]
 
-    visited = ed_bfs.travel(
-        fetch_info,
-        fetch_neighbors,
+    bfs = ed_bfs.EDBfs(
+        fetch_info_fn=fetch_info,
+        fetch_neighbors_fn=fetch_neighbors,
+        distance_fn=calc_distance,
+        logging_utils=EDLoggingUtils(),
+    )
+    visited = bfs.travel(
         "A",
         "T",
         20,
         2,
         5,
-        calc_distance,
         no_op_progress,
     )
     assert visited == ["A", "C", "T"]
