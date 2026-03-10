@@ -52,6 +52,7 @@ def test_bfs_reports_progress_and_missing_nodes(monkeypatch: pytest.MonkeyPatch)
     progress: list[str] = []
     graph = {"A": [{"name": f"N{index}", "distance": 3} for index in range(1, 512)]}
     graph.update({f"N{index}": [] for index in range(1, 512)})
+    # Force the 512-node progress branch without waiting for real wall-clock time.
     monotonic_values = iter([0.0, 31.0, 62.0])
     monkeypatch.setattr(ed_bfs_algo.time, "monotonic", lambda: next(monotonic_values))
     bfs = ed_bfs_algo.EDBfsAlgo.create(
@@ -73,6 +74,7 @@ def test_bfs_respects_max_count() -> None:
         lambda _one, _two: 0.0,
         ThreadSafeLogger(),
     )
+    # `max_count=0` trips the guard before the first expansion.
     assert bfs.travel("A", "T", 0, 0, 10, lambda _message: None) is None
 
 

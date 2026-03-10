@@ -8,6 +8,7 @@ class ThreadSafeLogger:
         self.calls: list[tuple[str, str, tuple[Any, ...]]] = []
 
     def _record(self, level: str, message: str, args: tuple[Any, ...]) -> None:
+        # Tests intentionally share this logger across worker threads.
         with self._lock:
             self.calls.append((level, message, args))
 
@@ -30,6 +31,7 @@ class ThreadSafeLogger:
         return self
 
     def messages(self, level: str) -> list[tuple[str, tuple[Any, ...]]]:
+        # Return a stable snapshot so callers can assert without races.
         with self._lock:
             return [
                 (message, args)
