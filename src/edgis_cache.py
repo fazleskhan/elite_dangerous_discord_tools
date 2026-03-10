@@ -1,4 +1,4 @@
-from edgis import fetch_system_info, fetch_neighbors
+from edgis import EDGis
 from typing import Any
 from ed_constants import (
     system_info_coords_field,
@@ -42,15 +42,18 @@ class EDGisCache:
     @staticmethod
     def create(
         db_obj: DatasourceProtocol,
-        fetch_system_info_fn: FetchSystemInfoFn = fetch_system_info,
-        fetch_neighbors_fn: FetchNeighborsFn = fetch_neighbors,
+        fetch_system_info_fn: FetchSystemInfoFn | None = None,
+        fetch_neighbors_fn: FetchNeighborsFn | None = None,
         *,
         logging_utils: LoggingProtocol,
     ) -> "EDGisCache":
+        gis = EDGis.create(logging_utils)
+        resolved_fetch_system_info_fn = fetch_system_info_fn or gis.fetch_system_info
+        resolved_fetch_neighbors_fn = fetch_neighbors_fn or gis.fetch_neighbors
         return EDGisCache(
             db_obj,
-            fetch_system_info_fn,
-            fetch_neighbors_fn,
+            resolved_fetch_system_info_fn,
+            resolved_fetch_neighbors_fn,
             logging_utils=logging_utils,
         )
 
