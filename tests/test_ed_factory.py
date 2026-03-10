@@ -4,6 +4,7 @@ import types
 import pytest
 
 import ed_factory
+from ed_factory import EDDatasourceFactory
 
 
 def main() -> None: ...
@@ -32,11 +33,13 @@ def test_resolve_datasource_type_rejects_invalid_value(monkeypatch):
 
 def test_create_datasource_uses_tinydb_backend(monkeypatch):
     captured: dict[str, str | None] = {"name": None}
+    captured_logging_utils: list[object] = []
 
     class FakeTinyDB:
         @staticmethod
-        def create(datasource_name: str | None = None):
+        def create(datasource_name: str | None = None, logging_utils=None):
             captured["name"] = datasource_name
+            captured_logging_utils.append(logging_utils)
             return "tinydb-instance"
 
     monkeypatch.setattr(
@@ -51,15 +54,18 @@ def test_create_datasource_uses_tinydb_backend(monkeypatch):
     result = ed_factory.create_datasource(datasource_name="tiny-name")
     assert result == "tinydb-instance"
     assert captured["name"] == "tiny-name"
+    assert captured_logging_utils and captured_logging_utils[0] is not None
 
 
 def test_create_datasource_uses_redis_backend(monkeypatch):
     captured: dict[str, str | None] = {"name": None}
+    captured_logging_utils: list[object] = []
 
     class FakeRedis:
         @staticmethod
-        def create(datasource_name: str | None = None):
+        def create(datasource_name: str | None = None, logging_utils=None):
             captured["name"] = datasource_name
+            captured_logging_utils.append(logging_utils)
             return "redis-instance"
 
     monkeypatch.setattr(
@@ -74,6 +80,7 @@ def test_create_datasource_uses_redis_backend(monkeypatch):
     result = ed_factory.create_datasource(datasource_name="redis-name")
     assert result == "redis-instance"
     assert captured["name"] == "redis-name"
+    assert captured_logging_utils and captured_logging_utils[0] is not None
 
 
 def test_create_route_service_composes_datasource_cache_and_route(monkeypatch):
@@ -91,15 +98,16 @@ def test_create_route_service_composes_datasource_cache_and_route(monkeypatch):
     monkeypatch.setattr(
         ed_factory.edgis_cache.EDGisCache,
         "create",
-        lambda db_obj: cache_calls.append(db_obj) or cache_obj,
+        lambda db_obj, *, logging_utils: cache_calls.append(db_obj) or cache_obj,
     )
 
     route_calls: dict[str, object] = {}
 
-    def fake_route_create(datasource, cache, travel_fn):
+    def fake_route_create(datasource, cache, travel_fn, logging_utils):
         route_calls["datasource"] = datasource
         route_calls["cache"] = cache
         route_calls["travel_fn"] = travel_fn
+        route_calls["logging_utils"] = logging_utils
         return "route-service"
 
     monkeypatch.setattr(ed_factory.ed_route.EDRouteService, "create", fake_route_create)
@@ -112,11 +120,18 @@ def test_create_route_service_composes_datasource_cache_and_route(monkeypatch):
 
     assert result == "route-service"
     assert cache_calls == [datasource_obj]
-    assert route_calls == {
-        "datasource": datasource_obj,
-        "cache": cache_obj,
-        "travel_fn": travel_fn,
-    }
+    assert route_calls["datasource"] is datasource_obj
+    assert route_calls["cache"] is cache_obj
+    assert route_calls["travel_fn"] is travel_fn
+    assert route_calls["logging_utils"] is not None
+
+
+def test_datasource_factory_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        EDDatasourceFactory(logging_utils=None)
 
 
 if __name__ == "__main__":

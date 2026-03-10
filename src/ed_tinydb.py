@@ -4,12 +4,11 @@ import os
 import threading
 from typing import Any, cast
 
-from loguru import logger
 from tinydb import Query, TinyDB
 from tinydb.storages import JSONStorage
 from tinydb_smartcache import SmartCacheTable
 
-from ed_protocols import SystemInfo
+from ed_protocols import LoggingProtocol, SystemInfo
 from ed_constants import (
     default_init_dir,
     default_tinydb_name,
@@ -74,14 +73,20 @@ class EDTinyDB:
     @staticmethod
     def create(
         datasource_name: str | None = None,
-        logging_utils: Any = None,
+        *,
+        logging_utils: LoggingProtocol,
     ) -> "EDTinyDB":
         # Keep local default under ./data unless caller/env overrides it.
         return EDTinyDB(
-            datasource_name or os.getenv(tinydb_name_env, default_tinydb_name)
+            datasource_name or os.getenv(tinydb_name_env, default_tinydb_name),
+            logging_utils=logging_utils,
         )
 
-    def __init__(self, datasource_name: str):
+    def __init__(
+        self, datasource_name: str, *, logging_utils: LoggingProtocol
+    ):
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.datasource_name = datasource_name
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
@@ -92,7 +97,7 @@ class EDTinyDB:
         self._cache_lock = threading.RLock()
         self._system_cache: dict[str, SystemInfo] = {}
         self._all_systems_cached = False
-        self.logger = logger
+        self.logger = logging_utils
         self.logger.info("DB backend: aiotinydb")
 
     # Synchronous helper used by import scripts and CLI commands.

@@ -1,6 +1,6 @@
 from discord_bot import DiscordBot
 from loguru import logger
-from logging_utils import setup_logging
+from ed_logging_utils import EDLoggingUtils
 
 """Launch script for the Discord bot process."""
 
@@ -8,7 +8,7 @@ from logging_utils import setup_logging
 def main() -> None:
     logger.info("Starting Discord runner")
     try:
-        bot = DiscordBot.create_from_env()
+        bot = DiscordBot.create()
         logger.debug("DiscordBot instance created")
         bot.run()
     except Exception:
@@ -17,5 +17,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    setup_logging()
+    EDLoggingUtils.create()
     main()

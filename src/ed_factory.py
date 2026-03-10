@@ -13,7 +13,8 @@ from ed_constants import (
     redis_name,
     tinydb_name,
 )
-from ed_protocols import DatasourceProtocol
+from ed_logging_utils import EDLoggingUtils
+from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 if TYPE_CHECKING:
     from ed_route import EDRouteService
@@ -41,16 +42,17 @@ def main() -> None: ...
 class EDDatasourceFactory:
     """Factory for selecting concrete datasource implementations."""
 
-    def __init__(self, logging_utils: Any) -> None:
+    def __init__(self, logging_utils: LoggingProtocol) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(logging_utils: Any) -> "EDDatasourceFactory":
+    def create(logging_utils: LoggingProtocol) -> "EDDatasourceFactory":
         return EDDatasourceFactory(logging_utils)
 
-    @staticmethod
     def create_datasource(
-        logging_utils: Any,
+        self,
         datasource_name: str | None,
         datasource_type: str | None,
     ) -> DatasourceProtocol:
@@ -59,11 +61,17 @@ class EDDatasourceFactory:
         if resolved_type == tinydb_name:
             from ed_tinydb import EDTinyDB
 
-            return EDTinyDB.create(datasource_name=datasource_name)
+            return EDTinyDB.create(
+                datasource_name=datasource_name,
+                logging_utils=self._logging_utils,
+            )
 
         from ed_redis import EDRedis
 
-        return EDRedis.create(datasource_name=datasource_name)
+        return EDRedis.create(
+            datasource_name=datasource_name,
+            logging_utils=self._logging_utils,
+        )
 
 
 def resolve_datasource_type(datasource_type: str | None = None) -> str:
@@ -87,8 +95,10 @@ def resolve_datasource_type(datasource_type: str | None = None) -> str:
 def create_datasource(
     datasource_name: str | None = None, datasource_type: str | None = None
 ) -> Any:
-    return EDDatasourceFactory.create_datasource(
-        logging_utils=None,
+    factory = EDDatasourceFactory.create(
+        logging_utils=EDLoggingUtils(),
+    )
+    return factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
@@ -103,11 +113,15 @@ def create_route_service(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
-    cache_obj = edgis_cache.EDGisCache.create(datasource_obj)
+    cache_obj = edgis_cache.EDGisCache.create(
+        datasource_obj,
+        logging_utils=EDLoggingUtils(),
+    )
     return ed_route.EDRouteService.create(
         datasource=datasource_obj,
         cache=cache_obj,
         travel_fn=travel_fn,
+        logging_utils=EDLoggingUtils(),
     )
 
 

@@ -1,8 +1,9 @@
 import asyncio
-from loguru import logger
 import threading
 import aiohttp
 from typing import Any
+from ed_logging_utils import EDLoggingUtils
+from ed_protocols import LoggingProtocol
 
 from ed_constants import (
     query_param_q,
@@ -13,6 +14,8 @@ from ed_constants import (
 )
 
 """Thin HTTP client wrappers for EDGIS system and neighbor lookups."""
+
+_logging_utils = EDLoggingUtils()
 
 
 def main() -> None: ...
@@ -59,7 +62,9 @@ fetch_neighbors_uri: str = r"https://edgis.elitedangereuse.fr/neighbors"
 def fetch_neighbors(
     x: float | int, y: float | int, z: float | int
 ) -> list[dict[str, Any]] | None:
-    logger.debug("Fetching neighbors for coordinates x={} y={} z={}", x, y, z)
+    _logging_utils.debug(
+        "Fetching neighbors for coordinates x={} y={} z={}", x, y, z
+    )
     try:
         # EDGIS defaults to a 20ly radius when radius is omitted.
         return _run_async(
@@ -73,7 +78,7 @@ def fetch_neighbors(
             )
         )
     except (aiohttp.ClientError, asyncio.TimeoutError):
-        logger.exception(
+        _logging_utils.exception(
             "Failed to fetch neighbors for coordinates x={} y={} z={}", x, y, z
         )
         return None
@@ -85,25 +90,29 @@ fetch_coords_uri: str = r"https://edgis.elitedangereuse.fr/coords"
 
 
 def fetch_system_info(system_name: str) -> dict[str, Any] | None:
-    logger.debug("Fetching system info for system={}", system_name)
+    _logging_utils.debug("Fetching system info for system={}", system_name)
     try:
         # The API expects the system name under the `q` query parameter.
         return _run_async(
             _fetch_json(fetch_coords_uri, {query_param_q: system_name})
         )
     except (aiohttp.ClientError, asyncio.TimeoutError):
-        logger.exception("Failed to fetch system info for system={}", system_name)
+        _logging_utils.exception(
+            "Failed to fetch system info for system={}", system_name
+        )
         return None
 
 
 class EDGis:
     """OO gateway wrapper around EDGIS HTTP lookups."""
 
-    def __init__(self, logging_utils: Any):
+    def __init__(self, logging_utils: LoggingProtocol):
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self._logging_utils = logging_utils
 
     @staticmethod
-    def create(logging_utils: Any) -> "EDGis":
+    def create(logging_utils: LoggingProtocol) -> "EDGis":
         return EDGis(logging_utils)
 
     def fetch_system_info(self, system_name: str) -> dict[str, Any] | None:

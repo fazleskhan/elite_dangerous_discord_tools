@@ -6,6 +6,7 @@ import os
 import edgis_cache
 import ed_factory
 import pytest
+from ed_logging_utils import EDLoggingUtils
 
 db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 
@@ -72,6 +73,18 @@ def test_simple_travel():
     assert visited == expected_test_travel_list
 
 
+def test_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        ed_bfs.EDBfs(
+            fetch_info_fn=lambda _name: None,
+            fetch_neighbors_fn=lambda _system_info: None,
+            logging_utils=None,
+        )
+
+
 @pytest.mark.skip(reason="the test_ed_bfs.db does not exist on fresh devcontainer")
 def test_larger_local_travel_Sol_Wolf_359():
 
@@ -83,7 +96,10 @@ def test_larger_local_travel_Sol_Wolf_359():
     database = ed_factory.create_datasource(
         datasource_name=db_filename, datasource_type="tinydb"
     )
-    cache = edgis_cache.EDGisCache.create(database)
+    cache = edgis_cache.EDGisCache.create(
+        database,
+        logging_utils=EDLoggingUtils(),
+    )
 
     visited = ed_bfs.travel(
         cache.find_system_info,
@@ -110,7 +126,10 @@ def test_larger_travel_Sol_LTT_3572():
     database = ed_factory.create_datasource(
         datasource_name=db_filename, datasource_type="tinydb"
     )
-    cache = edgis_cache.EDGisCache.create(database)
+    cache = edgis_cache.EDGisCache.create(
+        database,
+        logging_utils=EDLoggingUtils(),
+    )
 
     visited = ed_bfs.travel(
         cache.find_system_info,

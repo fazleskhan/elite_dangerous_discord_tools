@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from loguru import logger
+from loguru import logger as _logger
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -45,57 +45,6 @@ _DEFAULT_CONFIG: dict[str, Any] = {
     },
 }
 
-
-def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
-    # Recursively merge nested sections so partial config overrides work.
-    merged: dict[str, Any] = dict(base)
-    for key, value in override.items():
-        if isinstance(value, dict) and key in merged and isinstance(merged[key], dict):
-            merged[key] = _merge_dict(merged[key], value)
-        else:
-            merged[key] = value
-    return merged
-
-
-def _compress_to_archive_factory(archive_dir: Path):
-    archive_dir.mkdir(parents=True, exist_ok=True)
-
-    def _compress(source_path: str) -> None:
-        # Loguru passes the rotated file path; we gzip it into archive_dir.
-        source = Path(source_path)
-        archive_target = archive_dir / f"{source.name}.gz"
-        with source.open("rb") as source_stream:
-            with gzip.open(archive_target, "wb") as archive_stream:
-                shutil.copyfileobj(source_stream, archive_stream)
-        source.unlink(missing_ok=True)
-
-    return _compress
-
-
-def _retention_cleanup_factory(archive_dir: Path, retention_days: int):
-    seconds_limit = max(retention_days, 1) * 24 * 60 * 60
-    archive_dir.mkdir(parents=True, exist_ok=True)
-
-    def _cleanup(paths: list[str]) -> None:
-        # Loguru sends current log file candidates; we also prune archived .gz files.
-        now = time.time()
-        for path_str in paths:
-            path = Path(path_str)
-            try:
-                if now - path.stat().st_mtime > seconds_limit:
-                    path.unlink(missing_ok=True)
-            except FileNotFoundError:
-                continue
-        for archived_file in archive_dir.glob("*.gz"):
-            try:
-                if now - archived_file.stat().st_mtime > seconds_limit:
-                    archived_file.unlink(missing_ok=True)
-            except FileNotFoundError:
-                continue
-
-    return _cleanup
-
-
 class _LoguruConfigWatcher:
     def __init__(self, config_path: Path):
         self.config_path = config_path.resolve()
@@ -118,7 +67,7 @@ class _LoguruConfigWatcher:
             )
             observer.start()
             self._observer = observer
-            logger.debug("Started watchdog observer for {}", self.config_path)
+            _logger.debug("Started watchdog observer for {}", self.config_path)
 
     def handle_fs_event(self, event: FileSystemEvent) -> None:
         if self._event_targets_config(event):
@@ -147,7 +96,7 @@ class _LoguruConfigWatcher:
         with self._apply_lock:
             self._configure_logger(config)
             self._config_mtime_ns = current_mtime_ns
-            logger.debug("Reloaded Loguru configuration from {}", self.config_path)
+            _logger.debug("Reloaded Loguru configuration from {}", self.config_path)
 
     def _load_config(self) -> dict[str, Any]:
         config = dict(_DEFAULT_CONFIG)
@@ -155,7 +104,7 @@ class _LoguruConfigWatcher:
             try:
                 raw = json.loads(self.config_path.read_text(encoding="utf-8"))
                 if isinstance(raw, dict):
-                    config = _merge_dict(_DEFAULT_CONFIG, raw)
+                    config = self._merge_dict(_DEFAULT_CONFIG, raw)
             except json.JSONDecodeError:
                 # Keep defaults when the config file is temporarily invalid.
                 pass
@@ -163,11 +112,11 @@ class _LoguruConfigWatcher:
         return config
 
     def _configure_logger(self, config: dict[str, Any]) -> None:
-        logger.remove()
+        _logger.remove()
 
         console_config = config.get("console", {})
         if bool(console_config.get("enabled", True)):
-            logger.add(
+            _logger.add(
                 sys.stderr,
                 level=str(console_config.get("level", "INFO")),
                 colorize=bool(console_config.get("colorize", True)),
@@ -189,12 +138,12 @@ class _LoguruConfigWatcher:
             archive_dir.mkdir(parents=True, exist_ok=True)
 
             retention_days = int(file_config.get("retention_days", 14))
-            logger.add(
+            _logger.add(
                 str(log_path),
                 level=str(file_config.get("level", "INFO")),
                 rotation=str(file_config.get("rotation", "00:00")),
-                retention=_retention_cleanup_factory(archive_dir, retention_days),
-                compression=_compress_to_archive_factory(archive_dir),
+                retention=self._retention_cleanup(archive_dir, retention_days),
+                compression=self._compress_to_archive_factory(archive_dir),
                 format=str(
                     file_config.get("format", _DEFAULT_CONFIG["file"]["format"])
                 ),
@@ -202,6 +151,60 @@ class _LoguruConfigWatcher:
                 diagnose=False,
                 enqueue=True,
             )
+
+    @staticmethod
+    def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+        # Recursively merge nested sections so partial config overrides work.
+        merged: dict[str, Any] = dict(base)
+        for key, value in override.items():
+            if (
+                isinstance(value, dict)
+                and key in merged
+                and isinstance(merged[key], dict)
+            ):
+                merged[key] = _LoguruConfigWatcher._merge_dict(merged[key], value)
+            else:
+                merged[key] = value
+        return merged
+
+    @staticmethod
+    def _compress_to_archive_factory(archive_dir: Path):
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        def _compress(source_path: str) -> None:
+            # Loguru passes the rotated file path; we gzip it into archive_dir.
+            source = Path(source_path)
+            archive_target = archive_dir / f"{source.name}.gz"
+            with source.open("rb") as source_stream:
+                with gzip.open(archive_target, "wb") as archive_stream:
+                    shutil.copyfileobj(source_stream, archive_stream)
+            source.unlink(missing_ok=True)
+
+        return _compress
+
+    @staticmethod
+    def _retention_cleanup(archive_dir: Path, retention_days: int):
+        seconds_limit = max(retention_days, 1) * 24 * 60 * 60
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        def _cleanup(paths: list[str]) -> None:
+            # Loguru sends current log file candidates; we also prune archived .gz files.
+            now = time.time()
+            for path_str in paths:
+                path = Path(path_str)
+                try:
+                    if now - path.stat().st_mtime > seconds_limit:
+                        path.unlink(missing_ok=True)
+                except FileNotFoundError:
+                    continue
+            for archived_file in archive_dir.glob("*.gz"):
+                try:
+                    if now - archived_file.stat().st_mtime > seconds_limit:
+                        archived_file.unlink(missing_ok=True)
+                except FileNotFoundError:
+                    continue
+
+        return _cleanup
 
 
 class _ConfigFileEventHandler(FileSystemEventHandler):
@@ -220,26 +223,48 @@ class _ConfigFileEventHandler(FileSystemEventHandler):
     def on_moved(self, event: FileSystemEvent) -> None:
         self._watcher.handle_fs_event(event)
 
-
-def setup_logging(config_path: str | Path = DEFAULT_CONFIG_PATH) -> None:
-    """Configure Loguru and start a background watcher for hot-reload."""
-    load_dotenv()
-    resolved_path = Path(config_path)
-    global _WATCHER
-    with _WATCHER_LOCK:
-        if _WATCHER is None:
-            _WATCHER = _LoguruConfigWatcher(resolved_path)
-            _WATCHER.start()
-
-
 class EDLoggingUtils:
     """OO logging utility facade for IoC composition."""
+    _instance: "EDLoggingUtils | None" = None
+    _instance_lock = threading.Lock()
 
-    def __init__(self, config_path: str | Path):
+    def __init__(self, config_path: str | Path = DEFAULT_CONFIG_PATH):
         self.config_path = Path(config_path)
 
     @staticmethod
     def create(config_path: str | Path = DEFAULT_CONFIG_PATH) -> "EDLoggingUtils":
-        logging_utils = EDLoggingUtils(config_path)
-        setup_logging(logging_utils.config_path)
-        return logging_utils
+        with EDLoggingUtils._instance_lock:
+            if EDLoggingUtils._instance is None:
+                logging_utils = EDLoggingUtils(config_path)
+                EDLoggingUtils._initialize_watcher(logging_utils.config_path)
+                EDLoggingUtils._instance = logging_utils
+        return EDLoggingUtils._instance
+
+    @staticmethod
+    def _initialize_watcher(config_path: str | Path = DEFAULT_CONFIG_PATH) -> None:
+        """Configure Loguru and start a background watcher for hot-reload."""
+        load_dotenv()
+        resolved_path = Path(config_path)
+        global _WATCHER
+        with _WATCHER_LOCK:
+            if _WATCHER is None:
+                _WATCHER = _LoguruConfigWatcher(resolved_path)
+                _WATCHER.start()
+
+    def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
+        _logger.debug(message, *args, **kwargs)
+
+    def info(self, message: str, *args: Any, **kwargs: Any) -> None:
+        _logger.info(message, *args, **kwargs)
+
+    def warning(self, message: str, *args: Any, **kwargs: Any) -> None:
+        _logger.warning(message, *args, **kwargs)
+
+    def error(self, message: str, *args: Any, **kwargs: Any) -> None:
+        _logger.error(message, *args, **kwargs)
+
+    def exception(self, message: str, *args: Any, **kwargs: Any) -> None:
+        _logger.exception(message, *args, **kwargs)
+
+    def opt(self, *args: Any, **kwargs: Any) -> Any:
+        return _logger.opt(*args, **kwargs)

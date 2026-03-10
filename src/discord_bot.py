@@ -4,15 +4,15 @@ import asyncio
 import concurrent.futures
 import discord
 from discord.ext import commands
-from loguru import logger
 from dotenv import load_dotenv
 import os
 import inspect
 import time
-from typing import Any, Awaitable, Callable, Iterator, Sequence, TypeVar
+from typing import Awaitable, Callable, Iterator, Sequence, TypeVar
 import ed_factory
-from ed_constants import default_discord_log_name, default_init_dir, discord_token_env, log_location_env
-from ed_protocols import RouteServiceProtocol
+from ed_logging_utils import EDLoggingUtils
+from ed_constants import default_init_dir, discord_token_env
+from ed_protocols import LoggingProtocol, RouteServiceProtocol
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -34,18 +34,15 @@ class EDDiscordBot:
         self,
         ed_route_service: RouteServiceProtocol,
         token: str | None,
-        log_location: str,
-        log_level: int | str | None,
-        log_handler: Any,
         bot: commands.Bot,
+        logging_utils: LoggingProtocol,
     ) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.ed_route = ed_route_service
         self.token = token
-        self.log_location = log_location
-        self.log_level = log_level
-        self.log_handler = log_handler
         self.bot = bot
-        self.logger = logger
+        self.logger = logging_utils
         self.logger.debug(
             "Initializing DiscordBot with prefix={}", self.bot.command_prefix
         )
@@ -61,50 +58,29 @@ class EDDiscordBot:
 
     @staticmethod
     def create(
-        route_service: RouteServiceProtocol,
-        cache: Any,
-        logging_utils: Any,
-        token: str,
-        log_location: str,
-        log_level: int | str | None,
-        bot: commands.Bot,
-    ) -> "EDDiscordBot":
-        return EDDiscordBot(
-            ed_route_service=route_service,
-            token=token,
-            log_location=log_location,
-            log_level=log_level,
-            log_handler=None,
-            bot=bot,
-        )
-
-    @staticmethod
-    def create_from_env(
-        route_factory: RouteServiceProtocol | None = None,
-        token_factory: str | None = os.getenv(discord_token_env),
-        log_location_factory: str = os.getenv(
-            log_location_env, default_discord_log_name
-        ),
-        intents_factory: discord.Intents = _default_intents(),
+        route_service: RouteServiceProtocol | None = None,
+        cache: object | None = None,
+        logging_utils: LoggingProtocol = EDLoggingUtils(),
+        token: str | None = os.getenv(discord_token_env),
+        bot: commands.Bot | None = None,
+        intents_factory: discord.Intents | None = None,
         command_prefix: str = "!",
-        log_level: int | str | None = None,
     ) -> "EDDiscordBot":
         load_dotenv()
-        logger.debug("Creating DiscordBot with command_prefix={}", command_prefix)
-        resolved_route = route_factory or ed_factory.create_route_service()
-        resolved_token = token_factory
-        resolved_log_location = log_location_factory
-        resolved_bot = commands.Bot(
+        resolved_logging_utils = logging_utils
+        resolved_logging_utils.debug(
+            "Creating DiscordBot with command_prefix={}", command_prefix
+        )
+        resolved_route = route_service or ed_factory.create_route_service()
+        resolved_bot = bot or commands.Bot(
             command_prefix=command_prefix,
-            intents=intents_factory,
+            intents=intents_factory or EDDiscordBot._default_intents(),
         )
         return EDDiscordBot(
             ed_route_service=resolved_route,
-            token=resolved_token,
-            log_location=resolved_log_location,
-            log_level=log_level,
-            log_handler=None,
+            token=token,
             bot=resolved_bot,
+            logging_utils=resolved_logging_utils,
         )
 
     async def on_ready(self) -> None:

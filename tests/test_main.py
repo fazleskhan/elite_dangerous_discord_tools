@@ -1,9 +1,18 @@
 import main
 import test_data
 import sys
+import pytest
 
 
 def main_func(): ...
+
+
+def test_constructor_raises_when_logging_utils_is_none():
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        main.EDMain(route_service=None, cache=None, logging_utils=None)  # type: ignore[arg-type]
 
 
 def test_initialize_db():

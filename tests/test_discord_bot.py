@@ -7,6 +7,7 @@ from discord.ext import commands
 from unittest.mock import MagicMock
 
 from discord_bot import DiscordBot
+from ed_logging_utils import EDLoggingUtils
 
 
 def main(): ...
@@ -75,10 +76,8 @@ def bot():
     return DiscordBot(
         ed_route_service=FakeRoute(),
         token="test-token",
-        log_location="logs/discord_bot.log",
-        log_level=logging.DEBUG,
-        log_handler=MagicMock(),
         bot=bot_instance,
+        logging_utils=EDLoggingUtils(),
     )
 
 
@@ -89,6 +88,24 @@ async def test_ping(bot):
     sent_messages = ctx.retrieve_messages()
     assert len(sent_messages) == 1
     assert re.match(r"^Pong \(\d+ ms\)$", sent_messages[0])
+
+
+def test_constructor_raises_when_logging_utils_is_none():
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    bot_instance = commands.Bot(command_prefix="!", intents=intents)
+
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        DiscordBot(
+            ed_route_service=FakeRoute(),
+            token="test-token",
+            bot=bot_instance,
+            logging_utils=None,
+        )
 
 
 @pytest.mark.asyncio

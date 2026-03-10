@@ -13,6 +13,25 @@ test_db_filename = __file__.replace("tests", "data").replace(".py", ".db")
 def main(): ...
 
 
+class _FakeLoggingUtils:
+    def debug(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def info(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def warning(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def error(self, _message: str, *_args, **_kwargs):
+        return None
+
+
+@pytest.fixture()
+def fake_logging():
+    return _FakeLoggingUtils()
+
+
 @pytest.fixture(scope="module")
 def del_prior_database():
     if os.path.exists(test_db_filename):
@@ -45,6 +64,15 @@ def test_get_all_systems(database):
 
 def test_get_system_when_record_not_available(database):
     assert database.get_system("NonExistentSystem") is None
+
+
+def test_constructor_raises_when_logging_utils_is_none(tmp_path):
+    database_path = str(tmp_path / "target.db")
+    with pytest.raises(
+        ValueError,
+        match="^logging_utils of type LoggingProtocol is required$",
+    ):
+        ed_tinydb.EDTinyDB(database_path, logging_utils=None)  # type: ignore[arg-type]
 
 
 def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
@@ -97,7 +125,7 @@ def test_write_lock_serializes_insert_and_add_neighbors(tmp_path):
     assert max_active_writes == 1
 
 
-def test_init_datasource_loads_records_when_target_exists(tmp_path):
+def test_init_datasource_loads_records_when_target_exists(tmp_path, fake_logging):
     database_path = str(tmp_path / "target.db")
     (tmp_path / "target.db").write_text("", encoding="utf-8")
     init_dir = tmp_path / "init"
@@ -106,7 +134,7 @@ def test_init_datasource_loads_records_when_target_exists(tmp_path):
         '{"name":"Sol","id64":1,"coords":{"x":0,"y":0,"z":0}}',
         encoding="utf-8",
     )
-    tinydb_backend = ed_tinydb.EDTinyDB(database_path)
+    tinydb_backend = ed_tinydb.EDTinyDB(database_path, logging_utils=fake_logging)
     inserted: list[dict] = []
     tinydb_backend.insert_system = inserted.append  # type: ignore[method-assign]
 
@@ -115,7 +143,7 @@ def test_init_datasource_loads_records_when_target_exists(tmp_path):
     assert [entry["name"] for entry in inserted] == ["Sol"]
 
 
-def test_init_datasource_loads_records_from_init_json_files(tmp_path):
+def test_init_datasource_loads_records_from_init_json_files(tmp_path, fake_logging):
     database_path = str(tmp_path / "data" / "target.db")
     init_dir = tmp_path / "init"
     init_dir.mkdir(parents=True, exist_ok=True)
@@ -129,7 +157,7 @@ def test_init_datasource_loads_records_from_init_json_files(tmp_path):
     )
     (init_dir / "ignore.txt").write_text("not json", encoding="utf-8")
 
-    tinydb_backend = ed_tinydb.EDTinyDB(database_path)
+    tinydb_backend = ed_tinydb.EDTinyDB(database_path, logging_utils=fake_logging)
     inserted: list[dict] = []
     tinydb_backend.insert_system = inserted.append  # type: ignore[method-assign]
 

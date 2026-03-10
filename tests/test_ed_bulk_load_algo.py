@@ -1,6 +1,7 @@
 import ed_bulk_load_algo
 import ed_factory
 import edgis_cache
+from ed_logging_utils import EDLoggingUtils
 
 
 def main(): ...
@@ -25,6 +26,7 @@ def test_bulk_load_service_walks_neighbors_until_max_nodes():
     bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
+        logging_utils=EDLoggingUtils(),
     )
     visited = bulk_loader.load(["Sol"], 4, lambda _message: None)
     assert visited == ["Sol", "Alpha Centauri", "Barnard_s Star", "Luyten_s Star"]
@@ -57,6 +59,7 @@ def test_bulk_load_service_reuses_neighbor_payload_without_refetch():
     bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
+        logging_utils=EDLoggingUtils(),
     )
 
     visited = bulk_loader.load(["Sol"], 3, lambda _message: None)
@@ -77,7 +80,7 @@ def test_create_bulk_load_composes_datasource_and_cache():
     cache_obj = FakeCache()
     bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(
         cache=cache_obj,
-        logging_utils=None,
+        logging_utils=EDLoggingUtils(),
     )
 
     assert isinstance(bulk_loader, ed_bulk_load_algo.EDBulkLoadAlgo)
@@ -105,7 +108,7 @@ def test_create_bulk_loader_delegates_to_loader(monkeypatch):
     monkeypatch.setattr(
         edgis_cache.EDGisCache,
         "create",
-        lambda db_obj: cache_obj,
+        lambda db_obj, *, logging_utils: cache_obj,
     )
     monkeypatch.setattr(
         ed_bulk_load_algo.EDBulkLoadAlgo,
@@ -118,10 +121,17 @@ def test_create_bulk_loader_delegates_to_loader(monkeypatch):
     )
 
     datasource = ed_factory.create_datasource()
-    cache = edgis_cache.EDGisCache.create(datasource)
-    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(cache, logging_utils=None)
+    cache = edgis_cache.EDGisCache.create(
+        datasource,
+        logging_utils=EDLoggingUtils(),
+    )
+    bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo.create(
+        cache, logging_utils=EDLoggingUtils()
+    )
     assert bulk_loader.load(["Sol"], 1, lambda _message: None) == ["Sol"]
-    assert create_calls == [(cache_obj, None)]
+    assert len(create_calls) == 1
+    assert create_calls[0][0] is cache_obj
+    assert isinstance(create_calls[0][1], EDLoggingUtils)
 
 
 def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch):
@@ -163,6 +173,7 @@ def test_bulk_load_service_uses_worker_pool_sized_to_physical_cores(monkeypatch)
     bulk_loader = ed_bulk_load_algo.EDBulkLoadAlgo(
         fetch_system_info_fn=fake_find_system_info,
         fetch_neighbors_fn=fake_find_neighbors,
+        logging_utils=EDLoggingUtils(),
     )
     visited = bulk_loader.load(["Sol"], 3, lambda _message: None)
 

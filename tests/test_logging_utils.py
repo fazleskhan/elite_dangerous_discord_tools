@@ -5,7 +5,7 @@ from pathlib import Path
 
 from watchdog.events import FileModifiedEvent
 
-import logging_utils as logging_utils
+import ed_logging_utils as logging_utils
 
 
 def test_merge_dict_recursively_merges_nested_values():
@@ -19,7 +19,7 @@ def test_merge_dict_recursively_merges_nested_values():
         "new_key": {"value": 1},
     }
 
-    merged = logging_utils._merge_dict(base, override)
+    merged = logging_utils._LoguruConfigWatcher._merge_dict(base, override)
 
     assert merged == {
         "console": {"enabled": True, "level": "DEBUG"},
@@ -28,7 +28,7 @@ def test_merge_dict_recursively_merges_nested_values():
     }
 
 
-def test_setup_logging_initializes_watcher_once(monkeypatch, tmp_path):
+def test_logging_utils_create_initializes_watcher_once(monkeypatch, tmp_path):
     created_paths = []
     start_calls = 0
 
@@ -44,14 +44,16 @@ def test_setup_logging_initializes_watcher_once(monkeypatch, tmp_path):
     monkeypatch.setattr(logging_utils, "_WATCHER", None)
     monkeypatch.setattr(logging_utils, "_LoguruConfigWatcher", FakeWatcher)
     monkeypatch.setattr(logging_utils, "load_dotenv", lambda: None)
+    monkeypatch.setattr(logging_utils.EDLoggingUtils, "_instance", None)
 
     first_path = tmp_path / "first.json"
     second_path = tmp_path / "second.json"
-    logging_utils.setup_logging(first_path)
-    logging_utils.setup_logging(second_path)
+    first_instance = logging_utils.EDLoggingUtils.create(first_path)
+    second_instance = logging_utils.EDLoggingUtils.create(second_path)
 
     assert created_paths == [first_path]
     assert start_calls == 1
+    assert first_instance is second_instance
 
 
 def test_hot_reload_reapplies_config_when_file_changes(monkeypatch, tmp_path):

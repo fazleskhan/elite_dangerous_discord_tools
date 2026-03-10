@@ -5,6 +5,19 @@ import test_data
 
 def main(): ...
 
+class FakeLoggingUtils:
+    def debug(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def info(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def warning(self, _message: str, *_args, **_kwargs):
+        return None
+
+    def error(self, _message: str, *_args, **_kwargs):
+        return None
+
 
 class FakeDB:
     def init_datasource(self, import_dir: str = "./init"):
@@ -47,6 +60,7 @@ def make_service():
         cache=FakeCache(),
         travel_fn=fake_travel_fn,
         script_file=__file__,
+        logging_utils=FakeLoggingUtils(),
     )
 
 

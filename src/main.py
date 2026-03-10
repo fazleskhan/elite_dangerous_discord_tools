@@ -5,9 +5,9 @@ import time
 from typing import Any
 
 import ed_factory
-from loguru import logger
-from logging_utils import setup_logging
+from ed_logging_utils import EDLoggingUtils
 from ed_constants import default_init_dir
+from ed_protocols import LoggingProtocol
 
 """CLI entrypoint for route search and cache inspection commands."""
 
@@ -19,13 +19,19 @@ def _elapsed_ms(start: float) -> int:
 class EDMain:
     """CLI command compositor exposing route/cache operations."""
 
-    def __init__(self, route_service: Any, cache: Any, logging_utils: Any) -> None:
+    def __init__(
+        self, route_service: Any, cache: Any, logging_utils: LoggingProtocol
+    ) -> None:
+        if logging_utils is None:
+            raise ValueError("logging_utils of type LoggingProtocol is required")
         self.route_service = route_service
         self.cache = cache
         self.logging_utils = logging_utils
 
     @staticmethod
-    def create(route_service: Any, cache: Any, logging_utils: Any) -> "EDMain":
+    def create(
+        route_service: Any, cache: Any, logging_utils: LoggingProtocol
+    ) -> "EDMain":
         return EDMain(route_service, cache, logging_utils)
 
     def ping(self) -> str:
@@ -49,7 +55,7 @@ class EDMain:
                 max_systems=i_max_systems,
                 min_distance=min_distance,
                 max_distance=max_distance,
-                progress_callback=lambda message: logger.info(message),
+                progress_callback=lambda message: self.logging_utils.info(message),
             )
         )
 
@@ -70,15 +76,16 @@ class EDMain:
         return self.route_service.bulk_load_cache(
             initial_system_names,
             max_nodes_visited,
-            progress_callback=lambda message: logger.info(message),
+            progress_callback=lambda message: self.logging_utils.info(message),
         )
 
 
 ed_service = ed_factory.create_route_service()
+app_logging_utils = EDLoggingUtils()
 ed_main = EDMain.create(
     ed_service,
     cache=getattr(ed_service, "cache", None),
-    logging_utils=None,
+    logging_utils=app_logging_utils,
 )
 
 
@@ -110,7 +117,7 @@ def main() -> None:
     parser.add_argument("--max_nodes_visited", nargs="?", const=None, default=None, type=int)
 
     args = parser.parse_args()
-    logger.info("CLI command received: {}", args.command)
+    ed_main.logging_utils.info("CLI command received: {}", args.command)
 
     match args.command:
         case "ping":
@@ -228,5 +235,5 @@ def bulk_load_cache(
 
 
 if __name__ == "__main__":
-    setup_logging()
+    EDLoggingUtils.create()
     main()
