@@ -22,7 +22,9 @@ from ed_route_services import (
     EDInitDatasourceService,
     EDPathService,
 )
-
+from ed_datasource_factory import EDDatasourceFactory
+from edgis_cache import EDGisCache
+from edgis import EDGis
 
 class EDRouteServiceFactory:
     @staticmethod
@@ -38,11 +40,16 @@ class EDRouteServiceFactory:
         path_service: PathProtocol | None = None,
         calc_systems_distance_service: CalcSystemsDistanceProtocol | None = None,
     ) -> EDRouteService:
+        datasource_factory = EDDatasourceFactory.create(logging_utils=logging_utils)
+        datasource = datasource_factory.create_datasource()
+
         resolved_init_datasource_service = init_datasource_service or EDInitDatasourceService.create(
             datasource, logging_utils
         )
+        edgis = EDGis.create(logging_utils)
+        resolved_cache = cache or EDGisCache.create(datasource,logging_utils,edgis.fetch_system_info, edgis.fetch_neighbors)
         resolved_get_system_info_service = get_system_info_service or EDGetSystemInfoService.create(
-            cache, logging_utils
+            resolved_cache, logging_utils
         )
         resolved_get_all_system_names_service = (
             get_all_system_names_service
@@ -56,8 +63,8 @@ class EDRouteServiceFactory:
             )
         )
         resolved_bfs = bfs or EDBfsAlgo.create(
-            cache.find_system_info,
-            cache.find_system_neighbors,
+            resolved_cache.find_system_info,
+            resolved_cache.find_system_neighbors,
             resolved_calc_systems_distance_service.run,
             logging_utils,
         )
@@ -67,13 +74,13 @@ class EDRouteServiceFactory:
             logging_utils,
         )
         resolved_bulk_load_cache_service = bulk_load_cache_service or EDBulkLoadAlgo.create(
-            cache,
+            resolved_cache,
             logging_utils,
         )
         logging_utils.debug("Creating EDRouteService via datasource/cache composition")
         return EDRouteService(
             datasource=datasource,
-            cache=cache,
+            cache=resolved_cache,
             bfs=resolved_bfs,
             logging_utils=logging_utils,
             init_datasource_service=resolved_init_datasource_service,

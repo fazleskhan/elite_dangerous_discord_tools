@@ -31,8 +31,9 @@ class EDDatasourceFactory:
 
     def create_datasource(
         self,
-        datasource_name: str | None,
-        datasource_type: str | None,
+        *,
+        datasource_name: str | None = None,
+        datasource_type: str | None = None,
     ) -> DatasourceProtocol:
         load_dotenv()
         resolved_type = resolve_datasource_type(datasource_type)
