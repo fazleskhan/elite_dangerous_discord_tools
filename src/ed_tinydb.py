@@ -72,9 +72,8 @@ class AIOTinyDB:
 class EDTinyDB:
     @staticmethod
     def create(
-        datasource_name: str | None = None,
-        *,
         logging_utils: LoggingProtocol,
+        datasource_name: str | None = None,
     ) -> "EDTinyDB":
         # Keep local default under ./data unless caller/env overrides it.
         return EDTinyDB(
@@ -83,11 +82,17 @@ class EDTinyDB:
         )
 
     def __init__(
-        self, datasource_name: str, *, logging_utils: LoggingProtocol
+        self, datasource_name: str, logging_utils: LoggingProtocol
     ):
         if logging_utils is None:
             raise ValueError("logging_utils of type LoggingProtocol is required")
-        self.datasource_name = datasource_name
+        else:
+            self.logger = logging_utils
+        if datasource_name is None:
+            raise ValueError("datasource_name of type str is required")
+        else:
+            self.datasource_name = datasource_name
+        
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
@@ -97,8 +102,8 @@ class EDTinyDB:
         self._cache_lock = threading.RLock()
         self._system_cache: dict[str, SystemInfo] = {}
         self._all_systems_cached = False
-        self.logger = logging_utils
-        self.logger.info("DB backend: aiotinydb")
+        
+        self.logger.info("aiotinydb backend")
 
     # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(
