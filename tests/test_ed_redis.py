@@ -6,6 +6,8 @@ import test_data
 
 from ed_redis import EDRedis
 
+REDIS_TEST_URL = "redis://localhost:6379/0"
+
 
 def main() -> None: ...
 
@@ -83,12 +85,17 @@ def fake_redis(monkeypatch):
         return fake_client
 
     monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
     return {"store": store, "client": fake_client}
 
 
 def test_redis_crud_system(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db",
+        REDIS_TEST_URL,
+        logging_utils=fake_logging,
+        max_connections=8,
+    )
 
     database.insert_system(test_data.sol_data)
     database.insert_system(test_data.sol_data)
@@ -98,7 +105,12 @@ def test_redis_crud_system(fake_redis, fake_logging):
 
 
 def test_redis_get_all_systems(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db",
+        REDIS_TEST_URL,
+        logging_utils=fake_logging,
+        max_connections=None,  # type: ignore[arg-type]
+    )
     database.insert_system(test_data.sol_data)
     database.insert_system(test_data.wise_data)
 
@@ -108,31 +120,53 @@ def test_redis_get_all_systems(fake_redis, fake_logging):
 
 
 def test_redis_get_system_when_record_not_available(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db",
+        REDIS_TEST_URL,
+        logging_utils=fake_logging,
+        max_connections=None,  # type: ignore[arg-type]
+    )
     assert database.get_system("NonExistentSystem") is None
 
 
 def test_redis_add_neighbors_when_record_not_available(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db",
+        REDIS_TEST_URL,
+        logging_utils=fake_logging,
+        max_connections=None,  # type: ignore[arg-type]
+    )
     database.add_neighbors(test_data.sol_data, test_data.sol_complete_neighbors)
 
 
 def test_redis_requires_redis_url(monkeypatch, fake_logging):
     monkeypatch.delenv("REDIS_URL", raising=False)
     with pytest.raises(ValueError, match="REDIS_URL is required"):
-        EDRedis("unit-test-db", logging_utils=fake_logging)
+        EDRedis.create(logging_utils=fake_logging, max_connections=8)
+
+
+def test_redis_constructor_raises_when_redis_url_is_none(fake_logging):
+    with pytest.raises(
+        ValueError, match="Redis URL of type str is a required argument"
+    ):
+        EDRedis("unit-test-db", None, logging_utils=fake_logging, max_connections=8)  # type: ignore[arg-type]
 
 
 def test_redis_constructor_raises_when_logging_utils_is_none(monkeypatch):
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        EDRedis("unit-test-db", logging_utils=None)  # type: ignore[arg-type]
+        EDRedis("unit-test-db", REDIS_TEST_URL, logging_utils=None, max_connections=8)  # type: ignore[arg-type]
 
 
 def test_redis_write_lock_serializes_insert_and_add_neighbors(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db",
+        REDIS_TEST_URL,
+        logging_utils=fake_logging,
+        max_connections=None,  # type: ignore[arg-type]
+    )
     barrier = threading.Barrier(2)
     tracker_lock = threading.Lock()
     active_writes = 0
@@ -177,7 +211,9 @@ def test_redis_write_lock_serializes_insert_and_add_neighbors(fake_redis, fake_l
 
 
 def test_redis_close_closes_client_and_prevents_operations(fake_redis, fake_logging):
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
+    )
     database.close()
     with pytest.raises(RuntimeError, match="Redis client is closed"):
         database.insert_system(test_data.sol_data)
@@ -186,7 +222,7 @@ def test_redis_close_closes_client_and_prevents_operations(fake_redis, fake_logg
 def test_redis_app_name_env_used_for_system_key(monkeypatch, fake_logging):
     import ed_redis
 
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
     monkeypatch.setenv("REDIS_APP_NAME", "myapp")
     monkeypatch.setattr(ed_redis.psutil, "cpu_count", lambda logical=False: 4)
     monkeypatch.setattr(
@@ -195,15 +231,15 @@ def test_redis_app_name_env_used_for_system_key(monkeypatch, fake_logging):
         lambda *_args, **_kwargs: _FakeRedisClient(_FakeRedisStore()),
     )
 
-    database = EDRedis.create(logging_utils=fake_logging)
+    database = EDRedis.create(logging_utils=fake_logging, max_connections=8)
     assert database._system_key("Sol") == "myapp:system:Sol"
 
 
-def test_redis_max_connections_env_overrides_default(monkeypatch, fake_logging):
+def test_redis_max_connections_explicit_arg_overrides_env(monkeypatch, fake_logging):
     import ed_redis
 
     captured: dict[str, int | None] = {"max_connections": None}
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
     monkeypatch.setenv("REDIS_MAX_CONNECTIONS", "13")
 
     def _fake_from_url(
@@ -215,10 +251,12 @@ def test_redis_max_connections_env_overrides_default(monkeypatch, fake_logging):
 
     monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
 
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
+    )
     database._new_client()
 
-    assert captured["max_connections"] == 13
+    assert captured["max_connections"] == 8
 
 
 def test_redis_url_env_and_explicit_arg_precedence(monkeypatch, fake_logging):
@@ -236,12 +274,15 @@ def test_redis_url_env_and_explicit_arg_precedence(monkeypatch, fake_logging):
 
     monkeypatch.setattr(ed_redis.redis, "from_url", _fake_from_url)
 
-    database_from_env = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database_from_env = EDRedis.create(
+        datasource_name="unit-test-db",
+        logging_utils=fake_logging,
+    )
     database_from_env._new_client()
     assert captured["url"] == "redis://env-host:6379/0"
 
-    database_from_arg = EDRedis(
-        "unit-test-db",
+    database_from_arg = EDRedis.create(
+        datasource_name="unit-test-db",
         redis_url="redis://arg-host:6379/0",
         logging_utils=fake_logging,
     )
@@ -252,8 +293,10 @@ def test_redis_url_env_and_explicit_arg_precedence(monkeypatch, fake_logging):
 def test_redis_init_datasource_skips_loading_when_target_exists(
     monkeypatch, tmp_path, fake_logging
 ):
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
+    database = EDRedis(
+        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
+    )
     inserted: list[dict] = []
     database.insert_system = inserted.append  # type: ignore[method-assign]
     empty_init = tmp_path / "init"
@@ -267,7 +310,7 @@ def test_redis_init_datasource_skips_loading_when_target_exists(
 def test_redis_init_datasource_loads_records_from_init_json_files(
     monkeypatch, tmp_path, fake_logging
 ):
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("REDIS_URL", REDIS_TEST_URL)
     init_dir = tmp_path / "init"
     init_dir.mkdir(parents=True, exist_ok=True)
     (init_dir / "single.json").write_text(
@@ -280,7 +323,9 @@ def test_redis_init_datasource_loads_records_from_init_json_files(
     )
     (init_dir / "ignore.txt").write_text("not json", encoding="utf-8")
 
-    database = EDRedis("unit-test-db", logging_utils=fake_logging)
+    database = EDRedis(
+        "unit-test-db", REDIS_TEST_URL, logging_utils=fake_logging, max_connections=8
+    )
     inserted: list[dict] = []
     database.insert_system = inserted.append  # type: ignore[method-assign]
 
