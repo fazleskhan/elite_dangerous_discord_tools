@@ -3,10 +3,16 @@ ujson
 tinydb
 tinydb-smartcache
 aiotinydb
+pytest
 mypy
 discord
 python-dotenv
+pytest-asyncio
 loguru
 watchdog
+tuna
 redis[hiredis]
 psutil
+austin-python
+coverage
+pytest-cov
