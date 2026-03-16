@@ -13,6 +13,6 @@ sudo apt upgrade -y
 
 sudo apt install austin -y
 
-pip install -r requirements.txt
+pip install -r dev-requirements.txt
 
 
