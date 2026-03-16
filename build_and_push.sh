@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Define variables
 IMAGE_NAME="public-images"
-TAG="elite-dangerous-discord-tools-test" # Use the first argument as the tag, or default to 'latest'
+TAG="elite-dangerous-discord-tools" # Use the first argument as the tag, or default to 'latest'
 REGISTRY_USER="fazleskhan" # Replace with your registry username or full registry path (e.g., ghcr.io/user)
 FULL_IMAGE_NAME="${REGISTRY_USER}/${IMAGE_NAME}"
 
