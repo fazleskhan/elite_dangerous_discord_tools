@@ -1,7 +1,7 @@
 services:
   elite-dangerous-discord-tools:
     build:
-      context: https://github.com/fazleskhan/elite_dangerous_discord_tools.git#main
+      context: https://github.com/fazleskhan/elite_dangerous_discord_tools.git#update-trixie
       dockerfile: Dockerfile
     image: fazleskhan/public-images:elite-dangerous-discord-tools
     restart: unless-stopped
