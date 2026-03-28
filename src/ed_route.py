@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ed_constants import default_init_dir
+from constants import default_init_dir
 from ed_protocols import (
     BfsProtocol,
     BulkLoadProtocol,

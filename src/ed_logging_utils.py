@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 import shutil
 import sys
 import threading
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 from loguru import logger as _logger
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
+from watchdog.observers.api import BaseObserver
 
 DEFAULT_CONFIG_PATH = Path("config/loguru.json")
 _WATCHER: "_LoguruConfigWatcher | None" = None
@@ -51,7 +53,7 @@ class _LoguruConfigWatcher:
         self.config_path = config_path.resolve()
         self._config_mtime_ns: int | None = None
         self._apply_lock = threading.Lock()
-        self._observer: Observer | None = None
+        self._observer: BaseObserver | None = None
 
     def start(self) -> None:
         self._apply_if_needed(force=True)
@@ -75,13 +77,13 @@ class _LoguruConfigWatcher:
             self._apply_if_needed(force=False)
 
     def _event_targets_config(self, event: FileSystemEvent) -> bool:
-        src_path = Path(event.src_path).resolve()
+        src_path = Path(os.fsdecode(event.src_path)).resolve()
         if src_path == self.config_path:
             return True
         dest_path = getattr(event, "dest_path", None)
         if dest_path is None:
             return False
-        return Path(dest_path).resolve() == self.config_path
+        return Path(os.fsdecode(dest_path)).resolve() == self.config_path
 
     def _apply_if_needed(self, force: bool) -> None:
         try:

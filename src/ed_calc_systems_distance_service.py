@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import threading
 
-from ed_constants import (
+from constants import (
     system_info_coords_field,
     system_info_x_field,
     system_info_y_field,

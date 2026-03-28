@@ -14,7 +14,7 @@ import edgis_cache
 from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
 from ed_logging_utils import EDLoggingUtils
-from ed_constants import default_init_dir, discord_token_env
+from constants import default_init_dir, discord_token_env
 from ed_protocols import CacheProtocol, LoggingProtocol, RouteServiceProtocol
 
 """Discord command adapter for ED route and cache operations."""
@@ -191,7 +191,7 @@ class EDDiscordBot:
         loop = asyncio.get_running_loop()
 
         def handle_progress_send_result(
-            send_result: concurrent.futures.Future[None],
+            send_result: concurrent.futures.Future[discord.Message],
         ) -> None:
             # Progress sends happen from a worker-thread callback; surface
             # failures in logs instead of failing the command coroutine.
@@ -370,7 +370,7 @@ class EDDiscordBot:
         if self.token is None:
             raise RuntimeError("DISCORD_TOKEN is not configured")
         self._logging_utils.info("Starting Discord bot run loop")
-        self.bot.run(self.token, log_handler=None, log_level=None)
+        self.bot.run(self.token, log_handler=None)
 
 
 if __name__ == "__main__":

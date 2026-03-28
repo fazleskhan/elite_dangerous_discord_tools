@@ -1,14 +1,15 @@
 import argparse
 import asyncio
-import sys
 import time
+from pathlib import Path
 from typing import Any
 
-from ed_route_service_factory import EDRouteServiceFactory
-from ed_route import EDRouteService
+from defaults import DEFAULT_INIT_DIR
+from constants import default_init_dir
 from ed_logging_utils import EDLoggingUtils
-from ed_constants import default_init_dir
-from ed_protocols import LoggingProtocol
+from ed_route import EDRouteService
+from ed_route_service_factory import EDRouteServiceFactory
+from protocols import ILogger
 
 """CLI entrypoint for route search and cache inspection commands."""
 
@@ -22,28 +23,25 @@ class EDMain:
 
     def __init__(
         self,
-        route_service: EDRouteService,
-        logging_utils: LoggingProtocol,
+        route_service: EDRouteService | None,
+        logging_utils: ILogger | None,
     ) -> None:
         if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
+            raise ValueError("logging_utils must not be null")
         if route_service is None:
-            raise ValueError("route_service of type RouteServiceProtocol is required")
+            raise ValueError("route_service must not be null")
         self.route_service = route_service
         self.logging_utils = logging_utils
 
     @staticmethod
     def create(
-        logging_utils: LoggingProtocol | None = None,
+        logging_utils: ILogger | None = None,
         route_service: EDRouteService | None = None,
     ) -> "EDMain":
-        # Keep create() convenient for app entrypoints while still allowing
-        # tests/composition roots to inject fully built dependencies.
-        resolved_logging_utils = logging_utils or EDLoggingUtils()
+        resolved_logging_utils = logging_utils or EDLoggingUtils.create()
         resolved_route_service = route_service
 
         if resolved_route_service is None:
-            # Route service is composed once here; command handlers only call it.
             resolved_route_service = EDRouteServiceFactory.create(
                 logging_utils=resolved_logging_utils,
             )
@@ -87,7 +85,7 @@ class EDMain:
             for system_name in system_names
         ]
 
-    def init_datasource(self, import_dir: str = default_init_dir) -> None:
+    def init_datasource(self, import_dir: str | Path = DEFAULT_INIT_DIR) -> None:
         self.route_service.init_datasource(import_dir)
 
     def bulk_load_cache(
@@ -102,7 +100,7 @@ class EDMain:
         )
 
 
-def main() -> None:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Calculates pathing and provides information for Elite Dangers GIS data."
     )
@@ -132,109 +130,154 @@ def main() -> None:
     parser.add_argument(
         "--max_nodes_visited", nargs="?", const=None, default=None, type=int
     )
+    return parser
 
-    args = parser.parse_args()
-    ed_main = EDMain.create()
+
+def _log_help_and_exit(
+    parser: argparse.ArgumentParser,
+    logging_utils: ILogger,
+    message: str,
+) -> None:
+    logging_utils.error(message)
+    logging_utils.info(parser.format_help())
+    raise SystemExit(1)
+
+
+def _log_execution_time(logging_utils: ILogger, start: float) -> None:
+    logging_utils.info("Execution time: {} ms", _elapsed_ms(start))
+
+
+def _run_command(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser,
+    ed_main: EDMain,
+) -> None:
     ed_main.logging_utils.info("CLI command received: {}", args.command)
 
-    # Keep command dispatch in one match so each branch owns its own
-    # argument validation and output formatting.
     match args.command:
         case "ping":
-            print(ed_main.ping())
+            ed_main.logging_utils.info(ed_main.ping())
         case "all_loaded_systems":
             start = time.perf_counter()
-            print("All Loaded Systems: ", ed_main.get_all_system_names())
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+            ed_main.logging_utils.info(
+                "All Loaded Systems: {}", ed_main.get_all_system_names()
+            )
+            _log_execution_time(ed_main.logging_utils, start)
         case "system_info":
             start = time.perf_counter()
-            if not args.system_name:
-                print(
-                    "Error: The --system_name argument is requried with system_info command"
+            if args.system_name is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --system_name argument is required with system_info command",
                 )
-                parser.print_help()
-                sys.exit(1)
-            print(args.system_name)
-            print(ed_main.get_system_info([args.system_name]))
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+            ed_main.logging_utils.info("{}", args.system_name)
+            ed_main.logging_utils.info(
+                "{}", ed_main.get_system_info([args.system_name])
+            )
+            _log_execution_time(ed_main.logging_utils, start)
         case "path":
             start = time.perf_counter()
-            # Fail fast on missing required args before invoking services.
-            if not args.initial:
-                print("Error: The --initial argument is requried with path command")
-                parser.print_help()
-                sys.exit(1)
-            if not args.destination:
-                print("Error: The --destination argument is requried with path command")
-                parser.print_help()
-                sys.exit(1)
-            if args.max_systems and int(args.max_systems) > 1000:
-                print("Error: Absolute value --max_systems argument is 1000")
-                sys.exit(1)
+            if args.initial is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --initial argument is required with path command",
+                )
+            if args.destination is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --destination argument is required with path command",
+                )
+            if args.max_systems is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --max_systems argument is required with path command",
+                )
+            max_systems = int(args.max_systems)
+            if max_systems > 1000:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "Absolute value for --max_systems is 1000",
+                )
             route = ed_main.calc_route(
                 args.initial,
                 args.destination,
-                int(args.max_systems),
+                max_systems,
                 args.min_distance,
                 args.max_distance,
             )
             if route:
-                print(" → ".join(route))
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+                ed_main.logging_utils.info("{}", " -> ".join(route))
+            _log_execution_time(ed_main.logging_utils, start)
         case "calc_systems_distance":
             start = time.perf_counter()
-            if not args.initial:
-                print(
-                    "Error: The --initial argument is requried with calc_systems_distance command"
+            if args.initial is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --initial argument is required with calc_systems_distance command",
                 )
-                parser.print_help()
-                sys.exit(1)
-            if not args.destination:
-                print(
-                    "Error: The --destination argument is requried with calc_systems_distance command"
+            if args.destination is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --destination argument is required with calc_systems_distance command",
                 )
-                parser.print_help()
-                sys.exit(1)
-            print(
+            ed_main.logging_utils.info(
+                "{}",
                 ed_main.calc_systems_distance(
                     source_system=args.initial,
                     target_system=args.destination,
-                )
+                ),
             )
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+            _log_execution_time(ed_main.logging_utils, start)
         case "init_datasource":
             start = time.perf_counter()
             ed_main.init_datasource(args.import_dir)
-            print(f"Datasource initialized from {args.import_dir}")
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+            ed_main.logging_utils.info(
+                "Datasource initialized from {}", args.import_dir
+            )
+            _log_execution_time(ed_main.logging_utils, start)
         case "bulk_load_cache":
             start = time.perf_counter()
-            if not args.initial_systems:
-                print(
-                    "Error: The --initial_systems argument is requried with bulk_load_cache command"
+            if args.initial_systems is None:
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --initial_systems argument is required with bulk_load_cache command",
                 )
-                parser.print_help()
-                sys.exit(1)
             if args.max_nodes_visited is None:
-                print(
-                    "Error: The --max_nodes_visited argument is requried with bulk_load_cache command"
+                _log_help_and_exit(
+                    parser,
+                    ed_main.logging_utils,
+                    "The --max_nodes_visited argument is required with bulk_load_cache command",
                 )
-                parser.print_help()
-                sys.exit(1)
             initial_system_names = [
                 system_name.strip()
                 for system_name in args.initial_systems.split(",")
                 if system_name.strip()
             ]
-            # Delegate traversal/progress internals to route service layer.
             loaded_systems = ed_main.bulk_load_cache(
                 initial_system_names,
                 args.max_nodes_visited,
             )
-            print(
-                f"Loaded {len(loaded_systems)} systems from seeds {initial_system_names}"
+            ed_main.logging_utils.info(
+                "Loaded {} systems from seeds {}",
+                len(loaded_systems),
+                initial_system_names,
             )
-            print(f"Execution time: {_elapsed_ms(start)} ms")
+            _log_execution_time(ed_main.logging_utils, start)
+
+
+def main() -> None:
+    parser = _build_parser()
+    args = parser.parse_args()
+    ed_main = EDMain.create()
+    _run_command(args, parser, ed_main)
 
 
 if __name__ == "__main__":

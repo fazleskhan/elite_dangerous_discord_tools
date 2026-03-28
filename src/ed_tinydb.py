@@ -9,7 +9,7 @@ from tinydb.storages import JSONStorage
 from tinydb_smartcache import SmartCacheTable
 
 from ed_protocols import LoggingProtocol, SystemInfo
-from ed_constants import (
+from constants import (
     default_init_dir,
     default_tinydb_name,
     json_extension,
@@ -26,7 +26,6 @@ def main() -> None: ...
 
 
 class SmartCacheTinyDB(TinyDB):
-    # Swap TinyDB's default table with SmartCache's query-cache table.
     table_class = SmartCacheTable
 
 
@@ -38,7 +37,6 @@ class AIOTinyDB:
         self._db: TinyDB | None = None
 
     async def __aenter__(self) -> "AIOTinyDB":
-        # Use SmartCache table implementation for cached query results.
         self._db = SmartCacheTinyDB(self._path, storage=JSONStorage)
         return self
 
@@ -48,7 +46,6 @@ class AIOTinyDB:
             self._db = None
 
     def _require_db(self) -> TinyDB:
-        # Central guard so async wrapper methods fail fast if misused.
         if self._db is None:
             raise RuntimeError("AIOTinyDB must be used within 'async with'")
         return self._db
@@ -75,9 +72,11 @@ class EDTinyDB:
         logging_utils: LoggingProtocol,
         datasource_name: str | None = None,
     ) -> "EDTinyDB":
-        # Keep local default under ./data unless caller/env overrides it.
+        resolved_datasource_name = datasource_name
+        if resolved_datasource_name is None:
+            resolved_datasource_name = os.getenv(tinydb_name_env) or default_tinydb_name
         return EDTinyDB(
-            datasource_name or os.getenv(tinydb_name_env, default_tinydb_name),
+            resolved_datasource_name,
             logging_utils=logging_utils,
         )
 
@@ -94,16 +93,13 @@ class EDTinyDB:
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
-        # Serialize write operations to avoid concurrent TinyDB write races.
         self._write_lock = threading.Lock()
-        # Cache hot system lookups to avoid repeated TinyDB file scans.
         self._cache_lock = threading.RLock()
         self._system_cache: dict[str, SystemInfo] = {}
         self._all_systems_cached = False
 
         self.logger.info("aiotinydb backend")
 
-    # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(
         self,
         import_dir: str = default_init_dir,
@@ -113,11 +109,9 @@ class EDTinyDB:
             os.makedirs(db_dir, exist_ok=True)
         self.import_datasource(import_dir)
 
-    # Import/export entrypoints are sync by design for CLI/script usage.
     def import_datasource(self, import_dir: str) -> None:
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
-        # Deterministic order keeps imports reproducible across runs.
         json_filenames = sorted(
             filename
             for filename in os.listdir(import_dir)
@@ -138,7 +132,6 @@ class EDTinyDB:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
-    # Import/export entrypoints are sync by design for CLI/script usage.
     def export_datasource(self, export_dir: str) -> None:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
@@ -174,8 +167,6 @@ class EDTinyDB:
         ).strip()
 
     def _run_async(self, coro: Any) -> Any:
-        # If we're already inside an event loop, execute the coroutine in a
-        # helper thread so sync callers can still block for the result.
         try:
             asyncio.get_running_loop()
         except RuntimeError:
@@ -218,48 +209,12 @@ class EDTinyDB:
                 )
                 return True
             else:
-                self.logger.debug(
-                    "Skipped duplicate system insert for system={}", system_name
-                )
+                self.logger.debug("Skipped existing system={}", system_name)
                 return False
-
-    async def _get_system_async(self, system_name: str) -> SystemInfo | None:
-        System = Query()
-        async with AIOTinyDB(self.datasource_name) as db:
-            if not await db.contains(System.name == system_name):
-                self.logger.debug("Lookup system={} found=False", system_name)
-                return None
-            result = await db.get(System.name == system_name)
-            self.logger.debug(
-                "Lookup system={} found={}", system_name, result is not None
-            )
-            return result
-
-    async def _add_neighbors_async(
-        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> None:
-        System = Query()
-        system_name = system_info[system_info_name_field]
-        async with AIOTinyDB(self.datasource_name) as db:
-            updated = await db.update(
-                {system_info_neighbors_field: new_neighbors},
-                System.name == system_name,
-            )
-            self.logger.debug(
-                "Updated neighbors for system={} updated_rows={}",
-                system_name,
-                len(updated),
-            )
-
-    async def _get_all_systems_async(self) -> list[SystemInfo]:
-        async with AIOTinyDB(self.datasource_name) as db:
-            systems = await db.all()
-            self.logger.debug("Loaded all systems count={}", len(systems))
-            return systems
 
     def insert_system(self, system_info: SystemInfo) -> None:
         system_name = system_info.get(system_info_name_field)
-        if not isinstance(system_name, str):
+        if not isinstance(system_name, str) or not system_name:
             return
         if self._cache_get(system_name) is not None:
             return
@@ -267,44 +222,104 @@ class EDTinyDB:
             inserted = self._run_async(self._insert_system_async(system_info))
         if inserted:
             self._cache_set(system_name, system_info)
+            with self._cache_lock:
+                self._all_systems_cached = False
+
+    async def _get_system_async(self, system_name: str) -> SystemInfo | None:
+        cached = self._cache_get(system_name)
+        if cached is not None:
+            return cached
+        System = Query()
+        async with AIOTinyDB(self.datasource_name) as db:
+            system = await db.get(System.name == system_name)
+        if isinstance(system, dict):
+            self._cache_set(system_name, system)
+            return cast(SystemInfo, system)
+        return None
 
     def get_system(self, system_name: str) -> SystemInfo | None:
         cached = self._cache_get(system_name)
         if cached is not None:
             return cached
         try:
-            result = self._run_async(self._get_system_async(system_name))
-            if isinstance(result, dict):
-                self._cache_set(system_name, result)
-            return result
+            system = cast(
+                SystemInfo | None, self._run_async(self._get_system_async(system_name))
+            )
         except Exception:
             self.logger.exception("Lookup failed for system={}", system_name)
             return None
+        if isinstance(system, dict):
+            self._cache_set(system_name, system)
+            return system
+        return None
 
-    def add_neighbors(
-        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> None:
-        with self._write_lock:
-            self._run_async(self._add_neighbors_async(system_info, new_neighbors))
-        system_name = system_info.get(system_info_name_field)
-        if isinstance(system_name, str):
-            updated_info = dict(system_info)
-            updated_info[system_info_neighbors_field] = new_neighbors
-            self._cache_set(system_name, updated_info)
+    async def _get_all_systems_async(self) -> list[SystemInfo]:
+        with self._cache_lock:
+            if self._all_systems_cached:
+                return list(self._system_cache.values())
+        async with AIOTinyDB(self.datasource_name) as db:
+            systems = await db.all()
+        typed_systems = [cast(SystemInfo, system) for system in systems]
+        with self._cache_lock:
+            self._system_cache = {
+                system[system_info_name_field]: system
+                for system in typed_systems
+                if system_info_name_field in system
+            }
+            self._all_systems_cached = True
+        return typed_systems
 
     def get_all_systems(self) -> list[SystemInfo]:
         with self._cache_lock:
             if self._all_systems_cached:
                 return list(self._system_cache.values())
-        systems = self._run_async(self._get_all_systems_async())
+        systems = cast(list[SystemInfo], self._run_async(self._get_all_systems_async()))
         with self._cache_lock:
-            for system_info in systems:
-                system_name = system_info.get(system_info_name_field)
-                if isinstance(system_name, str):
-                    self._system_cache[system_name] = system_info
+            self._system_cache = {
+                system[system_info_name_field]: system
+                for system in systems
+                if system_info_name_field in system
+            }
             self._all_systems_cached = True
         return systems
 
+    async def _add_neighbors_async(
+        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
+    ) -> int:
+        System = Query()
+        system_name = system_info[system_info_name_field]
+        current_neighbors = list(system_info.get(system_info_neighbors_field, []))
+        current_neighbor_names = {
+            neighbor[system_info_name_field]
+            for neighbor in current_neighbors
+            if isinstance(neighbor, dict) and system_info_name_field in neighbor
+        }
+        merged_neighbors = current_neighbors + [
+            neighbor
+            for neighbor in new_neighbors
+            if neighbor[system_info_name_field] not in current_neighbor_names
+        ]
+        async with AIOTinyDB(self.datasource_name) as db:
+            updated_rows = await db.update(
+                {system_info_neighbors_field: merged_neighbors},
+                System.name == system_name,
+            )
+        updated_system = dict(system_info)
+        updated_system[system_info_neighbors_field] = merged_neighbors
+        self._cache_set(system_name, updated_system)
+        return len(updated_rows)
 
-if __name__ == "__main__":
-    main()
+    def add_neighbors(
+        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
+    ) -> None:
+        with self._write_lock:
+            updated_rows = self._run_async(
+                self._add_neighbors_async(system_info, new_neighbors)
+            )
+        system_name = system_info.get(system_info_name_field)
+        if isinstance(system_name, str):
+            self.logger.debug(
+                "Updated neighbors for system={} updated_rows={}",
+                system_name,
+                updated_rows or 1,
+            )

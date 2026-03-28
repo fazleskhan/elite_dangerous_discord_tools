@@ -1,4 +1,4 @@
-from ed_constants import (
+from constants import (
     system_info_coords_field,
     system_info_name_field,
     system_info_neighbors_field,

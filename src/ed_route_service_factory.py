@@ -30,7 +30,7 @@ from edgis import EDGis
 class EDRouteServiceFactory:
     @staticmethod
     def create(
-        logging_utils: LoggingProtocol,
+        logging_utils: LoggingProtocol | None,
         datasource: DatasourceProtocol | None = None,
         cache: CacheProtocol | None = None,
         bfs: BfsProtocol | None = None,
@@ -41,19 +41,23 @@ class EDRouteServiceFactory:
         path_service: PathProtocol | None = None,
         calc_systems_distance_service: CalcSystemsDistanceProtocol | None = None,
     ) -> EDRouteService:
-        # Composition root for route operations: build concrete dependencies
-        # only for arguments not already provided by callers/tests.
-        datasource_factory = EDDatasourceFactory.create(logging_utils=logging_utils)
-        datasource = datasource_factory.create_datasource()
+        if logging_utils is None:
+            raise ValueError("logging_utils must not be null")
+        resolved_datasource = datasource
+        if resolved_datasource is None:
+            datasource_factory = EDDatasourceFactory.create(logging_utils=logging_utils)
+            resolved_datasource = datasource_factory.create_datasource()
 
         resolved_init_datasource_service = (
             init_datasource_service
-            or EDInitDatasourceService.create(datasource, logging_utils)
+            or EDInitDatasourceService.create(resolved_datasource, logging_utils)
         )
         edgis = EDGis.create(logging_utils)
-        # Cache depends on external EDGIS fetchers plus local datasource.
         resolved_cache = cache or EDGisCache.create(
-            datasource, logging_utils, edgis.fetch_system_info, edgis.fetch_neighbors
+            resolved_datasource,
+            logging_utils,
+            edgis.fetch_system_info,
+            edgis.fetch_neighbors,
         )
         resolved_get_system_info_service = (
             get_system_info_service
@@ -61,7 +65,7 @@ class EDRouteServiceFactory:
         )
         resolved_get_all_system_names_service = (
             get_all_system_names_service
-            or EDGetAllSystemNamesService.create(datasource, logging_utils)
+            or EDGetAllSystemNamesService.create(resolved_datasource, logging_utils)
         )
         resolved_calc_systems_distance_service = (
             calc_systems_distance_service
@@ -76,8 +80,6 @@ class EDRouteServiceFactory:
             resolved_calc_systems_distance_service.run,
             logging_utils,
         )
-        # Path and bulk-load services share cache/distance primitives but are
-        # kept as separate delegates for simpler testing and reuse.
         resolved_path_service = path_service or EDPathService.create(
             resolved_bfs,
             resolved_calc_systems_distance_service,
@@ -92,7 +94,7 @@ class EDRouteServiceFactory:
         )
         logging_utils.debug("Creating EDRouteService via datasource/cache composition")
         return EDRouteService(
-            datasource=datasource,
+            datasource=resolved_datasource,
             cache=resolved_cache,
             bfs=resolved_bfs,
             logging_utils=logging_utils,
