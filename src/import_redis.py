@@ -1,6 +1,6 @@
 import argparse
 
-from ed_constants import default_export_dir, import_dir_arg
+from constants import default_export_dir, import_dir_arg
 from ed_logging_utils import EDLoggingUtils
 
 from ed_redis import EDRedis

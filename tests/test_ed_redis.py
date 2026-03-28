@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 import ed_redis
-from ed_constants import (
+from constants import (
     default_redis_store_name,
     redis_app_name_env,
     redis_max_connections_env,

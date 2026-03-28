@@ -5,7 +5,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from ed_constants import (
+from constants import (
     datasource_type_env,
     redis_name,
     tinydb_name,

@@ -1,121 +1,48 @@
-from __future__ import annotations
+from pathlib import Path
+from typing import Any
 
-from typing import Any, Awaitable, Callable, Protocol, Sequence
+from protocols import (
+    BfsProtocol,
+    BulkLoadProtocol,
+    CacheProtocol,
+    CalcSystemsDistanceProtocol,
+    DatasourceProtocol,
+    DistanceFn,
+    FetchInfoFn,
+    FetchNeighborsFn,
+    FetchSystemInfoFn,
+    GetAllSystemNamesProtocol,
+    GetSystemInfoProtocol,
+    GisProtocol,
+    ILogger,
+    InitDatasourceProtocol,
+    LoggingProtocol,
+    PathProtocol,
+    ProgressFn,
+    RouteServiceProtocol,
+    SystemInfo,
+)
 
-from ed_constants import default_init_dir
-
-# Shared callable/type aliases used across route, cache, and algorithm layers.
-SystemInfo = dict[str, Any]
-FetchInfoFn = Callable[[str], SystemInfo | None]
-FetchSystemInfoFn = Callable[[str], SystemInfo | None]
-FetchNeighborsFn = Callable[..., list[SystemInfo] | None]
-DistanceFn = Callable[[str, str], float]
-ProgressFn = Callable[[str], None]
-
-
-class DatasourceProtocol(Protocol):
-    def init_datasource(self, import_dir: str = default_init_dir) -> None: ...
-    def get_all_systems(self) -> list[SystemInfo]: ...
-    def get_system(self, system_name: str) -> SystemInfo | None: ...
-    def insert_system(self, system_info: SystemInfo) -> None: ...
-    def add_neighbors(
-        self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
-    ) -> None: ...
-
-
-class CacheProtocol(Protocol):
-    def find_system_info(self, system_name: str) -> SystemInfo | None: ...
-    def find_system_neighbors(
-        self, system_info: SystemInfo
-    ) -> list[SystemInfo] | None: ...
-
-
-class LoggingProtocol(Protocol):
-    def debug(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    def info(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    def warning(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    def error(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    def exception(self, message: str, *args: Any, **kwargs: Any) -> None: ...
-    def opt(self, *args: Any, **kwargs: Any) -> Any: ...
-
-
-class GisProtocol(Protocol):
-    def fetch_system_info(self, system_name: str) -> SystemInfo | None: ...
-    def fetch_neighbors(
-        self, x: float | int, y: float | int, z: float | int
-    ) -> list[SystemInfo] | None: ...
-
-
-class RouteServiceProtocol(Protocol):
-    def init_datasource(
-        self, import_dir: str = default_init_dir
-    ) -> None | Awaitable[None]: ...
-    def get_system_info(self, system_name: str) -> Any | Awaitable[Any]: ...
-    def get_all_system_names(self) -> Sequence[str] | Awaitable[Sequence[str]]: ...
-    def calc_systems_distance(
-        self, system_name_one: str, system_name_two: str
-    ) -> float | Awaitable[float]: ...
-    def path(
-        self,
-        initial_system_name: str,
-        destination_system_name: str,
-        max_systems: int,
-        min_distance: int,
-        max_distance: int,
-        progress_callback: ProgressFn,
-    ) -> Sequence[str] | None | Awaitable[Sequence[str] | None]: ...
-    def bulk_load_cache(
-        self,
-        initial_system_names: list[str],
-        max_nodes_visited: int,
-        progress_callback: ProgressFn,
-    ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
-
-
-class BfsProtocol(Protocol):
-    def travel(
-        self,
-        start_name: str,
-        destination_name: str,
-        max_count: int,
-        min_distance: int,
-        max_distance: int,
-        progress_callback: ProgressFn,
-    ) -> list[str] | None: ...
-
-
-class BulkLoadProtocol(Protocol):
-    def load(
-        self,
-        initial_system_names: list[str],
-        max_nodes_visited: int,
-        progress_callback: ProgressFn,
-    ) -> list[str]: ...
-
-
-class InitDatasourceProtocol(Protocol):
-    def run(self, import_dir: str = default_init_dir) -> None: ...
-
-
-class GetSystemInfoProtocol(Protocol):
-    def run(self, system_name: str) -> SystemInfo | None: ...
-
-
-class GetAllSystemNamesProtocol(Protocol):
-    def run(self) -> list[str]: ...
-
-
-class PathProtocol(Protocol):
-    async def run(
-        self,
-        initial_system_name: str,
-        destination_name: str,
-        max_systems: int,
-        min_distance: int,
-        max_distance: int,
-        progress_callback: ProgressFn,
-    ) -> list[str] | None: ...
-
-
-class CalcSystemsDistanceProtocol(Protocol):
-    def run(self, system_name_one: str, system_name_two: str) -> float: ...
+__all__ = [
+    "Any",
+    "Path",
+    "ILogger",
+    "SystemInfo",
+    "FetchInfoFn",
+    "FetchSystemInfoFn",
+    "FetchNeighborsFn",
+    "DistanceFn",
+    "ProgressFn",
+    "DatasourceProtocol",
+    "CacheProtocol",
+    "LoggingProtocol",
+    "GisProtocol",
+    "RouteServiceProtocol",
+    "BfsProtocol",
+    "BulkLoadProtocol",
+    "InitDatasourceProtocol",
+    "GetSystemInfoProtocol",
+    "GetAllSystemNamesProtocol",
+    "PathProtocol",
+    "CalcSystemsDistanceProtocol",
+]

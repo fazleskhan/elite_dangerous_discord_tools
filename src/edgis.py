@@ -5,7 +5,7 @@ from typing import Any
 import aiohttp
 from ed_protocols import LoggingProtocol
 
-from ed_constants import (
+from constants import (
     query_param_q,
     system_info_x_field,
     system_info_y_field,

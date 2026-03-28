@@ -56,16 +56,12 @@ def build_main() -> main.EDMain:
 
 
 def test_edmain_validates_constructor_and_create(monkeypatch):  # type: ignore[no-untyped-def]
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logging_utils must not be null"):
         main.EDMain(FakeRouteService(), None)  # type: ignore[arg-type]
-    with pytest.raises(
-        ValueError, match="route_service of type RouteServiceProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="route_service must not be null"):
         main.EDMain(None, ThreadSafeLogger())  # type: ignore[arg-type]
 
-    monkeypatch.setattr(main, "EDLoggingUtils", lambda: "logger")
+    monkeypatch.setattr(main.EDLoggingUtils, "create", staticmethod(lambda: "logger"))
     monkeypatch.setattr(
         main.EDRouteServiceFactory,
         "create",
@@ -96,8 +92,6 @@ def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
     ed_main = build_main()
     monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
 
-    # Walk every CLI branch once with a fake route service instead of invoking
-    # separate parser/unit tests per command.
     command_sets = [
         ["main.py", "ping"],
         ["main.py", "all_loaded_systems"],
@@ -135,19 +129,30 @@ def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
         monkeypatch.setattr(sys, "argv", argv)
         main.main()
 
-    output = capsys.readouterr().out
-    assert "Pong" in output
-    assert "All Loaded Systems" in output
-    assert "Datasource initialized from ./seed" in output
-    assert "Loaded 2 systems from seeds ['Sol', 'Lave']" in output
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert ("info", "Pong", ()) in ed_main.logging_utils.calls
+    assert (
+        "info",
+        "All Loaded Systems: {}",
+        (["Sol", "Lave"],),
+    ) in ed_main.logging_utils.calls
+    assert (
+        "info",
+        "Datasource initialized from {}",
+        ("./seed",),
+    ) in ed_main.logging_utils.calls
+    assert (
+        "info",
+        "Loaded {} systems from seeds {}",
+        (2, ["Sol", "Lave"]),
+    ) in ed_main.logging_utils.calls
 
 
 def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no-untyped-def]
     ed_main = build_main()
     monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
 
-    # Each argv set intentionally misses one required argument so we verify the
-    # command-level exit paths without depending on stderr formatting.
     invalid_argvs = [
         ["main.py", "system_info"],
         ["main.py", "path", "--destination", "Lave", "--max_systems", "10"],
@@ -173,4 +178,9 @@ def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no
         with pytest.raises(SystemExit):
             main.main()
 
-    assert "Error:" in capsys.readouterr().out
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert any(
+        level == "error" and "required" in message
+        for level, message, _args in ed_main.logging_utils.calls
+    )

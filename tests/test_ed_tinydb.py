@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 import ed_tinydb
-from ed_constants import (
+from constants import (
     default_tinydb_name,
     system_info_name_field,
     system_info_neighbors_field,

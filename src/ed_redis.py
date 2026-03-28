@@ -10,7 +10,7 @@ import psutil
 from redis import asyncio as redis
 
 from ed_protocols import LoggingProtocol, SystemInfo
-from ed_constants import (
+from constants import (
     default_init_dir,
     default_redis_store_name,
     json_extension,
@@ -42,15 +42,27 @@ class EDRedis:
         redis_url: str | None = None,
         max_connections: int | None = None,
     ) -> "EDRedis":
-        # Namespace defaults to REDIS_APP_NAME so multiple apps can share Redis.
         resolved_redis_url = (
             redis_url if redis_url is not None else EDRedis._resolve_redis_url()
         )
+        resolved_datasource_name = datasource_name
+        if resolved_datasource_name is None:
+            resolved_datasource_name = (
+                os.getenv(redis_app_name_env) or default_redis_store_name
+            )
+        resolved_max_connections = max_connections
+        if resolved_max_connections is None:
+            resolved_max_connections = int(
+                os.getenv(
+                    redis_max_connections_env,
+                    str(EDRedis._default_max_connections()),
+                )
+            )
         return EDRedis(
-            datasource_name or os.getenv(redis_app_name_env, default_redis_store_name),
+            resolved_datasource_name,
             redis_url=resolved_redis_url,
             logging_utils=logging_utils,
-            max_connections=max_connections,
+            max_connections=resolved_max_connections,
         )
 
     def __init__(
@@ -58,7 +70,7 @@ class EDRedis:
         datasource_name: str,
         redis_url: str,
         logging_utils: LoggingProtocol,
-        max_connections: int,
+        max_connections: int | None,
     ):
         if redis_url is None:
             raise ValueError("Redis URL of type str is a required argument")
@@ -76,7 +88,6 @@ class EDRedis:
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
         self._closed = False
-
         self._max_connections = (
             max_connections
             if max_connections is not None
@@ -90,11 +101,9 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("Redis backend: {}", redis_name)
 
-    # Synchronous helper used by import scripts and CLI commands.
     def init_datasource(self, import_dir: str = default_init_dir) -> None:
         self.import_datasource(import_dir)
 
-    # Import/export entrypoints are sync by design for CLI/script usage.
     def import_datasource(self, import_dir: str) -> None:
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
@@ -118,7 +127,6 @@ class EDRedis:
                 if isinstance(record, dict):
                     self.insert_system(record)
 
-    # Import/export entrypoints are sync by design for CLI/script usage.
     def export_datasource(self, export_dir: str) -> None:
         os.makedirs(export_dir, exist_ok=True)
         systems = self.get_all_systems()
@@ -187,7 +195,6 @@ class EDRedis:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            # Standard sync call path: create a short-lived loop for this op.
             return asyncio.run(coro)
 
         output: dict[str, Any] = {}
@@ -195,8 +202,6 @@ class EDRedis:
 
         def _worker() -> None:
             try:
-                # If caller is already inside an event loop, run in a helper
-                # thread so sync methods can still block on completion.
                 output[value_key] = asyncio.run(coro)
             except BaseException as exc:
                 error[value_key] = exc
@@ -211,7 +216,11 @@ class EDRedis:
         return output.get(value_key)
 
     def _new_client(self) -> Any:
-        # Each client uses redis-py's internal connection pool; max pool size is
+        return redis.from_url(
+            self._redis_url,
+            decode_responses=True,
+            max_connections=self._max_connections,
+        )
         # bounded to avoid unbounded socket growth.
         return redis.from_url(
             self._redis_url,

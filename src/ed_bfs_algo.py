@@ -1,7 +1,7 @@
 from collections import deque
 import time
 
-from ed_constants import distance, system_info_name_field
+from constants import distance, system_info_name_field
 from ed_protocols import (
     DistanceFn,
     FetchNeighborsFn,

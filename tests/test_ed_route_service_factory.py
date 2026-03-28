@@ -136,6 +136,7 @@ def test_route_service_factory_uses_supplied_overrides(monkeypatch):  # type: ig
 
     route_service = ed_route_service_factory.EDRouteServiceFactory.create(
         logging_utils=logger,
+        datasource=supplied_datasource,  # type: ignore[arg-type]
         cache=supplied_cache,  # type: ignore[arg-type]
         bfs=supplied_bfs,  # type: ignore[arg-type]
         init_datasource_service=supplied_init,  # type: ignore[arg-type]
@@ -146,6 +147,7 @@ def test_route_service_factory_uses_supplied_overrides(monkeypatch):  # type: ig
         calc_systems_distance_service=supplied_distance,  # type: ignore[arg-type]
     )
 
+    assert route_service.database is supplied_datasource
     assert route_service.cache is supplied_cache
     assert route_service._bfs is supplied_bfs
     assert route_service._init_datasource_service is supplied_init
