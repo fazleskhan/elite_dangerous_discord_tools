@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 from pathlib import Path
 from typing import Any, cast
 
@@ -74,7 +75,9 @@ def test_route_service_validates_constructor_args() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_route.EDRouteService(None, None, None, None, None, None, None, None, None, None)  # type: ignore[arg-type]
+        ed_route.EDRouteService(
+            None, None, None, None, None, None, None, None, None, None
+        )
 
 
 @pytest.mark.asyncio

@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import pytest
 
 import ed_bfs_algo
@@ -9,17 +10,19 @@ def test_bfs_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_bfs_algo.EDBfsAlgo(lambda _name: None, lambda _info: None, lambda _a, _b: 0.0, None)  # type: ignore[arg-type]
+        ed_bfs_algo.EDBfsAlgo(
+            lambda _name: None, lambda _info: None, lambda _a, _b: 0.0, None
+        )
     with pytest.raises(
         ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"
     ):
-        ed_bfs_algo.EDBfsAlgo(None, lambda _info: None, lambda _a, _b: 0.0, logger)  # type: ignore[arg-type]
+        ed_bfs_algo.EDBfsAlgo(None, lambda _info: None, lambda _a, _b: 0.0, logger)
     with pytest.raises(
         ValueError, match="fetch_info_fn of type FetchSystemInfoFn is required"
     ):
-        ed_bfs_algo.EDBfsAlgo(lambda _name: None, None, lambda _a, _b: 0.0, logger)  # type: ignore[arg-type]
+        ed_bfs_algo.EDBfsAlgo(lambda _name: None, None, lambda _a, _b: 0.0, logger)
     with pytest.raises(ValueError, match="distance_fn of type DistanceFn is required"):
-        ed_bfs_algo.EDBfsAlgo(lambda _name: None, lambda _info: None, None, logger)  # type: ignore[arg-type]
+        ed_bfs_algo.EDBfsAlgo(lambda _name: None, lambda _info: None, None, logger)
 
 
 def test_bfs_reconstruct_path_and_same_start() -> None:

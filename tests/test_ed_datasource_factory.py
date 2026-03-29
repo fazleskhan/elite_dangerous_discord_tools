@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import sys
 import types
 
@@ -11,7 +12,7 @@ def test_factory_constructor_and_create_validate_logging_utils() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_datasource_factory.EDDatasourceFactory(None)  # type: ignore[arg-type]
+        ed_datasource_factory.EDDatasourceFactory(None)
 
     factory = ed_datasource_factory.EDDatasourceFactory.create(ThreadSafeLogger())
     assert isinstance(factory, ed_datasource_factory.EDDatasourceFactory)
@@ -38,7 +39,7 @@ def test_create_datasource_uses_tinydb_backend(monkeypatch: pytest.MonkeyPatch) 
 
     class FakeTinyDB:
         @staticmethod
-        def create(datasource_name=None, logging_utils=None):  # type: ignore[no-untyped-def]
+        def create(datasource_name=None, logging_utils=None):
             captured["name"] = datasource_name
             captured["logger"] = logging_utils
             return "tinydb"
@@ -64,7 +65,7 @@ def test_create_datasource_uses_redis_backend(monkeypatch: pytest.MonkeyPatch) -
 
     class FakeRedis:
         @staticmethod
-        def create(datasource_name=None, logging_utils=None):  # type: ignore[no-untyped-def]
+        def create(datasource_name=None, logging_utils=None):
             captured["name"] = datasource_name
             captured["logger"] = logging_utils
             return "redis"
@@ -91,8 +92,12 @@ def test_module_create_datasource_uses_edloggingutils(
     created_with: list[object] = []
 
     class FakeFactory:
-        def create_datasource(self, datasource_name=None, datasource_type=None):  # type: ignore[no-untyped-def]
+        def create_datasource(self, datasource_name=None, datasource_type=None):
             return (datasource_name, datasource_type)
+
+    def fake_factory_create(logging_utils):
+        created_with.append(logging_utils)
+        return FakeFactory()
 
     monkeypatch.setattr(
         ed_datasource_factory.EDLoggingUtils, "create", staticmethod(lambda: "logger")
@@ -100,9 +105,7 @@ def test_module_create_datasource_uses_edloggingutils(
     monkeypatch.setattr(
         ed_datasource_factory.EDDatasourceFactory,
         "create",
-        staticmethod(
-            lambda logging_utils: created_with.append(logging_utils) or FakeFactory()
-        ),
+        staticmethod(fake_factory_create),
     )
 
     assert ed_datasource_factory.create_datasource("name", "redis") == ("name", "redis")

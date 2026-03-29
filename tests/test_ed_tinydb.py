@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import asyncio
 import json
 import threading
@@ -107,10 +108,10 @@ def test_constructor_validates_inputs_and_logs_backend(
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_tinydb.EDTinyDB("ignored.json", logging_utils=None)  # type: ignore[arg-type]
+        ed_tinydb.EDTinyDB("ignored.json", logging_utils=None)
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
-        ed_tinydb.EDTinyDB(None, logging_utils=logger)  # type: ignore[arg-type]
+        ed_tinydb.EDTinyDB(None, logging_utils=logger)
 
     backend = ed_tinydb.EDTinyDB("./data/test.json", logging_utils=logger)
     assert backend.datasource_name == "./data/test.json"
@@ -183,7 +184,7 @@ def test_insert_system_ignores_missing_name_and_cached_entries(
             coro.close()
         return True
 
-    tinydb_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    tinydb_backend._run_async = fake_run_async
 
     tinydb_backend.insert_system({"id64": 1})
     tinydb_backend._cache_set("Sol", {"name": "Sol"})
@@ -200,7 +201,7 @@ def test_get_system_returns_none_and_logs_exception_on_lookup_failure(
             coro.close()
         raise RuntimeError("db failed")
 
-    tinydb_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    tinydb_backend._run_async = fake_run_async
 
     assert tinydb_backend.get_system("Sol") is None
     assert ("Lookup failed for system={}", ("Sol",)) in cast(
@@ -222,7 +223,7 @@ def test_get_all_systems_populates_cache_and_reuses_it(
             coro.close()
         return systems
 
-    tinydb_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    tinydb_backend._run_async = fake_run_async
 
     assert tinydb_backend.get_all_systems() == systems
     assert tinydb_backend.get_all_systems() == systems
@@ -245,7 +246,7 @@ def test_init_and_import_datasource_load_sorted_json_records(
 
     backend = ed_tinydb.EDTinyDB(str(database_path), logging_utils=logger)
     inserted: list[dict[str, Any]] = []
-    backend.insert_system = inserted.append  # type: ignore[method-assign]
+    backend.insert_system = inserted.append
 
     backend.init_datasource(str(import_dir))
 
@@ -277,8 +278,8 @@ def test_export_datasource_writes_safe_sorted_json_files(
     ]
     full_record = {"name": "Alpha/Beta", "id64": 1, "neighbors": sample_neighbors}
 
-    backend.get_all_systems = lambda: exported_systems  # type: ignore[method-assign]
-    backend.get_system = lambda name: full_record if name == "Alpha/Beta" else None  # type: ignore[method-assign]
+    backend.get_all_systems = lambda: exported_systems
+    backend.get_system = lambda name: full_record if name == "Alpha/Beta" else None
 
     backend.export_datasource(str(export_dir))
 
@@ -315,7 +316,7 @@ def test_write_lock_serializes_concurrent_insert_and_neighbor_updates(
             coro.close()
         return True if "insert_system_async" in repr(coro) else None
 
-    tinydb_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    tinydb_backend._run_async = fake_run_async
 
     def do_insert() -> None:
         barrier.wait()

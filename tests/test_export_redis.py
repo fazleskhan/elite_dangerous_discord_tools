@@ -3,10 +3,10 @@ import sys
 import export_redis
 
 
-def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):  # type: ignore[no-untyped-def]
+def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):
     class FakeRedis:
         def __init__(self) -> None:
-            self.export_dir = None
+            self.export_dir: str | None = None
 
         def export_datasource(self, export_dir: str) -> None:
             self.export_dir = export_dir

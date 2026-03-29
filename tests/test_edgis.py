@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import asyncio
 
 import aiohttp
@@ -27,7 +28,7 @@ async def test_edgis_fetch_json_uses_client_session(
             return {"name": "Sol"}
 
     class FakeSession:
-        def __init__(self, timeout=None):  # type: ignore[no-untyped-def]
+        def __init__(self, timeout=None):
             captured["timeout"] = timeout
 
         async def __aenter__(self) -> "FakeSession":
@@ -36,7 +37,7 @@ async def test_edgis_fetch_json_uses_client_session(
         async def __aexit__(self, exc_type, exc, tb) -> bool:
             return False
 
-        def get(self, url: str, params=None):  # type: ignore[no-untyped-def]
+        def get(self, url: str, params=None):
             captured["url"] = url
             captured["params"] = params
             return FakeResponse()
@@ -53,7 +54,7 @@ def test_edgis_validates_dependencies_and_create() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        edgis.EDGis(None)  # type: ignore[arg-type]
+        edgis.EDGis(None)
     assert isinstance(edgis.EDGis.create(ThreadSafeLogger()), edgis.EDGis)
 
 
@@ -94,7 +95,7 @@ def test_fetch_system_info_and_neighbors_handle_success_and_errors(
     assert gis.fetch_system_info("Sol") == {"name": "Sol"}
     assert gis.fetch_neighbors(1, 2, 3) == {"name": "Sol"}
 
-    def raise_client_error(coro):  # type: ignore[no-untyped-def]
+    def raise_client_error(coro):
         coro.close()
         raise aiohttp.ClientError("boom")
 

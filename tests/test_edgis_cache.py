@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 from pathlib import Path
 
 import pytest
@@ -44,19 +45,27 @@ def test_edgis_cache_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        edgis_cache.EDGisCache(datasource, lambda _name: None, lambda _x, _y, _z: None, logging_utils=None)  # type: ignore[arg-type]
+        edgis_cache.EDGisCache(
+            datasource, lambda _name: None, lambda _x, _y, _z: None, logging_utils=None
+        )
     with pytest.raises(
         ValueError, match="datasource of type DatasourceProtocol is required"
     ):
-        edgis_cache.EDGisCache(None, lambda _name: None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
+        edgis_cache.EDGisCache(
+            None, lambda _name: None, lambda _x, _y, _z: None, logging_utils=logger
+        )
     with pytest.raises(
         ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"
     ):
-        edgis_cache.EDGisCache(datasource, None, lambda _x, _y, _z: None, logging_utils=logger)  # type: ignore[arg-type]
+        edgis_cache.EDGisCache(
+            datasource, None, lambda _x, _y, _z: None, logging_utils=logger
+        )
     with pytest.raises(
         ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"
     ):
-        edgis_cache.EDGisCache(datasource, lambda _name: None, None, logging_utils=logger)  # type: ignore[arg-type]
+        edgis_cache.EDGisCache(
+            datasource, lambda _name: None, None, logging_utils=logger
+        )
 
 
 def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:

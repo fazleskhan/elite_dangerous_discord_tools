@@ -62,7 +62,10 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Shared overview diagrams may exist in addition to per-entrypoint diagrams, but they do not replace entrypoint-specific sequence diagrams.
 - Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
 - When class structure changes, update the PlantUML class diagram.
-- After diagram updates, generate fresh PNG outputs from the updated PlantUML sources using the official PlantUML render server.
+- After diagram updates, generate fresh PNG outputs for every updated PlantUML source (`.puml`) before finishing the task.
+- Write each PNG next to its source file with the same basename (for example `foo.puml` -> `foo.png`).
+- Use a local PlantUML renderer when available; otherwise render through the official PlantUML server.
+- Treat missing or stale diagram PNG generation as an incomplete task state.
 - Keep `README.md` generated and up to date with a concise description of the current implementation.
 - Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
 - Keep `BUSINESS.md` focused on detailed business logic and user-visible behavior that is not already fully specified in `ARCHITECTURE.md`.

@@ -1,9 +1,10 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import asyncio
 import json
 import threading
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Set
 
 import pytest
 
@@ -50,7 +51,7 @@ class FakeRedisStore:
             members.add(member)
             return len(members) - size_before
 
-    def smembers(self, key: str) -> set[str]:
+    def smembers(self, key: str) -> Set[str]:
         with self._lock:
             return set(self.sets.get(key, set()))
 
@@ -76,7 +77,7 @@ class FakeRedisClient:
     async def sadd(self, key: str, member: str) -> int:
         return self._store.sadd(key, member)
 
-    async def smembers(self, key: str) -> set[str]:
+    async def smembers(self, key: str) -> Set[str]:
         return self._store.smembers(key)
 
     async def mget(self, keys: list[str]) -> list[str | None]:
@@ -238,15 +239,15 @@ def test_constructor_validates_inputs_and_logs_backend(
     with pytest.raises(
         ValueError, match="Redis URL of type str is a required argument"
     ):
-        ed_redis.EDRedis("test", None, logger, 1)  # type: ignore[arg-type]
+        ed_redis.EDRedis("test", None, logger, 1)
 
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_redis.EDRedis("test", "redis://localhost:6379/0", None, 1)  # type: ignore[arg-type]
+        ed_redis.EDRedis("test", "redis://localhost:6379/0", None, 1)
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
-        ed_redis.EDRedis(None, "redis://localhost:6379/0", logger, 1)  # type: ignore[arg-type]
+        ed_redis.EDRedis(None, "redis://localhost:6379/0", logger, 1)
 
     backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, 1)
     assert backend.datasource_name == "test"
@@ -369,7 +370,7 @@ def test_get_system_logs_exception_on_lookup_failure(
             coro.close()
         raise RuntimeError("lookup failed")
 
-    redis_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    redis_backend._run_async = fake_run_async
 
     assert redis_backend.get_system("Sol") is None
     assert ("Lookup failed for system={}", ("Sol",)) in logger.messages("exception")
@@ -452,11 +453,13 @@ def test_export_datasource_skips_blank_names_and_lookup_misses(tmp_path: Path) -
     backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, 1)
     export_dir = tmp_path / "export"
 
-    backend.get_all_systems = lambda: [  # type: ignore[method-assign]
+    backend.get_all_systems = lambda: [
         {"name": ""},
         {"name": "Sol"},
     ]
-    backend.get_system = lambda system_name: None if system_name == "Sol" else {"name": system_name}  # type: ignore[method-assign]
+    backend.get_system = lambda system_name: (
+        None if system_name == "Sol" else {"name": system_name}
+    )
 
     backend.export_datasource(str(export_dir))
 
@@ -469,7 +472,7 @@ def test_new_client_uses_env_max_connections_when_not_explicit(
     fake_redis: FakeRedisFactory,
 ) -> None:
     monkeypatch.setenv(redis_max_connections_env, "13")
-    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, None)  # type: ignore[arg-type]
+    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, None)
 
     client = backend._new_client()
 
@@ -505,7 +508,7 @@ def test_write_lock_serializes_multithreaded_mutations(
             coro.close()
         return None
 
-    redis_backend._run_async = fake_run_async  # type: ignore[method-assign]
+    redis_backend._run_async = fake_run_async
 
     def do_insert() -> None:
         barrier.wait()

@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import math
 import threading
 
@@ -24,13 +25,17 @@ def test_calc_distance_service_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_calc_systems_distance_service.EDCalcSystemsDistanceService(FakeGetSystemInfoService(), None)  # type: ignore[arg-type]
+        ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
+            FakeGetSystemInfoService(), None
+        )
 
     with pytest.raises(
         ValueError,
         match="get_system_info_service of type GetSystemInfoProtocol is required",
     ):
-        ed_calc_systems_distance_service.EDCalcSystemsDistanceService(None, ThreadSafeLogger())  # type: ignore[arg-type]
+        ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
+            None, ThreadSafeLogger()
+        )
 
 
 def test_calc_distance_service_calculates_and_caches_coords() -> None:

@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import threading
 import time
 from pathlib import Path
@@ -35,12 +36,12 @@ def test_init_datasource_service_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_init_datasource_service.EDInitDatasourceService(FakeDatasource(), None)  # type: ignore[arg-type]
+        ed_init_datasource_service.EDInitDatasourceService(FakeDatasource(), None)
 
     with pytest.raises(
         ValueError, match="datasource of type DatasourceProtocol is required"
     ):
-        ed_init_datasource_service.EDInitDatasourceService(None, ThreadSafeLogger())  # type: ignore[arg-type]
+        ed_init_datasource_service.EDInitDatasourceService(None, ThreadSafeLogger())
 
 
 def test_init_datasource_service_runs_and_logs() -> None:
