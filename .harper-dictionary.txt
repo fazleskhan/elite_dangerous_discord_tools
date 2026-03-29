@@ -2,7 +2,6 @@ BFS
 DiscordBot
 DockerHub
 EDDatasourceFactory
-EDGIS
 EDRouteService
 IoC
 OO
@@ -11,16 +10,20 @@ PlantUML
 SmartCache
 SmartCache's
 TinyDB's
+Webservice
 aiotinydb
 arg
 args
 asyncio
+awaitable
 bot's
 calc
 callables
+coords
 ctx
 datestamped
 diagramed
+edgis
 effecty
 entrypoint
 entrypoints
@@ -29,6 +32,8 @@ externalizable
 json
 loguru
 ly
+md
+mtime
 mypy
 overridable
 py
