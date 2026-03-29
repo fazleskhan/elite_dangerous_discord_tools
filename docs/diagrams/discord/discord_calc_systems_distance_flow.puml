@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant DiscordContext as Ctx
+participant EDDiscordBot as Bot
+participant EDRouteService as RouteService
+participant ILogger as Logger
+
+User -> Bot: calc_systems_distance(ctx, one, two)
+Bot -> Logger: info("calc_systems_distance command")
+Bot -> RouteService: calc_systems_distance(one, two)
+RouteService --> Bot: distance
+Bot -> Ctx: send("Distance between ...")
+@enduml

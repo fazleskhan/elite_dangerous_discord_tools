@@ -1,0 +1,15 @@
+@startuml
+actor Operator
+participant EDDiscordBot as Bot
+participant ILogger as Logger
+participant DiscordBotProtocol as DiscordBot
+
+Operator -> Bot: run()
+Bot -> Bot: validate token
+alt token missing
+  Bot --> Operator: raise RuntimeError
+else token present
+  Bot -> Logger: info("Starting Discord bot run loop")
+  Bot -> DiscordBot: run(token, log_handler=None)
+end
+@enduml

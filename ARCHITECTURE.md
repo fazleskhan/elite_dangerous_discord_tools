@@ -49,7 +49,10 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Type pytest fixtures explicitly where useful, for example `pytest.MonkeyPatch` and `pytest.CaptureFixture[str]`.
 
 ## 8. Diagrams
-- When command-line behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist. Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams, including separate diagrams for encode-only, verify, and handled-error CLI flows when those paths exist.
+- When application behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist.
+- Every user-facing or externally triggered entry point must have its own sequence diagram source rather than relying only on a shared summary diagram. Identify entry points by analyzing the current code rather than maintaining a hard-coded list in this contract.
+- Shared overview diagrams may exist in addition to per-entrypoint diagrams, but they do not replace entrypoint-specific sequence diagrams.
+- Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
 - When class structure changes, update the PlantUML class diagram.
 - After diagram updates, generate fresh PNG outputs from the updated PlantUML sources using the official PlantUML render server.
 - Keep `README.md` generated and up to date with a concise description of the current implementation.

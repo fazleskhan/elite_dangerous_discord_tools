@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "main.py" as Main
+participant Parser
+participant EDMain
+participant EDRouteService as RouteService
+participant ILogger as Logger
+
+User -> Main: system_info --system_name
+Main -> Parser: parse_args()
+Main -> Logger: info("CLI parameters")
+Main -> EDMain: create(shared logger)
+Main -> Logger: info("CLI command received")
+Main -> EDMain: get_system_info([system_name])
+EDMain -> RouteService: get_system_info(system_name)
+RouteService --> EDMain: system info
+EDMain --> Main: payload list
+Main -> Logger: info(system_name)
+Main -> Logger: info(payload)
+Main -> Logger: info("Execution time")
+@enduml

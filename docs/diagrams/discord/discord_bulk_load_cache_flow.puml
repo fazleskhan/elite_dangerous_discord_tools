@@ -1,0 +1,15 @@
+@startuml
+actor User
+participant DiscordContext as Ctx
+participant EDDiscordBot as Bot
+participant EDRouteService as RouteService
+participant ILogger as Logger
+
+User -> Bot: bulk_load_cache(ctx, initial_systems, max_nodes_visited)
+Bot -> Bot: trim comma-separated seed names
+Bot -> Logger: info("bulk_load_cache command")
+Bot -> Ctx: send("Bulk loading cache from seeds ...")
+Bot -> RouteService: bulk_load_cache(..., progress_callback=logger.info)
+RouteService --> Bot: loaded systems
+Bot -> Ctx: send("Bulk load complete. Loaded N systems")
+@enduml

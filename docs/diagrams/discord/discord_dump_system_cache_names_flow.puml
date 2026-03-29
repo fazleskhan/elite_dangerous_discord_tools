@@ -1,0 +1,17 @@
+@startuml
+actor User
+participant DiscordContext as Ctx
+participant EDDiscordBot as Bot
+participant EDRouteService as RouteService
+participant ILogger as Logger
+
+User -> Bot: dump_system_cache_names(ctx)
+Bot -> Logger: info("dump_system_cache_names command")
+Bot -> Ctx: send("Fetching all system names...")
+Bot -> RouteService: get_all_system_names()
+RouteService --> Bot: system names
+loop chunks of 10
+  Bot -> Ctx: send("Systems in cache: ...")
+end
+Bot -> Ctx: send("Total number of systems in cache: N")
+@enduml
