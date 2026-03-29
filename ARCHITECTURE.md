@@ -2,6 +2,13 @@
 
 Apply this contract to new Python code and refactors in this repository unless explicitly instructed otherwise.
 
+## Project-Specific Companion
+- This file defines the shared base architecture contract for the repository.
+- A repository may include a project-specific companion file at `ARCHITECTURE.project.md`.
+- When present, `ARCHITECTURE.project.md` must be read together with this file and may add repository-specific requirements, constraints, diagrams, workflow rules, and implementation variations.
+- Repository-specific overrides must be explicit. If a rule in `ARCHITECTURE.project.md` conflicts with this file, the project-specific rule takes precedence for this repository.
+- Prefer keeping reusable rules in `ARCHITECTURE.md` and moving only repository-specific variations into `ARCHITECTURE.project.md`.
+
 ## 1. Design
 - Prefer small, focused classes when behavior has dependencies.
 - Use inversion of control (IoC) by default.
@@ -31,6 +38,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Keep environment-specific defaults near the entry point unless there is a strong reason not to.
 - Avoid hidden global state.
 - Do not create module names that conflict with Python standard library modules.
+- Do not introduce shim or compatibility-layer modules; integrate dependencies directly and use type stubs or normal refactoring instead of project-owned wrapper layers.
 
 ## 6. Error Handling
 - Prefer defensive programming: validate inputs early, guard assumptions, and fail clearly when invariants are violated.
@@ -92,8 +100,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Business classes should depend on `ILogger` via constructor injection.
 - Instantiate one shared logging singleton in `main.py` and pass that same object into business objects across the project.
 - Integrate standard logging with Loguru through an `InterceptHandler`.
-- Store the default Loguru configuration object in `src/defaults.py`.
-- Read `config/loguru.json` from the filesystem as an override layer, merge it over the default configuration from `src/defaults.py`, and use the merged result to configure Loguru through `loguru-config`.
+- Keep project-specific logging glue in a dedicated application logging module, for example `src/app_logging.py`.
+- Store the default Loguru configuration object in a shared defaults module, for example `src/defaults.py`.
+- Read a filesystem configuration file, for example `config/loguru.json`, as an override layer, merge it over the default configuration, and use the merged result to configure Loguru through `loguru-config`.
 - Keep the effective Loguru configuration shape externalizable through `config/loguru.json`; handler count, targets, levels, formats, colorization, rotation, and retention settings should be overridable there rather than hard-coded in code.
 - The default configuration should provide:
   - a plain-text datestamped application log under `logs/`

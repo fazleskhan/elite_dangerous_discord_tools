@@ -25,10 +25,12 @@ effecty
 entrypoint
 entrypoints
 env
+externalizable
 json
 loguru
 ly
 mypy
+overridable
 py
 py's
 pytest
