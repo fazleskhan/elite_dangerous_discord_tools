@@ -13,6 +13,9 @@ Elite Dangerous Discord Tools is a Python application for route lookup, system i
 ## Business Rules
 - Business rules are documented in [BUSINESS.md](BUSINESS.md).
 
+## Architecture Variations
+- Project-specific architecture additions and overrides are documented in [ARCHITECTURE.project.md](ARCHITECTURE.project.md).
+
 ## Diagrams
 - CLI entrypoint sequence sources: [docs/diagrams/cli](docs/diagrams/cli)
 - Discord entrypoint sequence sources: [docs/diagrams/discord](docs/diagrams/discord)
