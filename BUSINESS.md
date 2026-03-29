@@ -64,6 +64,16 @@ This document captures the current behavior that the application enforces. It is
 - Redis closes clients after each logical operation and supports both modern async close methods and legacy close methods.
 - Redis and TinyDB both log which backend is active when the datasource object is created.
 
+## EDGIS Webservice Interactions
+- The project calls `https://edgis.elitedangereuse.fr/coords` to fetch system coordinate and metadata payloads by system name.
+- The project sends the requested system name to the coords endpoint through the `q` query parameter.
+- The project calls `https://edgis.elitedangereuse.fr/neighbors` to fetch neighboring systems around known coordinates.
+- Neighbor lookups send the cached or fetched `x`, `y`, and `z` coordinate values as query parameters.
+- The neighbors request intentionally omits a radius parameter and relies on the EDGIS service default radius behavior used by the current implementation.
+- EDGIS requests use a 15-second total HTTP timeout.
+- Successful EDGIS responses are consumed as JSON payloads and then passed into the cache and datasource flows for reuse.
+- EDGIS transport failures and timeouts are logged and converted into missing-result behavior instead of being surfaced to users as raw HTTP exceptions.
+
 ## EDGis Cache Behavior
 - Cache lookups are cache-through operations over the local datasource plus the EDGIS fetchers.
 - On a system-info cache miss, the application fetches system info once, persists it to the datasource, and reuses it on later reads.
