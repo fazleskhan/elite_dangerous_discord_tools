@@ -1,0 +1,12 @@
+@startuml
+class EDMain
+class EDRouteService
+class EDRouteServiceFactory
+class EDLoggingUtils
+interface ILogger
+
+EDMain --> EDRouteService
+EDMain --> ILogger
+EDRouteServiceFactory --> EDRouteService
+EDLoggingUtils ..|> ILogger
+@enduml

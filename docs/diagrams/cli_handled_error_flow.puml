@@ -1,0 +1,17 @@
+@startuml
+actor User
+participant main.py as Main
+participant argparse as Parser
+participant EDMain
+participant ILogger as Logger
+
+User -> Main: run command
+Main -> Parser: parse_args()
+Main -> Logger: info("CLI parameters")
+Main -> EDMain: _run_command(args)
+EDMain -> EDMain: validate required args
+EDMain --> Main: raise CLIHandledError
+Main -> Logger: error(message)
+Main -> Logger: info(parser help)
+Main --> User: exit 1 (no traceback)
+@enduml

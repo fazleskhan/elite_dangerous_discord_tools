@@ -15,6 +15,7 @@ from watchdog.events import (
 )
 
 import app_logging
+import defaults
 
 
 def main() -> None: ...
@@ -124,7 +125,9 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
 
 def test_load_config_returns_defaults_and_ignores_invalid_json(tmp_path: Path) -> None:
     missing_watcher = app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
-    assert missing_watcher._load_config()["stdout"]["level"] == "INFO"
+    loaded_defaults = missing_watcher._load_config()
+    assert loaded_defaults["stdout"]["level"] == "INFO"
+    assert loaded_defaults["file"]["path"] == str(defaults.DEFAULT_APPLICATION_LOG_PATH)
 
     invalid_path = tmp_path / "invalid.json"
     invalid_path.write_text("{ invalid", encoding="utf-8")

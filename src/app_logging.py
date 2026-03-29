@@ -25,50 +25,17 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.api import BaseObserver
 
-DEFAULT_CONFIG_PATH = Path("config/loguru.json")
-DEFAULT_LOG_PATH = Path("logs/application.log")
-DEFAULT_ARCHIVE_DIR = Path("logs/archive")
-DEFAULT_TEXT_FORMAT = (
-    "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | tid={thread.id} | "
-    "{name}:{function}:{line} | {message}"
-)
-DEFAULT_COLOR_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-    "<level>{level: <8}</level> | <cyan>tid={thread.id}</cyan> | "
-    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-    "<level>{message}</level>"
+from defaults import (
+    DEFAULT_APPLICATION_LOG_PATH,
+    DEFAULT_LOGURU_CONFIG,
+    DEFAULT_LOGURU_CONFIG_PATH,
+    DEFAULT_LOG_ARCHIVE_DIR,
+    DEFAULT_LOG_COLOR_FORMAT,
+    DEFAULT_LOG_TEXT_FORMAT,
 )
 
 _WATCHER: "_LoguruConfigWatcher | None" = None
 _WATCHER_LOCK = threading.Lock()
-
-_DEFAULT_CONFIG: dict[str, Any] = {
-    "stdout": {
-        "enabled": True,
-        "level": "INFO",
-        "colorize": True,
-        "format": DEFAULT_COLOR_FORMAT,
-    },
-    "stderr": {
-        "enabled": True,
-        "level": "ERROR",
-        "colorize": True,
-        "format": DEFAULT_COLOR_FORMAT,
-    },
-    "file": {
-        "enabled": True,
-        "path": str(DEFAULT_LOG_PATH),
-        "level": "INFO",
-        "rotation": "00:00",
-        "archive_dir": str(DEFAULT_ARCHIVE_DIR),
-        "archive_after_days": 7,
-        "archive_retention_days": 30,
-        "format": DEFAULT_TEXT_FORMAT,
-    },
-    "watch": {
-        "enabled": True,
-    },
-}
 
 
 @traced
@@ -102,7 +69,7 @@ def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
 
 
 def load_loguru_config(config_path: Path) -> dict[str, Any]:
-    config = dict(_DEFAULT_CONFIG)
+    config = dict(DEFAULT_LOGURU_CONFIG)
     if not config_path.exists():
         return config
 
@@ -113,7 +80,7 @@ def load_loguru_config(config_path: Path) -> dict[str, Any]:
         if loader is not None and hasattr(loader, "load"):
             loaded = loader.load(str(config_path))
             if isinstance(loaded, dict):
-                return _merge_dict(_DEFAULT_CONFIG, loaded)
+                return _merge_dict(DEFAULT_LOGURU_CONFIG, loaded)
     except Exception:
         pass
 
@@ -122,7 +89,7 @@ def load_loguru_config(config_path: Path) -> dict[str, Any]:
     except json.JSONDecodeError:
         return config
     if isinstance(raw, dict):
-        return _merge_dict(_DEFAULT_CONFIG, raw)
+        return _merge_dict(DEFAULT_LOGURU_CONFIG, raw)
     return config
 
 
@@ -209,7 +176,7 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
             sys.stdout,
             level=str(stdout_config.get("level", "INFO")),
             colorize=bool(stdout_config.get("colorize", True)),
-            format=str(stdout_config.get("format", DEFAULT_COLOR_FORMAT)),
+            format=str(stdout_config.get("format", DEFAULT_LOG_COLOR_FORMAT)),
             filter=cast(Any, _stdout_filter(str(stdout_config.get("level", "INFO")))),
             backtrace=False,
             diagnose=False,
@@ -222,7 +189,7 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
             sys.stderr,
             level=str(stderr_config.get("level", "ERROR")),
             colorize=bool(stderr_config.get("colorize", True)),
-            format=str(stderr_config.get("format", DEFAULT_COLOR_FORMAT)),
+            format=str(stderr_config.get("format", DEFAULT_LOG_COLOR_FORMAT)),
             filter=cast(Any, _stderr_filter(str(stderr_config.get("level", "ERROR")))),
             backtrace=False,
             diagnose=False,
@@ -231,9 +198,11 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
 
     file_config = config.get("file", {})
     if bool(file_config.get("enabled", True)):
-        log_path = _normalize_path(str(file_config.get("path", DEFAULT_LOG_PATH)))
+        log_path = _normalize_path(
+            str(file_config.get("path", DEFAULT_APPLICATION_LOG_PATH))
+        )
         archive_dir = _normalize_path(
-            str(file_config.get("archive_dir", DEFAULT_ARCHIVE_DIR))
+            str(file_config.get("archive_dir", DEFAULT_LOG_ARCHIVE_DIR))
         )
         archive_after_days = int(file_config.get("archive_after_days", 7))
         archive_retention_days = int(file_config.get("archive_retention_days", 30))
@@ -244,7 +213,7 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
             str(log_path),
             level=str(file_config.get("level", "INFO")),
             rotation=str(file_config.get("rotation", "00:00")),
-            format=str(file_config.get("format", DEFAULT_TEXT_FORMAT)),
+            format=str(file_config.get("format", DEFAULT_LOG_TEXT_FORMAT)),
             filter=cast(Any, _file_filter(str(file_config.get("level", "INFO")))),
             backtrace=False,
             diagnose=False,
@@ -346,11 +315,13 @@ class EDLoggingUtils:
     _instance: "EDLoggingUtils | None" = None
     _instance_lock = threading.Lock()
 
-    def __init__(self, config_path: str | Path = DEFAULT_CONFIG_PATH):
+    def __init__(self, config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH):
         self.config_path = Path(config_path)
 
     @staticmethod
-    def create(config_path: str | Path = DEFAULT_CONFIG_PATH) -> "EDLoggingUtils":
+    def create(
+        config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH,
+    ) -> "EDLoggingUtils":
         with EDLoggingUtils._instance_lock:
             if EDLoggingUtils._instance is None:
                 logging_utils = EDLoggingUtils(config_path)
@@ -359,7 +330,9 @@ class EDLoggingUtils:
         return EDLoggingUtils._instance
 
     @staticmethod
-    def _initialize_watcher(config_path: str | Path = DEFAULT_CONFIG_PATH) -> None:
+    def _initialize_watcher(
+        config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH,
+    ) -> None:
         load_dotenv()
         resolved_path = Path(config_path)
         global _WATCHER

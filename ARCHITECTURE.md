@@ -52,6 +52,12 @@ Apply this contract to new Python code and refactors in this repository unless e
 - When command-line behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist. Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams, including separate diagrams for encode-only, verify, and handled-error CLI flows when those paths exist.
 - When class structure changes, update the PlantUML class diagram.
 - After diagram updates, generate fresh PNG outputs from the updated PlantUML sources using the official PlantUML render server.
+- Keep `README.md` generated and up to date with a concise description of the current implementation.
+- Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
+- Keep `BUSINESS.md` focused on detailed business logic and user-visible behavior that is not already fully specified in `ARCHITECTURE.md`.
+- When behavior changes, analyze the current code and update `BUSINESS.md` with any business-rule changes that are found.
+- `BUSINESS.md` should capture concrete command behavior, workflow rules, data-handling rules, cache behavior, integration-facing behavior, and user-visible constraints when those details are more specific than the architectural contract.
+- Avoid duplicating architecture-only concerns in `BUSINESS.md`; prefer `ARCHITECTURE.md` for implementation rules and `BUSINESS.md` for feature and behavior rules.
 - Include the current diagram PNGs inline in `README.md` so they render in the README, and include source links alongside them.
 
 ## 9. CLI
@@ -71,7 +77,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Keep implementations simple and readable.
 - Prefer explicit names over terse ones.
 - Use ASCII unless the file already requires Unicode.
-- Add comments only when they explain non-obvious intent.
+- Add concise code comments when they clarify what the code is doing and why, especially around non-obvious logic or integration boundaries.
 
 ## 12. Formatting
 - Run `black .` from the repository root whenever project contents are updated.
@@ -83,8 +89,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Business classes should depend on `ILogger` via constructor injection.
 - Instantiate one shared logging singleton in `main.py` and pass that same object into business objects across the project.
 - Integrate standard logging with Loguru through an `InterceptHandler`.
-- Use `loguru-config` to load and apply `config/loguru.json`.
-- Keep Loguru configuration externalized in `config/loguru.json`; handler count, targets, levels, formats, colorization, rotation, and retention settings should be configurable there rather than hard-coded in code.
+- Store the default Loguru configuration object in `src/defaults.py`.
+- Read `config/loguru.json` from the filesystem as an override layer, merge it over the default configuration from `src/defaults.py`, and use the merged result to configure Loguru through `loguru-config`.
+- Keep the effective Loguru configuration shape externalizable through `config/loguru.json`; handler count, targets, levels, formats, colorization, rotation, and retention settings should be overridable there rather than hard-coded in code.
 - The default configuration should provide:
   - a plain-text datestamped application log under `logs/`
   - a colorized stdout handler
@@ -94,6 +101,8 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Application log entries should include thread ID, source file, and source line.
 - Log files older than 7 days should be compressed into `logs/archive/`.
 - Archived logs older than 30 days should be deleted.
+- Handled CLI errors should be logged once at the CLI boundary and should not emit a traceback.
+- Unhandled exceptions should preserve their traceback for debugging.
 - `src/app_logging.py` should contain only project-specific logging glue such as interception, path normalization, and archive housekeeping.
 
 ## 14. Static Analysis
