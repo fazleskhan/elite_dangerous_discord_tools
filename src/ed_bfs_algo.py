@@ -8,7 +8,6 @@ from ed_protocols import (
     FetchSystemInfoFn,
     LoggingProtocol,
     ProgressFn,
-    SystemInfo,
 )
 
 """Breadth-first traversal used to build/solve routes between systems."""

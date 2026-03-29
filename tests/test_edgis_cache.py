@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 import edgis_cache
@@ -9,19 +11,27 @@ class FakeDatasource:
         self.systems: dict[str, dict[str, object]] = {}
         self.added_neighbors: list[tuple[str, list[dict[str, object]]]] = []
 
+    def init_datasource(self, import_dir: str | Path = "./init") -> None:
+        return None
+
+    def get_all_systems(self) -> list[dict[str, object]]:
+        return list(self.systems.values())
+
     def get_system(self, system_name: str) -> dict[str, object] | None:
         return self.systems.get(system_name)
 
     def insert_system(self, system_info: dict[str, object]) -> None:
-        self.systems[system_info["name"]] = dict(system_info)
+        system_name = str(system_info["name"])
+        self.systems[system_name] = dict(system_info)
 
     def add_neighbors(
-        self, system_info: dict[str, object], neighbors: list[dict[str, object]]
+        self, system_info: dict[str, object], new_neighbors: list[dict[str, object]]
     ) -> None:
-        entry = dict(self.systems.get(system_info["name"], system_info))
-        entry["neighbors"] = neighbors
-        self.systems[system_info["name"]] = entry
-        self.added_neighbors.append((system_info["name"], neighbors))
+        system_name = str(system_info["name"])
+        entry = dict(self.systems.get(system_name, system_info))
+        entry["neighbors"] = new_neighbors
+        self.systems[system_name] = entry
+        self.added_neighbors.append((system_name, new_neighbors))
 
 
 def sample_system() -> dict[str, object]:

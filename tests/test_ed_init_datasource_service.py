@@ -1,5 +1,6 @@
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -11,9 +12,23 @@ class FakeDatasource:
     def __init__(self) -> None:
         self.import_dirs: list[str] = []
 
-    def init_datasource(self, import_dir: str = "./init") -> None:
+    def init_datasource(self, import_dir: str | Path = "./init") -> None:
         time.sleep(0.02)
-        self.import_dirs.append(import_dir)
+        self.import_dirs.append(str(import_dir))
+
+    def get_all_systems(self) -> list[dict[str, object]]:
+        return []
+
+    def get_system(self, system_name: str) -> dict[str, object] | None:
+        return None
+
+    def insert_system(self, system_info: dict[str, object]) -> None:
+        return None
+
+    def add_neighbors(
+        self, system_info: dict[str, object], new_neighbors: list[dict[str, object]]
+    ) -> None:
+        return None
 
 
 def test_init_datasource_service_validates_dependencies() -> None:

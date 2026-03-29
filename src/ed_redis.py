@@ -1,9 +1,11 @@
 import asyncio
 import atexit
+import inspect
 import json
 import os
 import threading
-from typing import Any
+from pathlib import Path
+from typing import Any, Awaitable, cast
 from urllib.parse import urlparse
 
 import psutil
@@ -101,10 +103,11 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("Redis backend: {}", redis_name)
 
-    def init_datasource(self, import_dir: str = default_init_dir) -> None:
+    def init_datasource(self, import_dir: str | Path = default_init_dir) -> None:
         self.import_datasource(import_dir)
 
-    def import_datasource(self, import_dir: str) -> None:
+    def import_datasource(self, import_dir: str | Path) -> None:
+        import_dir = os.fspath(import_dir)
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
         json_filenames = sorted(
@@ -233,13 +236,13 @@ class EDRedis:
         # clients exposing only sync `close`.
         close_fn = getattr(client, "aclose", None)
         if callable(close_fn):
-            await close_fn()
+            await cast(Awaitable[Any], close_fn())
             return
 
         legacy_close = getattr(client, "close", None)
         if callable(legacy_close):
             close_result = legacy_close()
-            if asyncio.iscoroutine(close_result):
+            if inspect.isawaitable(close_result):
                 await close_result
 
     def _ensure_open(self) -> None:

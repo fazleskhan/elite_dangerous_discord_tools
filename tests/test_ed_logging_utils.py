@@ -1,4 +1,5 @@
 import asyncio
+import gzip
 import json
 import threading
 import time
@@ -153,6 +154,48 @@ def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
     assert loaded["watch"]["enabled"] is True
 
 
+def test_archive_stale_logs_moves_old_rotated_logs_to_archive(tmp_path: Path) -> None:
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir()
+    log_path = log_dir / "application.log"
+    log_path.write_text("current", encoding="utf-8")
+    rotated_log = log_dir / "application.2026-03-01.log"
+    rotated_log.write_text("rotated", encoding="utf-8")
+    archive_dir = log_dir / "archive"
+    now = 30 * 24 * 60 * 60
+    old_time = now - (8 * 24 * 60 * 60)
+
+    app_logging.os.utime(rotated_log, (old_time, old_time))
+
+    app_logging._archive_stale_logs(log_path, archive_dir, 7, now=now)
+
+    archived_log = archive_dir / f"{rotated_log.name}.gz"
+    assert rotated_log.exists() is False
+    assert archived_log.exists() is True
+    with gzip.open(archived_log, "rt", encoding="utf-8") as handle:
+        assert handle.read() == "rotated"
+
+
+def test_delete_expired_archives_removes_old_archives(tmp_path: Path) -> None:
+    archive_dir = tmp_path / "logs" / "archive"
+    archive_dir.mkdir(parents=True)
+    stale_archive = archive_dir / "application.2026-01-01.log.gz"
+    stale_archive.write_text("stale", encoding="utf-8")
+    fresh_archive = archive_dir / "application.2026-03-01.log.gz"
+    fresh_archive.write_text("fresh", encoding="utf-8")
+    now = 40 * 24 * 60 * 60
+    stale_time = now - (31 * 24 * 60 * 60)
+    fresh_time = now - (5 * 24 * 60 * 60)
+
+    app_logging.os.utime(stale_archive, (stale_time, stale_time))
+    app_logging.os.utime(fresh_archive, (fresh_time, fresh_time))
+
+    app_logging._delete_expired_archives(archive_dir, 30, now=now)
+
+    assert stale_archive.exists() is False
+    assert fresh_archive.exists() is True
+
+
 def test_configure_logger_adds_console_and_file_sinks(
     tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
@@ -224,11 +267,28 @@ def test_configure_logger_can_disable_console_and_file(
     assert fake_logger.add_calls == []
 
 
-def test_configure_logger_uses_loguru_file_compression_and_retention(
-    tmp_path: Path, fake_logger: FakeSinkLogger
+def test_configure_logger_runs_archive_housekeeping(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
     watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     log_path = tmp_path / "logs" / "app.log"
+    archive_calls: list[tuple[Path, Path, int]] = []
+    delete_calls: list[tuple[Path, int]] = []
+
+    monkeypatch.setattr(
+        app_logging,
+        "_archive_stale_logs",
+        lambda log_path_arg, archive_dir_arg, archive_after_days: archive_calls.append(
+            (log_path_arg, archive_dir_arg, archive_after_days)
+        ),
+    )
+    monkeypatch.setattr(
+        app_logging,
+        "_delete_expired_archives",
+        lambda archive_dir_arg, archive_retention_days: delete_calls.append(
+            (archive_dir_arg, archive_retention_days)
+        ),
+    )
 
     watcher._configure_logger(
         {
@@ -239,16 +299,25 @@ def test_configure_logger_uses_loguru_file_compression_and_retention(
                 "path": str(log_path),
                 "level": "INFO",
                 "rotation": "1 day",
-                "compression": "gz",
-                "retention": "30 days",
+                "archive_dir": str(tmp_path / "logs" / "archive"),
+                "archive_after_days": 7,
+                "archive_retention_days": 30,
                 "format": "file-format",
             },
         }
     )
 
     file_call = fake_logger.add_calls[0]
-    assert file_call["compression"] == "gz"
-    assert file_call["retention"] == "30 days"
+    assert "compression" not in file_call
+    assert "retention" not in file_call
+    assert archive_calls == [
+        (
+            log_path.resolve(),
+            (tmp_path / "logs" / "archive").resolve(),
+            7,
+        )
+    ]
+    assert delete_calls == [(((tmp_path / "logs" / "archive").resolve()), 30)]
     assert log_path.parent.is_dir() is True
 
 

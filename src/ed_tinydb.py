@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import threading
+from pathlib import Path
 from typing import Any, cast
 
 from tinydb import Query, TinyDB
@@ -32,8 +33,8 @@ class SmartCacheTinyDB(TinyDB):
 class AIOTinyDB:
     """Minimal async-compatible wrapper around TinyDB."""
 
-    def __init__(self, path: str):
-        self._path = path
+    def __init__(self, path: str | Path):
+        self._path = str(path)
         self._db: TinyDB | None = None
 
     async def __aenter__(self) -> "AIOTinyDB":
@@ -102,14 +103,15 @@ class EDTinyDB:
 
     def init_datasource(
         self,
-        import_dir: str = default_init_dir,
+        import_dir: str | Path = default_init_dir,
     ) -> None:
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         self.import_datasource(import_dir)
 
-    def import_datasource(self, import_dir: str) -> None:
+    def import_datasource(self, import_dir: str | Path) -> None:
+        import_dir = os.fspath(import_dir)
         if not os.path.isdir(import_dir):
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
         json_filenames = sorted(

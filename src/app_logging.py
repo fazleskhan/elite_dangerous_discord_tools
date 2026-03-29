@@ -1,12 +1,23 @@
 from __future__ import annotations
 
+import gzip
 import json
 import logging
 import os
+import shutil
 import sys
 import threading
+import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
+
+try:
+    from autologging import traced
+except ImportError:
+
+    def traced(target: Any) -> Any:
+        return target
+
 
 from dotenv import load_dotenv
 from loguru import logger as _logger
@@ -16,6 +27,7 @@ from watchdog.observers.api import BaseObserver
 
 DEFAULT_CONFIG_PATH = Path("config/loguru.json")
 DEFAULT_LOG_PATH = Path("logs/application.log")
+DEFAULT_ARCHIVE_DIR = Path("logs/archive")
 DEFAULT_TEXT_FORMAT = (
     "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | tid={thread.id} | "
     "{name}:{function}:{line} | {message}"
@@ -48,8 +60,9 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         "path": str(DEFAULT_LOG_PATH),
         "level": "INFO",
         "rotation": "00:00",
-        "compression": "gz",
-        "retention": "30 days",
+        "archive_dir": str(DEFAULT_ARCHIVE_DIR),
+        "archive_after_days": 7,
+        "archive_retention_days": 30,
         "format": DEFAULT_TEXT_FORMAT,
     },
     "watch": {
@@ -58,6 +71,7 @@ _DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 
+@traced
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         try:
@@ -120,6 +134,44 @@ def _normalize_path(path_value: str | Path) -> Path:
     return Path(path_value).expanduser().resolve()
 
 
+def _archive_stale_logs(
+    log_path: Path,
+    archive_dir: Path,
+    archive_after_days: int,
+    now: float | None = None,
+) -> None:
+    cutoff_seconds = archive_after_days * 24 * 60 * 60
+    current_time = time.time() if now is None else now
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    for candidate in log_path.parent.glob(f"{log_path.stem}*{log_path.suffix}"):
+        if candidate == log_path or not candidate.is_file():
+            continue
+        if candidate.parent == archive_dir:
+            continue
+        if current_time - candidate.stat().st_mtime < cutoff_seconds:
+            continue
+        archive_path = archive_dir / f"{candidate.name}.gz"
+        with candidate.open("rb") as source, gzip.open(archive_path, "wb") as target:
+            shutil.copyfileobj(source, target)
+        candidate.unlink()
+
+
+def _delete_expired_archives(
+    archive_dir: Path,
+    archive_retention_days: int,
+    now: float | None = None,
+) -> None:
+    if not archive_dir.exists():
+        return
+    cutoff_seconds = archive_retention_days * 24 * 60 * 60
+    current_time = time.time() if now is None else now
+    for archive_file in archive_dir.glob("*.gz"):
+        if not archive_file.is_file():
+            continue
+        if current_time - archive_file.stat().st_mtime > cutoff_seconds:
+            archive_file.unlink()
+
+
 def _stdout_filter(min_level_name: str):
     min_level_number = _level_number(min_level_name)
 
@@ -158,7 +210,7 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
             level=str(stdout_config.get("level", "INFO")),
             colorize=bool(stdout_config.get("colorize", True)),
             format=str(stdout_config.get("format", DEFAULT_COLOR_FORMAT)),
-            filter=_stdout_filter(str(stdout_config.get("level", "INFO"))),
+            filter=cast(Any, _stdout_filter(str(stdout_config.get("level", "INFO")))),
             backtrace=False,
             diagnose=False,
             enqueue=True,
@@ -171,7 +223,7 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
             level=str(stderr_config.get("level", "ERROR")),
             colorize=bool(stderr_config.get("colorize", True)),
             format=str(stderr_config.get("format", DEFAULT_COLOR_FORMAT)),
-            filter=_stderr_filter(str(stderr_config.get("level", "ERROR"))),
+            filter=cast(Any, _stderr_filter(str(stderr_config.get("level", "ERROR")))),
             backtrace=False,
             diagnose=False,
             enqueue=True,
@@ -180,15 +232,20 @@ def apply_loguru_config(config: dict[str, Any]) -> None:
     file_config = config.get("file", {})
     if bool(file_config.get("enabled", True)):
         log_path = _normalize_path(str(file_config.get("path", DEFAULT_LOG_PATH)))
+        archive_dir = _normalize_path(
+            str(file_config.get("archive_dir", DEFAULT_ARCHIVE_DIR))
+        )
+        archive_after_days = int(file_config.get("archive_after_days", 7))
+        archive_retention_days = int(file_config.get("archive_retention_days", 30))
         log_path.parent.mkdir(parents=True, exist_ok=True)
+        _archive_stale_logs(log_path, archive_dir, archive_after_days)
+        _delete_expired_archives(archive_dir, archive_retention_days)
         _logger.add(
             str(log_path),
             level=str(file_config.get("level", "INFO")),
             rotation=str(file_config.get("rotation", "00:00")),
-            compression=file_config.get("compression", "gz"),
-            retention=file_config.get("retention", "30 days"),
             format=str(file_config.get("format", DEFAULT_TEXT_FORMAT)),
-            filter=_file_filter(str(file_config.get("level", "INFO"))),
+            filter=cast(Any, _file_filter(str(file_config.get("level", "INFO")))),
             backtrace=False,
             diagnose=False,
             enqueue=True,
@@ -199,6 +256,7 @@ def configure_standard_logging_intercept() -> None:
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO, force=True)
 
 
+@traced
 class _LoguruConfigWatcher:
     def __init__(self, config_path: Path):
         self.config_path = config_path.resolve()
@@ -263,6 +321,7 @@ class _LoguruConfigWatcher:
         configure_standard_logging_intercept()
 
 
+@traced
 class _ConfigFileEventHandler(FileSystemEventHandler):
     def __init__(self, watcher: _LoguruConfigWatcher):
         self._watcher = watcher
@@ -280,6 +339,7 @@ class _ConfigFileEventHandler(FileSystemEventHandler):
         self._watcher.handle_fs_event(event)
 
 
+@traced
 class EDLoggingUtils:
     """OO logging utility facade for IoC composition."""
 
@@ -305,8 +365,9 @@ class EDLoggingUtils:
         global _WATCHER
         with _WATCHER_LOCK:
             if _WATCHER is None:
-                _WATCHER = _LoguruConfigWatcher(resolved_path)
-                _WATCHER.start()
+                watcher = _LoguruConfigWatcher(resolved_path)
+                _WATCHER = watcher
+                watcher.start()
 
     def trace(self, message: str, *args: Any, **kwargs: Any) -> None:
         _logger.trace(message, *args, **kwargs)

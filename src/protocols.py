@@ -74,6 +74,20 @@ class IRouteService(Protocol):
     ) -> Sequence[str] | Awaitable[Sequence[str]]: ...
 
 
+class IDiscordContext(Protocol):
+    async def send(self, message: str) -> Any: ...
+
+
+class IDiscordBot(Protocol):
+    command_prefix: Any
+    user: Any
+    commands: Any
+
+    def event(self, *args: Any, **kwargs: Any) -> Any: ...
+    def command(self, *args: Any, **kwargs: Any) -> Any: ...
+    def run(self, *args: Any, **kwargs: Any) -> None: ...
+
+
 class IBfs(Protocol):
     def travel(
         self,
@@ -128,6 +142,8 @@ CacheProtocol = ICache
 LoggingProtocol = ILogger
 GisProtocol = IGis
 RouteServiceProtocol = IRouteService
+DiscordContextProtocol = IDiscordContext
+DiscordBotProtocol = IDiscordBot
 BfsProtocol = IBfs
 BulkLoadProtocol = IBulkLoad
 InitDatasourceProtocol = IInitDatasource

@@ -11,3 +11,5 @@ watchdog
 redis[hiredis]
 psutil
 loguru-config
+autologging
+pyright
