@@ -10,6 +10,8 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 ## Entry Points
 - Keep [src/main.py](src/main.py) as the synchronous CLI entry point.
 - Keep [src/ed_discord_bot.py](src/ed_discord_bot.py) as the Discord-triggered entry point module.
+- Keep [src/discord_runner.py](src/discord_runner.py) as the standalone Discord process launcher.
+- Keep [src/import_tinydb.py](src/import_tinydb.py), [src/import_redis.py](src/import_redis.py), [src/export_tinydb.py](src/export_tinydb.py), and [src/export_redis.py](src/export_redis.py) as focused import/export utility entry points.
 - When entry points change, regenerate matching per-entrypoint sequence diagrams.
 
 ## Diagram Layout
@@ -32,6 +34,20 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Send off-loop Discord progress updates with `asyncio.run_coroutine_threadsafe(...)`.
 - Log progress-send failures without aborting the surrounding command coroutine.
 - Keep async concerns at integration boundaries, not in core business services.
+
+## Route Composition
+- Keep [src/ed_route.py](src/ed_route.py) as a thin facade that delegates work to focused services instead of owning route, import, cache, or distance logic directly.
+- Build the fully wired route stack in [src/ed_route_service_factory.py](src/ed_route_service_factory.py).
+- Compose the route stack from datasource selection, EDGIS-backed cache creation, system-info service, all-system-names service, distance service, BFS traversal, path service, and bulk-load service.
+- Keep [src/ed_path_service.py](src/ed_path_service.py) responsible for offloading blocking BFS work onto a worker thread with `asyncio.to_thread(...)` so async callers remain responsive.
+- Treat [src/ed_route_services.py](src/ed_route_services.py) as a temporary legacy re-export module; do not introduce new compatibility modules that extend this pattern.
+
+## Datasource Selection
+- Implement datasource selection in [src/ed_datasource_factory.py](src/ed_datasource_factory.py).
+- Resolve datasource type in the order explicit argument, environment variable, then TinyDB default.
+- Support only the `tinydb` and `redis` datasource types and fail fast on invalid values.
+- Keep datasource creation lazy so backend modules are imported only when selected.
+- Reuse the shared logging singleton when constructing datasource instances.
 
 ## Redis Integration
 - Implement Redis datasource behavior in [src/ed_redis.py](src/ed_redis.py).

@@ -15,6 +15,16 @@ This document captures the current behavior that the application enforces. It is
 - When Discord finds a route, it sends the route as a ` → ` joined path followed by elapsed time.
 - When Discord cannot find a route, it sends a “No Path found” message that includes the source, destination, and max system count.
 
+## Route Search Behavior
+- Route searches are executed through a breadth-first traversal over cached or fetched neighbor relationships.
+- If the source and destination system names are identical, the route result is a single-item path containing that system.
+- Route traversal stops when the visited-node count exceeds the requested maximum system count.
+- Route traversal prunes nodes that move at least 5 percent farther away from the destination than the best distance seen so far in the current search.
+- Route expansion ignores neighbors whose hop distance falls outside the requested `min_distance` and `max_distance` bounds.
+- When neighbor payloads do not include a precomputed hop distance, the application computes that hop distance on demand.
+- Route progress updates are throttled and are only emitted after at least 512 analyzed systems and at least 30 seconds since the last progress report.
+- Path execution is offloaded to a worker thread so async callers such as Discord commands stay responsive while the traversal runs.
+
 ## Distance
 - `calc_systems_distance` calculates Euclidean distance from cached or fetched system coordinates.
 - The CLI distance command requires `--initial` and `--destination`.
@@ -63,6 +73,19 @@ This document captures the current behavior that the application enforces. It is
 - Redis chooses a default max-connection count from the physical CPU count and never falls below `1`.
 - Redis closes clients after each logical operation and supports both modern async close methods and legacy close methods.
 - Redis and TinyDB both log which backend is active when the datasource object is created.
+
+## Bulk Cache Load Behavior
+- Bulk cache loading performs a frontier-by-frontier graph expansion starting from the user-provided seed systems.
+- Seed systems are trimmed, blank seed names are ignored, and duplicate seed names are skipped.
+- The bulk-load result preserves deterministic visit order in the order systems are first accepted into the visited set.
+- Bulk loading returns early with an empty result when `max_nodes_visited` is zero or negative.
+- Neighbor expansion is fetched in parallel through a thread pool sized from the detected physical CPU count, with a logical-core fallback when the physical count is unavailable.
+- Bulk loading reuses neighbor payloads directly when they already include coordinate data and only performs a separate system-info lookup when a neighbor record is too incomplete for later expansion.
+- Bulk-load progress updates are emitted only when the visited count reaches exact 512-system boundaries.
+
+## Distance Service Behavior
+- Distance calculations cache resolved coordinate triplets in memory and reuse them across later distance requests.
+- If either requested system cannot be resolved to coordinates, the distance service raises `ValueError` naming every missing system in one message.
 
 ## EDGIS Webservice Interactions
 - The project calls `https://edgis.elitedangereuse.fr/coords` to fetch system coordinate and metadata payloads by system name.
