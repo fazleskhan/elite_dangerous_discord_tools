@@ -11,7 +11,7 @@ from ed_protocols import (
     ProgressFn,
     SystemInfo,
 )
-from ed_logging_utils import EDLoggingUtils
+from app_logging import EDLoggingUtils
 from constants import (
     system_info_coords_field,
     system_info_name_field,

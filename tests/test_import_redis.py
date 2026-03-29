@@ -19,7 +19,11 @@ def test_import_redis_delegates_to_backend(tmp_path, monkeypatch):  # type: igno
             "FakeEDRedis", (), {"create": staticmethod(lambda logging_utils=None: fake)}
         ),
     )
-    monkeypatch.setattr(import_redis.EDLoggingUtils, "create", lambda: object())
+    monkeypatch.setattr(
+        import_redis.EDLoggingUtils,
+        "create",
+        lambda: type("Logger", (), {"info": lambda self, *args, **kwargs: None})(),
+    )
     monkeypatch.setattr(sys, "argv", ["import_redis.py", "--import-dir", str(tmp_path)])
 
     import_redis.main()

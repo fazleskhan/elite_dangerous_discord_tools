@@ -73,6 +73,25 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Run `black .` from the repository root whenever project contents are updated.
 - Treat formatter output as part of the required final state.
 
+
+## 13. Logging
+- Include `trace`, `info`, `warn`, and `error` logging where appropriate.
+- Business classes should depend on `ILogger` via constructor injection.
+- Instantiate one shared logging singleton in `main.py` and pass that same object into business objects across the project.
+- Integrate standard logging with Loguru through an `InterceptHandler`.
+- Use `loguru-config` to load and apply `config/loguru.json`.
+- Keep Loguru configuration externalized in `config/loguru.json`; handler count, targets, levels, formats, colorization, rotation, and retention settings should be configurable there rather than hard-coded in code.
+- The default configuration should provide:
+  - a plain-text datestamped application log under `logs/`
+  - a colorized stdout handler
+  - a colorized stderr handler
+- Default behavior should send `info`, `warn`, and `error` to the application log, `info` and `warn` to stdout, and only `error` to stderr.
+- Log parameters received by application entry points at `info` level.
+- Application log entries should include thread ID, source file, and source line.
+- Log rotation, compression, retention, and archive cleanup should be configured through Loguru rather than custom gzip/archive code in application modules.
+- Keep archive/compression behavior declarative in `config/loguru.json` and the Loguru setup, not in handwritten housekeeping routines.
+- `src/app_logging.py` should contain only project-specific logging glue such as interception, config loading, and Loguru wiring.
+
 ## 14. Static Analysis
 - Address Pylance-reported problems before finishing a task unless explicitly approved otherwise.
 - Do not leave unresolved type, import, symbol, or unused-import warnings.

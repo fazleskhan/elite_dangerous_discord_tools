@@ -1,7 +1,5 @@
 import asyncio
-import gzip
 import json
-import os
 import threading
 import time
 from pathlib import Path
@@ -15,7 +13,7 @@ from watchdog.events import (
     FileMovedEvent,
 )
 
-import ed_logging_utils
+import app_logging
 
 
 def main() -> None: ...
@@ -41,6 +39,13 @@ class FakeSinkLogger:
         with self._lock:
             self.add_calls.append({"sink": sink, **kwargs})
             return len(self.add_calls)
+
+    def level(self, name: str):
+        levels = {"TRACE": 5, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40}
+        return type("Level", (), {"name": name, "no": levels[name]})()
+
+    def trace(self, message: str, *args: Any, **kwargs: Any) -> None:
+        self._record("trace", message, *args, **kwargs)
 
     def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
         self._record("debug", message, *args, **kwargs)
@@ -85,14 +90,15 @@ class FakeObserver:
 
 @pytest.fixture(autouse=True)
 def reset_singletons(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(ed_logging_utils, "_WATCHER", None)
-    monkeypatch.setattr(ed_logging_utils.EDLoggingUtils, "_instance", None)
+    monkeypatch.setattr(app_logging, "_WATCHER", None)
+    monkeypatch.setattr(app_logging.EDLoggingUtils, "_instance", None)
 
 
 @pytest.fixture()
 def fake_logger(monkeypatch: pytest.MonkeyPatch) -> FakeSinkLogger:
     logger = FakeSinkLogger()
-    monkeypatch.setattr(ed_logging_utils, "_logger", logger)
+    monkeypatch.setattr(app_logging, "_logger", logger)
+    monkeypatch.setattr(app_logging, "_logger", logger)
     return logger
 
 
@@ -106,7 +112,7 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
         "watch": {"enabled": False},
     }
 
-    merged = ed_logging_utils._LoguruConfigWatcher._merge_dict(base, override)
+    merged = app_logging._LoguruConfigWatcher._merge_dict(base, override)
 
     assert merged == {
         "console": {"enabled": True, "level": "DEBUG"},
@@ -116,12 +122,12 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
 
 
 def test_load_config_returns_defaults_and_ignores_invalid_json(tmp_path: Path) -> None:
-    missing_watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "missing.json")
-    assert missing_watcher._load_config()["console"]["level"] == "INFO"
+    missing_watcher = app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
+    assert missing_watcher._load_config()["stdout"]["level"] == "INFO"
 
     invalid_path = tmp_path / "invalid.json"
     invalid_path.write_text("{ invalid", encoding="utf-8")
-    invalid_watcher = ed_logging_utils._LoguruConfigWatcher(invalid_path)
+    invalid_watcher = app_logging._LoguruConfigWatcher(invalid_path)
 
     assert invalid_watcher._load_config()["file"]["path"] == "logs/application.log"
 
@@ -131,18 +137,18 @@ def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
     config_path.write_text(
         json.dumps(
             {
-                "console": {"level": "DEBUG"},
+                "stdout": {"level": "DEBUG"},
                 "file": {"enabled": False},
             }
         ),
         encoding="utf-8",
     )
 
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
     loaded = watcher._load_config()
 
-    assert loaded["console"]["level"] == "DEBUG"
-    assert loaded["console"]["enabled"] is True
+    assert loaded["stdout"]["level"] == "DEBUG"
+    assert loaded["stdout"]["enabled"] is True
     assert loaded["file"]["enabled"] is False
     assert loaded["watch"]["enabled"] is True
 
@@ -150,58 +156,66 @@ def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
 def test_configure_logger_adds_console_and_file_sinks(
     tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "config.json")
-    archive_dir = tmp_path / "archive"
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     log_path = tmp_path / "logs" / "app.log"
 
     watcher._configure_logger(
         {
-            "console": {
+            "stdout": {
                 "enabled": True,
                 "level": "DEBUG",
                 "colorize": False,
-                "format": "console-format",
+                "format": "stdout-format",
+            },
+            "stderr": {
+                "enabled": True,
+                "level": "ERROR",
+                "colorize": True,
+                "format": "stderr-format",
             },
             "file": {
                 "enabled": True,
                 "path": str(log_path),
                 "level": "WARNING",
                 "rotation": "1 day",
-                "retention_days": 3,
-                "archive_directory": str(archive_dir),
+                "compression": "gz",
+                "retention": "30 days",
                 "format": "file-format",
             },
         }
     )
 
     assert fake_logger.remove_calls == 1
-    assert len(fake_logger.add_calls) == 2
+    assert len(fake_logger.add_calls) == 3
 
-    console_call = fake_logger.add_calls[0]
-    assert console_call["sink"] is ed_logging_utils.sys.stderr
-    assert console_call["level"] == "DEBUG"
-    assert console_call["colorize"] is False
-    assert console_call["format"] == "console-format"
-    assert console_call["enqueue"] is True
+    stdout_call = fake_logger.add_calls[0]
+    assert stdout_call["sink"] is app_logging.sys.stdout
+    assert stdout_call["level"] == "DEBUG"
+    assert stdout_call["colorize"] is False
+    assert stdout_call["format"] == "stdout-format"
+    assert stdout_call["enqueue"] is True
 
-    file_call = fake_logger.add_calls[1]
+    stderr_call = fake_logger.add_calls[1]
+    assert stderr_call["sink"] is app_logging.sys.stderr
+    assert stderr_call["level"] == "ERROR"
+
+    file_call = fake_logger.add_calls[2]
     assert file_call["sink"] == str(log_path)
     assert file_call["level"] == "WARNING"
     assert file_call["rotation"] == "1 day"
     assert file_call["format"] == "file-format"
-    assert callable(file_call["retention"])
-    assert callable(file_call["compression"])
+    assert callable(file_call["filter"])
     assert log_path.parent.is_dir() is True
-    assert archive_dir.is_dir() is True
 
 
 def test_configure_logger_can_disable_console_and_file(
     tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "config.json")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     watcher._configure_logger(
         {
-            "console": {"enabled": False},
+            "stdout": {"enabled": False},
+            "stderr": {"enabled": False},
             "file": {"enabled": False},
         }
     )
@@ -210,91 +224,37 @@ def test_configure_logger_can_disable_console_and_file(
     assert fake_logger.add_calls == []
 
 
-def test_compress_to_archive_factory_gzips_and_removes_source(tmp_path: Path) -> None:
-    archive_dir = tmp_path / "archive"
-    source = tmp_path / "application.log.1"
-    source.write_text("hello log", encoding="utf-8")
-
-    compress = ed_logging_utils._LoguruConfigWatcher._compress_to_archive_factory(
-        archive_dir
-    )
-    compress(str(source))
-
-    archive_path = archive_dir / "application.log.1.gz"
-    assert source.exists() is False
-    assert archive_path.exists() is True
-    with gzip.open(archive_path, "rt", encoding="utf-8") as handle:
-        assert handle.read() == "hello log"
-
-
-def test_retention_cleanup_prunes_old_logs_and_archives(tmp_path: Path) -> None:
-    archive_dir = tmp_path / "archive"
-    current_log = tmp_path / "current.log"
-    old_log = tmp_path / "old.log"
-    recent_archive = archive_dir / "recent.log.gz"
-    old_archive = archive_dir / "old.log.gz"
-
-    current_log.write_text("recent", encoding="utf-8")
-    old_log.write_text("old", encoding="utf-8")
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    recent_archive.write_text("recent archive", encoding="utf-8")
-    old_archive.write_text("old archive", encoding="utf-8")
-
-    now = time.time()
-    two_days = 2 * 24 * 60 * 60
-    one_hour = 60 * 60
-    old_time = now - two_days
-    recent_time = now - one_hour
-
-    for path in [old_log, old_archive]:
-        os.utime(path, times=(old_time, old_time))
-
-    for path in [current_log, recent_archive]:
-        os.utime(path, times=(recent_time, recent_time))
-
-    cleanup = ed_logging_utils._LoguruConfigWatcher._retention_cleanup(archive_dir, 1)
-    cleanup([str(current_log), str(old_log), str(tmp_path / "missing.log")])
-
-    assert current_log.exists() is True
-    assert old_log.exists() is False
-    assert recent_archive.exists() is True
-    assert old_archive.exists() is False
-
-
-def test_retention_cleanup_ignores_races_when_files_disappear(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+def test_configure_logger_uses_loguru_file_compression_and_retention(
+    tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    archive_dir = tmp_path / "archive"
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    active_log = tmp_path / "active.log"
-    active_log.write_text("active", encoding="utf-8")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
+    log_path = tmp_path / "logs" / "app.log"
 
-    archived_file = archive_dir / "rotated.log.gz"
-    archived_file.write_text("archive", encoding="utf-8")
+    watcher._configure_logger(
+        {
+            "stdout": {"enabled": False},
+            "stderr": {"enabled": False},
+            "file": {
+                "enabled": True,
+                "path": str(log_path),
+                "level": "INFO",
+                "rotation": "1 day",
+                "compression": "gz",
+                "retention": "30 days",
+                "format": "file-format",
+            },
+        }
+    )
 
-    real_stat = Path.stat
-    real_glob = Path.glob
-
-    def fake_stat(self: Path) -> os.stat_result:
-        if self == active_log or self == archived_file:
-            raise FileNotFoundError
-        return real_stat(self)
-
-    def fake_glob(self: Path, pattern: str):  # type: ignore[no-untyped-def]
-        if self == archive_dir and pattern == "*.gz":
-            return [archived_file]
-        return list(real_glob(self, pattern))
-
-    monkeypatch.setattr(Path, "stat", fake_stat)
-    monkeypatch.setattr(Path, "glob", fake_glob)
-
-    cleanup = ed_logging_utils._LoguruConfigWatcher._retention_cleanup(archive_dir, 1)
-    cleanup([str(active_log)])
+    file_call = fake_logger.add_calls[0]
+    assert file_call["compression"] == "gz"
+    assert file_call["retention"] == "30 days"
+    assert log_path.parent.is_dir() is True
 
 
 def test_event_targets_config_checks_source_and_dest_paths(tmp_path: Path) -> None:
     config_path = tmp_path / "loguru.json"
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
 
     assert watcher._event_targets_config(FileModifiedEvent(str(config_path))) is True
     assert (
@@ -312,7 +272,7 @@ def test_event_targets_config_checks_source_and_dest_paths(tmp_path: Path) -> No
 def test_event_targets_config_returns_false_when_event_has_no_dest_path(
     tmp_path: Path,
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
 
     class Event:
         src_path = str(tmp_path / "other.json")
@@ -324,7 +284,7 @@ def test_handle_fs_event_applies_only_for_targeted_config(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     config_path = tmp_path / "loguru.json"
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
     apply_calls: list[bool] = []
 
     monkeypatch.setattr(
@@ -342,7 +302,7 @@ def test_apply_if_needed_skips_when_mtime_is_unchanged(
 ) -> None:
     config_path = tmp_path / "loguru.json"
     config_path.write_text("{}", encoding="utf-8")
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
     watcher._config_mtime_ns = config_path.stat().st_mtime_ns
     configure_calls: list[dict[str, Any]] = []
 
@@ -359,7 +319,7 @@ def test_apply_if_needed_skips_when_mtime_is_unchanged(
 def test_apply_if_needed_handles_missing_config_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "missing.json")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
     configured: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
@@ -384,7 +344,7 @@ def test_apply_if_needed_reloads_and_updates_mtime(
 ) -> None:
     config_path = tmp_path / "loguru.json"
     config_path.write_text("{}", encoding="utf-8")
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
     configured: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
@@ -408,7 +368,7 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
     config_path = tmp_path / "config" / "loguru.json"
-    watcher = ed_logging_utils._LoguruConfigWatcher(config_path)
+    watcher = app_logging._LoguruConfigWatcher(config_path)
     observer = FakeObserver()
     apply_calls: list[bool] = []
 
@@ -418,16 +378,16 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     monkeypatch.setattr(
         watcher,
         "_load_config",
-        lambda: {"watch": {"enabled": True}, "console": {}, "file": {}},
+        lambda: {"watch": {"enabled": True}, "stdout": {}, "stderr": {}, "file": {}},
     )
-    monkeypatch.setattr(ed_logging_utils, "Observer", lambda: observer)
+    monkeypatch.setattr(app_logging, "Observer", lambda: observer)
 
     watcher.start()
 
     assert apply_calls == [True]
     assert len(observer.schedule_calls) == 1
     handler, path, recursive = observer.schedule_calls[0]
-    assert isinstance(handler, ed_logging_utils._ConfigFileEventHandler)
+    assert isinstance(handler, app_logging._ConfigFileEventHandler)
     assert path == str(config_path.parent.resolve())
     assert recursive is False
     assert observer.started is True
@@ -441,7 +401,7 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
 def test_start_skips_observer_when_watch_disabled(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
     apply_calls: list[bool] = []
 
     monkeypatch.setattr(
@@ -450,7 +410,7 @@ def test_start_skips_observer_when_watch_disabled(
     monkeypatch.setattr(
         watcher,
         "_load_config",
-        lambda: {"watch": {"enabled": False}, "console": {}, "file": {}},
+        lambda: {"watch": {"enabled": False}, "stdout": {}, "stderr": {}, "file": {}},
     )
 
     watcher.start()
@@ -462,7 +422,7 @@ def test_start_skips_observer_when_watch_disabled(
 def test_start_does_not_create_duplicate_observers(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    watcher = ed_logging_utils._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
     watcher._observer = FakeObserver()  # type: ignore[assignment]
     observer_factory_calls = 0
 
@@ -475,9 +435,9 @@ def test_start_does_not_create_duplicate_observers(
     monkeypatch.setattr(
         watcher,
         "_load_config",
-        lambda: {"watch": {"enabled": True}, "console": {}, "file": {}},
+        lambda: {"watch": {"enabled": True}, "stdout": {}, "stderr": {}, "file": {}},
     )
-    monkeypatch.setattr(ed_logging_utils, "Observer", fake_observer)
+    monkeypatch.setattr(app_logging, "Observer", fake_observer)
 
     watcher.start()
 
@@ -492,7 +452,7 @@ def test_config_file_event_handler_forwards_all_event_types(tmp_path: Path) -> N
         def handle_fs_event(self, event: Any) -> None:
             handled.append(type(event).__name__)
 
-    handler = ed_logging_utils._ConfigFileEventHandler(Watcher())  # type: ignore[arg-type]
+    handler = app_logging._ConfigFileEventHandler(Watcher())  # type: ignore[arg-type]
     handler.on_modified(FileModifiedEvent(str(config_path)))
     handler.on_created(FileCreatedEvent(str(config_path)))
     handler.on_deleted(FileDeletedEvent(str(config_path)))
@@ -521,16 +481,16 @@ def test_initialize_watcher_loads_env_and_starts_once(
             nonlocal start_calls
             start_calls += 1
 
-    monkeypatch.setattr(ed_logging_utils, "load_dotenv", lambda: _count())
-    monkeypatch.setattr(ed_logging_utils, "_LoguruConfigWatcher", FakeWatcher)
+    monkeypatch.setattr(app_logging, "load_dotenv", lambda: _count())
+    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
 
     def _count() -> None:
         nonlocal load_dotenv_calls
         load_dotenv_calls += 1
 
     config_path = tmp_path / "loguru.json"
-    ed_logging_utils.EDLoggingUtils._initialize_watcher(config_path)
-    ed_logging_utils.EDLoggingUtils._initialize_watcher(tmp_path / "other.json")
+    app_logging.EDLoggingUtils._initialize_watcher(config_path)
+    app_logging.EDLoggingUtils._initialize_watcher(tmp_path / "other.json")
 
     assert created_paths == [config_path]
     assert start_calls == 1
@@ -543,13 +503,13 @@ def test_create_returns_singleton_and_initializes_once(
     init_calls: list[Path] = []
 
     monkeypatch.setattr(
-        ed_logging_utils.EDLoggingUtils,
+        app_logging.EDLoggingUtils,
         "_initialize_watcher",
         lambda config_path: init_calls.append(Path(config_path)),
     )
 
-    first = ed_logging_utils.EDLoggingUtils.create(tmp_path / "first.json")
-    second = ed_logging_utils.EDLoggingUtils.create(tmp_path / "second.json")
+    first = app_logging.EDLoggingUtils.create(tmp_path / "first.json")
+    second = app_logging.EDLoggingUtils.create(tmp_path / "second.json")
 
     assert first is second
     assert init_calls == [tmp_path / "first.json"]
@@ -558,7 +518,7 @@ def test_create_returns_singleton_and_initializes_once(
 def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     init_calls: list[Path] = []
     barrier = threading.Barrier(6)
-    instances: list[ed_logging_utils.EDLoggingUtils] = []
+    instances: list[app_logging.EDLoggingUtils] = []
     instances_lock = threading.Lock()
 
     def fake_initialize(config_path: Path) -> None:
@@ -566,12 +526,12 @@ def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
         init_calls.append(Path(config_path))
 
     monkeypatch.setattr(
-        ed_logging_utils.EDLoggingUtils, "_initialize_watcher", fake_initialize
+        app_logging.EDLoggingUtils, "_initialize_watcher", fake_initialize
     )
 
     def worker(index: int) -> None:
         barrier.wait()
-        instance = ed_logging_utils.EDLoggingUtils.create(tmp_path / f"{index}.json")
+        instance = app_logging.EDLoggingUtils.create(tmp_path / f"{index}.json")
         with instances_lock:
             instances.append(instance)
 
@@ -589,14 +549,16 @@ def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
 def test_logging_methods_delegate_to_underlying_logger(
     fake_logger: FakeSinkLogger,
 ) -> None:
-    logging_utils = ed_logging_utils.EDLoggingUtils("config/loguru.json")
+    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
 
+    logging_utils.trace("trace {}", 0)
     logging_utils.debug("debug {}", 1)
     logging_utils.info("info {}", 2)
-    logging_utils.warning("warn {}", 3)
+    logging_utils.warn("warn {}", 3)
     logging_utils.error("error {}", 4)
     logging_utils.exception("exception {}", 5)
 
+    assert ("trace {}", 0) == fake_logger.calls_for("trace")[0][0]
     assert ("debug {}", 1) == fake_logger.calls_for("debug")[0][0]
     assert ("info {}", 2) == fake_logger.calls_for("info")[0][0]
     assert ("warn {}", 3) == fake_logger.calls_for("warning")[0][0]
@@ -605,7 +567,7 @@ def test_logging_methods_delegate_to_underlying_logger(
 
 
 def test_opt_delegates_to_underlying_logger(fake_logger: FakeSinkLogger) -> None:
-    logging_utils = ed_logging_utils.EDLoggingUtils("config/loguru.json")
+    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
 
     result = logging_utils.opt(depth=1)
 
@@ -615,7 +577,7 @@ def test_opt_delegates_to_underlying_logger(fake_logger: FakeSinkLogger) -> None
 
 @pytest.mark.asyncio
 async def test_logging_methods_work_inside_asyncio(fake_logger: FakeSinkLogger) -> None:
-    logging_utils = ed_logging_utils.EDLoggingUtils("config/loguru.json")
+    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
 
     async def worker(name: str) -> None:
         await asyncio.sleep(0)
@@ -630,7 +592,7 @@ async def test_logging_methods_work_inside_asyncio(fake_logger: FakeSinkLogger) 
 def test_logging_calls_are_thread_safe_under_contention(
     fake_logger: FakeSinkLogger,
 ) -> None:
-    logging_utils = ed_logging_utils.EDLoggingUtils("config/loguru.json")
+    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
     barrier = threading.Barrier(5)
 
     def worker(index: int) -> None:

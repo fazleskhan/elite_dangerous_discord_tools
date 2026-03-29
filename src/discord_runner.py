@@ -1,6 +1,6 @@
 from ed_discord_bot import EDDiscordBot
 from loguru import logger
-from ed_logging_utils import EDLoggingUtils
+from app_logging import EDLoggingUtils
 
 """Launch script for the Discord bot process."""
 

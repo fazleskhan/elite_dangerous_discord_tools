@@ -6,7 +6,7 @@ from typing import Any
 
 from defaults import DEFAULT_INIT_DIR
 from constants import default_init_dir
-from ed_logging_utils import EDLoggingUtils
+from app_logging import EDLoggingUtils
 from ed_route import EDRouteService
 from ed_route_service_factory import EDRouteServiceFactory
 from protocols import ILogger

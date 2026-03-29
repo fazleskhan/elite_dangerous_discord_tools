@@ -12,14 +12,20 @@ class ThreadSafeLogger:
         with self._lock:
             self.calls.append((level, message, args))
 
+    def trace(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self._record("trace", message, args)
+
     def debug(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("debug", message, args)
 
     def info(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("info", message, args)
 
-    def warning(self, message: str, *args: Any, **_kwargs: Any) -> None:
+    def warn(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("warning", message, args)
+
+    def warning(self, message: str, *args: Any, **_kwargs: Any) -> None:
+        self.warn(message, *args, **_kwargs)
 
     def error(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("error", message, args)
