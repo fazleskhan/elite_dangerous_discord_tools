@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import pytest
 
 import ed_bulk_load_algo
@@ -19,15 +20,15 @@ def test_bulk_load_algo_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, lambda _info: None, None)  # type: ignore[arg-type]
+        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, lambda _info: None, None)
     with pytest.raises(
         ValueError, match="fetch_system_info_fn of type FetchInfoFn is required"
     ):
-        ed_bulk_load_algo.EDBulkLoadAlgo(None, lambda _info: None, logger)  # type: ignore[arg-type]
+        ed_bulk_load_algo.EDBulkLoadAlgo(None, lambda _info: None, logger)
     with pytest.raises(
         ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"
     ):
-        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, None, logger)  # type: ignore[arg-type]
+        ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, None, logger)
 
 
 def test_bulk_load_algo_create_and_neighbor_payload_handling() -> None:
@@ -64,10 +65,10 @@ def test_bulk_load_algo_loads_neighbors_and_respects_limits(
         def __enter__(self) -> "FakeExecutor":
             return self
 
-        def __exit__(self, exc_type, exc, tb) -> bool:
-            return False
+        def __exit__(self, exc_type, exc, tb) -> None:
+            return None
 
-        def map(self, fn, iterable):  # type: ignore[no-untyped-def]
+        def map(self, fn, iterable):
             return [fn(item) for item in iterable]
 
     monkeypatch.setattr(ed_bulk_load_algo, "ThreadPoolExecutor", FakeExecutor)
@@ -77,9 +78,12 @@ def test_bulk_load_algo_loads_neighbors_and_respects_limits(
         staticmethod(lambda: 2),
     )
 
+    def fetch_info(name: str) -> dict[str, object]:
+        fetched_info.append(name)
+        return {"name": name, "coords": {"x": 0, "y": 0, "z": 0}}
+
     algo = ed_bulk_load_algo.EDBulkLoadAlgo(
-        lambda name: fetched_info.append(name)
-        or {"name": name, "coords": {"x": 0, "y": 0, "z": 0}},
+        fetch_info,
         lambda info: graph[info["name"]],
         ThreadSafeLogger(),
     )

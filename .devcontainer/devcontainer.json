@@ -11,6 +11,13 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
+	// Uncomment fowardedPorts and portsAttributes if Codex won't authenticate
+	//"forwardPorts": [1455],
+  	//"portsAttributes": {
+    //"1455": {
+    //  "label": "Codex Auth",
+    //  "onAutoForward": "notify"
+    // }	
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "sh ./scripts/postCreateCommand.sh",
@@ -29,7 +36,8 @@
 				"ms-python.debugpy",
 				"ms-python.vscode-python-envs",
 				"elijah-potter.harper",
-				"Gruntfuggly.todo-tree"
+				"Gruntfuggly.todo-tree",
+				"openai.chatgpt"
 			],
 			"settings": {
 				"[python]": {
@@ -41,7 +49,7 @@
     				"plantuml.render": "PlantUMLServer",
     				"plantuml.exportOutDir": "/docs",
     				"plantuml.exportFormat": "png",
-    				"plantuml.diagramsRoot": "/docs",
+    				"plantuml.diagramsRoot": "/docs"
 				}
 			}
 		}

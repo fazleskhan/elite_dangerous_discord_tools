@@ -1,8 +1,9 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import ed_route_service_factory
 from tests.helpers import ThreadSafeLogger
 
 
-def test_route_service_factory_builds_defaults(monkeypatch):  # type: ignore[no-untyped-def]
+def test_route_service_factory_builds_defaults(monkeypatch):
     logger = ThreadSafeLogger()
     datasource = object()
     cache = type(
@@ -102,7 +103,7 @@ def test_route_service_factory_builds_defaults(monkeypatch):  # type: ignore[no-
     assert route_service._calc_systems_distance_service is distance_service
 
 
-def test_route_service_factory_uses_supplied_overrides(monkeypatch):  # type: ignore[no-untyped-def]
+def test_route_service_factory_uses_supplied_overrides(monkeypatch):
     logger = ThreadSafeLogger()
     supplied_datasource = object()
     supplied_cache = object()
@@ -136,15 +137,15 @@ def test_route_service_factory_uses_supplied_overrides(monkeypatch):  # type: ig
 
     route_service = ed_route_service_factory.EDRouteServiceFactory.create(
         logging_utils=logger,
-        datasource=supplied_datasource,  # type: ignore[arg-type]
-        cache=supplied_cache,  # type: ignore[arg-type]
-        bfs=supplied_bfs,  # type: ignore[arg-type]
-        init_datasource_service=supplied_init,  # type: ignore[arg-type]
-        get_system_info_service=supplied_info,  # type: ignore[arg-type]
-        get_all_system_names_service=supplied_names,  # type: ignore[arg-type]
-        bulk_load_cache_service=supplied_bulk,  # type: ignore[arg-type]
-        path_service=supplied_path,  # type: ignore[arg-type]
-        calc_systems_distance_service=supplied_distance,  # type: ignore[arg-type]
+        datasource=supplied_datasource,
+        cache=supplied_cache,
+        bfs=supplied_bfs,
+        init_datasource_service=supplied_init,
+        get_system_info_service=supplied_info,
+        get_all_system_names_service=supplied_names,
+        bulk_load_cache_service=supplied_bulk,
+        path_service=supplied_path,
+        calc_systems_distance_service=supplied_distance,
     )
 
     assert route_service.database is supplied_datasource

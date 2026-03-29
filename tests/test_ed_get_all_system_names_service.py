@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import threading
 from pathlib import Path
 import time
@@ -36,12 +37,16 @@ def test_get_all_system_names_service_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_get_all_system_names_service.EDGetAllSystemNamesService(FakeDatasource(), None)  # type: ignore[arg-type]
+        ed_get_all_system_names_service.EDGetAllSystemNamesService(
+            FakeDatasource(), None
+        )
 
     with pytest.raises(
         ValueError, match="datasource of type DatasourceProtocol is required"
     ):
-        ed_get_all_system_names_service.EDGetAllSystemNamesService(None, ThreadSafeLogger())  # type: ignore[arg-type]
+        ed_get_all_system_names_service.EDGetAllSystemNamesService(
+            None, ThreadSafeLogger()
+        )
 
 
 def test_get_all_system_names_service_collects_names_and_logs() -> None:

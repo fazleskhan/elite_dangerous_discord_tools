@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import asyncio
 import concurrent.futures
 import re
@@ -26,13 +27,13 @@ class FakeBot:
         self.events: list[Any] = []
         self.run_args: tuple[Any, ...] | None = None
 
-    def event(self, fn):  # type: ignore[no-untyped-def]
+    def event(self, fn):
         self.events.append(fn)
         return fn
 
-    def command(self, *args: Any, **kwargs: Any):  # type: ignore[no-untyped-def]
+    def command(self, *args: Any, **kwargs: Any):
         # Mirror discord.py's decorator shape closely enough for registration tests.
-        def decorator(fn):  # type: ignore[no-untyped-def]
+        def decorator(fn):
             self.commands[fn.__name__] = fn
             return fn
 
@@ -66,7 +67,7 @@ class FakeRouteService:
         max_systems: int = 100,
         min_distance: int = 0,
         max_distance: int = 10000,
-        progress_callback=None,  # type: ignore[no-untyped-def]
+        progress_callback=None,
     ) -> list[str]:
         self.last_path_args = (
             initial_system_name,
@@ -86,7 +87,7 @@ class FakeRouteService:
         self,
         initial_system_names: list[str],
         max_nodes_visited: int,
-        progress_callback=None,  # type: ignore[no-untyped-def]
+        progress_callback=None,
     ) -> list[str]:
         self.last_bulk_args = (initial_system_names, max_nodes_visited)
         if progress_callback is not None:
@@ -115,15 +116,15 @@ def test_discord_bot_validates_dependencies(logger: ThreadSafeLogger) -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_discord_bot.EDDiscordBot(route, "token", bot, None)  # type: ignore[arg-type]
+        ed_discord_bot.EDDiscordBot(route, "token", bot, None)
     with pytest.raises(
         ValueError, match="ed_route_service of type RouteServiceProtocol is required"
     ):
-        ed_discord_bot.EDDiscordBot(None, "token", bot, logger)  # type: ignore[arg-type]
+        ed_discord_bot.EDDiscordBot(None, "token", bot, logger)
     with pytest.raises(ValueError, match="token of type str is required"):
-        ed_discord_bot.EDDiscordBot(route, None, bot, logger)  # type: ignore[arg-type]
+        ed_discord_bot.EDDiscordBot(route, None, bot, logger)
     with pytest.raises(ValueError, match="bot of type commands.Bot is required"):
-        ed_discord_bot.EDDiscordBot(route, "token", None, logger)  # type: ignore[arg-type]
+        ed_discord_bot.EDDiscordBot(route, "token", None, logger)
 
 
 def test_default_intents_enable_required_flags() -> None:
@@ -219,7 +220,7 @@ async def test_system_info_short_and_long_payloads(
     async def long_info(_arg: str) -> str:
         return "x" * 4100
 
-    discord_bot.ed_route.get_system_info = long_info  # type: ignore[method-assign]
+    discord_bot.ed_route.get_system_info = long_info
     long_ctx = FakeContext()
     await discord_bot.system_info(long_ctx, "Sol")
     assert len(long_ctx.messages) == 4
@@ -237,7 +238,7 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
 
     scheduled: list[str] = []
 
-    def fake_run_coroutine_threadsafe(coro, loop):  # type: ignore[no-untyped-def]
+    def fake_run_coroutine_threadsafe(coro, loop):
         future: concurrent.futures.Future[None] = concurrent.futures.Future()
 
         async def consume() -> None:
@@ -271,7 +272,7 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
     async def no_route(*args: Any, **kwargs: Any) -> None:
         return None
 
-    discord_bot.ed_route.path = no_route  # type: ignore[method-assign]
+    discord_bot.ed_route.path = no_route
     no_route_ctx = FakeContext()
     await discord_bot.path(no_route_ctx, "Sol", "Lave")
     assert no_route_ctx.messages[-1].startswith("No Path found between Sol and Lave")
@@ -322,7 +323,7 @@ def test_run_requires_token(logger: ThreadSafeLogger) -> None:
         bot=FakeBot(),
         logging_utils=logger,
     )
-    bot.token = None  # type: ignore[assignment]
+    bot.token = None
     with pytest.raises(RuntimeError, match="DISCORD_TOKEN is not configured"):
         bot.run()
 

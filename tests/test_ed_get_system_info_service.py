@@ -1,3 +1,4 @@
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 import threading
 import time
 
@@ -26,10 +27,10 @@ def test_get_system_info_service_validates_dependencies() -> None:
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
     ):
-        ed_get_system_info_service.EDGetSystemInfoService(FakeCache(), None)  # type: ignore[arg-type]
+        ed_get_system_info_service.EDGetSystemInfoService(FakeCache(), None)
 
     with pytest.raises(ValueError, match="cache of type CacheProtocol is required"):
-        ed_get_system_info_service.EDGetSystemInfoService(None, ThreadSafeLogger())  # type: ignore[arg-type]
+        ed_get_system_info_service.EDGetSystemInfoService(None, ThreadSafeLogger())
 
 
 def test_get_system_info_service_runs_through_cache() -> None:

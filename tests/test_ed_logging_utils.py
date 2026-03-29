@@ -495,7 +495,7 @@ def test_start_does_not_create_duplicate_observers(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
-    watcher._observer = FakeObserver()  # type: ignore[assignment]
+    watcher._observer = FakeObserver()
     observer_factory_calls = 0
 
     def fake_observer() -> FakeObserver:
@@ -524,7 +524,7 @@ def test_config_file_event_handler_forwards_all_event_types(tmp_path: Path) -> N
         def handle_fs_event(self, event: Any) -> None:
             handled.append(type(event).__name__)
 
-    handler = app_logging._ConfigFileEventHandler(Watcher())  # type: ignore[arg-type]
+    handler = app_logging._ConfigFileEventHandler(Watcher())
     handler.on_modified(FileModifiedEvent(str(config_path)))
     handler.on_created(FileCreatedEvent(str(config_path)))
     handler.on_deleted(FileDeletedEvent(str(config_path)))
@@ -684,4 +684,4 @@ def test_logging_calls_are_thread_safe_under_contention(
 
 
 def test_test_module_main_is_a_noop() -> None:
-    assert main() is None
+    main()
