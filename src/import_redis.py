@@ -1,11 +1,11 @@
+"""Import per-system JSON exports into Redis."""
+
 import argparse
 
 from constants import default_export_dir, import_dir_arg
 from app_logging import EDLoggingUtils
 
 from ed_redis import EDRedis
-
-"""Import per-system JSON exports into Redis."""
 
 
 def main() -> None:

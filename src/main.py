@@ -1,3 +1,43 @@
+"""CLI entrypoint and command surface.
+
+[README:CLI_ENTRYPOINT]
+### CLI Entrypoint
+Entrypoint: `python src/main.py <command> [options]`
+
+Overview: Unified synchronous CLI for route search, system inspection,
+cache inspection, distance checks, datasource initialization, and bulk cache
+loading.
+
+Commands and available arguments:
+
+* `ping`
+  * Overview: Health check command that returns `Pong`.
+  * Arguments: none.
+* `all_loaded_systems`
+  * Overview: Lists all currently cached/loaded system names.
+  * Arguments: none.
+* `system_info`
+  * Overview: Fetches and prints system info payload for a single system.
+  * Arguments: `--system_name` (required).
+* `path`
+  * Overview: Computes a route between source and destination using BFS-based
+    traversal and distance bounds.
+  * Arguments: `--initial` (required), `--destination` (required),
+    `--max_systems` (required, max `1000`), `--min_distance` (optional,
+    default `0`), `--max_distance` (optional, default `10000`).
+* `calc_systems_distance`
+  * Overview: Computes Euclidean distance between two systems.
+  * Arguments: `--initial` (required), `--destination` (required).
+* `init_datasource`
+  * Overview: Imports seed JSON records into the configured datasource.
+  * Arguments: `--import_dir` (optional, default `default_init_dir`).
+* `bulk_load_cache`
+  * Overview: Performs breadth-first cache preloading from seed systems.
+  * Arguments: `--initial_systems` (required, comma-separated seeds),
+    `--max_nodes_visited` (required).
+[/README]
+"""
+
 import argparse
 import asyncio
 import time
@@ -18,8 +58,6 @@ from defaults import DEFAULT_INIT_DIR
 from ed_route import EDRouteService
 from ed_route_service_factory import EDRouteServiceFactory
 from protocols import ILogger
-
-"""CLI entrypoint for route search and cache inspection commands."""
 
 
 class CLIHandledError(ValueError):

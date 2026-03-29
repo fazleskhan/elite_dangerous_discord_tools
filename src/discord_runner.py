@@ -1,8 +1,33 @@
+"""Launch script for the Discord bot process.
+
+[README:DISCORD_PROCESS_ENTRYPOINT]
+### Discord Process Entrypoint
+Entrypoint: `python src/discord_runner.py`
+
+Overview: Starts the standalone Discord bot process with environment/default
+wiring via `EDDiscordBot.create()`.
+
+Arguments and configuration:
+
+* CLI arguments: none.
+* Environment requirement: `DISCORD_TOKEN` must be configured.
+* Command prefix: optional in composition; default `!`.
+[/README]
+
+[README:STARTING]
+Run the Discord bot process via:
+
+`python ./src/discord_runner.py`
+
+Run the CLI entrypoint via:
+
+`python ./src/main.py <command> [options]`
+[/README]
+"""
+
 from ed_discord_bot import EDDiscordBot
 from loguru import logger
 from app_logging import EDLoggingUtils
-
-"""Launch script for the Discord bot process."""
 
 
 def main() -> None:

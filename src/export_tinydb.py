@@ -1,11 +1,11 @@
+"""Export cached TinyDB systems into per-system pretty-printed JSON files."""
+
 import argparse
 
 from constants import default_export_dir, export_dir_arg
 from app_logging import EDLoggingUtils
 
 from ed_tinydb import EDTinyDB
-
-"""Export cached TinyDB systems into per-system pretty-printed JSON files."""
 
 
 def main() -> None:

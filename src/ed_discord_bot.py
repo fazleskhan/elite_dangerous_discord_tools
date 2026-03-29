@@ -1,3 +1,40 @@
+"""Discord command adapter for ED route and cache operations.
+
+[README:DISCORD_COMMAND_ENTRYPOINTS]
+### Discord Command Entrypoints
+Entrypoint surface: commands registered by `EDDiscordBot.register_commands()`.
+
+Overview: Async command handlers that expose route lookup, system info,
+distance, datasource init, and cache workflows in Discord.
+
+Commands and available arguments:
+
+* `!ping`
+  * Overview: replies with latency (`Pong (<ms> ms)`).
+  * Arguments: none.
+* `!system_info <arg>`
+  * Overview: fetches and sends the target system payload; long payloads are
+    chunked.
+  * Arguments: `arg` (required system name).
+* `!path <initial_system_name> <destination_system_name> [max_system_count=100] [min_distance=0] [max_distance=10000]`
+  * Overview: runs route search with progress updates and returns
+    route/no-route result.
+  * Arguments: first two required, remaining optional with defaults shown.
+* `!calc_systems_distance <system_name_one> <system_name_two>`
+  * Overview: computes and reports distance between two systems.
+  * Arguments: both required.
+* `!dump_system_cache_names`
+  * Overview: dumps cached system names in chunks and reports total count.
+  * Arguments: none.
+* `!init_datasource [import_dir=default_init_dir]`
+  * Overview: initializes datasource from import directory.
+  * Arguments: optional `import_dir`.
+* `!bulk_load_cache <initial_systems> <max_nodes_visited>`
+  * Overview: bulk loads cache from comma-separated seeds.
+  * Arguments: both required.
+[/README]
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -22,8 +59,6 @@ from ed_protocols import (
     LoggingProtocol,
     RouteServiceProtocol,
 )
-
-"""Discord command adapter for ED route and cache operations."""
 
 T = TypeVar("T")
 
