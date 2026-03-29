@@ -1,0 +1,8 @@
+@startuml
+actor Discord
+participant EDDiscordBot as Bot
+participant ILogger as Logger
+
+Discord -> Bot: on_ready()
+Bot -> Logger: info("Elite Dangerous Tools is ready")
+@enduml

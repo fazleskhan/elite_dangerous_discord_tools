@@ -1,0 +1,25 @@
+@startuml
+actor User
+participant DiscordContext as Ctx
+participant EDDiscordBot as Bot
+participant EDRouteService as RouteService
+participant ILogger as Logger
+
+User -> Bot: path(ctx, source, destination, ...)
+Bot -> Logger: info("path command")
+Bot -> Ctx: send("This may take a while")
+Bot -> RouteService: path(..., progress_callback)
+loop progress updates
+  RouteService -> Bot: progress callback(message)
+  Bot -> Logger: info(message)
+  Bot -> Ctx: send(message)
+end
+RouteService --> Bot: route or none
+alt route found
+  Bot -> Logger: info("Route found")
+  Bot -> Ctx: send("Route from ... (N ms)")
+else no route found
+  Bot -> Logger: warning("No route found")
+  Bot -> Ctx: send("No Path found ... (N ms)")
+end
+@enduml

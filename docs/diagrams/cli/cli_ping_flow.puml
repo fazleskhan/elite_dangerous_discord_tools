@@ -1,0 +1,16 @@
+@startuml
+actor User
+participant "main.py" as Main
+participant Parser
+participant EDMain
+participant ILogger as Logger
+
+User -> Main: ping
+Main -> Parser: parse_args()
+Main -> Logger: info("CLI parameters")
+Main -> EDMain: create(shared logger)
+Main -> Logger: info("CLI command received: ping")
+Main -> EDMain: ping()
+EDMain --> Main: "Pong"
+Main -> Logger: info("Pong")
+@enduml
