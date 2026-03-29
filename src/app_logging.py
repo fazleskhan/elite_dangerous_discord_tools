@@ -1,3 +1,17 @@
+"""Project-specific logging setup and runtime configuration support.
+
+[README:LOGGING]
+* Logging uses Loguru via `src/app_logging.py`.
+* Runtime configuration is externalized in `config/loguru.json`.
+* Config changes are hot-reloaded via watchdog file events.
+* Default behavior writes datestamped file logs under `logs/`,
+  archives/compresses old logs under `logs/archive`, and expires archived
+  logs by retention rules.
+* Console output is colorized and split by level (`info/warn` on stdout,
+  `error` on stderr by default).
+[/README]
+"""
+
 from __future__ import annotations
 
 import gzip

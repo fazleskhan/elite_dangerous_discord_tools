@@ -1,11 +1,32 @@
+"""Import per-system JSON exports into TinyDB.
+
+[README:DATA_TRANSFER_ENTRYPOINTS]
+### Data Transfer Utility Entrypoints
+
+Overview: Focused import/export scripts for per-system JSON transfers between
+filesystem and datasource backends.
+
+* `python src/import_tinydb.py`
+  * Overview: imports JSON files into TinyDB.
+  * Arguments: `--import-dir` (optional, default `default_export_dir`).
+* `python src/import_redis.py`
+  * Overview: imports JSON files into Redis.
+  * Arguments: `--import-dir` (optional, default `default_export_dir`).
+* `python src/export_tinydb.py`
+  * Overview: exports TinyDB records to per-system JSON files.
+  * Arguments: `--export-dir` (optional, default `default_export_dir`).
+* `python src/export_redis.py`
+  * Overview: exports Redis records to per-system JSON files.
+  * Arguments: `--export-dir` (optional, default `default_export_dir`).
+[/README]
+"""
+
 import argparse
 
 from constants import default_export_dir, import_dir_arg
 from app_logging import EDLoggingUtils
 
 from ed_tinydb import EDTinyDB
-
-"""Import per-system JSON exports into TinyDB."""
 
 
 def main() -> None:

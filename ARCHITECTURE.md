@@ -67,6 +67,12 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Use a local PlantUML renderer when available; otherwise render through the official PlantUML server.
 - Treat missing or stale diagram PNG generation as an incomplete task state.
 - Keep `README.md` generated and up to date with a concise description of the current implementation.
+- When regenerating `README.md`, use `docs/README_TEMPLATE.md` as the required structural template and model.
+- Keep mutable README narrative content in Python module docstrings using tagged sections in the form `[README:<KEY>] ... [/README]`.
+- In `docs/README_TEMPLATE.md`, reference docstring-backed content through placeholders in the form `{{README:<KEY>}}`.
+- Assemble the final `README.md` by applying the docstring sections to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
+- `README.md` must include an `Entrypoints` section that documents every current user-facing or externally triggered entrypoint (for example CLI commands, bot commands, and utility scripts).
+- For each documented entrypoint, include a short behavioral overview plus the available arguments/options, and clearly identify required versus optional arguments and defaults when present.
 - Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
 - Keep `BUSINESS.md` focused on detailed business logic and user-visible behavior that is not already fully specified in `ARCHITECTURE.md`.
 - When behavior changes, analyze the current code and update `BUSINESS.md` with any business-rule changes that are found.
