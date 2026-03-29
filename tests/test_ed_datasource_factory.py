@@ -94,7 +94,9 @@ def test_module_create_datasource_uses_edloggingutils(
         def create_datasource(self, datasource_name=None, datasource_type=None):  # type: ignore[no-untyped-def]
             return (datasource_name, datasource_type)
 
-    monkeypatch.setattr(ed_datasource_factory, "EDLoggingUtils", lambda: "logger")
+    monkeypatch.setattr(
+        ed_datasource_factory.EDLoggingUtils, "create", staticmethod(lambda: "logger")
+    )
     monkeypatch.setattr(
         ed_datasource_factory.EDDatasourceFactory,
         "create",

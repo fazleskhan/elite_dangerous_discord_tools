@@ -13,7 +13,7 @@ import ed_datasource_factory
 import edgis_cache
 from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
-from ed_logging_utils import EDLoggingUtils
+from app_logging import EDLoggingUtils
 from constants import default_init_dir, discord_token_env
 from ed_protocols import CacheProtocol, LoggingProtocol, RouteServiceProtocol
 
@@ -75,20 +75,22 @@ class EDDiscordBot:
     def create(
         route_service: RouteServiceProtocol | None = None,
         cache: CacheProtocol | None = None,
-        logging_utils: LoggingProtocol = EDLoggingUtils(),
+        logging_utils: LoggingProtocol | None = None,
         token: str | None = os.getenv(discord_token_env),
         bot: commands.Bot | None = None,
         intents_factory: discord.Intents | None = None,
         command_prefix: str = "!",
     ) -> "EDDiscordBot":
         load_dotenv()
-        resolved_logging_utils = logging_utils
+        resolved_logging_utils = logging_utils or EDLoggingUtils.create()
         resolved_logging_utils.debug(
             "Creating DiscordBot with command_prefix={}", command_prefix
         )
         resolved_route = route_service
         if resolved_route is None:
-            datasource = ed_datasource_factory.create_datasource()
+            datasource = ed_datasource_factory.create_datasource(
+                logging_utils=resolved_logging_utils,
+            )
             gis = EDGis.create(resolved_logging_utils)
             cache = edgis_cache.EDGisCache.create(
                 datasource,

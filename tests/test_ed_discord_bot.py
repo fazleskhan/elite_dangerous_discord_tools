@@ -150,7 +150,9 @@ def test_create_builds_default_dependencies(
     cache = object()
     monkeypatch.setattr(ed_discord_bot, "load_dotenv", lambda: None)
     monkeypatch.setattr(
-        ed_discord_bot.ed_datasource_factory, "create_datasource", lambda: datasource
+        ed_discord_bot.ed_datasource_factory,
+        "create_datasource",
+        lambda logging_utils=None: datasource,
     )
     monkeypatch.setattr(
         ed_discord_bot.EDGis,
