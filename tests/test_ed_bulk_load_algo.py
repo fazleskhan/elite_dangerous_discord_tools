@@ -1,5 +1,3 @@
-import threading
-
 import pytest
 
 import ed_bulk_load_algo

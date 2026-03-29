@@ -4,9 +4,17 @@ import time
 from pathlib import Path
 from typing import Any
 
-from defaults import DEFAULT_INIT_DIR
-from constants import default_init_dir
+try:
+    from autologging import traced
+except ImportError:
+
+    def traced(target: Any) -> Any:
+        return target
+
+
 from app_logging import EDLoggingUtils
+from constants import default_init_dir
+from defaults import DEFAULT_INIT_DIR
 from ed_route import EDRouteService
 from ed_route_service_factory import EDRouteServiceFactory
 from protocols import ILogger
@@ -14,10 +22,17 @@ from protocols import ILogger
 """CLI entrypoint for route search and cache inspection commands."""
 
 
+class CLIHandledError(ValueError):
+    def __init__(self, message: str, *, show_help: bool = False) -> None:
+        super().__init__(message)
+        self.show_help = show_help
+
+
 def _elapsed_ms(start: float) -> int:
     return int((time.perf_counter() - start) * 1000)
 
 
+@traced
 class EDMain:
     """CLI command compositor exposing route/cache operations."""
 
@@ -133,14 +148,18 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _log_help_and_exit(
+def _raise_usage_error(message: str) -> None:
+    raise CLIHandledError(message, show_help=True)
+
+
+def _log_handled_error(
     parser: argparse.ArgumentParser,
     logging_utils: ILogger,
-    message: str,
+    error: CLIHandledError,
 ) -> None:
-    logging_utils.error(message)
-    logging_utils.info(parser.format_help())
-    raise SystemExit(1)
+    logging_utils.error("{}", str(error))
+    if error.show_help:
+        logging_utils.info(parser.format_help())
 
 
 def _log_execution_time(logging_utils: ILogger, start: float) -> None:
@@ -166,10 +185,8 @@ def _run_command(
         case "system_info":
             start = time.perf_counter()
             if args.system_name is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --system_name argument is required with system_info command",
+                _raise_usage_error(
+                    "The --system_name argument is required with system_info command"
                 )
             ed_main.logging_utils.info("{}", args.system_name)
             ed_main.logging_utils.info(
@@ -179,30 +196,20 @@ def _run_command(
         case "path":
             start = time.perf_counter()
             if args.initial is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --initial argument is required with path command",
+                _raise_usage_error(
+                    "The --initial argument is required with path command"
                 )
             if args.destination is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --destination argument is required with path command",
+                _raise_usage_error(
+                    "The --destination argument is required with path command"
                 )
             if args.max_systems is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --max_systems argument is required with path command",
+                _raise_usage_error(
+                    "The --max_systems argument is required with path command"
                 )
             max_systems = int(args.max_systems)
             if max_systems > 1000:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "Absolute value for --max_systems is 1000",
-                )
+                _raise_usage_error("Absolute value for --max_systems is 1000")
             route = ed_main.calc_route(
                 args.initial,
                 args.destination,
@@ -216,16 +223,12 @@ def _run_command(
         case "calc_systems_distance":
             start = time.perf_counter()
             if args.initial is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --initial argument is required with calc_systems_distance command",
+                _raise_usage_error(
+                    "The --initial argument is required with calc_systems_distance command"
                 )
             if args.destination is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --destination argument is required with calc_systems_distance command",
+                _raise_usage_error(
+                    "The --destination argument is required with calc_systems_distance command"
                 )
             ed_main.logging_utils.info(
                 "{}",
@@ -245,16 +248,12 @@ def _run_command(
         case "bulk_load_cache":
             start = time.perf_counter()
             if args.initial_systems is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --initial_systems argument is required with bulk_load_cache command",
+                _raise_usage_error(
+                    "The --initial_systems argument is required with bulk_load_cache command"
                 )
             if args.max_nodes_visited is None:
-                _log_help_and_exit(
-                    parser,
-                    ed_main.logging_utils,
-                    "The --max_nodes_visited argument is required with bulk_load_cache command",
+                _raise_usage_error(
+                    "The --max_nodes_visited argument is required with bulk_load_cache command"
                 )
             initial_system_names = [
                 system_name.strip()
@@ -275,9 +274,15 @@ def _run_command(
 
 def main() -> None:
     parser = _build_parser()
+    logging_utils = EDLoggingUtils.create()
     args = parser.parse_args()
-    ed_main = EDMain.create()
-    _run_command(args, parser, ed_main)
+    logging_utils.info("CLI parameters: {}", vars(args))
+    ed_main = EDMain.create(logging_utils=logging_utils)
+    try:
+        _run_command(args, parser, ed_main)
+    except CLIHandledError as error:
+        _log_handled_error(parser, logging_utils, error)
+        raise SystemExit(1) from None
 
 
 if __name__ == "__main__":

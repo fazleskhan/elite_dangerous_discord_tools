@@ -8,14 +8,20 @@ from dotenv import load_dotenv
 import os
 import inspect
 import time
-from typing import Awaitable, Callable, Iterator, Sequence, TypeVar
+from typing import Awaitable, Iterator, Sequence, TypeVar
 import ed_datasource_factory
 import edgis_cache
 from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
 from app_logging import EDLoggingUtils
 from constants import default_init_dir, discord_token_env
-from ed_protocols import CacheProtocol, LoggingProtocol, RouteServiceProtocol
+from ed_protocols import (
+    CacheProtocol,
+    DiscordBotProtocol,
+    DiscordContextProtocol,
+    LoggingProtocol,
+    RouteServiceProtocol,
+)
 
 """Discord command adapter for ED route and cache operations."""
 
@@ -37,7 +43,7 @@ class EDDiscordBot:
         self,
         ed_route_service: RouteServiceProtocol,
         token: str | None,
-        bot: commands.Bot,
+        bot: DiscordBotProtocol,
         logging_utils: LoggingProtocol,
     ) -> None:
         if logging_utils is None:
@@ -77,7 +83,7 @@ class EDDiscordBot:
         cache: CacheProtocol | None = None,
         logging_utils: LoggingProtocol | None = None,
         token: str | None = os.getenv(discord_token_env),
-        bot: commands.Bot | None = None,
+        bot: DiscordBotProtocol | None = None,
         intents_factory: discord.Intents | None = None,
         command_prefix: str = "!",
     ) -> "EDDiscordBot":
@@ -118,7 +124,7 @@ class EDDiscordBot:
         user_name = self.bot.user.name if self.bot.user is not None else "<unknown>"
         self._logging_utils.info("Elite Dangerous Tools is ready: user={}", user_name)
 
-    async def ping(self, ctx: commands.Context) -> None:
+    async def ping(self, ctx: DiscordContextProtocol) -> None:
         start = time.perf_counter()
         self._logging_utils.debug("Received ping command")
         elapsed_ms = int((time.perf_counter() - start) * 1000)
@@ -130,7 +136,7 @@ class EDDiscordBot:
             return await value
         return value
 
-    async def system_info(self, ctx: commands.Context, arg: str) -> None:
+    async def system_info(self, ctx: DiscordContextProtocol, arg: str) -> None:
         start = time.perf_counter()
         self._logging_utils.info("system_info command: system={}", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
@@ -151,7 +157,7 @@ class EDDiscordBot:
 
     async def calc_systems_distance(
         self,
-        ctx: commands.Context,
+        ctx: DiscordContextProtocol,
         system_name_one: str,
         system_name_two: str,
     ) -> None:
@@ -171,7 +177,7 @@ class EDDiscordBot:
 
     async def path(
         self,
-        ctx: commands.Context,
+        ctx: DiscordContextProtocol,
         initial_system_name: str,
         destination_system_name: str,
         max_system_count: int = 100,
@@ -240,12 +246,12 @@ class EDDiscordBot:
         await ctx.send(f"{message}({elapsed_ms} ms)")
 
     def chunked_system_list(
-        self, system_list: Sequence[str], size: int = 5
-    ) -> Iterator[Sequence[str]]:
+        self, system_list: Sequence[T], size: int = 5
+    ) -> Iterator[Sequence[T]]:
         for i in range(0, len(system_list), size):
             yield system_list[i : i + size]
 
-    async def dump_system_cache_names(self, ctx: commands.Context) -> None:
+    async def dump_system_cache_names(self, ctx: DiscordContextProtocol) -> None:
         start = time.perf_counter()
         self._logging_utils.info("dump_system_cache_names command")
         await ctx.send("Fetching all system names in cache... This may take a while")
@@ -260,7 +266,7 @@ class EDDiscordBot:
         )
 
     async def init_datasource(
-        self, ctx: commands.Context, import_dir: str = default_init_dir
+        self, ctx: DiscordContextProtocol, import_dir: str = default_init_dir
     ) -> None:
         start = time.perf_counter()
         self._logging_utils.info("init_datasource command: import_dir={}", import_dir)
@@ -270,7 +276,7 @@ class EDDiscordBot:
 
     async def bulk_load_cache(
         self,
-        ctx: commands.Context,
+        ctx: DiscordContextProtocol,
         initial_systems: str,
         max_nodes_visited: int,
     ) -> None:
@@ -303,23 +309,23 @@ class EDDiscordBot:
     def register_commands(self) -> None:
         self._logging_utils.debug("Registering bot commands")
         # ``discord.ext.commands`` expects plain callables whose first
-        # parameter is ``ctx`` (plus any user arguments).  Using a bound
+        # parameter is ``ctx`` (plus any user arguments). Using a bound
         # method would insert ``self`` as the first argument, causing
-        # the framework to complain about the signature.  To keep the
+        # the framework to complain about the signature. To keep the
         # instance methods while satisfying the API we register small
         # wrappers that delegate back to ``self``.
 
         @self.bot.command()
-        async def ping(ctx: commands.Context) -> None:
+        async def ping(ctx: DiscordContextProtocol) -> None:
             return await self.ping(ctx)
 
         @self.bot.command()
-        async def system_info(ctx: commands.Context, arg: str) -> None:
+        async def system_info(ctx: DiscordContextProtocol, arg: str) -> None:
             return await self.system_info(ctx, arg)
 
         @self.bot.command()
         async def path(
-            ctx: commands.Context,
+            ctx: DiscordContextProtocol,
             initial_system_name: str,
             destination_system_name: str,
             max_system_count: int = 100,
@@ -337,25 +343,25 @@ class EDDiscordBot:
 
         @self.bot.command()
         async def calc_systems_distance(
-            ctx: commands.Context, system_name_one: str, system_name_two: str
+            ctx: DiscordContextProtocol, system_name_one: str, system_name_two: str
         ) -> None:
             return await self.calc_systems_distance(
                 ctx, system_name_one, system_name_two
             )
 
         @self.bot.command()
-        async def dump_system_cache_names(ctx: commands.Context) -> None:
+        async def dump_system_cache_names(ctx: DiscordContextProtocol) -> None:
             return await self.dump_system_cache_names(ctx)
 
         @self.bot.command()
         async def init_datasource(
-            ctx: commands.Context, import_dir: str = default_init_dir
+            ctx: DiscordContextProtocol, import_dir: str = default_init_dir
         ) -> None:
             return await self.init_datasource(ctx, import_dir)
 
         @self.bot.command()
         async def bulk_load_cache(
-            ctx: commands.Context, initial_systems: str, max_nodes_visited: int
+            ctx: DiscordContextProtocol, initial_systems: str, max_nodes_visited: int
         ) -> None:
             return await self.bulk_load_cache(
                 ctx,

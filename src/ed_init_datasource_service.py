@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+from pathlib import Path
 
 from constants import default_init_dir
 from ed_protocols import DatasourceProtocol, LoggingProtocol
@@ -27,7 +28,7 @@ class EDInitDatasourceService:
     ) -> "EDInitDatasourceService":
         return EDInitDatasourceService(database, logging_utils)
 
-    def run(self, import_dir: str = default_init_dir) -> None:
+    def run(self, import_dir: str | Path = default_init_dir) -> None:
         self._logging_utils.info("Initializing datasource from {}", import_dir)
         # Initialization can be expensive/mutating; keep it single-threaded per instance.
         with self._lock:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from constants import default_init_dir
 from ed_protocols import (
     BfsProtocol,
@@ -86,7 +88,7 @@ class EDRouteService:
             self._calc_systems_distance_service = calc_systems_distance_service
         self._bfs = bfs
 
-    def init_datasource(self, import_dir: str = default_init_dir) -> None:
+    def init_datasource(self, import_dir: str | Path = default_init_dir) -> None:
         # Delegate orchestration details to focused service objects.
         self._init_datasource_service.run(import_dir)
 
@@ -112,7 +114,7 @@ class EDRouteService:
     async def path(
         self,
         initial_system_name: str,
-        destination_name: str,
+        destination_system_name: str,
         max_systems: int,
         min_distance: int,
         max_distance: int,
@@ -120,7 +122,7 @@ class EDRouteService:
     ) -> list[str] | None:
         return await self._path_service.run(
             initial_system_name,
-            destination_name,
+            destination_system_name,
             max_systems,
             min_distance,
             max_distance,

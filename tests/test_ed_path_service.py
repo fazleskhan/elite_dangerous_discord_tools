@@ -1,4 +1,3 @@
-import asyncio
 import threading
 
 import pytest
@@ -11,14 +10,22 @@ class FakeBfs:
     def __init__(self) -> None:
         self.thread_ids: list[int] = []
 
-    def travel(self, initial, destination, max_systems, min_distance, max_distance, progress_callback):  # type: ignore[no-untyped-def]
+    def travel(
+        self,
+        start_name: str,
+        destination_name: str,
+        max_count: int,
+        min_distance: int,
+        max_distance: int,
+        progress_callback,
+    ) -> list[str]:
         self.thread_ids.append(threading.get_ident())
         progress_callback("step")
-        return [initial, destination]
+        return [start_name, destination_name]
 
 
 class FakeDistanceService:
-    def run(self, one: str, two: str) -> float:
+    def run(self, system_name_one: str, system_name_two: str) -> float:
         return 1.0
 
 

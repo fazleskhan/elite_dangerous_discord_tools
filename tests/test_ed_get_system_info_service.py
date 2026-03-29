@@ -16,6 +16,11 @@ class FakeCache:
         time.sleep(0.02)
         return {"name": system_name}
 
+    def find_system_neighbors(
+        self, system_info: dict[str, object]
+    ) -> list[dict[str, object]] | None:
+        return None
+
 
 def test_get_system_info_service_validates_dependencies() -> None:
     with pytest.raises(
@@ -44,7 +49,7 @@ def test_get_system_info_service_lock_allows_threaded_access() -> None:
         FakeCache(), ThreadSafeLogger()
     )
     barrier = threading.Barrier(4)
-    results: list[dict[str, str]] = []
+    results: list[dict[str, str] | None] = []
     lock = threading.Lock()
 
     def worker(index: int) -> None:

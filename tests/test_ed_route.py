@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Any, cast
+
 import pytest
 
 import ed_route
@@ -5,23 +8,36 @@ from tests.helpers import ThreadSafeLogger
 
 
 class FakeBulkLoad:
-    def load(self, initial_system_names, max_nodes_visited, progress_callback):  # type: ignore[no-untyped-def]
+    def load(
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback,
+    ) -> list[str]:
         progress_callback("loaded")
         return initial_system_names[:max_nodes_visited]
 
 
 class FakePathService:
-    async def run(self, initial, destination, max_systems, min_distance, max_distance, progress_callback):  # type: ignore[no-untyped-def]
+    async def run(
+        self,
+        initial_system_name: str,
+        destination_name: str,
+        max_systems: int,
+        min_distance: int,
+        max_distance: int,
+        progress_callback,
+    ) -> list[str] | None:
         progress_callback("path")
-        return [initial, destination]
+        return [initial_system_name, destination_name]
 
 
 class FakeInitService:
     def __init__(self) -> None:
         self.calls: list[str] = []
 
-    def run(self, import_dir: str = "./init") -> None:
-        self.calls.append(import_dir)
+    def run(self, import_dir: str | Path = "./init") -> None:
+        self.calls.append(str(import_dir))
 
 
 class FakeSystemInfoService:
@@ -35,15 +51,15 @@ class FakeSystemNamesService:
 
 
 class FakeDistanceService:
-    def run(self, one: str, two: str) -> float:
+    def run(self, system_name_one: str, system_name_two: str) -> float:
         return 5.0
 
 
 def build_route_service() -> ed_route.EDRouteService:
     return ed_route.EDRouteService(
-        datasource=object(),  # type: ignore[arg-type]
-        cache=object(),  # type: ignore[arg-type]
-        bfs=object(),  # type: ignore[arg-type]
+        datasource=cast(Any, object()),
+        cache=cast(Any, object()),
+        bfs=cast(Any, object()),
         logging_utils=ThreadSafeLogger(),
         init_datasource_service=FakeInitService(),
         get_system_info_service=FakeSystemInfoService(),

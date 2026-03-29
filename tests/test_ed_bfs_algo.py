@@ -1,5 +1,3 @@
-import time
-
 import pytest
 
 import ed_bfs_algo

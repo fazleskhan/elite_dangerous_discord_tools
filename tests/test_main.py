@@ -1,4 +1,5 @@
 import sys
+from typing import Any, cast
 
 import pytest
 
@@ -8,43 +9,46 @@ from tests.helpers import ThreadSafeLogger
 
 class FakeRouteService:
     def __init__(self) -> None:
-        self.last_init_import_dir = None
-        self.last_bulk_load_args = None
-        self.last_distance_args = None
-        self.last_system_info_args = None
-        self.last_path_args = None
+        self.last_init_import_dir: str | None = None
+        self.last_bulk_load_args: tuple[list[str], int] | None = None
+        self.last_distance_args: tuple[str, str] | None = None
+        self.last_system_info_args: str | None = None
+        self.last_path_args: tuple[str, str, int, int, int] | None = None
 
-    def get_all_system_names(self):
+    def get_all_system_names(self) -> list[str]:
         return ["Sol", "Lave"]
 
-    def get_system_info(self, name):
+    def get_system_info(self, name: str) -> dict[str, str]:
         self.last_system_info_args = name
         return {"name": name}
 
-    def calc_systems_distance(self, source, target):
+    def calc_systems_distance(self, source: str, target: str) -> float:
         self.last_distance_args = (source, target)
         return 4.0
 
     async def path(
         self,
-        source,
-        target,
-        max_systems=100,
-        min_distance=0,
-        max_distance=10000,
-        progress_callback=None,
-    ):
+        source: str,
+        target: str,
+        max_systems: int = 100,
+        min_distance: int = 0,
+        max_distance: int = 10000,
+        progress_callback: Any = None,
+    ) -> list[str]:
         self.last_path_args = (source, target, max_systems, min_distance, max_distance)
         if progress_callback:
             progress_callback("step")
         return [source, target]
 
-    def init_datasource(self, import_dir="./init"):
+    def init_datasource(self, import_dir: str = "./init") -> None:
         self.last_init_import_dir = import_dir
 
     def bulk_load_cache(
-        self, initial_system_names, max_nodes_visited, progress_callback=None
-    ):
+        self,
+        initial_system_names: list[str],
+        max_nodes_visited: int,
+        progress_callback: Any = None,
+    ) -> list[str]:
         self.last_bulk_load_args = (initial_system_names, max_nodes_visited)
         if progress_callback:
             progress_callback("loaded")
@@ -52,10 +56,15 @@ class FakeRouteService:
 
 
 def build_main() -> main.EDMain:
-    return main.EDMain.create(logging_utils=ThreadSafeLogger(), route_service=FakeRouteService())  # type: ignore[arg-type]
+    return main.EDMain.create(
+        logging_utils=ThreadSafeLogger(),
+        route_service=FakeRouteService(),
+    )  # type: ignore[arg-type]
 
 
-def test_edmain_validates_constructor_and_create(monkeypatch):  # type: ignore[no-untyped-def]
+def test_edmain_validates_constructor_and_create(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     with pytest.raises(ValueError, match="logging_utils must not be null"):
         main.EDMain(FakeRouteService(), None)  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="route_service must not be null"):
@@ -88,9 +97,31 @@ def test_elapsed_ms_returns_int() -> None:
     assert isinstance(main._elapsed_ms(0.0), int)
 
 
-def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
+def test_main_commands(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     ed_main = build_main()
-    monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
+    logger = cast(ThreadSafeLogger, ed_main.logging_utils)
+    created_loggers: list[ThreadSafeLogger] = []
+    create_args: list[ThreadSafeLogger] = []
+
+    monkeypatch.setattr(
+        main.EDLoggingUtils,
+        "create",
+        staticmethod(lambda: created_loggers.append(logger) or logger),
+    )
+
+    def fake_create(
+        logging_utils: ThreadSafeLogger | None = None,
+        route_service: FakeRouteService | None = None,
+    ) -> main.EDMain:
+        assert route_service is None
+        assert logging_utils is logger
+        resolved_logging_utils = cast(ThreadSafeLogger, logging_utils)
+        create_args.append(resolved_logging_utils)
+        return ed_main
+
+    monkeypatch.setattr(main.EDMain, "create", staticmethod(fake_create))
 
     command_sets = [
         ["main.py", "ping"],
@@ -131,27 +162,31 @@ def test_main_commands(monkeypatch, capsys):  # type: ignore[no-untyped-def]
 
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert ("info", "Pong", ()) in ed_main.logging_utils.calls
-    assert (
-        "info",
-        "All Loaded Systems: {}",
-        (["Sol", "Lave"],),
-    ) in ed_main.logging_utils.calls
-    assert (
-        "info",
-        "Datasource initialized from {}",
-        ("./seed",),
-    ) in ed_main.logging_utils.calls
+    assert len(created_loggers) == len(command_sets)
+    assert len(create_args) == len(command_sets)
+    assert ("info", "Pong", ()) in logger.calls
+    assert ("info", "All Loaded Systems: {}", (["Sol", "Lave"],)) in logger.calls
+    assert ("info", "Datasource initialized from {}", ("./seed",)) in logger.calls
     assert (
         "info",
         "Loaded {} systems from seeds {}",
         (2, ["Sol", "Lave"]),
-    ) in ed_main.logging_utils.calls
+    ) in logger.calls
+    assert any(
+        level == "info" and message == "CLI parameters: {}"
+        for level, message, _args in logger.calls
+    )
 
 
-def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no-untyped-def]
+def test_main_argument_validation_paths(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     ed_main = build_main()
-    monkeypatch.setattr(main.EDMain, "create", staticmethod(lambda: ed_main))
+    logger = cast(ThreadSafeLogger, ed_main.logging_utils)
+    monkeypatch.setattr(main.EDLoggingUtils, "create", staticmethod(lambda: logger))
+    monkeypatch.setattr(
+        main.EDMain, "create", staticmethod(lambda logging_utils=None: ed_main)
+    )
 
     invalid_argvs = [
         ["main.py", "system_info"],
@@ -180,7 +215,29 @@ def test_main_argument_validation_paths(monkeypatch, capsys):  # type: ignore[no
 
     captured = capsys.readouterr()
     assert captured.out == ""
+    error_calls = [
+        (message, args) for level, message, args in logger.calls if level == "error"
+    ]
+    assert len(error_calls) == len(invalid_argvs)
+    assert any("required" in str(args[0]) for _message, args in error_calls)
     assert any(
-        level == "error" and "required" in message
-        for level, message, _args in ed_main.logging_utils.calls
+        level == "info" and message.startswith("usage:")
+        for level, message, _args in logger.calls
+    )
+
+
+def test_log_handled_error_logs_message_and_help() -> None:
+    logger = ThreadSafeLogger()
+    parser = main._build_parser()
+
+    main._log_handled_error(
+        parser,
+        logger,
+        main.CLIHandledError("bad input", show_help=True),
+    )
+
+    assert ("error", "{}", ("bad input",)) in logger.calls
+    assert any(
+        level == "info" and message.startswith("usage:")
+        for level, message, _args in logger.calls
     )

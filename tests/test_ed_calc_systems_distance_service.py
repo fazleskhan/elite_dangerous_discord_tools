@@ -13,7 +13,7 @@ class FakeGetSystemInfoService:
 
     def run(self, system_name: str) -> dict[str, object] | None:
         self.calls.append(system_name)
-        data = {
+        data: dict[str, dict[str, object]] = {
             "Sol": {"coords": {"x": 0, "y": 0, "z": 0}},
             "Alpha Centauri": {"coords": {"x": 3, "y": 4, "z": 0}},
         }

@@ -1,7 +1,8 @@
 import asyncio
 import concurrent.futures
 import re
-from typing import Any
+from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -53,7 +54,9 @@ class FakeRouteService:
     def get_all_system_names(self) -> list[str]:
         return [f"System-{index}" for index in range(25)]
 
-    def calc_systems_distance(self, one: str, two: str) -> float:
+    def calc_systems_distance(
+        self, system_name_one: str, system_name_two: str
+    ) -> float:
         return 4.37
 
     async def path(
@@ -76,8 +79,8 @@ class FakeRouteService:
             progress_callback("halfway")
         return [initial_system_name, destination_system_name]
 
-    async def init_datasource(self, import_dir: str = "./init") -> None:
-        self.last_init_import_dir = import_dir
+    async def init_datasource(self, import_dir: str | Path = "./init") -> None:
+        self.last_init_import_dir = str(import_dir)
 
     async def bulk_load_cache(
         self,
@@ -99,7 +102,7 @@ def logger() -> ThreadSafeLogger:
 @pytest.fixture()
 def discord_bot(logger: ThreadSafeLogger) -> ed_discord_bot.EDDiscordBot:
     return ed_discord_bot.EDDiscordBot(
-        ed_route_service=FakeRouteService(),
+        ed_route_service=cast(Any, FakeRouteService()),
         token="token",
         bot=FakeBot(),
         logging_utils=logger,
@@ -107,7 +110,7 @@ def discord_bot(logger: ThreadSafeLogger) -> ed_discord_bot.EDDiscordBot:
 
 
 def test_discord_bot_validates_dependencies(logger: ThreadSafeLogger) -> None:
-    route = FakeRouteService()
+    route = cast(Any, FakeRouteService())
     bot = FakeBot()
     with pytest.raises(
         ValueError, match="logging_utils of type LoggingProtocol is required"
@@ -132,7 +135,7 @@ def test_default_intents_enable_required_flags() -> None:
 def test_create_uses_injected_route_and_bot(
     monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger
 ) -> None:
-    route = FakeRouteService()
+    route = cast(Any, FakeRouteService())
     bot = FakeBot("?")
     monkeypatch.setattr(ed_discord_bot, "load_dotenv", lambda: None)
     created = ed_discord_bot.EDDiscordBot.create(
@@ -274,7 +277,7 @@ async def test_calc_distance_path_cache_dump_init_and_bulk_load(
     assert no_route_ctx.messages[-1].startswith("No Path found between Sol and Lave")
 
     dump_ctx = FakeContext()
-    await discord_bot.dump_system_cache_names(dump_ctx)
+    await discord_bot.dump_system_cache_names(cast(Any, dump_ctx))
     assert dump_ctx.messages[0].startswith("Fetching all system names in cache")
     assert dump_ctx.messages[-1].startswith("Total number of systems in cache: 25")
 
@@ -309,12 +312,12 @@ def test_chunked_system_list_register_commands_and_run(
     } <= set(discord_bot.bot.commands)
 
     discord_bot.run()
-    assert discord_bot.bot.run_args == ("token",)
+    assert cast(FakeBot, discord_bot.bot).run_args == ("token",)
 
 
 def test_run_requires_token(logger: ThreadSafeLogger) -> None:
     bot = ed_discord_bot.EDDiscordBot(
-        ed_route_service=FakeRouteService(),
+        ed_route_service=cast(Any, FakeRouteService()),
         token="token",
         bot=FakeBot(),
         logging_utils=logger,

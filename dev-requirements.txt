@@ -17,3 +17,5 @@ austin-python
 coverage
 pytest-cov
 loguru-config
+autologging
+pyright

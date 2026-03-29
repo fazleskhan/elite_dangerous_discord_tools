@@ -1,6 +1,5 @@
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any
 
 import psutil
 from ed_protocols import (
@@ -11,7 +10,6 @@ from ed_protocols import (
     ProgressFn,
     SystemInfo,
 )
-from app_logging import EDLoggingUtils
 from constants import (
     system_info_coords_field,
     system_info_name_field,

@@ -1,4 +1,5 @@
 import threading
+from pathlib import Path
 import time
 
 import pytest
@@ -11,10 +12,24 @@ class FakeDatasource:
     def __init__(self) -> None:
         self.calls = 0
 
+    def init_datasource(self, import_dir: str | Path = "./init") -> None:
+        return None
+
     def get_all_systems(self) -> list[dict[str, object]]:
         self.calls += 1
         time.sleep(0.02)
         return [{"name": "Sol"}, {"name": "Lave"}, {"id64": 3}]
+
+    def get_system(self, system_name: str) -> dict[str, object] | None:
+        return None
+
+    def insert_system(self, system_info: dict[str, object]) -> None:
+        return None
+
+    def add_neighbors(
+        self, system_info: dict[str, object], new_neighbors: list[dict[str, object]]
+    ) -> None:
+        return None
 
 
 def test_get_all_system_names_service_validates_dependencies() -> None:

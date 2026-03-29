@@ -3,57 +3,20 @@ import json
 import threading
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
 import ed_tinydb
+from tests.helpers import ThreadSafeLogger
 from constants import (
     default_tinydb_name,
-    system_info_name_field,
     system_info_neighbors_field,
     tinydb_name_env,
-    value_key,
 )
 
 
 def main() -> None: ...
-
-
-class ThreadSafeLogger:
-    def __init__(self) -> None:
-        self._lock = threading.Lock()
-        self.calls: list[tuple[str, str, tuple[Any, ...]]] = []
-
-    def _record(self, level: str, message: str, args: tuple[Any, ...]) -> None:
-        with self._lock:
-            self.calls.append((level, message, args))
-
-    def debug(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("debug", message, args)
-
-    def info(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("info", message, args)
-
-    def warning(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("warning", message, args)
-
-    def error(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("error", message, args)
-
-    def exception(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("exception", message, args)
-
-    def opt(self, *args: Any, **kwargs: Any) -> "ThreadSafeLogger":
-        return self
-
-    def messages(self, level: str) -> list[tuple[str, tuple[Any, ...]]]:
-        with self._lock:
-            return [
-                (message, args)
-                for call_level, message, args in self.calls
-                if call_level == level
-            ]
 
 
 @pytest.fixture()
@@ -201,7 +164,7 @@ def test_insert_get_add_neighbors_and_cache_round_trip(
     assert updated[system_info_neighbors_field] == sample_neighbors
     assert [system["name"] for system in tinydb_backend.get_all_systems()] == ["Sol"]
 
-    debug_messages = tinydb_backend.logger.messages("debug")
+    debug_messages = cast(ThreadSafeLogger, tinydb_backend.logger).messages("debug")
     assert ("Inserted system={} doc_id={}", ("Sol", 1)) in debug_messages
     assert (
         "Updated neighbors for system={} updated_rows={}",
@@ -240,9 +203,9 @@ def test_get_system_returns_none_and_logs_exception_on_lookup_failure(
     tinydb_backend._run_async = fake_run_async  # type: ignore[method-assign]
 
     assert tinydb_backend.get_system("Sol") is None
-    assert ("Lookup failed for system={}", ("Sol",)) in tinydb_backend.logger.messages(
-        "exception"
-    )
+    assert ("Lookup failed for system={}", ("Sol",)) in cast(
+        ThreadSafeLogger, tinydb_backend.logger
+    ).messages("exception")
 
 
 def test_get_all_systems_populates_cache_and_reuses_it(
@@ -402,7 +365,7 @@ def test_logging_remains_consistent_under_multithreaded_reads(
         thread.join()
 
     assert results == [sample_system] * 40
-    assert tinydb_backend.logger.messages("exception") == []
+    assert cast(ThreadSafeLogger, tinydb_backend.logger).messages("exception") == []
 
 
 if __name__ == "__main__":

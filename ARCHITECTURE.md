@@ -12,6 +12,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Define injectable collaborator protocols in `src/protocols.py`, including `ILogger` for business-class logging.
 - Depend on protocols rather than concrete implementations.
 - `main.py` owns application wiring and top-level configuration.
+- Always make changes on the branch currently active in the user's workspace unless the user explicitly asks to switch branches.
 
 ## 3. Null Safety
 - Add runtime null guards for constructor arguments and public method arguments that come from outside the class.
@@ -35,6 +36,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Prefer defensive programming: validate inputs early, guard assumptions, and fail clearly when invariants are violated.
 - Fail fast on invalid inputs.
 - Use clear, deterministic errors for invalid arguments and invalid file or content formats.
+- Handled errors should not generate a traceback; show only a clear, concise message explaining the issue.
+- Log handled errors only once at the CLI boundary. Business logic should raise clear handled exceptions without separately logging them as errors.
+- Unhandled errors should preserve the traceback for debugging.
 - Return sentinel values only when explicitly required by the feature contract.
 
 ## 7. Testing
@@ -45,7 +49,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Type pytest fixtures explicitly where useful, for example `pytest.MonkeyPatch` and `pytest.CaptureFixture[str]`.
 
 ## 8. Diagrams
-- When command-line behavior changes, update the related PlantUML sequence diagram or create one if it does not exist.
+- When command-line behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist. Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams, including separate diagrams for encode-only, verify, and handled-error CLI flows when those paths exist.
 - When class structure changes, update the PlantUML class diagram.
 - After diagram updates, generate fresh PNG outputs from the updated PlantUML sources using the official PlantUML render server.
 - Include the current diagram PNGs inline in `README.md` so they render in the README, and include source links alongside them.
@@ -73,9 +77,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Run `black .` from the repository root whenever project contents are updated.
 - Treat formatter output as part of the required final state.
 
-
 ## 13. Logging
 - Include `trace`, `info`, `warn`, and `error` logging where appropriate.
+- Use `@traced` from `autologging` on concrete methods in application source so method entry and exit tracing is applied consistently.
 - Business classes should depend on `ILogger` via constructor injection.
 - Instantiate one shared logging singleton in `main.py` and pass that same object into business objects across the project.
 - Integrate standard logging with Loguru through an `InterceptHandler`.
@@ -88,15 +92,14 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Default behavior should send `info`, `warn`, and `error` to the application log, `info` and `warn` to stdout, and only `error` to stderr.
 - Log parameters received by application entry points at `info` level.
 - Application log entries should include thread ID, source file, and source line.
-- Log rotation, compression, retention, and archive cleanup should be configured through Loguru rather than custom gzip/archive code in application modules.
-- Keep archive/compression behavior declarative in `config/loguru.json` and the Loguru setup, not in handwritten housekeeping routines.
-- `src/app_logging.py` should contain only project-specific logging glue such as interception, config loading, and Loguru wiring.
+- Log files older than 7 days should be compressed into `logs/archive/`.
+- Archived logs older than 30 days should be deleted.
+- `src/app_logging.py` should contain only project-specific logging glue such as interception, path normalization, and archive housekeeping.
 
 ## 14. Static Analysis
-- Address Pylance-reported problems before finishing a task unless explicitly approved otherwise.
+- Use `pyright` as the project-level static analysis guardrail and fix the issues it reports before finishing a task unless explicitly approved otherwise.
 - Do not leave unresolved type, import, symbol, or unused-import warnings.
 - Keep null guards and type signatures aligned so impossible-condition warnings are avoided.
-- After introducing new symbols or moving imports or constants, run a quick import and symbol sanity pass in addition to tests and mypy.
+- After introducing new symbols or moving imports or constants, run a quick import and symbol sanity pass in addition to tests, `pyright`, and mypy.
 - Add an explicit lint step for unused imports and address any findings before finishing a task.
-- Treat static analysis as part of the quality bar alongside formatting, tests, and mypy.
-
+- Treat static analysis as part of the quality bar alongside formatting, `pyright`, tests, and mypy.
