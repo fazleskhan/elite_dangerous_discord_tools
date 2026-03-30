@@ -212,6 +212,9 @@ cython_debug/
 # Built Visual Studio Code Extensions
 *.vsix
 
+# Node tooling
+node_modules/
+
 # Ruff stuff:
 .ruff_cache/
 

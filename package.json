@@ -1,0 +1,10 @@
+{
+  "name": "elite-dangerous-discord-tools",
+  "private": true,
+  "devDependencies": {
+    "cspell": "^8.19.4"
+  },
+  "scripts": {
+    "spellcheck": "cspell --no-progress --show-context ."
+  }
+}

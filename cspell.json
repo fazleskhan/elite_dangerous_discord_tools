@@ -1,0 +1,43 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "useGitignore": true,
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": "./cspell-words.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": [
+    "project-words"
+  ],
+  "ignorePaths": [
+    ".git/",
+    ".mypy_cache/",
+    ".pytest_cache/",
+    ".ruff_cache/",
+    ".venv/",
+    "__pycache__/",
+    "data/",
+    "init/",
+    "logs/",
+    "htmlcov/",
+    "node_modules/",
+    "coverage.xml"
+  ],
+  "files": [
+    "*.md",
+    "*.json",
+    "*.yml",
+    "*.yaml",
+    ".vscode/*.json",
+    "config/**/*.json",
+    "docs/**/*.md",
+    "docs/**/*.puml",
+    "scripts/**/*.py",
+    "scripts/**/*.sh",
+    "src/**/*.py",
+    "tests/**/*.py"
+  ]
+}

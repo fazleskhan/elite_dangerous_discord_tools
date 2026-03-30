@@ -64,7 +64,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - When application behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist.
 - Every user-facing or externally triggered entry point must have its own sequence diagram source rather than relying only on a shared summary diagram. Identify entry points by analyzing the current code rather than maintaining a hard-coded list in this contract.
 - Shared overview diagrams may exist in addition to per-entrypoint diagrams, but they do not replace entrypoint-specific sequence diagrams.
-- Distinct entry-point variations and code paths should be diagramed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
+- Distinct entry-point variations and code paths should be diagrammed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
 - When class structure changes, update the PlantUML class diagram.
 - After diagram updates, generate fresh PNG outputs for every updated PlantUML source (`.puml`) before finishing the task.
 - Write each PNG next to its source file with the same basename (for example `foo.puml` -> `foo.png`).
@@ -72,9 +72,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Treat missing or stale diagram PNG generation as an incomplete task state.
 - Keep `README.md` generated and up to date with a concise description of the current implementation.
 - When regenerating `README.md`, use `docs/README_TEMPLATE.md` as the required structural template and model.
-- Keep mutable README narrative content in Python module docstrings using tagged sections in the form `[README:<KEY>] ... [/README]`.
+- Keep mutable README narrative content in Python module docstrings and script comment blocks, including `scripts/postCreateCommand.sh`, using tagged sections in the form `[README:<KEY>] ... [/README]`.
 - In `docs/README_TEMPLATE.md`, reference docstring-backed content through placeholders in the form `{{README:<KEY>}}`.
-- Assemble the final `README.md` by applying the docstring sections to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
+- Assemble the final `README.md` by applying the collected tagged sections from Python modules and script sources to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
 - `README.md` must include an `Entrypoints` section that documents every current user-facing or externally triggered entrypoint (for example CLI commands, bot commands, and utility scripts).
 - For each documented entrypoint, include a short behavioral overview plus the available arguments/options, and clearly identify required versus optional arguments and defaults when present.
 - Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
@@ -106,6 +106,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 ## 12. Formatting
 - Run `black .` from the repository root whenever project contents are updated.
 - Treat formatter output as part of the required final state.
+- When adding a VS Code extension for the workspace, add it to the `.devcontainer/devcontainer.json` `customizations.vscode.extensions` array.
 
 ## 13. Logging
 - Include `trace`, `info`, `warn`, and `error` logging where appropriate.
@@ -130,7 +131,14 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Unhandled exceptions should preserve their traceback for debugging.
 - `src/app_logging.py` should contain only project-specific logging glue such as interception, path normalization, and archive housekeeping.
 
-## 14. Static Analysis
+## 14. Spell Checking
+- Run `npm run spellcheck` from the repository root after making any project change and treat the result as part of the required final state.
+- If `cspell` reports a possible spelling error, first determine whether the existing spelling is commonly correct for this project's context by querying Google.
+- If the existing spelling is valid in context, add that word to `cspell-words.txt`.
+- Keep the words in `cspell-words.txt` in alphabetical order.
+- If the existing spelling is not valid in context, fix the spelling in the source instead of adding it to the dictionary.
+
+## 15. Static Analysis
 - Use `pyright` as the project-level static analysis guardrail and fix the issues it reports before finishing a task unless explicitly approved otherwise.
 - Do not leave unresolved type, import, symbol, or unused-import warnings.
 - Keep null guards and type signatures aligned so impossible-condition warnings are avoided.
