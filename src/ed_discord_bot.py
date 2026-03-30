@@ -84,6 +84,12 @@ class EDDiscordBot:
         bot: DiscordBotProtocol,
         logger: LoggingProtocol,
     ) -> None:
+        """Store the bot, route service, token, and logger for Discord commands.
+
+        The constructor validates the injected collaborators, registers the
+        ready-event hook, and binds the command registry so the wrapped
+        `commands.Bot` instance immediately exposes the project's command set.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self._logger = logger
@@ -106,6 +112,11 @@ class EDDiscordBot:
 
     @staticmethod
     def _default_intents() -> discord.Intents:
+        """Create the default Discord intents required by this bot.
+
+        The helper starts from Discord.py's default intents and then enables the
+        specific message-content and member access needed by the command surface.
+        """
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -121,6 +132,12 @@ class EDDiscordBot:
         intents_factory: discord.Intents | None = None,
         command_prefix: str = "!",
     ) -> EDDiscordBot:
+        """Build a fully wired Discord bot from defaults and optional overrides.
+
+        The factory loads environment configuration, composes datasource, cache,
+        and route dependencies when they are not supplied, and finally constructs
+        the Discord.py bot instance and wrapper.
+        """
         load_dotenv()
         if logger is None:
             raise ValueError("logger must not be null")
@@ -154,22 +171,45 @@ class EDDiscordBot:
         )
 
     async def on_ready(self) -> None:
+        """Log that the Discord bot has connected and is ready.
+
+        Discord.py invokes this callback once the client is connected, and the
+        handler records the resolved bot user so startup can be confirmed in the
+        logs.
+        """
         user_name = self.bot.user.name if self.bot.user is not None else "<unknown>"
         self._logger.info("Elite Dangerous Tools is ready: user={}", user_name)
 
     async def ping(self, ctx: DiscordContextProtocol) -> None:
+        """Respond to the Discord health-check command.
+
+        The handler measures a very small local round-trip and replies with a
+        `Pong` message that includes the elapsed time in milliseconds.
+        """
         start = time.perf_counter()
         self._logger.debug("Received ping command")
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         await ctx.send(f"Pong ({elapsed_ms} ms)")
 
     async def _resolve(self, value: T | Awaitable[T]) -> T:
+        """Normalize sync and async service results into one awaited value.
+
+        Some collaborators may expose synchronous methods while others return
+        awaitables, so this helper lets command handlers consume either form
+        through one consistent code path.
+        """
         # Allow both sync and async service implementations.
         if inspect.isawaitable(value):
             return await value
         return value
 
     async def system_info(self, ctx: DiscordContextProtocol, arg: str) -> None:
+        """Send system metadata for one named system to Discord.
+
+        The handler resolves the system info through the route layer, chooses
+        between a single Discord message and chunked output based on payload
+        length, and appends execution timing for the caller.
+        """
         start = time.perf_counter()
         self._logger.info("system_info command: system={}", arg)
         system_info = await self._resolve(self.ed_route.get_system_info(arg))
@@ -191,6 +231,11 @@ class EDDiscordBot:
         system_name_one: str,
         system_name_two: str,
     ) -> None:
+        """Report the distance between two systems in Discord.
+
+        The handler delegates distance calculation to the route layer and then
+        formats the result with execution timing into one user-facing message.
+        """
         start = time.perf_counter()
         self._logger.info(
             "calc_systems_distance command: system_one={} system_two={}",
@@ -214,6 +259,12 @@ class EDDiscordBot:
         min_distance: int = 0,
         max_distance: int = 10000,
     ) -> None:
+        """Calculate and report a route between two systems in Discord.
+
+        The handler acknowledges the command immediately, wires a progress
+        reporter into the route request, and then sends either the discovered
+        path or a no-route message with execution timing.
+        """
         start = time.perf_counter()
         self._logger.info(
             "path command: source={} destination={} max_system_count={} min_distance={} max_distance={}",
@@ -266,9 +317,20 @@ class EDDiscordBot:
     def chunked_system_list(
         self, system_list: Sequence[T], size: int = 5
     ) -> Sequence[Sequence[T]]:
+        """Return a list-backed view of system names split into chunks.
+
+        This thin wrapper preserves the bot's older helper surface while
+        delegating the actual chunking behavior to the shared message utility.
+        """
         return list(chunked_sequence(system_list, size))
 
     async def dump_system_cache_names(self, ctx: DiscordContextProtocol) -> None:
+        """Send the cached system-name list to Discord in readable chunks.
+
+        The handler retrieves all known system names, emits them in batches that
+        fit comfortably in chat, and finishes by reporting the total count and
+        execution timing.
+        """
         start = time.perf_counter()
         self._logger.info("dump_system_cache_names command")
         await ctx.send("Fetching all system names in cache... This may take a while")
@@ -285,6 +347,12 @@ class EDDiscordBot:
     async def init_datasource(
         self, ctx: DiscordContextProtocol, import_dir: str = default_init_dir
     ) -> None:
+        """Initialize the datasource from Discord and report completion.
+
+        The handler forwards the request to the route layer, waits for the
+        initialization to complete, and sends a completion message with the
+        import directory and execution timing.
+        """
         start = time.perf_counter()
         self._logger.info("init_datasource command: import_dir={}", import_dir)
         await self._resolve(self.ed_route.init_datasource(import_dir))
@@ -297,6 +365,12 @@ class EDDiscordBot:
         initial_systems: str,
         max_nodes_visited: int,
     ) -> None:
+        """Bulk load cache entries from a Discord command.
+
+        The handler parses the comma-separated seed systems, forwards the bulk
+        load to the route layer, and reports the final number of loaded systems
+        along with execution timing.
+        """
         start = time.perf_counter()
         initial_system_names = [
             system_name.strip()

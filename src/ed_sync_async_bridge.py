@@ -6,6 +6,12 @@ from typing import Any
 
 
 def run_async_from_sync(coro: Any, *, value_key: str) -> Any:
+    """Execute a coroutine from synchronous code and return its result.
+
+    The helper uses `asyncio.run` when no loop is active and falls back to a
+    worker thread when the caller is already inside an event loop, allowing
+    synchronous APIs to safely wait on async implementations in both contexts.
+    """
     try:
         asyncio.get_running_loop()
     except RuntimeError:

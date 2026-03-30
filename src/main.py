@@ -82,6 +82,12 @@ class EDMain:
         route_service: EDRouteService | None,
         logger: ILogger | None,
     ) -> None:
+        """Store the route service and logger used by CLI commands.
+
+        `EDMain` is a thin synchronous facade over the route layer, so the
+        constructor validates the injected collaborators and keeps them ready for
+        the command dispatcher to call directly.
+        """
         if logger is None:
             raise ValueError("logger must not be null")
         if route_service is None:
@@ -94,6 +100,12 @@ class EDMain:
         logger: ILogger | None = None,
         route_service: EDRouteService | None = None,
     ) -> "EDMain":
+        """Build a fully wired CLI application object.
+
+        The factory requires a logger, preserves any caller-provided route
+        service, and otherwise delegates route composition to the shared route
+        service factory.
+        """
         if logger is None:
             raise ValueError("logger must not be null")
         resolved_route_service = route_service
@@ -109,9 +121,20 @@ class EDMain:
         )
 
     def ping(self) -> str:
+        """Return the CLI health-check response.
+
+        The method intentionally does no work beyond returning the fixed `Pong`
+        payload so callers can verify the application is wired and responsive.
+        """
         return "Pong"
 
     def get_all_system_names(self) -> list[str]:
+        """Return every known system name from the route service.
+
+        The CLI layer delegates directly to the composed route service so the
+        command runner can log and present the returned names without extra
+        transformation here.
+        """
         return self.route_service.get_all_system_names()
 
     def calc_route(
@@ -122,6 +145,12 @@ class EDMain:
         min_distance: int = 0,
         max_distance: int = 10000,
     ) -> list[str] | None:
+        """Calculate a route synchronously for the CLI.
+
+        The route layer exposes an async path API, so this wrapper runs it
+        through `asyncio.run` and passes the logger's `info` method as the
+        progress callback used for CLI-visible progress updates.
+        """
         return asyncio.run(
             self.route_service.path(
                 source_system,
@@ -134,15 +163,32 @@ class EDMain:
         )
 
     def calc_systems_distance(self, source_system: str, target_system: str) -> float:
+        """Return the distance between two systems through the route service.
+
+        The CLI wrapper keeps the command runner independent from lower-level
+        service objects by forwarding the request through the composed route
+        service.
+        """
         return self.route_service.calc_systems_distance(source_system, target_system)
 
     def get_system_info(self, system_names: list[str]) -> list[dict[str, Any] | None]:
+        """Return system payloads for the requested system names.
+
+        The CLI currently supports one name at a time but keeps the API list
+        based so callers can request multiple payloads in a consistent shape.
+        """
         return [
             self.route_service.get_system_info(system_name)
             for system_name in system_names
         ]
 
     def init_datasource(self, import_dir: str | Path = DEFAULT_INIT_DIR) -> None:
+        """Initialize the configured datasource from an import directory.
+
+        The wrapper delegates the real initialization work to the route service
+        so the CLI command runner can treat this operation like any other
+        application-level command.
+        """
         self.route_service.init_datasource(import_dir)
 
     def bulk_load_cache(
@@ -150,6 +196,12 @@ class EDMain:
         initial_system_names: list[str],
         max_nodes_visited: int,
     ) -> list[str]:
+        """Preload cache entries starting from the supplied seed systems.
+
+        The wrapper forwards to the route service and passes the logger's `info`
+        method as the progress callback so long-running bulk loads emit progress
+        through the shared CLI logging channel.
+        """
         return self.route_service.bulk_load_cache(
             initial_system_names,
             max_nodes_visited,
@@ -158,6 +210,12 @@ class EDMain:
 
 
 def main() -> None:
+    """Run the CLI entrypoint from parsed command-line arguments.
+
+    The function builds the shared parser, configures logging once, logs the
+    parsed arguments, composes `EDMain`, and dispatches the command while
+    translating handled usage errors into a clean exit code.
+    """
     parser = _build_parser()
     configure_logging()
     app_logger = logger

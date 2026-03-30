@@ -10,6 +10,13 @@ def make_min_level_filter(
     *,
     max_level_number: int | None = None,
 ) -> Callable[[dict[str, Any]], bool]:
+    """Build a Loguru filter that constrains records by level number.
+
+    The returned callable accepts Loguru record dictionaries and keeps only
+    messages at or above the configured minimum level, optionally stopping
+    before a supplied upper bound.
+    """
+
     def _filter(record: dict[str, Any]) -> bool:
         level_no = int(record["level"].no)
         if max_level_number is None:
@@ -34,6 +41,12 @@ def apply_runtime_config(
     archive_stale_logs: Callable[[Path, Path, int], None],
     delete_expired_archives: Callable[[Path, int], None],
 ) -> None:
+    """Apply the active runtime logging configuration to Loguru.
+
+    The function clears existing sinks, configures stdout and stderr outputs
+    from the provided settings, and optionally prepares file logging including
+    archive rotation and archive-retention cleanup.
+    """
     logger.remove()
 
     stdout_config = config.get("stdout", {})

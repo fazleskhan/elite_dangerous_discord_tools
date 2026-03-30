@@ -76,8 +76,9 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Keep `README.md` generated and up to date with a concise description of the current implementation.
 - When regenerating `README.md`, use `docs/README_TEMPLATE.md` as the required structural template and model.
 - Keep mutable README narrative content in Python module docstrings and script comment blocks, including `scripts/postCreateCommand.sh`, using tagged sections in the form `[README:<KEY>] ... [/README]`.
+- Use class and method docstrings as source material when generating implementation-oriented README content such as code-overview or component-summary sections.
 - In `docs/README_TEMPLATE.md`, reference docstring-backed content through placeholders in the form `{{README:<KEY>}}`.
-- Assemble the final `README.md` by applying the collected tagged sections from Python modules and script sources to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
+- Assemble the final `README.md` by applying the collected tagged sections and generated docstring-derived sections from Python modules and script sources to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
 - `README.md` must include an `Entrypoints` section that documents every current user-facing or externally triggered entrypoint (for example CLI commands, bot commands, and utility scripts).
 - For each documented entrypoint, include a short behavioral overview plus the available arguments/options, and clearly identify required versus optional arguments and defaults when present.
 - Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
@@ -109,6 +110,11 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Prefer explicit names over terse ones.
 - Use ASCII unless the file already requires Unicode.
 - Add concise code comments when they clarify what the code is doing and why, especially around non-obvious logic or integration boundaries.
+- Add a docstring to every class and every method.
+- Each class docstring must describe the class's overall purpose and give a short overview of how it achieves that purpose.
+- Each method docstring must describe the method's purpose and give a short overview of how it achieves its result, especially when it coordinates collaborators, performs validation, bridges sync/async work, or maintains caches or locks.
+- After source files are added, changed, renamed, or removed from the project, review the affected class and method docstrings and update, add, move, or delete them so they continue to match the current logic, collaborators, and structure.
+- Treat stale or missing class and method docstrings as defects.
 - After source files are added, changed, renamed, or removed from the project, review the surrounding clarifying code comments and update, add, move, or delete them so they continue to match the current logic and its purpose.
 - Treat stale explanatory comments as defects: comments must not describe removed behavior, old control flow, old collaborators, or pre-refactor structure.
 

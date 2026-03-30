@@ -44,6 +44,12 @@ UNIX_SCHEME: str = "unix"
 
 
 def _dot_prefixed(path_value: str) -> str:
+    """Normalize relative paths to the project's explicit `./` style.
+
+    Some defaults come from path objects while CLI help and tests expect a
+    display form beginning with `./`. This helper keeps that normalization
+    consistent in one place.
+    """
     return path_value if path_value.startswith("./") else f"./{path_value}"
 
 

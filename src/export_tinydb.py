@@ -10,6 +10,12 @@ from ed_tinydb import EDTinyDB
 
 
 def main() -> None:
+    """Export all TinyDB-backed system records into JSON files.
+
+    The entrypoint parses the output directory, configures project logging,
+    constructs the TinyDB backend with shared defaults, and writes one JSON
+    file per stored system.
+    """
     parser = argparse.ArgumentParser(
         description="Export TinyDB system records into per-system JSON files."
     )

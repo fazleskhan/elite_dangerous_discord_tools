@@ -27,12 +27,24 @@ class EDGis:
     _fetch_coords_uri: str = r"https://ed_edgis.elitedangereuse.fr/coords"
 
     def __init__(self, logger: LoggingProtocol):
+        """Store the logger used for EDGIS request tracing and failures.
+
+        The gateway itself is intentionally thin, so it primarily needs a
+        logger to record outbound lookups and any HTTP errors encountered while
+        talking to the remote EDGIS service.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self._logger = logger
 
     @staticmethod
     def _run_async(coro: Any) -> Any:
+        """Execute an EDGIS coroutine from synchronous call sites.
+
+        The gateway is used from both synchronous and asynchronous surfaces, so
+        this helper runs the coroutine directly when no loop exists and falls
+        back to a worker thread when already inside an active event loop.
+        """
         try:
             asyncio.get_running_loop()
         except RuntimeError:
@@ -58,6 +70,11 @@ class EDGis:
 
     @staticmethod
     async def _fetch_json(url: str, params: dict[str, Any]) -> Any:
+        """Perform one JSON GET request against the EDGIS API.
+
+        The helper creates a short-lived HTTP session with a bounded timeout,
+        raises for non-success responses, and returns the decoded JSON payload.
+        """
         timeout = aiohttp.ClientTimeout(total=15)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(url, params=params) as response:
@@ -65,6 +82,12 @@ class EDGis:
                 return await response.json()
 
     def fetch_system_info(self, system_name: str) -> dict[str, Any] | None:
+        """Fetch coordinate and metadata information for one system name.
+
+        The method logs the outbound lookup, calls the EDGIS coords endpoint
+        with the expected query parameter, and converts transport failures into a
+        logged `None` result for callers.
+        """
         self._logger.debug("Fetching system info for system={}", system_name)
         try:
             # The API expects the system name under the `q` query parameter.
@@ -80,6 +103,12 @@ class EDGis:
     def fetch_neighbors(
         self, x: float | int, y: float | int, z: float | int
     ) -> list[dict[str, Any]] | None:
+        """Fetch neighboring systems around a coordinate triplet.
+
+        The method logs the lookup, calls the EDGIS neighbors endpoint, and
+        returns the decoded payload unless the underlying HTTP request fails, in
+        which case it logs the exception and returns `None`.
+        """
         self._logger.debug("Fetching neighbors for coordinates x={} y={} z={}", x, y, z)
         try:
             # EDGIS ed_defaults to a 20ly radius when radius is omitted.

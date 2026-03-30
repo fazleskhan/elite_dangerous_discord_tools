@@ -30,6 +30,12 @@ class EDBulkLoadAlgo:
         fetch_neighbors_fn: FetchNeighborsFn,
         logger: LoggingProtocol,
     ) -> None:
+        """Store the cache-backed fetch functions used during bulk loading.
+
+        The algorithm only needs a way to resolve systems and neighbors plus a
+        logger for progress tracing, so those collaborators are injected rather
+        than hard-coded to any specific cache implementation.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self._logger = logger
@@ -43,6 +49,11 @@ class EDBulkLoadAlgo:
 
     @staticmethod
     def create(cache: CacheProtocol, logger: LoggingProtocol) -> "EDBulkLoadAlgo":
+        """Build a bulk loader from a cache object and shared logger.
+
+        The factory keeps composition code concise by extracting the cache's
+        lookup methods and wiring them into the algorithm constructor.
+        """
         return EDBulkLoadAlgo(
             fetch_system_info_fn=cache.find_system_info,
             fetch_neighbors_fn=cache.find_system_neighbors,
@@ -55,6 +66,12 @@ class EDBulkLoadAlgo:
         max_nodes_visited: int,
         progress_callback: ProgressFn,
     ) -> list[str]:
+        """Preload cache data by walking outward from seed systems.
+
+        The method performs a breadth-first expansion over cached and fetched
+        neighbors, deduplicates visited systems, periodically reports progress,
+        and returns the systems in the order they were loaded.
+        """
         # Entry point used by CLI and Discord: walk neighbor graph and return
         # deterministic visit order up to the caller-provided node limit.
         self._logger.debug(
@@ -181,6 +198,12 @@ class EDBulkLoadAlgo:
         return visit_order
 
     def _neighbor_as_system_info(self, neighbor: SystemInfo) -> SystemInfo | None:
+        """Treat a neighbor payload as full system info when it is complete enough.
+
+        Some neighbor payloads already contain the coordinate data needed for
+        further expansion. This helper checks for that minimum shape and returns
+        the payload only when it can safely be reused as system info.
+        """
         # We only treat neighbor payloads as expandable system records when
         # the coordinate triplet is present.
         coords = neighbor.get(system_info_coords_field)
@@ -195,6 +218,11 @@ class EDBulkLoadAlgo:
         return neighbor
 
     def _fetch_neighbors(self, system_info: SystemInfo) -> list[SystemInfo]:
+        """Fetch neighbors for one system payload inside a worker thread.
+
+        The helper isolates the thread-pool task used during frontier expansion
+        and normalizes `None` responses into an empty neighbor list.
+        """
         # Worker task: isolate neighbor expansion call for thread pool mapping.
         system_name = system_info.get(system_info_name_field)
         self._logger.debug("Fetching neighbors for system={}", system_name)
@@ -202,6 +230,12 @@ class EDBulkLoadAlgo:
 
     @staticmethod
     def _physical_core_count() -> int:
+        """Return the preferred worker-pool size for bulk loading.
+
+        The algorithm prefers physical CPU count for parallel frontier work and
+        falls back to the logical core count only when physical-core detection is
+        unavailable.
+        """
         detected = psutil.cpu_count(logical=False)
         if detected is not None and detected > 0:
             return detected

@@ -23,6 +23,13 @@ class EDBfsAlgo:
         distance_fn: DistanceFn,
         logger: LoggingProtocol,
     ) -> None:
+        """Store the collaborators needed for breadth-first traversal.
+
+        The algorithm itself only knows how to traverse the graph. Callers
+        inject functions for loading system info, expanding neighbors, and
+        measuring distances so traversal stays independent from concrete
+        datasources and network clients.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self._logger = logger
@@ -40,6 +47,12 @@ class EDBfsAlgo:
     def _reconstruct_path(
         parents: dict[str, str | None], destination_name: str
     ) -> list[str]:
+        """Rebuild a discovered route from the BFS parent map.
+
+        BFS records only each node's predecessor while exploring. This helper
+        walks those parent links backward from the destination and reverses the
+        collected names into the caller-facing route order.
+        """
         path: list[str] = []
         cursor: str | None = destination_name
         while cursor is not None:
@@ -57,6 +70,12 @@ class EDBfsAlgo:
         max_distance: int,
         progress_callback: ProgressFn,
     ) -> list[str] | None:
+        """Search for a route between systems using BFS with distance bounds.
+
+        The method expands systems breadth-first, filters hops by the caller's
+        distance constraints, and reports lightweight progress so CLI and
+        Discord surfaces can show long-running traversal activity.
+        """
         self._logger.info(
             "Starting BFS travel from {} to {} with max_count={}",
             start_name,

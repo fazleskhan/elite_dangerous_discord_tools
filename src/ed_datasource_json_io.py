@@ -8,6 +8,12 @@ from typing import Any
 
 
 def safe_filename(value: str) -> str:
+    """Convert an arbitrary system name into a filesystem-safe filename.
+
+    Exported JSON files use system names as their base names, so this helper
+    preserves readable characters and replaces everything else with underscores
+    to avoid invalid or awkward paths.
+    """
     return "".join(
         (character if character.isalnum() or character in (" ", "-", "_", ".") else "_")
         for character in value
@@ -22,6 +28,12 @@ def import_json_records(
     log_message: str,
     insert_record: Any,
 ) -> None:
+    """Load JSON records from a directory into a datastore callback.
+
+    The helper validates the import directory, iterates every matching JSON
+    file, normalizes each payload into a list of records, and forwards any
+    dictionary entries to the supplied insert function.
+    """
     import_dir_path = Path(import_dir)
     if not import_dir_path.is_dir():
         raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
@@ -51,6 +63,12 @@ def export_json_records(
     system_name_field: str,
     get_full_system: Any,
 ) -> None:
+    """Write datastore records to per-system pretty-printed JSON files.
+
+    The helper creates the output directory, resolves each listed system to its
+    full stored payload, and writes one stable JSON file per system using a
+    sanitized filename.
+    """
     export_dir_path = Path(export_dir)
     export_dir_path.mkdir(parents=True, exist_ok=True)
 

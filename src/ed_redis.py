@@ -39,6 +39,13 @@ from ed_constants import (
 
 
 class EDRedis:
+    """Redis-backed datasource for cached system records.
+
+    The datasource stores each system payload as a namespaced Redis key, tracks
+    all known system names in a companion set for enumeration, and bridges its
+    async Redis client operations back into the project's synchronous API.
+    """
+
     @staticmethod
     def create(
         logger: LoggingProtocol,
@@ -46,6 +53,12 @@ class EDRedis:
         redis_url: str | None = None,
         max_connections: int | None = None,
     ) -> "EDRedis":
+        """Build a Redis datasource using defaults when options are omitted.
+
+        The factory resolves the Redis URL, application namespace, and
+        connection-pool size from explicit input or environment variables before
+        constructing the datasource instance.
+        """
         resolved_redis_url = (
             redis_url if redis_url is not None else EDRedis._resolve_redis_url()
         )
@@ -76,6 +89,12 @@ class EDRedis:
         logger: LoggingProtocol,
         max_connections: int | None,
     ):
+        """Initialize Redis connection settings, locks, and shutdown behavior.
+
+        The constructor validates the required inputs, stores the Redis
+        connection configuration, and registers a shutdown hook so the datasource
+        can mark itself closed when the process exits.
+        """
         if redis_url is None:
             raise ValueError("Redis URL of type str is a required argument")
         self._redis_url = redis_url
@@ -105,9 +124,19 @@ class EDRedis:
     def init_datasource(
         self, import_dir: str | os.PathLike[str] = default_init_dir
     ) -> None:
+        """Initialize the Redis datasource from a seed directory.
+
+        Redis requires no schema setup beyond being reachable, so initialization
+        simply delegates to the JSON import flow.
+        """
         self.import_datasource(import_dir)
 
     def import_datasource(self, import_dir: str | os.PathLike[str]) -> None:
+        """Import per-system JSON files into Redis.
+
+        The method delegates directory walking and JSON decoding to the shared
+        import helper and inserts each decoded record through this datasource.
+        """
         import_json_records(
             import_dir=import_dir,
             json_extension=json_extension,
@@ -117,6 +146,11 @@ class EDRedis:
         )
 
     def export_datasource(self, export_dir: str) -> None:
+        """Export all stored Redis systems into JSON files.
+
+        The method delegates file creation to the shared export helper and
+        resolves each listed system through the datasource's lookup method.
+        """
         export_json_records(
             export_dir=export_dir,
             json_extension=json_extension,
@@ -126,10 +160,21 @@ class EDRedis:
         )
 
     def _safe_filename(self, system_name: str) -> str:
+        """Return a filesystem-safe filename derived from a system name.
+
+        This thin wrapper preserves the datasource's older helper surface while
+        delegating the actual sanitization to the shared JSON I/O helper.
+        """
         return safe_filename(system_name)
 
     @staticmethod
     def _default_max_connections() -> int:
+        """Return the preferred Redis connection-pool size.
+
+        The project ties the default pool size to the number of physical CPU
+        cores so concurrent Redis work has a practical upper bound without
+        oversubscribing connections.
+        """
         physical_cores = psutil.cpu_count(logical=False)
         if physical_cores is None or physical_cores < 1:
             return 1
@@ -137,6 +182,12 @@ class EDRedis:
 
     @staticmethod
     def _resolve_redis_url(redis_url: str | None = None) -> str:
+        """Resolve and validate the Redis connection URL.
+
+        The helper pulls the URL from the explicit argument or environment,
+        verifies that it uses a supported scheme, and ensures host requirements
+        are met for TCP-based Redis connections.
+        """
         final_redis_url = redis_url or os.getenv(redis_url_env)
         if not final_redis_url:
             raise ValueError(
@@ -158,10 +209,20 @@ class EDRedis:
         return final_redis_url
 
     def _run_async(self, coro: Any) -> Any:
+        """Execute a Redis coroutine from the synchronous datasource API.
+
+        The helper first verifies the datasource has not been closed and then
+        uses the shared sync/async bridge to wait for the coroutine result.
+        """
         self._ensure_open()
         return run_async_from_sync(coro, value_key=value_key)
 
     def _new_client(self) -> Any:
+        """Create a new Redis client using the configured connection settings.
+
+        The datasource uses short-lived clients for each operation so this
+        helper centralizes the client construction details.
+        """
         return redis.from_url(
             self._redis_url,
             decode_responses=True,
@@ -169,6 +230,11 @@ class EDRedis:
         )
 
     async def _close_client_async(self, client: Any) -> None:
+        """Close a Redis client regardless of its close API shape.
+
+        Different Redis client versions expose either `aclose` or `close`, so
+        the helper checks both forms and awaits the result when necessary.
+        """
         # Prefer async close when available; keep a compatibility path for
         # clients exposing only sync `close`.
         close_fn = getattr(client, "aclose", None)
@@ -183,20 +249,41 @@ class EDRedis:
                 await close_result
 
     def _ensure_open(self) -> None:
+        """Raise if the datasource has already been closed.
+
+        Public operations call this guard before touching Redis so callers get a
+        clear failure instead of undefined behavior after shutdown.
+        """
         if self._closed:
             raise RuntimeError("Redis client is closed")
 
     def _system_key(self, system_name: str) -> str:
+        """Return the namespaced Redis key for one system payload.
+
+        The application namespaces keys by datasource name so multiple
+        deployments can share one Redis instance without clobbering each other.
+        """
         # Namespace keys by app name so multiple bots can share one Redis safely.
         return f"{self.datasource_name}:{system_field}:{system_name}"
 
     @property
     def _systems_set_key(self) -> str:
+        """Return the Redis set key that tracks all known system names.
+
+        The datasource stores names in a companion set so it can enumerate
+        systems efficiently without scanning every namespaced key in Redis.
+        """
         # Track known system names separately so Redis can enumerate records
         # without scanning every namespaced key in the database.
         return f"{self.datasource_name}:{systems_field}"
 
     async def _insert_system_async(self, system_info: SystemInfo) -> None:
+        """Insert one system payload into Redis if it is not already stored.
+
+        The helper checks the namespaced system key, writes the JSON payload on
+        misses, and adds the system name to the companion set used for full
+        enumeration.
+        """
         system_name = system_info[system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
@@ -214,6 +301,11 @@ class EDRedis:
             await self._close_client_async(client)
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
+        """Return one stored system payload from Redis.
+
+        The helper loads the namespaced Redis key, decodes the stored JSON when
+        present, and returns `None` for normal cache misses.
+        """
         client = self._new_client()
         try:
             result = await client.get(self._system_key(system_name))
@@ -230,6 +322,11 @@ class EDRedis:
     async def _add_neighbors_async(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> None:
+        """Replace the stored neighbor list for a system payload in Redis.
+
+        The helper reloads the stored JSON payload, updates its neighbor list,
+        and writes the full payload back to the namespaced Redis key.
+        """
         system_name = system_info[system_info_name_field]
         system_key = self._system_key(system_name)
         client = self._new_client()
@@ -253,6 +350,12 @@ class EDRedis:
             await self._close_client_async(client)
 
     async def _get_all_systems_async(self) -> list[SystemInfo]:
+        """Return every stored system payload from Redis.
+
+        The helper uses the companion system-name set to build the key list,
+        performs a bulk `mget`, and decodes each present payload into a system
+        record.
+        """
         client = self._new_client()
         try:
             system_names = sorted(await client.smembers(self._systems_set_key))
@@ -272,11 +375,21 @@ class EDRedis:
             await self._close_client_async(client)
 
     def insert_system(self, system_info: SystemInfo) -> None:
+        """Persist one system payload through the synchronous Redis API.
+
+        The method serializes writes under a lock and bridges the underlying
+        async insert helper into the caller-facing synchronous surface.
+        """
         self._ensure_open()
         with self._write_lock:
             self._run_async(self._insert_system_async(system_info))
 
     def get_system(self, system_name: str) -> SystemInfo | None:
+        """Return one stored system payload, shielding callers from backend errors.
+
+        The synchronous wrapper bridges the async lookup helper and logs then
+        returns `None` if Redis raises unexpectedly.
+        """
         try:
             return self._run_async(self._get_system_async(system_name))
         except Exception:
@@ -286,15 +399,30 @@ class EDRedis:
     def add_neighbors(
         self, system_info: SystemInfo, new_neighbors: list[SystemInfo]
     ) -> None:
+        """Persist neighbor data for a stored system.
+
+        The method serializes the write under a lock and bridges the underlying
+        async neighbor-update helper back into the synchronous API.
+        """
         self._ensure_open()
         with self._write_lock:
             self._run_async(self._add_neighbors_async(system_info, new_neighbors))
 
     def get_all_systems(self) -> list[SystemInfo]:
+        """Return every stored system payload through the synchronous API.
+
+        The method verifies the datasource is still open and bridges the async
+        Redis scan into the synchronous caller interface.
+        """
         self._ensure_open()
         return self._run_async(self._get_all_systems_async())
 
     def close(self) -> None:
+        """Mark the datasource closed so future Redis operations fail fast.
+
+        The datasource creates short-lived Redis clients per operation, so
+        closing simply flips the shared closed flag under a lock.
+        """
         with self._close_lock:
             if self._closed:
                 return

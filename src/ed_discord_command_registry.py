@@ -7,6 +7,13 @@ from ed_protocols import DiscordBotProtocol, DiscordContextProtocol
 
 
 def register_discord_commands(bot: DiscordBotProtocol, handlers: Any) -> None:
+    """Register the project's Discord command surface on a bot instance.
+
+    The registry keeps Discord.py declaration boilerplate out of `EDDiscordBot`
+    by binding the expected command names and signatures to methods on the
+    supplied handler object.
+    """
+
     @bot.command()
     async def ping(ctx: DiscordContextProtocol) -> None:
         await handlers.ping(ctx)

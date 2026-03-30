@@ -37,6 +37,10 @@
 
 {{README:DATA_TRANSFER_ENTRYPOINTS}}
 
+## Code Overview
+
+{{README:CODE_OVERVIEW}}
+
 ## Business Rules
 
 Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINESS.md).

@@ -13,9 +13,9 @@ provides GIS-oriented tools backed by EDGIS plus local datasource caching.
 
 https://www.spansh.co.uk/dumps
 
-https://ed_edgis.elitedangereuse.fr/
+https://edgis.elitedangereuse.fr/
 
-https://github.com/elitedangereuse/ed_edgis
+https://github.com/elitedangereuse/edgis
 
 ### Docker Image
 
@@ -167,6 +167,168 @@ filesystem and datasource backends.
 * `python src/export_redis.py`
   * Overview: exports Redis records to per-system JSON files.
   * Arguments: `--export-dir` (optional, default `default_export_dir`).
+
+## Code Overview
+
+### `EDMain`
+
+Source: `src/main.py`
+
+CLI command compositor exposing route/cache operations.
+
+Key methods:
+* `__init__`: Store the route service and logger used by CLI commands.
+* `create`: Build a fully wired CLI application object.
+* `ping`: Return the CLI health-check response.
+* `get_all_system_names`: Return every known system name from the route service.
+* `calc_route`: Calculate a route synchronously for the CLI.
+* `calc_systems_distance`: Return the distance between two systems through the route service.
+* `get_system_info`: Return system payloads for the requested system names.
+* `init_datasource`: Initialize the configured datasource from an import directory.
+* `bulk_load_cache`: Preload cache entries starting from the supplied seed systems.
+
+### `EDDiscordBot`
+
+Source: `src/ed_discord_bot.py`
+
+Inversion‑of‑control wrapper around a :class:`commands.Bot` instance.
+
+Key methods:
+* `__init__`: Store the bot, route service, token, and logger for Discord commands.
+* `create`: Build a fully wired Discord bot from defaults and optional overrides.
+* `on_ready`: Log that the Discord bot has connected and is ready.
+* `ping`: Respond to the Discord health-check command.
+* `system_info`: Send system metadata for one named system to Discord.
+* `calc_systems_distance`: Report the distance between two systems in Discord.
+* `path`: Calculate and report a route between two systems in Discord.
+* `chunked_system_list`: Return a list-backed view of system names split into chunks.
+* `dump_system_cache_names`: Send the cached system-name list to Discord in readable chunks.
+* `init_datasource`: Initialize the datasource from Discord and report completion.
+* `bulk_load_cache`: Bulk load cache entries from a Discord command.
+* `run`: Start the bot using the configured token/logging.
+
+### `EDRouteService`
+
+Source: `src/ed_route.py`
+
+Thin facade over delegate service classes.
+
+Key methods:
+* `__init__`: Store the composed route-layer collaborators.
+* `init_datasource`: Initialize the datasource from the given directory.
+* `get_system_info`: Return cached or fetched metadata for one system.
+* `get_all_system_names`: Return every known system name.
+* `bulk_load_cache`: Bulk load cache entries from the supplied seed systems.
+* `path`: Calculate a route between two systems.
+* `calc_systems_distance`: Compute the distance between two systems.
+
+### `EDRouteServiceFactory`
+
+Source: `src/ed_route_service_factory.py`
+
+Compose a fully wired route service from project collaborators.
+
+Key methods:
+* `create`: Build an `EDRouteService`, filling in omitted collaborators with defaults.
+
+### `InterceptHandler`
+
+Source: `src/ed_app_logging.py`
+
+Forward standard-library logging records into Loguru.
+
+Key methods:
+* `emit`: Convert one standard-library logging record into a Loguru log call.
+
+### `_LoguruConfigWatcher`
+
+Source: `src/ed_app_logging.py`
+
+Watch the Loguru config file and reapply logging when it changes.
+
+Key methods:
+* `__init__`: Store config-file tracking state for future reload checks.
+* `start`: Apply the initial config and start filesystem watching if enabled.
+* `handle_fs_event`: React to a filesystem event that may affect the config file.
+
+### `EDRedis`
+
+Source: `src/ed_redis.py`
+
+Redis-backed datasource for cached system records.
+
+Key methods:
+* `create`: Build a Redis datasource using defaults when options are omitted.
+* `__init__`: Initialize Redis connection settings, locks, and shutdown behavior.
+* `init_datasource`: Initialize the Redis datasource from a seed directory.
+* `import_datasource`: Import per-system JSON files into Redis.
+* `export_datasource`: Export all stored Redis systems into JSON files.
+* `insert_system`: Persist one system payload through the synchronous Redis API.
+* `get_system`: Return one stored system payload, shielding callers from backend errors.
+* `add_neighbors`: Persist neighbor data for a stored system.
+* `get_all_systems`: Return every stored system payload through the synchronous API.
+* `close`: Mark the datasource closed so future Redis operations fail fast.
+
+### `EDTinyDB`
+
+Source: `src/ed_tinydb.py`
+
+TinyDB-backed datasource for cached system records.
+
+Key methods:
+* `create`: Build a TinyDB datasource using defaults when no name is supplied.
+* `__init__`: Initialize TinyDB paths, locks, and in-memory caches.
+* `init_datasource`: Initialize the TinyDB datasource from a seed directory.
+* `import_datasource`: Import per-system JSON files into TinyDB.
+* `export_datasource`: Export all stored systems from TinyDB into JSON files.
+* `insert_system`: Persist one system record and update local caches.
+* `get_system`: Return one system payload, shielding callers from backend errors.
+* `get_all_systems`: Return all stored systems through the synchronous datasource API.
+* `add_neighbors`: Persist neighbor data for a system through the synchronous API.
+
+### `EDGis`
+
+Source: `src/ed_edgis.py`
+
+OO gateway wrapper around EDGIS HTTP lookups.
+
+Key methods:
+* `__init__`: Store the logger used for EDGIS request tracing and failures.
+* `fetch_system_info`: Fetch coordinate and metadata information for one system name.
+* `fetch_neighbors`: Fetch neighboring systems around a coordinate triplet.
+
+### `EDGisCache`
+
+Source: `src/ed_edgis_cache.py`
+
+Cache layer with injected fetchers for easier testing.
+
+Key methods:
+* `__init__`: Store the datasource and fetchers used for cache-through reads.
+* `create`: Build a cache wrapper from explicit datasource and fetcher dependencies.
+* `find_system_info`: Return system metadata from cache, fetching and persisting on misses.
+* `find_system_neighbors`: Return cached neighbors for a system, populating them on demand.
+
+### `EDBfsAlgo`
+
+Source: `src/ed_bfs_algo.py`
+
+OO wrapper for BFS traversal with IoC-friendly construction.
+
+Key methods:
+* `__init__`: Store the collaborators needed for breadth-first traversal.
+* `travel`: Search for a route between systems using BFS with distance bounds.
+
+### `EDBulkLoadAlgo`
+
+Source: `src/ed_bulk_load_algo.py`
+
+Bulk loader with injected cache functions for IoC-friendly composition.
+
+Key methods:
+* `__init__`: Store the cache-backed fetch functions used during bulk loading.
+* `create`: Build a bulk loader from a cache object and shared logger.
+* `load`: Preload cache data by walking outward from seed systems.
 
 ## Business Rules
 
