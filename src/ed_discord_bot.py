@@ -45,7 +45,8 @@ from dotenv import load_dotenv
 import inspect
 import os
 import time
-from typing import Awaitable, Iterator, Sequence, TypeVar
+from typing import TypeVar
+from collections.abc import Awaitable, Iterator, Sequence
 
 import ed_datasource_factory
 import edgis_cache
@@ -114,7 +115,7 @@ class EDDiscordBot:
         bot: DiscordBotProtocol | None = None,
         intents_factory: discord.Intents | None = None,
         command_prefix: str = "!",
-    ) -> "EDDiscordBot":
+    ) -> EDDiscordBot:
         load_dotenv()
         if logger is None:
             raise ValueError("logger must not be null")

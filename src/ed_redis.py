@@ -5,7 +5,8 @@ import json
 import os
 import threading
 from pathlib import Path
-from typing import Any, Awaitable, cast
+from typing import Any, cast
+from collections.abc import Awaitable
 from urllib.parse import urlparse
 
 import psutil
