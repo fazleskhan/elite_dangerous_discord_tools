@@ -15,24 +15,24 @@ from ed_protocols import (
     PathProtocol,
 )
 from ed_route import EDRouteService
-from ed_route_services import (
-    EDCalcSystemsDistanceService,
-    EDGetAllSystemNamesService,
-    EDGetSystemInfoService,
-    EDInitDatasourceService,
-    EDPathService,
-)
+from ed_calc_systems_distance_service import EDCalcSystemsDistanceService
 from ed_datasource_factory import EDDatasourceFactory
 from ed_edgis_cache import EDGisCache
 from ed_edgis import EDGis
+from ed_get_all_system_names_service import EDGetAllSystemNamesService
+from ed_get_system_info_service import EDGetSystemInfoService
+from ed_init_datasource_service import EDInitDatasourceService
+from ed_path_service import EDPathService
 
 
 class EDRouteServiceFactory:
-    """Compose a fully wired route service from project collaborators.
+    """Build the application's default route-service object graph.
 
-    The factory centralizes the application's default wiring so CLI and Discord
-    entrypoints can construct the route layer without duplicating datasource,
-    cache, algorithm, and service-composition logic.
+    The factory acts as the route-layer composition root. It preserves any
+    caller-supplied collaborators, lazily creates the missing datasource and
+    cache stack, and then assembles the focused services and algorithms that
+    power route search, distance calculation, datasource initialization, and
+    cache preloading.
     """
 
     @staticmethod
@@ -48,16 +48,20 @@ class EDRouteServiceFactory:
         path_service: PathProtocol | None = None,
         calc_systems_distance_service: CalcSystemsDistanceProtocol | None = None,
     ) -> EDRouteService:
-        """Build an `EDRouteService`, filling in omitted collaborators with defaults.
+        """Return an `EDRouteService` with defaults for any omitted collaborators.
 
-        The method preserves any caller-supplied collaborators, constructs the
-        missing ones in dependency order, and returns a ready-to-use route
-        service backed by the configured datasource and cache stack.
+        The method resolves dependencies in layers: datasource first, then the
+        EDGIS-backed cache, then the focused route services, and finally the BFS
+        and path orchestration pieces. That order lets callers override any
+        individual layer while still getting a coherent default graph for the
+        rest of the route stack.
         """
         if logger is None:
             raise ValueError("logger must not be null")
         resolved_datasource = datasource
         if resolved_datasource is None:
+            # Storage selection stays inside the datasource factory so this
+            # composition root remains protocol-oriented and backend-agnostic.
             datasource_factory = EDDatasourceFactory(logger=logger)
             resolved_datasource = datasource_factory.create_datasource()
 
@@ -66,6 +70,8 @@ class EDRouteServiceFactory:
             or EDInitDatasourceService(resolved_datasource, logger)
         )
         ed_edgis = EDGis(logger)
+        # The cache is the bridge between persisted systems and EDGIS cache
+        # misses, so later services can rely on one lookup surface.
         resolved_cache = cache or EDGisCache.create(
             resolved_datasource,
             logger,
