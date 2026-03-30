@@ -80,11 +80,14 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Ensure `README.md` includes:
   - an `Entrypoints` section covering every current user-facing or externally triggered entrypoint
   - a short behavior summary plus arguments, required flags, and defaults for each documented entrypoint
-  - a link to `BUSINESS.md`
+  - a link to `BUSINESS_SPEC.md`
+  - a link to both `BUSINESS_SPEC.md` and `INFRASTRUCTURE_SPEC.md` anywhere README describes full reconstruction or full project regeneration
   - inline diagram PNGs plus links to their sources
-- Keep `BUSINESS.md` focused on concrete business behavior, workflows, user-visible rules, and integration-facing behavior.
-- Update `BUSINESS.md` when behavior changes.
-- Avoid duplicating architecture-only rules in `BUSINESS.md`.
+- Keep `BUSINESS_SPEC.md` focused on concrete business behavior, workflows, user-visible rules, and integration-facing behavior.
+- Update `BUSINESS_SPEC.md` when behavior changes.
+- Avoid duplicating architecture-only rules in `BUSINESS_SPEC.md`.
+- Use `INFRASTRUCTURE_SPEC.md` for reconstruction-grade structure and wiring guidance.
+- When a document refers to full reconstruction, full regeneration, or complete implementation context, reference both `BUSINESS_SPEC.md` and `INFRASTRUCTURE_SPEC.md` together.
 
 ## 9. CLI
 - Use `argparse`.

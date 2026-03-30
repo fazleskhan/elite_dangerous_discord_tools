@@ -78,7 +78,8 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) for Elite Dangerous Discor
 - `➕ Extends` Inject EDGIS fetch functions into higher-level services instead of making ad hoc HTTP calls elsewhere.
 
 ## Documentation and Dependency Manifests
-- `➕ Extends` Keep shared cross-project rules in [ARCHITECTURE.md](ARCHITECTURE.md), project-specific infrastructure rules here, and feature or business behavior in [BUSINESS.md](BUSINESS.md).
+- `➕ Extends` Keep shared cross-project rules in [ARCHITECTURE.md](ARCHITECTURE.md), project-specific infrastructure rules here, and feature or business behavior in [BUSINESS_SPEC.md](BUSINESS_SPEC.md).
+- `➕ Extends` When this repository references full regeneration or full rebuild guidance, point to both [BUSINESS_SPEC.md](BUSINESS_SPEC.md) and [INFRASTRUCTURE_SPEC.md](INFRASTRUCTURE_SPEC.md) together.
 - `➕ Extends` Use [dev-requirements.txt](dev-requirements.txt) as this repository's development dependency manifest.
 - `➕ Extends` Keep [dev-requirements.txt](dev-requirements.txt) alphabetically ordered.
 - `➕ Extends` Install both [requirements.txt](requirements.txt) and [dev-requirements.txt](dev-requirements.txt) in development environments.
