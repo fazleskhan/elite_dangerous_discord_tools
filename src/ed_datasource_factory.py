@@ -10,7 +10,6 @@ from constants import (
     redis_name,
     tinydb_name,
 )
-from app_logging import EDLoggingUtils
 from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 
@@ -73,11 +72,10 @@ def create_datasource(
     datasource_type: str | None = None,
     logging_utils: LoggingProtocol | None = None,
 ) -> Any:
-    # Backward-compatible module helper used by call sites that do not
-    # directly instantiate EDDatasourceFactory.
-    shared_logger = logging_utils or EDLoggingUtils.create()
+    if logging_utils is None:
+        raise ValueError("logging_utils must not be null")
     factory = EDDatasourceFactory.create(
-        logging_utils=shared_logger,
+        logging_utils=logging_utils,
     )
     return factory.create_datasource(
         datasource_name=datasource_name,

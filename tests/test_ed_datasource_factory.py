@@ -86,7 +86,7 @@ def test_create_datasource_uses_redis_backend(monkeypatch: pytest.MonkeyPatch) -
     assert captured["logger"] is not None
 
 
-def test_module_create_datasource_uses_edloggingutils(
+def test_module_create_datasource_requires_shared_logger(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     created_with: list[object] = []
@@ -100,16 +100,22 @@ def test_module_create_datasource_uses_edloggingutils(
         return FakeFactory()
 
     monkeypatch.setattr(
-        ed_datasource_factory.EDLoggingUtils, "create", staticmethod(lambda: "logger")
-    )
-    monkeypatch.setattr(
         ed_datasource_factory.EDDatasourceFactory,
         "create",
         staticmethod(fake_factory_create),
     )
 
-    assert ed_datasource_factory.create_datasource("name", "redis") == ("name", "redis")
+    assert ed_datasource_factory.create_datasource(
+        "name",
+        "redis",
+        logging_utils="logger",
+    ) == ("name", "redis")
     assert created_with == ["logger"]
+
+
+def test_module_create_datasource_requires_logger_argument() -> None:
+    with pytest.raises(ValueError, match="logging_utils must not be null"):
+        ed_datasource_factory.create_datasource("name", "redis")
 
 
 def test_datasource_factory_main_is_a_noop() -> None:

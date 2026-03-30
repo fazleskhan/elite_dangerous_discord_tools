@@ -21,11 +21,9 @@ def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
             {"create": staticmethod(lambda logging_utils=None: fake)},
         ),
     )
-    monkeypatch.setattr(
-        export_tinydb.EDLoggingUtils,
-        "create",
-        lambda: type("Logger", (), {"info": lambda self, *args, **kwargs: None})(),
-    )
+    fake_logger = type("Logger", (), {"info": lambda self, *args, **kwargs: None})()
+    monkeypatch.setattr(export_tinydb, "configure_logging", lambda: None)
+    monkeypatch.setattr(export_tinydb, "logger", fake_logger)
     monkeypatch.setattr(
         sys, "argv", ["export_tinydb.py", "--export-dir", str(tmp_path)]
     )

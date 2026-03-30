@@ -93,7 +93,6 @@ class FakeObserver:
 @pytest.fixture(autouse=True)
 def reset_singletons(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(app_logging, "_WATCHER", None)
-    monkeypatch.setattr(app_logging.EDLoggingUtils, "_instance", None)
 
 
 @pytest.fixture()
@@ -561,51 +560,36 @@ def test_initialize_watcher_loads_env_and_starts_once(
         load_dotenv_calls += 1
 
     config_path = tmp_path / "loguru.json"
-    app_logging.EDLoggingUtils._initialize_watcher(config_path)
-    app_logging.EDLoggingUtils._initialize_watcher(tmp_path / "other.json")
+    app_logging.configure_logging(config_path)
+    app_logging.configure_logging(tmp_path / "other.json")
 
     assert created_paths == [config_path]
     assert start_calls == 1
     assert load_dotenv_calls == 2
 
 
-def test_create_returns_singleton_and_initializes_once(
+def test_configure_logging_is_thread_safe(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    init_calls: list[Path] = []
-
-    monkeypatch.setattr(
-        app_logging.EDLoggingUtils,
-        "_initialize_watcher",
-        lambda config_path: init_calls.append(Path(config_path)),
-    )
-
-    first = app_logging.EDLoggingUtils.create(tmp_path / "first.json")
-    second = app_logging.EDLoggingUtils.create(tmp_path / "second.json")
-
-    assert first is second
-    assert init_calls == [tmp_path / "first.json"]
-
-
-def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    init_calls: list[Path] = []
+    created_paths: list[Path] = []
     barrier = threading.Barrier(6)
-    instances: list[app_logging.EDLoggingUtils] = []
-    instances_lock = threading.Lock()
+    watchers: list[FakeWatcher] = []
 
-    def fake_initialize(config_path: Path) -> None:
-        time.sleep(0.02)
-        init_calls.append(Path(config_path))
+    class FakeWatcher:
+        def __init__(self, config_path: Path) -> None:
+            time.sleep(0.02)
+            created_paths.append(Path(config_path))
+            watchers.append(self)
 
-    monkeypatch.setattr(
-        app_logging.EDLoggingUtils, "_initialize_watcher", fake_initialize
-    )
+        def start(self) -> None:
+            return None
+
+    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
+    monkeypatch.setattr(app_logging, "load_dotenv", lambda: None)
 
     def worker(index: int) -> None:
         barrier.wait()
-        instance = app_logging.EDLoggingUtils.create(tmp_path / f"{index}.json")
-        with instances_lock:
-            instances.append(instance)
+        app_logging.configure_logging(tmp_path / f"{index}.json")
 
     threads = [threading.Thread(target=worker, args=(index,)) for index in range(6)]
     for thread in threads:
@@ -613,74 +597,9 @@ def test_create_is_thread_safe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
     for thread in threads:
         thread.join()
 
-    assert len(instances) == 6
-    assert len({id(instance) for instance in instances}) == 1
-    assert len(init_calls) == 1
-
-
-def test_logging_methods_delegate_to_underlying_logger(
-    fake_logger: FakeSinkLogger,
-) -> None:
-    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
-
-    logging_utils.trace("trace {}", 0)
-    logging_utils.debug("debug {}", 1)
-    logging_utils.info("info {}", 2)
-    logging_utils.warn("warn {}", 3)
-    logging_utils.error("error {}", 4)
-    logging_utils.exception("exception {}", 5)
-
-    assert ("trace {}", 0) == fake_logger.calls_for("trace")[0][0]
-    assert ("debug {}", 1) == fake_logger.calls_for("debug")[0][0]
-    assert ("info {}", 2) == fake_logger.calls_for("info")[0][0]
-    assert ("warn {}", 3) == fake_logger.calls_for("warning")[0][0]
-    assert ("error {}", 4) == fake_logger.calls_for("error")[0][0]
-    assert ("exception {}", 5) == fake_logger.calls_for("exception")[0][0]
-
-
-def test_opt_delegates_to_underlying_logger(fake_logger: FakeSinkLogger) -> None:
-    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
-
-    result = logging_utils.opt(depth=1)
-
-    assert result == "opt-result"
-    assert fake_logger.opt_calls == [((), {"depth": 1})]
-
-
-@pytest.mark.asyncio
-async def test_logging_methods_work_inside_asyncio(fake_logger: FakeSinkLogger) -> None:
-    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
-
-    async def worker(name: str) -> None:
-        await asyncio.sleep(0)
-        logging_utils.info("async {}", name)
-
-    await asyncio.gather(*(worker(f"task-{index}") for index in range(10)))
-
-    logged_names = {args[1] for args, _ in fake_logger.calls_for("info")}
-    assert logged_names == {f"task-{index}" for index in range(10)}
-
-
-def test_logging_calls_are_thread_safe_under_contention(
-    fake_logger: FakeSinkLogger,
-) -> None:
-    logging_utils = app_logging.EDLoggingUtils("config/loguru.json")
-    barrier = threading.Barrier(5)
-
-    def worker(index: int) -> None:
-        barrier.wait()
-        for offset in range(30):
-            logging_utils.debug("thread {}", index * 30 + offset)
-
-    threads = [threading.Thread(target=worker, args=(index,)) for index in range(5)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-    debug_calls = fake_logger.calls_for("debug")
-    assert len(debug_calls) == 150
-    assert len({args[1] for args, _ in debug_calls}) == 150
+    assert len(created_paths) == 1
+    assert created_paths[0].parent == tmp_path
+    assert len(watchers) == 1
 
 
 def test_test_module_main_is_a_noop() -> None:

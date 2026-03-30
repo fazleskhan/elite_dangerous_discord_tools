@@ -50,7 +50,6 @@ import ed_datasource_factory
 import edgis_cache
 from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
-from app_logging import EDLoggingUtils
 from constants import default_init_dir, discord_token_env
 from ed_protocols import (
     CacheProtocol,
@@ -123,7 +122,9 @@ class EDDiscordBot:
         command_prefix: str = "!",
     ) -> "EDDiscordBot":
         load_dotenv()
-        resolved_logging_utils = logging_utils or EDLoggingUtils.create()
+        if logging_utils is None:
+            raise ValueError("logging_utils must not be null")
+        resolved_logging_utils = logging_utils
         resolved_logging_utils.debug(
             "Creating DiscordBot with command_prefix={}", command_prefix
         )
