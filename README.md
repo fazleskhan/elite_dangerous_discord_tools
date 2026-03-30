@@ -66,7 +66,7 @@ To enable repository spell checking with `cspell`, run:
 * Default behavior writes datestamped file logs under `logs/`,
   archives/compresses old logs under `logs/archive`, and expires archived
   logs by retention rules.
-* Console output is colorized and split by level (`info/warn` on stdout,
+* Console output is colorized and split by level (`info/warning` on stdout,
   `error` on stderr by default).
 
 ## Entrypoints
