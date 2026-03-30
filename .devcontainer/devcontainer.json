@@ -3,21 +3,21 @@
 {
 	"name": "Elite Dangerous Discord Tools",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/python:3-3.14-trixie",
+	"image": "mcr.microsoft.com/devcontainers/python:3.14-bookworm",
 	 "runArgs": ["--name", "Elite_Dangerous_Discord_Tools"],
+	  
+  	"features": {
+    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  	},
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-	// Uncomment fowardedPorts and portsAttributes if Codex won't authenticate
-	//"forwardPorts": [1455],
-  	//"portsAttributes": {
-    //"1455": {
-    //  "label": "Codex Auth",
-    //  "onAutoForward": "notify"
-    // }	
+  	// Optional: Mount the host Docker socket into the container
+  	"mounts": [
+    {
+      "source": "/var/run/docker.sock",
+      "target": "/var/run/docker.sock",
+      "type": "bind"
+    }
+    ],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "sh ./scripts/postCreateCommand.sh",
@@ -54,7 +54,4 @@
 			}
 		}
 	}	
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
 }

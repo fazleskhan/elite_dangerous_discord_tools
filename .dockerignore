@@ -1,24 +1,12 @@
-# excluded directories
-/.devcontainer
-/.pytest_cache
-/.vscode
-/config
-/data
-/docs
-/logs
-/tests
-/.git
-/venv
-/scripts
-**/__pycache__/
-
-
-# excluded files
-.env
-.gitignore
-.harper-dictionary.txt
-mypy.ini
-pytest.ini
-.docker-compose.yml
-Dockerfile
-.coverage
+*
+!init/
+!init/**
+!src/
+!src/**
+!docs/
+!docs/**
+!README.md
+!requirements.txt
+!Dockerfile
+!docker-compose.xml
+!LICENSE
