@@ -47,7 +47,9 @@
 
 ## Business Rules
 
-Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINESS.md).
+Business behavior and user-visible rules are documented in [BUSINESS_SPEC.md](BUSINESS_SPEC.md).
+
+Full project reconstruction guidance is documented across [BUSINESS_SPEC.md](BUSINESS_SPEC.md) and [INFRASTRUCTURE_SPEC.md](INFRASTRUCTURE_SPEC.md).
 
 ## Architecture Variations
 

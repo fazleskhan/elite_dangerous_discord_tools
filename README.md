@@ -226,10 +226,10 @@ Key methods:
 
 Source: `src/ed_route_service_factory.py`
 
-Compose a fully wired route service from project collaborators.
+Build the application's default route-service object graph.
 
 Key methods:
-* `create`: Build an `EDRouteService`, filling in omitted collaborators with defaults.
+* `create`: Return an `EDRouteService` with defaults for any omitted collaborators.
 
 ### `InterceptHandler`
 
@@ -369,7 +369,9 @@ Install with: `pip install -r dev-requirements.txt`
 
 ## Business Rules
 
-Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINESS.md).
+Business behavior and user-visible rules are documented in [BUSINESS_SPEC.md](BUSINESS_SPEC.md).
+
+Full project reconstruction guidance is documented across [BUSINESS_SPEC.md](BUSINESS_SPEC.md) and [INFRASTRUCTURE_SPEC.md](INFRASTRUCTURE_SPEC.md).
 
 ## Architecture Variations
 
