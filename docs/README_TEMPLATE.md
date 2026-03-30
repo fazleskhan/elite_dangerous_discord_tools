@@ -45,6 +45,10 @@ Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINES
 
 Project-specific architecture additions and overrides are documented in [ARCHITECTURE.project.md](ARCHITECTURE.project.md).
 
+## Scripts
+
+{{README:SCRIPTS}}
+
 ## Diagrams
 
 ### Class Diagram

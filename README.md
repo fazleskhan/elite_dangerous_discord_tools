@@ -172,6 +172,81 @@ Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINES
 
 Project-specific architecture additions and overrides are documented in [ARCHITECTURE.project.md](ARCHITECTURE.project.md).
 
+## Scripts
+
+### `generate_readme.py`
+
+Assembles `README.md` from `docs/README_TEMPLATE.md` plus embedded `[README:...]` blocks
+stored in repository source files and scripts.
+
+Usage:
+- `python scripts/generate_readme.py`
+
+Arguments:
+- This script takes no command-line arguments.
+
+### `profile_workload.py`
+
+Runs small performance profiling workloads against the route service so you can
+measure datasource initialization, route generation, or repeated distance
+calculations from the command line.
+
+Usage:
+- `python scripts/profile_workload.py init`
+- `python scripts/profile_workload.py path --initial Sol --destination "Ross 248"`
+- `python scripts/profile_workload.py distance_loop --iterations 5000`
+
+Arguments:
+- `mode`: Required positional argument. Choose one of `init`, `path`, or
+  `distance_loop`.
+- `--import_dir`: Path to the import data directory. Defaults to `./init`.
+- `--db`: Temporary database path to use for the profiling run. Defaults to
+  `/tmp/ed_profile.db`.
+- `--initial`: Starting system name for `path` and `distance_loop`. Defaults to
+  `Sol`.
+- `--destination`: Destination system name for `path` and `distance_loop`.
+  Defaults to `Ross 248`.
+- `--max_systems`: Maximum number of systems to visit during `path`. Defaults to
+  `1000`.
+- `--min_distance`: Minimum jump distance filter for `path`. Defaults to `0`.
+- `--max_distance`: Maximum jump distance filter for `path`. Defaults to `10000`.
+- `--iterations`: Number of repeated calculations for `distance_loop`. Defaults
+  to `1000`.
+
+### `build_and_push.sh`
+
+Builds the Docker image for this repository, tags it for the selected deployment
+environment, tags the same image as `latest`, and pushes both tags to the configured
+registry namespace.
+
+Usage:
+- `bash scripts/build_and_push.sh`
+- `DOCKER_ENV=dev bash scripts/build_and_push.sh`
+- `DOCKER_ENV=test bash scripts/build_and_push.sh`
+- `DOCKER_ENV=prod bash scripts/build_and_push.sh`
+
+Arguments:
+- This script takes no positional command-line arguments.
+
+Environment variables:
+- `DOCKER_ENV`: Selects the image tag to build and push. Supported values are
+  `dev`, `test`, and `prod`. If unset, the script defaults to `dev`.
+
+### `postCreateCommand.sh`
+
+Prepares a development container or workstation by refreshing the Yarn apt key,
+updating system packages, installing `austin`, and installing both runtime and
+development Python dependencies for the project.
+
+Usage:
+- `bash scripts/postCreateCommand.sh`
+
+Arguments:
+- This script takes no positional command-line arguments.
+
+Environment variables:
+- This script does not currently read any custom environment variables.
+
 ## Diagrams
 
 ### Class Diagram

@@ -1,4 +1,20 @@
 #!/bin/bash
+# [README:SCRIPTS]
+# ### `postCreateCommand.sh`
+#
+# Prepares a development container or workstation by refreshing the Yarn apt key,
+# updating system packages, installing `austin`, and installing both runtime and
+# development Python dependencies for the project.
+#
+# Usage:
+# - `bash scripts/postCreateCommand.sh`
+#
+# Arguments:
+# - This script takes no positional command-line arguments.
+#
+# Environment variables:
+# - This script does not currently read any custom environment variables.
+# [/README]
 
 echo "Executing ./scripts/postCreateCommand.sh"
 
@@ -18,5 +34,4 @@ pip install -r requirements.txt
 
 # development environments must load both runtime and development requirements
 pip install -r dev-requirements.txt
-
 

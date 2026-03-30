@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
-"""Generate README.md from docs/README_TEMPLATE.md and source docstring sections."""
+"""
+[README:SCRIPTS]
+### `generate_readme.py`
+
+Assembles `README.md` from `docs/README_TEMPLATE.md` plus embedded `[README:...]` blocks
+stored in repository source files and scripts.
+
+Usage:
+- `python scripts/generate_readme.py`
+
+Arguments:
+- This script takes no command-line arguments.
+
+[/README]
+Generate README.md from docs/README_TEMPLATE.md and embedded source documentation sections.
+"""
 
 from __future__ import annotations
 
-import ast
 import re
 from pathlib import Path
 
@@ -11,38 +25,73 @@ ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE_PATH = ROOT / "docs" / "README_TEMPLATE.md"
 README_PATH = ROOT / "README.md"
 
-SECTION_RE = re.compile(
-    r"\[README:(?P<key>[A-Z0-9_]+)\]\n(?P<body>.*?)\n\[/README\]",
-    re.DOTALL,
-)
 PLACEHOLDER_RE = re.compile(r"\{\{README:(?P<key>[A-Z0-9_]+)\}\}")
+START_RE = re.compile(r"^\[README:(?P<key>[A-Z0-9_]+)\]$")
+END_RE = re.compile(r"^\[/README\]$")
 
 
-def _extract_docstring_sections(source_path: Path) -> dict[str, str]:
-    module = ast.parse(source_path.read_text(encoding="utf-8"))
-    docstring = ast.get_docstring(module)
-    if docstring is None:
-        return {}
+def _normalize_readme_line(line: str) -> str:
+    stripped = line.rstrip("\n")
+    if stripped.startswith("# "):
+        return stripped[2:]
+    if stripped == "#":
+        return ""
+    return stripped
 
-    sections: dict[str, str] = {}
-    for match in SECTION_RE.finditer(docstring):
-        key = match.group("key")
-        body = match.group("body").strip()
-        sections[key] = body
+
+def _extract_sections(source_path: Path) -> dict[str, list[str]]:
+    lines = source_path.read_text(encoding="utf-8").splitlines()
+    sections: dict[str, list[str]] = {}
+    current_key: str | None = None
+    current_body: list[str] = []
+
+    for raw_line in lines:
+        normalized = _normalize_readme_line(raw_line).strip()
+        start_match = START_RE.match(normalized)
+        if start_match:
+            if current_key is not None:
+                raise ValueError(f"Nested README section in {source_path}")
+            current_key = start_match.group("key")
+            current_body = []
+            continue
+
+        if current_key is not None and END_RE.match(normalized):
+            body = "\n".join(current_body).strip()
+            sections.setdefault(current_key, []).append(body)
+            current_key = None
+            current_body = []
+            continue
+
+        if current_key is not None:
+            current_body.append(_normalize_readme_line(raw_line))
+
+    if current_key is not None:
+        raise ValueError(f"Unterminated README section '{current_key}' in {source_path}")
+
+    return sections
+
+
+def _collect_sections_from_glob(pattern: str) -> dict[str, list[str]]:
+    sections: dict[str, list[str]] = {}
+    for source_path in sorted(ROOT.glob(pattern)):
+        extracted = _extract_sections(source_path)
+        for key, bodies in extracted.items():
+            sections.setdefault(key, []).extend(bodies)
     return sections
 
 
 def _collect_sections() -> dict[str, str]:
-    sections: dict[str, str] = {}
-    for source_path in sorted((ROOT / "src").glob("*.py")):
-        extracted = _extract_docstring_sections(source_path)
-        for key, body in extracted.items():
-            if key in sections:
-                raise ValueError(
-                    f"Duplicate README section key '{key}' found in {source_path}"
-                )
-            sections[key] = body
-    return sections
+    collected: dict[str, list[str]] = {}
+
+    for source_sections in (
+        _collect_sections_from_glob("src/*.py"),
+        _collect_sections_from_glob("scripts/*.py"),
+        _collect_sections_from_glob("scripts/*.sh"),
+    ):
+        for key, bodies in source_sections.items():
+            collected.setdefault(key, []).extend(bodies)
+
+    return {key: "\n\n".join(body for body in bodies if body) for key, bodies in collected.items()}
 
 
 def _render_template(template: str, sections: dict[str, str]) -> str:
