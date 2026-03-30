@@ -20,11 +20,11 @@ class EDGis:
     """OO gateway wrapper around EDGIS HTTP lookups."""
 
     # https://github.com/elitedangereuse/ed_edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L515
-    # https://ed_edgis.elitedangereuse.fr/neighbors?x=<x_value>&y=<y_value>&z=<z_value>&radius=20
-    _fetch_neighbors_uri: str = r"https://ed_edgis.elitedangereuse.fr/neighbors"
+    # https://edgis.elitedangereuse.fr/neighbors?x=<x_value>&y=<y_value>&z=<z_value>&radius=20
+    _fetch_neighbors_uri: str = r"https://edgis.elitedangereuse.fr/neighbors"
     # https://github.com/elitedangereuse/ed_edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L1078
-    # https://ed_edgis.elitedangereuse.fr/coords?q=<url_encoded_system_name>
-    _fetch_coords_uri: str = r"https://ed_edgis.elitedangereuse.fr/coords"
+    # https://edgis.elitedangereuse.fr/coords?q=<url_encoded_system_name>
+    _fetch_coords_uri: str = r"https://edgis.elitedangereuse.fr/coords"
 
     def __init__(self, logger: LoggingProtocol):
         """Store the logger used for EDGIS request tracing and failures.

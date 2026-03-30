@@ -101,3 +101,56 @@ def test_fetch_system_info_and_neighbors_handle_success_and_errors(
     assert gis.fetch_system_info("Sol") is None
     assert gis.fetch_neighbors(1, 2, 3) is None
     assert logger.messages("exception")
+
+
+def test_fetch_methods_use_the_edgis_host(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    logger = ThreadSafeLogger()
+    gis = ed_edgis.EDGis(logger)
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    async def fake_fetch_json(url: str, params: dict[str, object]) -> dict[str, str]:
+        calls.append((url, params))
+        return {"ok": "ok"}
+
+    monkeypatch.setattr(ed_edgis.EDGis, "_fetch_json", staticmethod(fake_fetch_json))
+    monkeypatch.setattr(
+        ed_edgis.EDGis,
+        "_run_async",
+        staticmethod(lambda coro: asyncio.run(coro)),
+    )
+
+    assert gis.fetch_system_info("Sol") == {"ok": "ok"}
+    assert gis.fetch_neighbors(1, 2, 3) == {"ok": "ok"}
+    assert calls == [
+        ("https://edgis.elitedangereuse.fr/coords", {"q": "Sol"}),
+        ("https://edgis.elitedangereuse.fr/neighbors", {"x": 1, "y": 2, "z": 3}),
+    ]
+
+
+def test_fetch_system_info_integration_for_sol() -> None:
+    logger = ThreadSafeLogger()
+    gis = ed_edgis.EDGis(logger)
+
+    result = gis.fetch_system_info("Sol")
+
+    assert result is not None
+    assert result["name"] == "Sol"
+    assert result["coords"] == {"x": 0.0, "y": 0.0, "z": 0.0}
+
+
+def test_fetch_neighbors_integration_for_origin() -> None:
+    logger = ThreadSafeLogger()
+    gis = ed_edgis.EDGis(logger)
+
+    result = gis.fetch_neighbors(0, 0, 0)
+
+    assert result is not None
+    assert result
+    assert any(
+        neighbor["name"] == "Sol"
+        and neighbor["coords"] == {"x": 0.0, "y": 0.0, "z": 0.0}
+        and neighbor["distance"] == 0.0
+        for neighbor in result
+    )
