@@ -43,6 +43,7 @@ externalizable
 Fazle
 fazleskhan
 fspath
+graphviz
 hiredis
 htmlcov
 inotify

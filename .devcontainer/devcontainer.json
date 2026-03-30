@@ -14,7 +14,15 @@
         "node"
       		]	
     	},		
-    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {} //,
+		//https://github.com/devcontainers/features/pkgs/container/features%2Fjava
+		 //"ghcr.io/devcontainers/features/java:1.8.0": {}
+
+		//"ghcr.io/devcontainers/features/java:1": {
+    	//	"version": "none",
+    	//	"installJRE": "true",
+	//		"version": "25"
+  //		}
 	},
 
   	// Optional: Mount the host Docker socket into the container

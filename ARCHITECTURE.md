@@ -69,7 +69,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Update the class diagram when class structure changes.
 - Remove or replace stale diagrams.
 - Regenerate PNGs for every updated `.puml` in the same task and write each PNG next to its source.
-- Use a local PlantUML renderer when available; otherwise use the official PlantUML server.
+- Regenerate diagram PNGs only by running `generate_plantuml_local.sh`.
 - Treat stale or missing diagram PNGs as an incomplete task state.
 - Keep `README.md` generated and current.
 - Use `docs/README_TEMPLATE.md` as the README structure.
