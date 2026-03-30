@@ -1,4 +1,3 @@
-import asyncio
 import gzip
 import json
 import threading
@@ -573,7 +572,7 @@ def test_configure_logging_is_thread_safe(
 ) -> None:
     created_paths: list[Path] = []
     barrier = threading.Barrier(6)
-    watchers: list[FakeWatcher] = []
+    watchers: list[object] = []
 
     class FakeWatcher:
         def __init__(self, config_path: Path) -> None:

@@ -69,9 +69,11 @@ pytest
 PYTHONDONTWRITEBYTECODE
 pythonpath
 PYTHONUNBUFFERED
+pyupgrade
 re-read
 redis
 rediss
+refurb
 reraises
 sadd
 SmartCache
