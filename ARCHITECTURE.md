@@ -109,6 +109,8 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Prefer explicit names over terse ones.
 - Use ASCII unless the file already requires Unicode.
 - Add concise code comments when they clarify what the code is doing and why, especially around non-obvious logic or integration boundaries.
+- After source files are added, changed, renamed, or removed from the project, review the surrounding clarifying code comments and update, add, move, or delete them so they continue to match the current logic and its purpose.
+- Treat stale explanatory comments as defects: comments must not describe removed behavior, old control flow, old collaborators, or pre-refactor structure.
 
 ## 12. Formatting
 - After source files are added, changed, or removed from the project, run `black .` from the repository root before finishing the task.

@@ -192,6 +192,8 @@ class EDRedis:
 
     @property
     def _systems_set_key(self) -> str:
+        # Track known system names separately so Redis can enumerate records
+        # without scanning every namespaced key in the database.
         return f"{self.datasource_name}:{systems_field}"
 
     async def _insert_system_async(self, system_info: SystemInfo) -> None:

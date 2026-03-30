@@ -164,6 +164,7 @@ class EDTinyDB:
         if inserted:
             self._cache_set(system_name, system_info)
             with self._cache_lock:
+                # A single insert invalidates the cached all-systems snapshot.
                 self._all_systems_cached = False
 
     async def _get_system_async(self, system_name: str) -> SystemInfo | None:
@@ -202,6 +203,8 @@ class EDTinyDB:
             systems = await db.all()
         typed_systems = [cast(SystemInfo, system) for system in systems]
         with self._cache_lock:
+            # Rebuild the per-system cache from the authoritative table scan so
+            # later single-item lookups can hit memory instead of disk.
             self._system_cache = {
                 system[system_info_name_field]: system
                 for system in typed_systems
