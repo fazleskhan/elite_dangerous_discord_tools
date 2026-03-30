@@ -19,6 +19,10 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Define injectable collaborator protocols in `src/protocols.py`, including `ILogger` for business-class logging.
 - Depend on protocols rather than concrete implementations.
 - `main.py` owns application wiring and top-level configuration.
+- Maintain `requirements.txt` for Python dependencies needed in deployed production environments.
+- Maintain `dev-requirements.txt` for Python dependencies needed only for local development, testing, linting, typing, profiling, or other non-production workflows.
+- When reloading Python dependencies in a development environment, install both `requirements.txt` and `dev-requirements.txt`.
+- Add new Python dependencies to `dev-requirements.txt` by default unless they are required while the application is deployed in production, in which case add them to `requirements.txt`.
 - Always make changes on the branch currently active in the user's workspace unless the user explicitly asks to switch branches.
 
 ## 3. Null Safety

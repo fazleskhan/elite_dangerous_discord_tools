@@ -8,7 +8,6 @@ from defaults import (
     DEFAULT_TINYDB_NAME,
 )
 
-
 SYSTEM_INFO_ID64_FIELD: str = "id64"
 SYSTEM_INFO_NAME_FIELD: str = "name"
 SYSTEM_INFO_MAINSTAR_FIELD: str = "mainstar"
