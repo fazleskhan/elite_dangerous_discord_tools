@@ -32,21 +32,37 @@ Arguments:
 """
 
 import argparse
+import asyncio
 import os
 import time
 from pathlib import Path
 
-import ed_route
+from ed_app_logging import configure_logging
+from ed_constants import tinydb_name_env
+from ed_route_service_factory import EDRouteServiceFactory
+from loguru import logger
+
+
+def _build_route_service(db_path: str):
+    previous_db_path = os.environ.get(tinydb_name_env)
+    os.environ[tinydb_name_env] = db_path
+    try:
+        return EDRouteServiceFactory.create(logger=logger)
+    finally:
+        if previous_db_path is None:
+            os.environ.pop(tinydb_name_env, None)
+        else:
+            os.environ[tinydb_name_env] = previous_db_path
 
 
 def run_init(import_dir: str, db_path: str) -> None:
     if Path(db_path).exists():
         Path(db_path).unlink()
-    service = ed_route.EDRouteService.create(script_file="src/main.py")
+    service = _build_route_service(db_path)
     start = time.perf_counter()
     service.init_datasource(import_dir)
     elapsed = time.perf_counter() - start
-    print(f"init_elapsed_s={elapsed:.6f}")
+    logger.info("init_elapsed_s={:.6f}", elapsed)
 
 
 def run_path(
@@ -60,11 +76,11 @@ def run_path(
 ) -> None:
     if Path(db_path).exists():
         Path(db_path).unlink()
-    service = ed_route.EDRouteService.create(script_file="src/main.py")
+    service = _build_route_service(db_path)
     service.init_datasource(import_dir)
 
     start = time.perf_counter()
-    route = ed_route.asyncio.run(
+    route = asyncio.run(
         service.path(
             initial,
             destination,
@@ -76,8 +92,8 @@ def run_path(
     )
     elapsed = time.perf_counter() - start
     hops = 0 if not route else len(route)
-    print(f"path_elapsed_s={elapsed:.6f}")
-    print(f"path_hops={hops}")
+    logger.info("path_elapsed_s={:.6f}", elapsed)
+    logger.info("path_hops={}", hops)
 
 
 def run_distance_loop(
@@ -89,7 +105,7 @@ def run_distance_loop(
 ) -> None:
     if Path(db_path).exists():
         Path(db_path).unlink()
-    service = ed_route.EDRouteService.create(script_file="src/main.py")
+    service = _build_route_service(db_path)
     service.init_datasource(import_dir)
 
     start = time.perf_counter()
@@ -97,12 +113,13 @@ def run_distance_loop(
     for _ in range(iterations):
         distance = service.calc_systems_distance(initial, destination)
     elapsed = time.perf_counter() - start
-    print(f"distance_elapsed_s={elapsed:.6f}")
-    print(f"distance_value={distance:.12f}")
-    print(f"distance_iterations={iterations}")
+    logger.info("distance_elapsed_s={:.6f}", elapsed)
+    logger.info("distance_value={:.12f}", distance)
+    logger.info("distance_iterations={}", iterations)
 
 
 def main() -> None:
+    configure_logging()
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["init", "path", "distance_loop"])
     parser.add_argument("--import_dir", default="./init")

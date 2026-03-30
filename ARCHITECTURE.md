@@ -3,164 +3,157 @@
 Apply this contract to new Python code and refactors in this repository unless explicitly instructed otherwise.
 
 ## Project-Specific Companion
-- This file defines the shared base architecture contract for the repository.
-- A repository may include a project-specific companion file at `ARCHITECTURE.project.md`.
-- When present, `ARCHITECTURE.project.md` must be read together with this file and may add repository-specific requirements, constraints, diagrams, workflow rules, and implementation variations.
-- Repository-specific overrides must be explicit. If a rule in `ARCHITECTURE.project.md` conflicts with this file, the project-specific rule takes precedence for this repository.
-- Prefer keeping reusable rules in `ARCHITECTURE.md` and moving only repository-specific variations into `ARCHITECTURE.project.md`.
+- This file is the shared base contract.
+- A repository may add `ARCHITECTURE.project.md` for repository-specific rules.
+- Read both files together when the project-specific file exists.
+- If the two files conflict, `ARCHITECTURE.project.md` wins for that repository.
+- Keep reusable rules here and move repository-specific variations to the project-specific file.
 
 ## 1. Design
-- Prefer small, focused classes when behavior has dependencies.
-- Use inversion of control (IoC) by default.
-- Inject collaborators through constructors; do not construct them inside business classes.
+- Prefer small, focused classes.
+- Use inversion of control by default.
+- Inject collaborators through constructors.
 - Prefer composition over inheritance.
 
 ## 2. Dependencies
-- Define injectable collaborator protocols in `src/protocols.py`, including `ILogger` for business-class logging.
-- Depend on protocols rather than concrete implementations.
-- `main.py` owns application wiring and top-level configuration.
-- Maintain `requirements.txt` for Python dependencies needed in deployed production environments.
-- Keep the libraries listed in `requirements.txt` in alphabetical order.
-- Keep local-development-only Python dependencies separate from deployed runtime dependencies.
-- Add a short comment for every listed dependency manifest entry describing what the library does and how the project uses it.
-- When reloading Python dependencies in a development environment, install both the runtime dependency manifest and the local-development dependency manifest.
-- Add new Python dependencies to the local-development dependency manifest by default unless they are required while the application is deployed in production, in which case add them to the runtime dependency manifest.
-- Always make changes on the branch currently active in the user's workspace unless the user explicitly asks to switch branches.
+- Define injectable collaborator protocols in `src/protocols.py`, including `ILogger` for business logging.
+- Depend on protocols instead of concrete implementations.
+- `main.py` owns top-level wiring and configuration.
+- Maintain `requirements.txt` for deployed runtime dependencies.
+- Keep `requirements.txt` alphabetically ordered.
+- Keep local-development-only dependencies in a separate development manifest.
+- Add a short comment for every dependency entry describing what the library does and how the project uses it.
+- Install both the runtime and development dependency manifests in development environments.
+- Add new dependencies to the development manifest by default unless production runtime needs them.
+- Work on the branch already checked out in the workspace unless the user asks to switch.
 
 ## 3. Null Safety
-- Add runtime null guards for constructor arguments and public method arguments that come from outside the class.
+- Add runtime null guards for constructor arguments and public inputs that come from outside the class.
 - If a value is null-guarded, annotate it with `| None`.
-- Null guard failures should raise `ValueError` with clear messages like `"<arg_name> must not be null"`.
+- Raise `ValueError` with clear messages such as `"<arg_name> must not be null"`.
 
 ## 4. Typing
-- Fully type constructor arguments, method arguments, return values, instance fields, constants, and important locals.
+- Fully type constructors, methods, returns, fields, constants, and important locals.
 - Prefer precise types over `Any`.
 - Use `Path` for filesystem paths.
 - Keep the code free of type-checker warnings.
 
 ## 5. Module Responsibilities
-- `main.py` owns CLI parsing, default paths, wiring, and configuration bootstrap.
-- Business classes should not own CLI concerns.
+- `main.py` owns CLI parsing, defaults, wiring, and bootstrap configuration.
+- Business classes must not own CLI concerns.
 - Keep environment-specific defaults near the entry point unless there is a strong reason not to.
 - Avoid hidden global state.
-- Do not create module names that conflict with Python standard library modules.
-- Do not introduce shim or compatibility-layer modules; integrate dependencies directly and use type stubs or normal refactoring instead of project-owned wrapper layers.
+- Do not create module names that conflict with the Python standard library.
+- Do not introduce compatibility-layer or shim modules; refactor directly.
 
 ## 6. Error Handling
-- Prefer defensive programming: validate inputs early, guard assumptions, and fail clearly when invariants are violated.
-- Fail fast on invalid inputs.
-- Use clear, deterministic errors for invalid arguments and invalid file or content formats.
-- Handled errors should not generate a traceback; show only a clear, concise message explaining the issue.
-- Log handled errors only once at the CLI boundary. Business logic should raise clear handled exceptions without separately logging them as errors.
-- Unhandled errors should preserve the traceback for debugging.
-- Return sentinel values only when explicitly required by the feature contract.
+- Prefer defensive programming: validate assumptions early, guard invariants, and fail clearly.
+- Prefer fail-fast programming: detect invalid state or invalid input as early as practical and stop immediately with a clear error.
+- Validate early and fail clearly.
+- Use deterministic errors for invalid arguments, files, and content.
+- Handled errors must not emit a traceback.
+- Log handled errors once at the CLI boundary.
+- Preserve tracebacks for unhandled errors.
+- Return sentinel values only when the feature contract explicitly requires them.
 
 ## 7. Testing
 - Add or update tests for every behavior change.
 - Use stubs or fakes for unit tests.
 - Use real collaborators together in integration tests.
-- Cover constructor null guards, argument validation, happy paths, and failure paths.
-- Type pytest fixtures explicitly where useful, for example `pytest.MonkeyPatch` and `pytest.CaptureFixture[str]`.
+- Cover null guards, argument validation, happy paths, and failure paths.
+- Type pytest fixtures where useful.
 
-## 8. Diagrams
-- When application behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist.
-- Treat diagram maintenance as mandatory for source additions, deletions, renames, wiring changes, collaborator changes, control-flow changes, entrypoint changes, logging/configuration flow changes, and structural refactors, even when the user-facing behavior is intended to stay the same.
-- Every user-facing or externally triggered entry point must have its own sequence diagram source rather than relying only on a shared summary diagram. Identify entry points by analyzing the current code rather than maintaining a hard-coded list in this contract.
-- Shared overview diagrams may exist in addition to per-entrypoint diagrams, but they do not replace entrypoint-specific sequence diagrams.
-- Distinct entry-point variations and code paths should be diagrammed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
-- When class structure changes, update the PlantUML class diagram.
-- A task that changes relevant code is incomplete until the affected `.puml` sources have been reviewed and updated to match the current code, and any stale diagrams have been removed or replaced.
-- After diagram updates, generate fresh PNG outputs for every updated PlantUML source (`.puml`) before finishing the task.
-- Do not defer diagram rendering; generate the PNGs in the same task immediately after updating the `.puml` files.
-- Write each PNG next to its source file with the same basename (for example `foo.puml` -> `foo.png`).
-- Use a local PlantUML renderer when available; otherwise render through the official PlantUML server.
-- Treat missing or stale diagram PNG generation as an incomplete task state.
-- Keep `README.md` generated and up to date with a concise description of the current implementation.
-- When regenerating `README.md`, use `docs/README_TEMPLATE.md` as the required structural template and model.
-- Keep mutable README narrative content in Python module docstrings and script comment blocks, including `scripts/postCreateCommand.sh`, using tagged sections in the form `[README:<KEY>] ... [/README]`.
-- Use class and method docstrings as source material when generating implementation-oriented README content such as code-overview or component-summary sections.
-- In `docs/README_TEMPLATE.md`, reference docstring-backed content through placeholders in the form `{{README:<KEY>}}`.
-- Assemble the final `README.md` by applying the collected tagged sections and generated docstring-derived sections from Python modules and script sources to `docs/README_TEMPLATE.md` via `python scripts/generate_readme.py`.
-- `README.md` must include an `Entrypoints` section that documents every current user-facing or externally triggered entrypoint (for example CLI commands, bot commands, and utility scripts).
-- For each documented entrypoint, include a short behavioral overview plus the available arguments/options, and clearly identify required versus optional arguments and defaults when present.
-- Include a link to `BUSINESS.md` in `README.md` so the business rules are discoverable alongside the implementation summary.
-- Keep `BUSINESS.md` focused on detailed business logic and user-visible behavior that is not already fully specified in `ARCHITECTURE.md`.
-- When behavior changes, analyze the current code and update `BUSINESS.md` with any business-rule changes that are found.
-- `BUSINESS.md` should capture concrete command behavior, workflow rules, data-handling rules, cache behavior, integration-facing behavior, and user-visible constraints when those details are more specific than the architectural contract.
-- Avoid duplicating architecture-only concerns in `BUSINESS.md`; prefer `ARCHITECTURE.md` for implementation rules and `BUSINESS.md` for feature and behavior rules.
-- Include the current diagram PNGs inline in `README.md` so they render in the README, and include source links alongside them.
+## 8. Diagrams and Generated Docs
+- Update related PlantUML diagrams whenever behavior, structure, wiring, collaborators, or entrypoints change.
+- Give every user-facing or externally triggered entrypoint its own sequence diagram.
+- Update the class diagram when class structure changes.
+- Remove or replace stale diagrams.
+- Regenerate PNGs for every updated `.puml` in the same task and write each PNG next to its source.
+- Use a local PlantUML renderer when available; otherwise use the official PlantUML server.
+- Treat stale or missing diagram PNGs as an incomplete task state.
+- Keep `README.md` generated and current.
+- Use `docs/README_TEMPLATE.md` as the README structure.
+- Keep mutable README narrative content in tagged Python docstrings or script comment blocks using `[README:<KEY>] ... [/README]`.
+- Use class and method docstrings as source material for implementation-oriented README sections.
+- Use `{{README:<KEY>}}` placeholders in `docs/README_TEMPLATE.md`.
+- Generate `README.md` with `python scripts/generate_readme.py`.
+- Ensure `README.md` includes:
+  - an `Entrypoints` section covering every current user-facing or externally triggered entrypoint
+  - a short behavior summary plus arguments, required flags, and defaults for each documented entrypoint
+  - a link to `BUSINESS.md`
+  - inline diagram PNGs plus links to their sources
+- Keep `BUSINESS.md` focused on concrete business behavior, workflows, user-visible rules, and integration-facing behavior.
+- Update `BUSINESS.md` when behavior changes.
+- Avoid duplicating architecture-only rules in `BUSINESS.md`.
 
 ## 9. CLI
-- Use `argparse` for command-line interfaces.
-- Do not use `print()` for application output; route user-facing messages through logging.
+- Use `argparse`.
+- Do not use `print()` for application output; use logging.
 - Keep CLI parsing separate from domain logic.
 
 ## 10. Refactoring
 - Preserve behavior unless the requested change explicitly changes behavior.
-- When introducing IoC, update tests to reflect the new wiring.
+- When introducing IoC, update tests to match the new wiring.
 - When adding null guards, update type signatures to match.
 
 ## 11. Style
-- Store shared magic string constants in `src/constants.py`.
-- Store default arguments and default values in `src/defaults.py`.
-- Prefer named constants over repeated inline string literals in source files.
-- Use Pythonic code style throughout the project rather than Java-style ceremony or patterns.
+- Store shared magic strings in `src/constants.py`.
+- Store shared default values in `src/defaults.py`.
+- Prefer named constants over repeated string literals.
+- Use Pythonic style rather than Java-style ceremony.
 - Prefer guard clauses and direct assignment over `if ... else` assignment blocks.
-- Prefer direct construction over trivial constructor-only factory wrappers unless the wrapper adds real wiring or behavior.
+- Prefer direct construction over trivial constructor-only factory wrappers unless the wrapper adds real behavior or wiring.
 - Do not add placeholder no-op `main()` functions to non-entrypoint modules.
-- Keep implementations simple and readable.
-- Prefer explicit names over terse ones.
+- Keep implementations simple, readable, and explicit.
 - Use ASCII unless the file already requires Unicode.
-- Add concise code comments when they clarify what the code is doing and why, especially around non-obvious logic or integration boundaries.
+- Add concise comments where they clarify non-obvious logic or integration boundaries.
 - Add a docstring to every class and every method.
-- Each class docstring must describe the class's overall purpose and give a short overview of how it achieves that purpose.
-- Each method docstring must describe the method's purpose and give a short overview of how it achieves its result, especially when it coordinates collaborators, performs validation, bridges sync/async work, or maintains caches or locks.
-- After source files are added, changed, renamed, or removed from the project, review the affected class and method docstrings and update, add, move, or delete them so they continue to match the current logic, collaborators, and structure.
-- Treat stale or missing class and method docstrings as defects.
-- After source files are added, changed, renamed, or removed from the project, review the surrounding clarifying code comments and update, add, move, or delete them so they continue to match the current logic and its purpose.
-- Treat stale explanatory comments as defects: comments must not describe removed behavior, old control flow, old collaborators, or pre-refactor structure.
+- Class docstrings must describe the class purpose and briefly explain how it achieves that purpose.
+- Method docstrings must describe the method purpose and briefly explain how it achieves its result, especially when coordinating collaborators, validating inputs, bridging sync/async work, or maintaining caches or locks.
+- After source files are added, changed, renamed, or removed, review and update nearby docstrings and clarifying comments.
+- Treat stale or missing docstrings and stale explanatory comments as defects.
 
 ## 12. Formatting
-- After source files are added, changed, or removed from the project, run `black .` from the repository root before finishing the task.
+- After source files are added, changed, or removed, run `black .` from the repository root.
 - Treat formatter output as part of the required final state.
-- When adding a VS Code extension for the workspace, add it to the `.devcontainer/devcontainer.json` `customizations.vscode.extensions` array.
+- When adding a VS Code extension for the workspace, add it to `.devcontainer/devcontainer.json` under `customizations.vscode.extensions`.
 
 ## 13. Logging
-- Include `trace`, `info`, `warn`, and `error` logging where appropriate.
-- Use `@traced` from `autologging` on concrete methods in application source so method entry and exit tracing is applied consistently.
-- Business classes should depend on `ILogger` via constructor injection.
-- Instantiate one shared logging singleton in `main.py` and pass that same object into business objects across the project.
-- Integrate standard logging with Loguru through an `InterceptHandler`.
-- Keep project-specific logging glue in a dedicated application logging module, for example `src/app_logging.py`.
-- Store the default Loguru configuration object in a shared defaults module, for example `src/defaults.py`.
-- Read a filesystem configuration file, for example `config/loguru.json`, as an override layer, merge it over the default configuration, and use the merged result to configure Loguru through `loguru-config`.
-- Keep the effective Loguru configuration shape externalizable through `config/loguru.json`; handler count, targets, levels, formats, colorization, rotation, and retention settings should be overridable there rather than hard-coded in code.
-- The default configuration should provide:
+- Use `trace`, `info`, `warning`, and `error` logging where appropriate.
+- Use `@traced` from `autologging` on concrete application methods.
+- Inject `ILogger` into business classes.
+- Use one shared logger instance across the application.
+- Integrate standard logging with Loguru through an intercept handler.
+- Keep project-specific logging glue in a dedicated application logging module such as `src/app_logging.py`.
+- Store the default Loguru configuration in a shared defaults module such as `src/defaults.py`.
+- Load a filesystem override such as `config/loguru.json`, merge it over the defaults, and configure Loguru from the merged result.
+- Keep the effective logging configuration externalizable rather than hard-coding handler counts, targets, levels, formats, colorization, rotation, or retention.
+- Default logging should provide:
   - a plain-text datestamped application log under `logs/`
   - a colorized stdout handler
   - a colorized stderr handler
-- Default behavior should send `info`, `warn`, and `error` to the application log, `info` and `warn` to stdout, and only `error` to stderr.
-- Log parameters received by application entry points at `info` level.
-- Application log entries should include thread ID, source file, and source line.
-- Log files older than 7 days should be compressed into `logs/archive/`.
-- Archived logs older than 30 days should be deleted.
-- Handled CLI errors should be logged once at the CLI boundary and should not emit a traceback.
-- Unhandled exceptions should preserve their traceback for debugging.
+- Default routing should send:
+  - `info`, `warning`, and `error` to the application log
+  - `info` and `warning` to stdout
+  - only `error` to stderr
+- Log entrypoint parameters at `info` level.
+- Include thread ID, source file, and source line in application log entries.
+- Compress log files older than 7 days into `logs/archive/`.
+- Delete archived logs older than 30 days.
 - `src/app_logging.py` should contain only project-specific logging glue such as interception, path normalization, and archive housekeeping.
 
 ## 14. Spell Checking
-- Run `npm run spellcheck` from the repository root after making any project change and treat the result as part of the required final state.
-- If `cspell` reports a possible spelling error, first determine whether the existing spelling is commonly correct for this project's context by querying Google.
-- If the existing spelling is valid in context, add that word to `cspell-words.txt`.
-- Keep the words in `cspell-words.txt` in alphabetical order.
-- If the existing spelling is not valid in context, fix the spelling in the source instead of adding it to the dictionary.
+- Run `npm run spellcheck` after every project change.
+- If `cspell` reports a possible spelling error, first check whether the existing spelling is valid in context by querying Google.
+- If the spelling is valid in context, add it to `cspell-words.txt`.
+- Keep `cspell-words.txt` alphabetically ordered.
+- If the spelling is not valid in context, fix the source instead of adding it to the dictionary.
 
 ## 15. Static Analysis
-- Use `pyright` as the project-level static analysis guardrail and fix the issues it reports before finishing a task unless explicitly approved otherwise.
-- After source files are added, changed, or removed from the project, run `ruff check .` from the repository root and fix the issues it identifies before finishing the task.
-- After source files are added, changed, or removed from the project, run `pyupgrade` across the Python source files and keep the resulting modernizations unless there is a clear project-specific reason not to.
+- Use `pyright` as the main static-analysis guardrail and fix what it reports before finishing unless explicitly approved otherwise.
+- After source files are added, changed, or removed, run `ruff check .` and fix the issues it reports.
+- After source files are added, changed, or removed, run `pyupgrade` across the Python source files and keep the resulting modernizations unless there is a clear project-specific reason not to.
 - Do not leave unresolved type, import, symbol, or unused-import warnings.
-- Keep null guards and type signatures aligned so impossible-condition warnings are avoided.
-- After introducing new symbols or moving imports or constants, run a quick import and symbol sanity pass in addition to tests, `pyright`, and mypy.
-- Add an explicit lint step for unused imports and address any findings before finishing a task.
-- Treat static analysis as part of the quality bar alongside formatting, `pyright`, tests, and mypy.
+- Keep null guards and type signatures aligned.
+- After introducing new symbols or moving imports or constants, do a quick import and symbol sanity pass in addition to tests and static analysis.
+- Treat static analysis as part of the required final quality bar.
