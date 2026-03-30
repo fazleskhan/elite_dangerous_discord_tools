@@ -91,7 +91,7 @@ def test_bulk_load_algo_loads_neighbors_and_respects_limits(
         "Beta",
     ]
     assert fetched_info == ["Sol", "Beta"]
-    assert progress == []
+    assert not progress
 
 
 def test_bulk_load_algo_handles_zero_limit_and_threaded_fetch() -> None:

@@ -326,7 +326,7 @@ class EDDiscordBot:
             self.ed_route.bulk_load_cache(
                 initial_system_names,
                 max_nodes_visited,
-                progress_callback=lambda message: self._logger.info(message),
+                progress_callback=self._logger.info,
             )
         )
         elapsed_ms = int((time.perf_counter() - start) * 1000)

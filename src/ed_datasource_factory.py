@@ -67,8 +67,7 @@ def create_datasource(
 ) -> Any:
     if logger is None:
         raise ValueError("logger must not be null")
-    factory = EDDatasourceFactory(logger=logger)
-    return factory.create_datasource(
+    return EDDatasourceFactory(logger=logger).create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )

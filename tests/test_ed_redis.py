@@ -180,7 +180,7 @@ async def test_close_client_async_prefers_aclose() -> None:
     await ed_redis.EDRedis(
         "test", "redis://localhost:6379/0", ThreadSafeLogger(), 1
     )._close_client_async(client)
-    assert client.closed is True
+    assert client.closed
 
 
 @pytest.mark.asyncio
@@ -192,7 +192,7 @@ async def test_close_client_async_supports_legacy_sync_close() -> None:
     )
     await backend._close_client_async(client)
 
-    assert client.closed is True
+    assert client.closed
     assert client.sync_close_calls == 1
 
 
@@ -205,7 +205,7 @@ async def test_close_client_async_supports_legacy_coroutine_close() -> None:
     )
     await backend._close_client_async(client)
 
-    assert client.closed is True
+    assert client.closed
     assert client.close_calls == 1
 
 
@@ -440,8 +440,8 @@ def test_export_datasource_writes_safe_filenames_and_skips_missing_records(
     sol_path = export_dir / "Sol_Prime.json"
     lave_path = export_dir / "Lave.json"
 
-    assert sol_path.exists() is True
-    assert lave_path.exists() is True
+    assert sol_path.exists()
+    assert lave_path.exists()
     assert json.loads(sol_path.read_text(encoding="utf-8"))["name"] == "Sol/Prime"
     assert json.loads(lave_path.read_text(encoding="utf-8"))["name"] == "Lave"
 
@@ -461,7 +461,7 @@ def test_export_datasource_skips_blank_names_and_lookup_misses(tmp_path: Path) -
 
     backend.export_datasource(str(export_dir))
 
-    assert list(export_dir.iterdir()) == []
+    assert not list(export_dir.iterdir())
 
 
 def test_new_client_uses_env_max_connections_when_not_explicit(
@@ -470,9 +470,9 @@ def test_new_client_uses_env_max_connections_when_not_explicit(
     fake_redis: FakeRedisFactory,
 ) -> None:
     monkeypatch.setenv(redis_max_connections_env, "13")
-    backend = ed_redis.EDRedis("test", "redis://localhost:6379/0", logger, None)
-
-    client = backend._new_client()
+    client = ed_redis.EDRedis(
+        "test", "redis://localhost:6379/0", logger, None
+    )._new_client()
 
     assert isinstance(client, FakeRedisClient)
     assert fake_redis.calls[-1]["decode_responses"] is True

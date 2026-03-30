@@ -102,22 +102,22 @@ class EDRedis:
         self.import_datasource(import_dir)
 
     def import_datasource(self, import_dir: str | Path) -> None:
-        import_dir = os.fspath(import_dir)
-        if not os.path.isdir(import_dir):
+        import_dir_path = Path(import_dir)
+        if not import_dir_path.is_dir():
             raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
         json_filenames = sorted(
             filename
-            for filename in os.listdir(import_dir)
+            for filename in os.listdir(import_dir_path)
             if filename.endswith(json_extension)
         )
         self.logger.info(
             "Importing Redis datasource from {} JSON files in {}",
             len(json_filenames),
-            import_dir,
+            import_dir_path,
         )
         for filename in json_filenames:
-            json_path = os.path.join(import_dir, filename)
-            with open(json_path, encoding="utf-8") as json_file:
+            json_path = import_dir_path / filename
+            with json_path.open(encoding="utf-8") as json_file:
                 payload = json.load(json_file)
 
             records = payload if isinstance(payload, list) else [payload]
@@ -126,7 +126,7 @@ class EDRedis:
                     self.insert_system(record)
 
     def export_datasource(self, export_dir: str) -> None:
-        os.makedirs(export_dir, exist_ok=True)
+        Path(export_dir).mkdir(parents=True, exist_ok=True)
         systems = self.get_all_systems()
         for system in systems:
             system_name = system.get(system_info_name_field)
