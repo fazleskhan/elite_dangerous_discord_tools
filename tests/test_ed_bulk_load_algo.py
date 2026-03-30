@@ -17,9 +17,7 @@ class FakeCache:
 
 def test_bulk_load_algo_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_bulk_load_algo.EDBulkLoadAlgo(lambda _name: None, lambda _info: None, None)
     with pytest.raises(
         ValueError, match="fetch_system_info_fn of type FetchInfoFn is required"
@@ -130,7 +128,3 @@ def test_bulk_load_algo_fetch_neighbors_logs_system_name() -> None:
     )
     assert algo._fetch_neighbors({"name": "Sol"}) == [{"name": "Next"}]
     assert ("Fetching neighbors for system={}", ("Sol",)) in logger.messages("debug")
-
-
-def test_bulk_load_algo_main_is_a_noop() -> None:
-    assert ed_bulk_load_algo.main() is None

@@ -7,9 +7,7 @@ from tests.helpers import ThreadSafeLogger
 
 def test_bfs_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_bfs_algo.EDBfsAlgo(
             lambda _name: None, lambda _info: None, lambda _a, _b: 0.0, None
         )
@@ -30,11 +28,11 @@ def test_bfs_reconstruct_path_and_same_start() -> None:
         "A",
         "B",
     ]
-    bfs = ed_bfs_algo.EDBfsAlgo.create(
-        lambda name: {"name": name},
-        lambda _info: [],
-        lambda _one, _two: 0.0,
-        ThreadSafeLogger(),
+    bfs = ed_bfs_algo.EDBfsAlgo(
+        fetch_info_fn=lambda name: {"name": name},
+        fetch_neighbors_fn=lambda _info: [],
+        distance_fn=lambda _one, _two: 0.0,
+        logger=ThreadSafeLogger(),
     )
     assert bfs.travel("Sol", "Sol", 10, 0, 100, lambda _message: None) == ["Sol"]
 
@@ -47,11 +45,11 @@ def test_bfs_travel_finds_path_and_filters_edges() -> None:
         "T": [],
     }
     heuristic = {"A": 10, "B": 9, "C": 4, "T": 0}
-    bfs = ed_bfs_algo.EDBfsAlgo.create(
-        lambda name: {"name": name},
-        lambda info: graph[info["name"]],
-        lambda one, _two: heuristic[one],
-        ThreadSafeLogger(),
+    bfs = ed_bfs_algo.EDBfsAlgo(
+        fetch_info_fn=lambda name: {"name": name},
+        fetch_neighbors_fn=lambda info: graph[info["name"]],
+        distance_fn=lambda one, _two: heuristic[one],
+        logger=ThreadSafeLogger(),
     )
 
     assert bfs.travel("A", "T", 10, 2, 5, lambda _message: None) == ["A", "C", "T"]
@@ -67,11 +65,11 @@ def test_bfs_reports_progress_and_missing_nodes(
     # Force the 512-node progress branch without waiting for real wall-clock time.
     monotonic_values = iter([0.0, 31.0, 62.0])
     monkeypatch.setattr(ed_bfs_algo.time, "monotonic", lambda: next(monotonic_values))
-    bfs = ed_bfs_algo.EDBfsAlgo.create(
-        lambda name: None if name == "N1" else {"name": name},
-        lambda info: graph.get(info["name"], []),
-        lambda _one, _two: 1.0,
-        logger,
+    bfs = ed_bfs_algo.EDBfsAlgo(
+        fetch_info_fn=lambda name: None if name == "N1" else {"name": name},
+        fetch_neighbors_fn=lambda info: graph.get(info["name"], []),
+        distance_fn=lambda _one, _two: 1.0,
+        logger=logger,
     )
 
     assert bfs.travel("A", "Missing", 600, 0, 10, progress.append) is None
@@ -82,15 +80,11 @@ def test_bfs_reports_progress_and_missing_nodes(
 
 
 def test_bfs_respects_max_count() -> None:
-    bfs = ed_bfs_algo.EDBfsAlgo.create(
-        lambda name: {"name": name},
-        lambda _info: [{"name": "B", "distance": 1}],
-        lambda _one, _two: 0.0,
-        ThreadSafeLogger(),
+    bfs = ed_bfs_algo.EDBfsAlgo(
+        fetch_info_fn=lambda name: {"name": name},
+        fetch_neighbors_fn=lambda _info: [{"name": "B", "distance": 1}],
+        distance_fn=lambda _one, _two: 0.0,
+        logger=ThreadSafeLogger(),
     )
     # `max_count=0` trips the guard before the first expansion.
     assert bfs.travel("A", "T", 0, 0, 10, lambda _message: None) is None
-
-
-def test_bfs_main_is_a_noop() -> None:
-    assert ed_bfs_algo.main() is None

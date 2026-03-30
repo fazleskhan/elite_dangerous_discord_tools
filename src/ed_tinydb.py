@@ -23,9 +23,6 @@ from constants import (
 """TinyDB persistence helpers for cached system records."""
 
 
-def main() -> None: ...
-
-
 class SmartCacheTinyDB(TinyDB):
     table_class = SmartCacheTable
 
@@ -70,7 +67,7 @@ class AIOTinyDB:
 class EDTinyDB:
     @staticmethod
     def create(
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
         datasource_name: str | None = None,
     ) -> "EDTinyDB":
         resolved_datasource_name = datasource_name
@@ -78,18 +75,16 @@ class EDTinyDB:
             resolved_datasource_name = os.getenv(tinydb_name_env) or default_tinydb_name
         return EDTinyDB(
             resolved_datasource_name,
-            logging_utils=logging_utils,
+            logger=logger,
         )
 
-    def __init__(self, datasource_name: str, logging_utils: LoggingProtocol):
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self.logger = logging_utils
+    def __init__(self, datasource_name: str, logger: LoggingProtocol):
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self.logger = logger
         if datasource_name is None:
             raise ValueError("datasource_name of type str is required")
-        else:
-            self.datasource_name = datasource_name
+        self.datasource_name = datasource_name
 
         db_dir = os.path.dirname(self.datasource_name)
         if db_dir:

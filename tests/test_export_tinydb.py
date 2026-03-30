@@ -18,7 +18,7 @@ def test_export_tinydb_delegates_to_backend(tmp_path, monkeypatch):
         type(
             "FakeEDTinyDB",
             (),
-            {"create": staticmethod(lambda logging_utils=None: fake)},
+            {"create": staticmethod(lambda logger=None: fake)},
         ),
     )
     fake_logger = type("Logger", (), {"info": lambda self, *args, **kwargs: None})()

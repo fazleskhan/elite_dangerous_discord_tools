@@ -4,24 +4,14 @@ from ed_protocols import BulkLoadProtocol, LoggingProtocol, ProgressFn
 
 
 class EDBulkLoadCacheService:
-    def __init__(
-        self, bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol
-    ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self._logging_utils = logging_utils
+    def __init__(self, bulk_load: BulkLoadProtocol, logger: LoggingProtocol) -> None:
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
         if bulk_load is None:
             raise ValueError("bulk_load of type BulkLoadProtocol is required")
-        else:
-            self._bulk_load = bulk_load
-        self._logging_utils.debug("EDBulkLoadCacheService initialized")
-
-    @staticmethod
-    def create(
-        bulk_load: BulkLoadProtocol, logging_utils: LoggingProtocol
-    ) -> "EDBulkLoadCacheService":
-        return EDBulkLoadCacheService(bulk_load, logging_utils)
+        self._bulk_load = bulk_load
+        self._logger.debug("EDBulkLoadCacheService initialized")
 
     def load(
         self,
@@ -30,7 +20,7 @@ class EDBulkLoadCacheService:
         progress_callback: ProgressFn,
     ) -> list[str]:
         # Thin service wrapper so route layer depends on protocol, not algorithm concrete.
-        self._logging_utils.info(
+        self._logger.info(
             "Bulk loading cache from seeds={} max_nodes_visited={}",
             initial_system_names,
             max_nodes_visited,

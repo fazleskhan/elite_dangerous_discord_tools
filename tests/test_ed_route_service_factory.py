@@ -23,64 +23,60 @@ def test_route_service_factory_builds_defaults(monkeypatch):
     bulk_service = object()
 
     monkeypatch.setattr(
-        ed_route_service_factory.EDDatasourceFactory,
-        "create",
-        staticmethod(
-            lambda logging_utils: type(
-                "Factory", (), {"create_datasource": lambda self: datasource}
-            )()
-        ),
+        ed_route_service_factory,
+        "EDDatasourceFactory",
+        lambda logger: type(
+            "Factory", (), {"create_datasource": lambda self: datasource}
+        )(),
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDGis,
-        "create",
-        staticmethod(
-            lambda logging_utils: type(
-                "GIS",
-                (),
-                {
-                    "fetch_system_info": lambda self, name: {"name": name},
-                    "fetch_neighbors": lambda self, x, y, z: [],
-                },
-            )()
-        ),
+        ed_route_service_factory,
+        "EDGis",
+        lambda logger: type(
+            "GIS",
+            (),
+            {
+                "fetch_system_info": lambda self, name: {"name": name},
+                "fetch_neighbors": lambda self, x, y, z: [],
+            },
+        )(),
     )
     monkeypatch.setattr(
         ed_route_service_factory.EDGisCache,
         "create",
         staticmethod(
-            lambda datasource, logging_utils, fetch_system_info_fn, fetch_neighbors_fn: cache
+            lambda datasource, logger, fetch_system_info_fn, fetch_neighbors_fn: cache
         ),
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDInitDatasourceService,
-        "create",
-        staticmethod(lambda datasource, logging_utils: init_service),
+        ed_route_service_factory,
+        "EDInitDatasourceService",
+        lambda datasource, logger: init_service,
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDGetSystemInfoService,
-        "create",
-        staticmethod(lambda cache, logging_utils: system_info_service),
+        ed_route_service_factory,
+        "EDGetSystemInfoService",
+        lambda cache, logger: system_info_service,
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDGetAllSystemNamesService,
-        "create",
-        staticmethod(lambda datasource, logging_utils: system_names_service),
+        ed_route_service_factory,
+        "EDGetAllSystemNamesService",
+        lambda datasource, logger: system_names_service,
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDCalcSystemsDistanceService,
-        "create",
-        staticmethod(lambda service, logging_utils: distance_service),
+        ed_route_service_factory,
+        "EDCalcSystemsDistanceService",
+        lambda service, logger: distance_service,
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDBfsAlgo,
-        "create",
-        staticmethod(lambda *_args, **_kwargs: bfs),
+        ed_route_service_factory,
+        "EDBfsAlgo",
+        lambda *args, **kwargs: bfs,
     )
     monkeypatch.setattr(
-        ed_route_service_factory.EDPathService,
-        "create",
-        staticmethod(lambda *_args, **_kwargs: path_service),
+        ed_route_service_factory,
+        "EDPathService",
+        lambda *args, **kwargs: path_service,
     )
     monkeypatch.setattr(
         ed_route_service_factory.EDBulkLoadAlgo,
@@ -88,9 +84,7 @@ def test_route_service_factory_builds_defaults(monkeypatch):
         staticmethod(lambda *_args, **_kwargs: bulk_service),
     )
 
-    route_service = ed_route_service_factory.EDRouteServiceFactory.create(
-        logging_utils=logger
-    )
+    route_service = ed_route_service_factory.EDRouteServiceFactory.create(logger=logger)
 
     assert route_service.database is datasource
     assert route_service.cache is cache
@@ -116,19 +110,13 @@ def test_route_service_factory_uses_supplied_overrides(monkeypatch):
     supplied_distance = object()
 
     monkeypatch.setattr(
-        ed_route_service_factory.EDDatasourceFactory,
-        "create",
-        staticmethod(
-            lambda logging_utils: type(
-                "Factory", (), {"create_datasource": lambda self: supplied_datasource}
-            )()
-        ),
+        ed_route_service_factory,
+        "EDDatasourceFactory",
+        lambda logger: type(
+            "Factory", (), {"create_datasource": lambda self: supplied_datasource}
+        )(),
     )
-    monkeypatch.setattr(
-        ed_route_service_factory.EDGis,
-        "create",
-        staticmethod(lambda logging_utils: object()),
-    )
+    monkeypatch.setattr(ed_route_service_factory, "EDGis", lambda logger: object())
     monkeypatch.setattr(
         ed_route_service_factory,
         "EDRouteService",
@@ -136,7 +124,7 @@ def test_route_service_factory_uses_supplied_overrides(monkeypatch):
     )
 
     route_service = ed_route_service_factory.EDRouteServiceFactory.create(
-        logging_utils=logger,
+        logger=logger,
         datasource=supplied_datasource,
         cache=supplied_cache,
         bfs=supplied_bfs,

@@ -33,9 +33,7 @@ class FakeDatasource:
 
 
 def test_init_datasource_service_validates_dependencies() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_init_datasource_service.EDInitDatasourceService(FakeDatasource(), None)
 
     with pytest.raises(
@@ -47,9 +45,7 @@ def test_init_datasource_service_validates_dependencies() -> None:
 def test_init_datasource_service_runs_and_logs() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
-    service = ed_init_datasource_service.EDInitDatasourceService.create(
-        datasource, logger
-    )
+    service = ed_init_datasource_service.EDInitDatasourceService(datasource, logger)
     service.run("./seed")
 
     assert datasource.import_dirs == ["./seed"]
@@ -58,7 +54,7 @@ def test_init_datasource_service_runs_and_logs() -> None:
 
 def test_init_datasource_service_lock_handles_threads() -> None:
     datasource = FakeDatasource()
-    service = ed_init_datasource_service.EDInitDatasourceService.create(
+    service = ed_init_datasource_service.EDInitDatasourceService(
         datasource, ThreadSafeLogger()
     )
     barrier = threading.Barrier(3)

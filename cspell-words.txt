@@ -64,6 +64,7 @@ psutil
 py
 py's
 pycache
+Pythonic
 pytest
 PYTHONDONTWRITEBYTECODE
 pythonpath

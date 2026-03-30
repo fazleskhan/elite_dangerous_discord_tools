@@ -8,13 +8,11 @@ import ed_datasource_factory
 from tests.helpers import ThreadSafeLogger
 
 
-def test_factory_constructor_and_create_validate_logging_utils() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+def test_factory_constructor_validates_logger() -> None:
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_datasource_factory.EDDatasourceFactory(None)
 
-    factory = ed_datasource_factory.EDDatasourceFactory.create(ThreadSafeLogger())
+    factory = ed_datasource_factory.EDDatasourceFactory(ThreadSafeLogger())
     assert isinstance(factory, ed_datasource_factory.EDDatasourceFactory)
 
 
@@ -39,9 +37,9 @@ def test_create_datasource_uses_tinydb_backend(monkeypatch: pytest.MonkeyPatch) 
 
     class FakeTinyDB:
         @staticmethod
-        def create(datasource_name=None, logging_utils=None):
+        def create(datasource_name=None, logger=None):
             captured["name"] = datasource_name
-            captured["logger"] = logging_utils
+            captured["logger"] = logger
             return "tinydb"
 
     monkeypatch.setattr(ed_datasource_factory, "load_dotenv", lambda: None)
@@ -65,9 +63,9 @@ def test_create_datasource_uses_redis_backend(monkeypatch: pytest.MonkeyPatch) -
 
     class FakeRedis:
         @staticmethod
-        def create(datasource_name=None, logging_utils=None):
+        def create(datasource_name=None, logger=None):
             captured["name"] = datasource_name
-            captured["logger"] = logging_utils
+            captured["logger"] = logger
             return "redis"
 
     monkeypatch.setattr(ed_datasource_factory, "load_dotenv", lambda: None)
@@ -91,32 +89,23 @@ def test_module_create_datasource_requires_shared_logger(
 ) -> None:
     created_with: list[object] = []
 
-    class FakeFactory:
+    class FakeFactoryType:
+        def __init__(self, logger):
+            created_with.append(logger)
+
         def create_datasource(self, datasource_name=None, datasource_type=None):
             return (datasource_name, datasource_type)
 
-    def fake_factory_create(logging_utils):
-        created_with.append(logging_utils)
-        return FakeFactory()
-
-    monkeypatch.setattr(
-        ed_datasource_factory.EDDatasourceFactory,
-        "create",
-        staticmethod(fake_factory_create),
-    )
+    monkeypatch.setattr(ed_datasource_factory, "EDDatasourceFactory", FakeFactoryType)
 
     assert ed_datasource_factory.create_datasource(
         "name",
         "redis",
-        logging_utils="logger",
+        logger="logger",
     ) == ("name", "redis")
     assert created_with == ["logger"]
 
 
 def test_module_create_datasource_requires_logger_argument() -> None:
-    with pytest.raises(ValueError, match="logging_utils must not be null"):
+    with pytest.raises(ValueError, match="logger must not be null"):
         ed_datasource_factory.create_datasource("name", "redis")
-
-
-def test_datasource_factory_main_is_a_noop() -> None:
-    assert ed_datasource_factory.main() is None

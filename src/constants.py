@@ -43,9 +43,6 @@ REDISS_SCHEME: str = "rediss"
 UNIX_SCHEME: str = "unix"
 
 
-def main() -> None: ...
-
-
 def _dot_prefixed(path_value: str) -> str:
     return path_value if path_value.startswith("./") else f"./{path_value}"
 
@@ -84,7 +81,3 @@ redis_max_connections_env: str = REDIS_MAX_CONNECTIONS_ENV
 redis_scheme: str = REDIS_SCHEME
 rediss_scheme: str = REDISS_SCHEME
 unix_scheme: str = UNIX_SCHEME
-
-
-if __name__ == "__main__":
-    main()

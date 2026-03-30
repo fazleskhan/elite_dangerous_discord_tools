@@ -22,9 +22,7 @@ class FakeGetSystemInfoService:
 
 
 def test_calc_distance_service_validates_dependencies() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
             FakeGetSystemInfoService(), None
         )
@@ -41,7 +39,7 @@ def test_calc_distance_service_validates_dependencies() -> None:
 def test_calc_distance_service_calculates_and_caches_coords() -> None:
     logger = ThreadSafeLogger()
     info_service = FakeGetSystemInfoService()
-    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService.create(
+    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
         info_service, logger
     )
 
@@ -55,7 +53,7 @@ def test_calc_distance_service_calculates_and_caches_coords() -> None:
 
 
 def test_calc_distance_service_raises_for_missing_systems() -> None:
-    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService.create(
+    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
         FakeGetSystemInfoService(), ThreadSafeLogger()
     )
 
@@ -65,7 +63,7 @@ def test_calc_distance_service_raises_for_missing_systems() -> None:
 
 def test_calc_distance_service_cache_lock_with_threads() -> None:
     info_service = FakeGetSystemInfoService()
-    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService.create(
+    service = ed_calc_systems_distance_service.EDCalcSystemsDistanceService(
         info_service, ThreadSafeLogger()
     )
     barrier = threading.Barrier(4)

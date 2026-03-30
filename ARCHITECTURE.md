@@ -98,6 +98,10 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Store shared magic string constants in `src/constants.py`.
 - Store default arguments and default values in `src/defaults.py`.
 - Prefer named constants over repeated inline string literals in source files.
+- Use Pythonic code style throughout the project rather than Java-style ceremony or patterns.
+- Prefer guard clauses and direct assignment over `if ... else` assignment blocks.
+- Prefer direct construction over trivial constructor-only factory wrappers unless the wrapper adds real wiring or behavior.
+- Do not add placeholder no-op `main()` functions to non-entrypoint modules.
 - Keep implementations simple and readable.
 - Prefer explicit names over terse ones.
 - Use ASCII unless the file already requires Unicode.

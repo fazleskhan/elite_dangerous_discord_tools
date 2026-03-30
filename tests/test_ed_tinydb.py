@@ -49,7 +49,7 @@ def database_path(tmp_path: Path) -> Path:
 
 @pytest.fixture()
 def tinydb_backend(database_path: Path, logger: ThreadSafeLogger) -> ed_tinydb.EDTinyDB:
-    return ed_tinydb.EDTinyDB(str(database_path), logging_utils=logger)
+    return ed_tinydb.EDTinyDB(str(database_path), logger=logger)
 
 
 @pytest.mark.asyncio
@@ -88,32 +88,30 @@ def test_create_uses_explicit_name_then_env_then_default(
     monkeypatch: pytest.MonkeyPatch, logger: ThreadSafeLogger, tmp_path: Path
 ) -> None:
     explicit = ed_tinydb.EDTinyDB.create(
-        logging_utils=logger,
+        logger=logger,
         datasource_name=str(tmp_path / "explicit.json"),
     )
     assert explicit.datasource_name.endswith("explicit.json")
 
     monkeypatch.setenv(tinydb_name_env, str(tmp_path / "env.json"))
-    from_env = ed_tinydb.EDTinyDB.create(logging_utils=logger)
+    from_env = ed_tinydb.EDTinyDB.create(logger=logger)
     assert from_env.datasource_name.endswith("env.json")
 
     monkeypatch.delenv(tinydb_name_env, raising=False)
-    defaulted = ed_tinydb.EDTinyDB.create(logging_utils=logger)
+    defaulted = ed_tinydb.EDTinyDB.create(logger=logger)
     assert defaulted.datasource_name == default_tinydb_name
 
 
 def test_constructor_validates_inputs_and_logs_backend(
     logger: ThreadSafeLogger,
 ) -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
-        ed_tinydb.EDTinyDB("ignored.json", logging_utils=None)
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
+        ed_tinydb.EDTinyDB("ignored.json", logger=None)
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
-        ed_tinydb.EDTinyDB(None, logging_utils=logger)
+        ed_tinydb.EDTinyDB(None, logger=logger)
 
-    backend = ed_tinydb.EDTinyDB("./data/test.json", logging_utils=logger)
+    backend = ed_tinydb.EDTinyDB("./data/test.json", logger=logger)
     assert backend.datasource_name == "./data/test.json"
     assert ("aiotinydb backend", ()) in logger.messages("info")
 
@@ -244,7 +242,7 @@ def test_init_and_import_datasource_load_sorted_json_records(
     )
     (import_dir / "notes.txt").write_text("skip", encoding="utf-8")
 
-    backend = ed_tinydb.EDTinyDB(str(database_path), logging_utils=logger)
+    backend = ed_tinydb.EDTinyDB(str(database_path), logger=logger)
     inserted: list[dict[str, Any]] = []
     backend.insert_system = inserted.append
 
@@ -267,9 +265,7 @@ def test_import_datasource_requires_existing_directory(
 def test_export_datasource_writes_safe_sorted_json_files(
     tmp_path: Path, logger: ThreadSafeLogger, sample_neighbors: list[dict[str, Any]]
 ) -> None:
-    backend = ed_tinydb.EDTinyDB(
-        str(tmp_path / "db" / "target.json"), logging_utils=logger
-    )
+    backend = ed_tinydb.EDTinyDB(str(tmp_path / "db" / "target.json"), logger=logger)
     export_dir = tmp_path / "export"
     exported_systems = [
         {"name": "Alpha/Beta"},

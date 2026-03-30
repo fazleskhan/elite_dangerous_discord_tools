@@ -34,9 +34,7 @@ class FakeDatasource:
 
 
 def test_get_all_system_names_service_validates_dependencies() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_get_all_system_names_service.EDGetAllSystemNamesService(
             FakeDatasource(), None
         )
@@ -51,7 +49,7 @@ def test_get_all_system_names_service_validates_dependencies() -> None:
 
 def test_get_all_system_names_service_collects_names_and_logs() -> None:
     logger = ThreadSafeLogger()
-    service = ed_get_all_system_names_service.EDGetAllSystemNamesService.create(
+    service = ed_get_all_system_names_service.EDGetAllSystemNamesService(
         FakeDatasource(), logger
     )
 
@@ -61,7 +59,7 @@ def test_get_all_system_names_service_collects_names_and_logs() -> None:
 
 def test_get_all_system_names_service_lock_serializes_threads() -> None:
     logger = ThreadSafeLogger()
-    service = ed_get_all_system_names_service.EDGetAllSystemNamesService.create(
+    service = ed_get_all_system_names_service.EDGetAllSystemNamesService(
         FakeDatasource(), logger
     )
     barrier = threading.Barrier(3)

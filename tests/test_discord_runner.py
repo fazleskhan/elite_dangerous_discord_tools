@@ -15,8 +15,8 @@ def test_discord_runner_main_runs_bot(monkeypatch: pytest.MonkeyPatch) -> None:
         discord_runner.EDDiscordBot,
         "create",
         staticmethod(
-            lambda logging_utils=None: (
-                received_loggers.append(logging_utils),
+            lambda logger=None: (
+                received_loggers.append(logger),
                 FakeBot(),
             )[1]
         ),
@@ -44,8 +44,8 @@ def test_discord_runner_main_logs_and_reraises(monkeypatch: pytest.MonkeyPatch) 
         discord_runner.EDDiscordBot,
         "create",
         staticmethod(
-            lambda logging_utils=None: (
-                received_loggers.append(logging_utils),
+            lambda logger=None: (
+                received_loggers.append(logger),
                 FakeBot(),
             )[1]
         ),

@@ -13,9 +13,6 @@ from ed_protocols import (
 """Breadth-first traversal used to build/solve routes between systems."""
 
 
-def main() -> None: ...
-
-
 class EDBfsAlgo:
     """OO wrapper for BFS traversal with IoC-friendly construction."""
 
@@ -24,38 +21,20 @@ class EDBfsAlgo:
         fetch_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
         distance_fn: DistanceFn,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self._logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
         if fetch_info_fn is None:
             raise ValueError("fetch_info_fn of type FetchSystemInfoFn is required")
-        else:
-            self._fetch_info_fn = fetch_info_fn
+        self._fetch_info_fn = fetch_info_fn
         if fetch_neighbors_fn is None:
             raise ValueError("fetch_info_fn of type FetchSystemInfoFn is required")
-        else:
-            self._fetch_neighbors_fn = fetch_neighbors_fn
+        self._fetch_neighbors_fn = fetch_neighbors_fn
         if distance_fn is None:
             raise ValueError("distance_fn of type DistanceFn is required")
-        else:
-            self._distance_fn = distance_fn
-
-    @staticmethod
-    def create(
-        fetch_system_info_fn: FetchSystemInfoFn,
-        fetch_neighbors_fn: FetchNeighborsFn,
-        distance_fn: DistanceFn,
-        logging_utils: LoggingProtocol,
-    ) -> "EDBfsAlgo":
-        return EDBfsAlgo(
-            fetch_info_fn=fetch_system_info_fn,
-            fetch_neighbors_fn=fetch_neighbors_fn,
-            distance_fn=distance_fn,
-            logging_utils=logging_utils,
-        )
+        self._distance_fn = distance_fn
 
     @staticmethod
     def _reconstruct_path(
@@ -78,7 +57,7 @@ class EDBfsAlgo:
         max_distance: int,
         progress_callback: ProgressFn,
     ) -> list[str] | None:
-        self._logging_utils.info(
+        self._logger.info(
             "Starting BFS travel from {} to {} with max_count={}",
             start_name,
             destination_name,
@@ -86,9 +65,7 @@ class EDBfsAlgo:
         )
 
         if start_name == destination_name:
-            self._logging_utils.debug(
-                "Start and destination are identical: {}", start_name
-            )
+            self._logger.debug("Start and destination are identical: {}", start_name)
             return [start_name]
 
         node_count = 0
@@ -105,9 +82,7 @@ class EDBfsAlgo:
         while queue:
             # Bound total visited nodes to cap runtime for expensive graph walks.
             if node_count > max_count:
-                self._logging_utils.warning(
-                    "Reached max number of systems: {}", max_count
-                )
+                self._logger.warning("Reached max number of systems: {}", max_count)
                 break
             else:
                 node_count += 1
@@ -130,12 +105,12 @@ class EDBfsAlgo:
                 previous_distance = distance_to_destination
 
             if current_node == destination_name:
-                self._logging_utils.info("Destination reached: {}", destination_name)
+                self._logger.info("Destination reached: {}", destination_name)
                 return EDBfsAlgo._reconstruct_path(parents, destination_name)
 
             system_info = self._fetch_info_fn(current_node)
             if not system_info:
-                self._logging_utils.debug(
+                self._logger.debug(
                     "Skipping node with missing system info: {}", current_node
                 )
                 continue
@@ -158,14 +133,10 @@ class EDBfsAlgo:
                     visited.add(adjacent_name)
                     parents[adjacent_name] = current_node
                     queue.append(adjacent_name)
-        self._logging_utils.info(
+        self._logger.info(
             "No route found from {} to {} within max_count={}",
             start_name,
             destination_name,
             max_count,
         )
         return None
-
-
-if __name__ == "__main__":
-    main()

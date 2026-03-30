@@ -21,9 +21,6 @@ from ed_protocols import (
 """Service layer that composes datasource/cache dependencies and route search."""
 
 
-def main() -> None: ...
-
-
 class EDRouteService:
     """Thin shim layer over delegate service classes."""
 
@@ -32,7 +29,7 @@ class EDRouteService:
         datasource: DatasourceProtocol,
         cache: CacheProtocol,
         bfs: BfsProtocol,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
         init_datasource_service: InitDatasourceProtocol,
         get_system_info_service: GetSystemInfoProtocol,
         get_all_system_names_service: GetAllSystemNamesProtocol,
@@ -40,52 +37,43 @@ class EDRouteService:
         path_service: PathProtocol,
         calc_systems_distance_service: CalcSystemsDistanceProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self.logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self.logger = logger
         if datasource is None:
             raise ValueError("datasource of type DatasourceProtocol is required")
-        else:
-            self.database = datasource
+        self.database = datasource
         if cache is None:
             raise ValueError("cache of type CacheProtocol is required")
-        else:
-            self.cache = cache
+        self.cache = cache
         if init_datasource_service is None:
             raise ValueError(
                 "init_datasource_service of type InitDatasourceProtocol is required"
             )
-        else:
-            self._init_datasource_service = init_datasource_service
+        self._init_datasource_service = init_datasource_service
         if get_system_info_service is None:
             raise ValueError(
                 "get_system_info_service of type GetSystemInfoProtocol is required"
             )
-        else:
-            self._get_system_info_service = get_system_info_service
+        self._get_system_info_service = get_system_info_service
         if get_all_system_names_service is None:
             raise ValueError(
                 "get_all_system_names_service of type GetAllSystemNamesProtocol is required"
             )
-        else:
-            self._get_all_system_names_service = get_all_system_names_service
+        self._get_all_system_names_service = get_all_system_names_service
         if bulk_load_cache_service is None:
             raise ValueError(
                 "bulk_load_cache_service of type BulkLoadProtocol is required"
             )
-        else:
-            self._bulk_load_cache_service = bulk_load_cache_service
+        self._bulk_load_cache_service = bulk_load_cache_service
         if path_service is None:
             raise ValueError("path_service of type PathProtocol is required")
-        else:
-            self._path_service = path_service
+        self._path_service = path_service
         if calc_systems_distance_service is None:
             raise ValueError(
                 "calc_systems_distance_service of type CalcSystemsDistanceProtocol is required"
             )
-        else:
-            self._calc_systems_distance_service = calc_systems_distance_service
+        self._calc_systems_distance_service = calc_systems_distance_service
         self._bfs = bfs
 
     def init_datasource(self, import_dir: str | Path = default_init_dir) -> None:
@@ -133,7 +121,3 @@ class EDRouteService:
         self, system_name_one: str, system_name_two: str
     ) -> float:
         return self._calc_systems_distance_service.run(system_name_one, system_name_two)
-
-
-if __name__ == "__main__":
-    main()

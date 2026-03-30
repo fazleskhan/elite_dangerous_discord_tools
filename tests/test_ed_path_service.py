@@ -32,9 +32,7 @@ class FakeDistanceService:
 
 def test_path_service_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_path_service.EDPathService(FakeBfs(), FakeDistanceService(), None)
     with pytest.raises(ValueError, match="bfs of type BfsProtocol is required"):
         ed_path_service.EDPathService(None, FakeDistanceService(), logger)
@@ -49,7 +47,7 @@ def test_path_service_validates_dependencies() -> None:
 async def test_path_service_runs_bfs_in_worker_thread() -> None:
     logger = ThreadSafeLogger()
     bfs = FakeBfs()
-    service = ed_path_service.EDPathService.create(bfs, FakeDistanceService(), logger)
+    service = ed_path_service.EDPathService(bfs, FakeDistanceService(), logger)
     progress: list[str] = []
 
     route = await service.run("Sol", "Lave", 10, 0, 100, progress.append)

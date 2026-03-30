@@ -13,20 +13,13 @@ from constants import (
 from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 
-def main() -> None: ...
-
-
 class EDDatasourceFactory:
     """Factory for selecting concrete datasource implementations."""
 
-    def __init__(self, logging_utils: LoggingProtocol) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        self._logging_utils = logging_utils
-
-    @staticmethod
-    def create(logging_utils: LoggingProtocol) -> "EDDatasourceFactory":
-        return EDDatasourceFactory(logging_utils)
+    def __init__(self, logger: LoggingProtocol) -> None:
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
 
     def create_datasource(
         self,
@@ -42,14 +35,14 @@ class EDDatasourceFactory:
 
             return EDTinyDB.create(
                 datasource_name=datasource_name,
-                logging_utils=self._logging_utils,
+                logger=self._logger,
             )
 
         from ed_redis import EDRedis
 
         return EDRedis.create(
             datasource_name=datasource_name,
-            logging_utils=self._logging_utils,
+            logger=self._logger,
         )
 
 
@@ -70,18 +63,12 @@ def resolve_datasource_type(datasource_type: str | None = None) -> str:
 def create_datasource(
     datasource_name: str | None = None,
     datasource_type: str | None = None,
-    logging_utils: LoggingProtocol | None = None,
+    logger: LoggingProtocol | None = None,
 ) -> Any:
-    if logging_utils is None:
-        raise ValueError("logging_utils must not be null")
-    factory = EDDatasourceFactory.create(
-        logging_utils=logging_utils,
-    )
+    if logger is None:
+        raise ValueError("logger must not be null")
+    factory = EDDatasourceFactory(logger=logger)
     return factory.create_datasource(
         datasource_name=datasource_name,
         datasource_type=datasource_type,
     )
-
-
-if __name__ == "__main__":
-    main()
