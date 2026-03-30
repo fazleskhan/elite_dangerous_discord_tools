@@ -15,16 +15,14 @@
 from __future__ import annotations
 
 import gzip
-import json
 import logging
 import os
 import shutil
 import sys
 import threading
 import time
-from contextlib import suppress
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 try:
     from autologging import traced
@@ -36,6 +34,8 @@ except ImportError:
 
 from dotenv import load_dotenv
 from loguru import logger as _logger
+from loguru_config_loader import load_config_file, merge_nested_dicts
+from loguru_runtime import apply_runtime_config, make_min_level_filter
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.api import BaseObserver
@@ -74,36 +74,11 @@ class InterceptHandler(logging.Handler):
 
 
 def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
-    merged: dict[str, Any] = base.copy()
-    for key, value in override.items():
-        if isinstance(value, dict) and isinstance(merged.get(key), dict):
-            merged[key] = _merge_dict(merged[key], value)
-        else:
-            merged[key] = value
-    return merged
+    return merge_nested_dicts(base, override)
 
 
 def load_loguru_config(config_path: Path) -> dict[str, Any]:
-    config = dict(DEFAULT_LOGURU_CONFIG)
-    if not config_path.exists():
-        return config
-
-    with suppress(Exception):
-        import loguru_config
-
-        loader = getattr(loguru_config, "LoguruConfig", None)
-        if loader is not None and hasattr(loader, "load"):
-            loaded = loader.load(str(config_path))
-            if isinstance(loaded, dict):
-                return _merge_dict(DEFAULT_LOGURU_CONFIG, loaded)
-
-    try:
-        raw = json.loads(config_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return config
-    if isinstance(raw, dict):
-        return _merge_dict(DEFAULT_LOGURU_CONFIG, raw)
-    return config
+    return load_config_file(config_path, DEFAULT_LOGURU_CONFIG)
 
 
 def _level_number(level_name: str) -> int:
@@ -153,85 +128,35 @@ def _delete_expired_archives(
 
 
 def _stdout_filter(min_level_name: str):
-    min_level_number = _level_number(min_level_name)
-
-    def _filter(record: dict[str, Any]) -> bool:
-        level_no = int(record["level"].no)
-        return min_level_number <= level_no < _level_number("ERROR")
-
-    return _filter
+    return make_min_level_filter(
+        _level_number(min_level_name),
+        max_level_number=_level_number("ERROR"),
+    )
 
 
 def _stderr_filter(min_level_name: str):
-    min_level_number = _level_number(min_level_name)
-
-    def _filter(record: dict[str, Any]) -> bool:
-        return int(record["level"].no) >= min_level_number
-
-    return _filter
+    return make_min_level_filter(_level_number(min_level_name))
 
 
 def _file_filter(min_level_name: str):
-    min_level_number = _level_number(min_level_name)
-
-    def _filter(record: dict[str, Any]) -> bool:
-        return int(record["level"].no) >= min_level_number
-
-    return _filter
+    return make_min_level_filter(_level_number(min_level_name))
 
 
 def apply_loguru_config(config: dict[str, Any]) -> None:
-    _logger.remove()
-
-    stdout_config = config.get("stdout", {})
-    if bool(stdout_config.get("enabled", True)):
-        _logger.add(
-            sys.stdout,
-            level=str(stdout_config.get("level", "INFO")),
-            colorize=bool(stdout_config.get("colorize", True)),
-            format=str(stdout_config.get("format", DEFAULT_LOG_COLOR_FORMAT)),
-            filter=cast(Any, _stdout_filter(str(stdout_config.get("level", "INFO")))),
-            backtrace=False,
-            diagnose=False,
-            enqueue=True,
-        )
-
-    stderr_config = config.get("stderr", {})
-    if bool(stderr_config.get("enabled", True)):
-        _logger.add(
-            sys.stderr,
-            level=str(stderr_config.get("level", "ERROR")),
-            colorize=bool(stderr_config.get("colorize", True)),
-            format=str(stderr_config.get("format", DEFAULT_LOG_COLOR_FORMAT)),
-            filter=cast(Any, _stderr_filter(str(stderr_config.get("level", "ERROR")))),
-            backtrace=False,
-            diagnose=False,
-            enqueue=True,
-        )
-
-    file_config = config.get("file", {})
-    if bool(file_config.get("enabled", True)):
-        log_path = _normalize_path(
-            str(file_config.get("path", DEFAULT_APPLICATION_LOG_PATH))
-        )
-        archive_dir = _normalize_path(
-            str(file_config.get("archive_dir", DEFAULT_LOG_ARCHIVE_DIR))
-        )
-        archive_after_days = int(file_config.get("archive_after_days", 7))
-        archive_retention_days = int(file_config.get("archive_retention_days", 30))
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        _archive_stale_logs(log_path, archive_dir, archive_after_days)
-        _delete_expired_archives(archive_dir, archive_retention_days)
-        _logger.add(
-            str(log_path),
-            level=str(file_config.get("level", "INFO")),
-            rotation=str(file_config.get("rotation", "00:00")),
-            format=str(file_config.get("format", DEFAULT_LOG_TEXT_FORMAT)),
-            filter=cast(Any, _file_filter(str(file_config.get("level", "INFO")))),
-            backtrace=False,
-            diagnose=False,
-            enqueue=True,
-        )
+    apply_runtime_config(
+        config,
+        logger=_logger,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        default_application_log_path=DEFAULT_APPLICATION_LOG_PATH,
+        default_log_archive_dir=DEFAULT_LOG_ARCHIVE_DIR,
+        default_log_color_format=DEFAULT_LOG_COLOR_FORMAT,
+        default_log_text_format=DEFAULT_LOG_TEXT_FORMAT,
+        level_number=_level_number,
+        normalize_path=_normalize_path,
+        archive_stale_logs=_archive_stale_logs,
+        delete_expired_archives=_delete_expired_archives,
+    )
 
 
 def configure_standard_logging_intercept() -> None:

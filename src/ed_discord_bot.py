@@ -38,7 +38,6 @@ Commands and available arguments:
 from __future__ import annotations
 
 import asyncio
-import concurrent.futures
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -46,11 +45,17 @@ import inspect
 import os
 import time
 from typing import TypeVar
-from collections.abc import Awaitable, Iterator, Sequence
+from collections.abc import Awaitable, Sequence
 
 import ed_datasource_factory
 import edgis_cache
 from constants import default_init_dir, discord_token_env
+from discord_command_registry import register_discord_commands
+from discord_message_utils import (
+    DiscordProgressReporter,
+    chunked_sequence,
+    send_chunked_text,
+)
 from edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
 from ed_protocols import (
@@ -97,7 +102,7 @@ class EDDiscordBot:
             "Initializing DiscordBot with prefix={}", self.bot.command_prefix
         )
         self.bot.event(self.on_ready)
-        self.register_commands()
+        register_discord_commands(self.bot, self)
 
     @staticmethod
     def _default_intents() -> discord.Intents:
@@ -172,14 +177,11 @@ class EDDiscordBot:
             "system_info command completed: found={}", system_info is not None
         )
         s_info = str(system_info)
-        # Discord message payloads are capped at 2000 characters.
         if len(s_info) <= 2000:
             elapsed_ms = int((time.perf_counter() - start) * 1000)
             await ctx.send(f"{arg}: {s_info} ({elapsed_ms} ms)")
         else:
-            chunks = [s_info[i : i + 2000] for i in range(0, len(s_info), 2000)]
-            for chunk in chunks:
-                await ctx.send(chunk)
+            await send_chunked_text(ctx, s_info)
             elapsed_ms = int((time.perf_counter() - start) * 1000)
             await ctx.send(f"Execution time: {elapsed_ms} ms")
 
@@ -225,23 +227,11 @@ class EDDiscordBot:
             f"Calculate Path between {initial_system_name} and {destination_system_name} with max system count {max_system_count} a min travel distance of {min_distance} and a max travel distance of {max_distance}...  This may take a while"
         )
         loop = asyncio.get_running_loop()
-
-        def handle_progress_send_result(
-            send_result: concurrent.futures.Future[discord.Message],
-        ) -> None:
-            # Progress sends happen from a worker-thread callback; surface
-            # failures in logs instead of failing the command coroutine.
-            exc = send_result.exception()
-            if exc is not None:
-                self._logger.opt(exception=exc).error(
-                    "Failed to send progress update to Discord"
-                )
-
-        def progress_callback(message: str) -> None:
-            self._logger.info(message)
-            # Route progress callback executes off-loop; schedule send safely.
-            send_future = asyncio.run_coroutine_threadsafe(ctx.send(message), loop)
-            send_future.add_done_callback(handle_progress_send_result)
+        progress_callback = DiscordProgressReporter(
+            ctx=ctx,
+            logger=self._logger,
+            loop=loop,
+        )
 
         route = await self._resolve(
             self.ed_route.path(
@@ -275,9 +265,8 @@ class EDDiscordBot:
 
     def chunked_system_list(
         self, system_list: Sequence[T], size: int = 5
-    ) -> Iterator[Sequence[T]]:
-        for i in range(0, len(system_list), size):
-            yield system_list[i : i + size]
+    ) -> Sequence[Sequence[T]]:
+        return list(chunked_sequence(system_list, size))
 
     async def dump_system_cache_names(self, ctx: DiscordContextProtocol) -> None:
         start = time.perf_counter()
@@ -285,7 +274,7 @@ class EDDiscordBot:
         await ctx.send("Fetching all system names in cache... This may take a while")
         system_names = await self._resolve(self.ed_route.get_all_system_names())
         self._logger.debug("Fetched {} cached system names", len(system_names))
-        for chunk in self.chunked_system_list(system_names, size=10):
+        for chunk in chunked_sequence(system_names, size=10):
             system_names_message = ", ".join(chunk)
             await ctx.send(f"Systems in cache: {system_names_message}")
         elapsed_ms = int((time.perf_counter() - start) * 1000)
@@ -333,69 +322,6 @@ class EDDiscordBot:
         await ctx.send(
             f"Bulk load complete. Loaded {len(loaded_systems)} systems ({elapsed_ms} ms)"
         )
-
-    def register_commands(self) -> None:
-        self._logger.debug("Registering bot commands")
-        # ``discord.ext.commands`` expects plain callables whose first
-        # parameter is ``ctx`` (plus any user arguments). Using a bound
-        # method would insert ``self`` as the first argument, causing
-        # the framework to complain about the signature. To keep the
-        # instance methods while satisfying the API we register small
-        # wrappers that delegate back to ``self``.
-
-        @self.bot.command()
-        async def ping(ctx: DiscordContextProtocol) -> None:
-            return await self.ping(ctx)
-
-        @self.bot.command()
-        async def system_info(ctx: DiscordContextProtocol, arg: str) -> None:
-            return await self.system_info(ctx, arg)
-
-        @self.bot.command()
-        async def path(
-            ctx: DiscordContextProtocol,
-            initial_system_name: str,
-            destination_system_name: str,
-            max_system_count: int = 100,
-            min_distance: int = 0,
-            max_distance: int = 10000,
-        ) -> None:
-            return await self.path(
-                ctx,
-                initial_system_name,
-                destination_system_name,
-                max_system_count,
-                min_distance,
-                max_distance,
-            )
-
-        @self.bot.command()
-        async def calc_systems_distance(
-            ctx: DiscordContextProtocol, system_name_one: str, system_name_two: str
-        ) -> None:
-            return await self.calc_systems_distance(
-                ctx, system_name_one, system_name_two
-            )
-
-        @self.bot.command()
-        async def dump_system_cache_names(ctx: DiscordContextProtocol) -> None:
-            return await self.dump_system_cache_names(ctx)
-
-        @self.bot.command()
-        async def init_datasource(
-            ctx: DiscordContextProtocol, import_dir: str = default_init_dir
-        ) -> None:
-            return await self.init_datasource(ctx, import_dir)
-
-        @self.bot.command()
-        async def bulk_load_cache(
-            ctx: DiscordContextProtocol, initial_systems: str, max_nodes_visited: int
-        ) -> None:
-            return await self.bulk_load_cache(
-                ctx,
-                initial_systems,
-                max_nodes_visited,
-            )
 
     def run(self) -> None:
         """Start the bot using the configured token/logging.

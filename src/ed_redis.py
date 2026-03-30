@@ -1,10 +1,8 @@
-import asyncio
 import atexit
 import inspect
 import json
 import os
 import threading
-from pathlib import Path
 from typing import Any, cast
 from collections.abc import Awaitable
 from urllib.parse import urlparse
@@ -12,7 +10,9 @@ from urllib.parse import urlparse
 import psutil
 from redis import asyncio as redis
 
+from datasource_json_io import export_json_records, import_json_records, safe_filename
 from ed_protocols import LoggingProtocol, SystemInfo
+from sync_async_bridge import run_async_from_sync
 from constants import (
     default_init_dir,
     default_redis_store_name,
@@ -98,66 +98,31 @@ class EDRedis:
         atexit.register(self.close)
         self.logger.info("Redis backend: {}", redis_name)
 
-    def init_datasource(self, import_dir: str | Path = default_init_dir) -> None:
+    def init_datasource(
+        self, import_dir: str | os.PathLike[str] = default_init_dir
+    ) -> None:
         self.import_datasource(import_dir)
 
-    def import_datasource(self, import_dir: str | Path) -> None:
-        import_dir_path = Path(import_dir)
-        if not import_dir_path.is_dir():
-            raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
-        json_filenames = sorted(
-            filename
-            for filename in os.listdir(import_dir_path)
-            if filename.endswith(json_extension)
+    def import_datasource(self, import_dir: str | os.PathLike[str]) -> None:
+        import_json_records(
+            import_dir=import_dir,
+            json_extension=json_extension,
+            logger=self.logger,
+            log_message="Importing Redis datasource from {} JSON files in {}",
+            insert_record=self.insert_system,
         )
-        self.logger.info(
-            "Importing Redis datasource from {} JSON files in {}",
-            len(json_filenames),
-            import_dir_path,
-        )
-        for filename in json_filenames:
-            json_path = import_dir_path / filename
-            with json_path.open(encoding="utf-8") as json_file:
-                payload = json.load(json_file)
-
-            records = payload if isinstance(payload, list) else [payload]
-            for record in records:
-                if isinstance(record, dict):
-                    self.insert_system(record)
 
     def export_datasource(self, export_dir: str) -> None:
-        Path(export_dir).mkdir(parents=True, exist_ok=True)
-        systems = self.get_all_systems()
-        for system in systems:
-            system_name = system.get(system_info_name_field)
-            if not isinstance(system_name, str) or not system_name:
-                continue
-            full_system = self.get_system(system_name)
-            if full_system is None:
-                continue
-            output_path = os.path.join(
-                export_dir,
-                f"{self._safe_filename(system_name)}{json_extension}",
-            )
-            with open(output_path, "w", encoding="utf-8") as file_handle:
-                json.dump(
-                    full_system,
-                    file_handle,
-                    indent=2,
-                    sort_keys=True,
-                    ensure_ascii=False,
-                )
-                file_handle.write("\n")
+        export_json_records(
+            export_dir=export_dir,
+            json_extension=json_extension,
+            systems=self.get_all_systems(),
+            system_name_field=system_info_name_field,
+            get_full_system=self.get_system,
+        )
 
     def _safe_filename(self, system_name: str) -> str:
-        return "".join(
-            (
-                character
-                if character.isalnum() or character in (" ", "-", "_", ".")
-                else "_"
-            )
-            for character in system_name
-        ).strip()
+        return safe_filename(system_name)
 
     @staticmethod
     def _default_max_connections() -> int:
@@ -190,36 +155,9 @@ class EDRedis:
 
     def _run_async(self, coro: Any) -> Any:
         self._ensure_open()
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            return asyncio.run(coro)
-
-        output: dict[str, Any] = {}
-        error: dict[str, BaseException] = {}
-
-        def _worker() -> None:
-            try:
-                output[value_key] = asyncio.run(coro)
-            except BaseException as exc:
-                error[value_key] = exc
-
-        worker = threading.Thread(target=_worker, daemon=True)
-        worker.start()
-        worker.join()
-
-        if value_key in error:
-            raise error[value_key]
-
-        return output.get(value_key)
+        return run_async_from_sync(coro, value_key=value_key)
 
     def _new_client(self) -> Any:
-        return redis.from_url(
-            self._redis_url,
-            decode_responses=True,
-            max_connections=self._max_connections,
-        )
-        # bounded to avoid unbounded socket growth.
         return redis.from_url(
             self._redis_url,
             decode_responses=True,
