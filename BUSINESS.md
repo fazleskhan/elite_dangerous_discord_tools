@@ -53,6 +53,7 @@ This document captures the current business-specific behavior enforced by the ap
 
 ## Datasource Import And Export
 - The active datasource can be TinyDB or Redis.
+- When callers do not inject a datasource explicitly, datasource selection follows `DATASOURCE_TYPE`.
 - `init_datasource` loads seed data into the active datasource.
 - Import fails with `FileNotFoundError` when the import directory does not exist.
 - Import scans only files with the configured JSON extension.

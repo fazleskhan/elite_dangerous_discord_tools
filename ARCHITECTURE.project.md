@@ -39,7 +39,6 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) for Elite Dangerous Discor
 - `➕ Extends` Build the route stack in [src/ed_route_service_factory.py](src/ed_route_service_factory.py).
 - `➕ Extends` Compose the stack from datasource selection, EDGIS-backed cache creation, system-info service, all-system-names service, distance service, BFS traversal, path service, and bulk-load service.
 - `➕ Extends` Keep [src/ed_path_service.py](src/ed_path_service.py) responsible for offloading blocking BFS work with `asyncio.to_thread(...)`.
-- `⚠ Overrides` Treat [src/ed_route_services.py](src/ed_route_services.py) as a temporary legacy re-export module, but do not add new compatibility modules following that pattern.
 
 ## Datasources
 - `➕ Extends` Implement datasource selection in [src/ed_datasource_factory.py](src/ed_datasource_factory.py).

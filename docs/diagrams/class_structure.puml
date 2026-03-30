@@ -5,6 +5,13 @@ class EDRouteServiceFactory
 class EDDatasourceFactory
 class EDGis
 class EDGisCache
+class EDInitDatasourceService
+class EDGetSystemInfoService
+class EDGetAllSystemNamesService
+class EDCalcSystemsDistanceService
+class EDPathService
+class EDBfsAlgo
+class EDBulkLoadAlgo
 class EDTinyDB
 class EDRedis
 interface ILogger
@@ -17,6 +24,13 @@ EDRouteServiceFactory --> EDRouteService
 EDRouteServiceFactory --> EDDatasourceFactory
 EDRouteServiceFactory --> EDGis
 EDRouteServiceFactory --> EDGisCache
+EDRouteServiceFactory --> EDInitDatasourceService
+EDRouteServiceFactory --> EDGetSystemInfoService
+EDRouteServiceFactory --> EDGetAllSystemNamesService
+EDRouteServiceFactory --> EDCalcSystemsDistanceService
+EDRouteServiceFactory --> EDPathService
+EDRouteServiceFactory --> EDBfsAlgo
+EDRouteServiceFactory --> EDBulkLoadAlgo
 EDRouteService --> DatasourceProtocol
 EDRouteService --> CacheProtocol
 EDDatasourceFactory --> EDTinyDB
