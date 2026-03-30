@@ -83,3 +83,10 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Keep shared cross-project rules in [ARCHITECTURE.md](ARCHITECTURE.md).
 - Keep repository-specific infrastructure prompts in [ARCHITECTURE.project.md](ARCHITECTURE.project.md).
 - Keep feature and business behavior in [BUSINESS.md](BUSINESS.md).
+
+## Script Documentation
+- Keep a dedicated scripts section in [README.md](README.md) that documents the files in the `scripts/` directory.
+- Use that README section to describe what each script does and how to use it.
+- When a script is added, updated, or removed from `scripts/`, update [README.md](README.md) in the same change.
+- Keep the authoritative script descriptions as comments inside each script file.
+- Generate the README scripts section from those in-script comments via `scripts/generated_readme.py`.

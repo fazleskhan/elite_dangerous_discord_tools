@@ -1,3 +1,36 @@
+"""
+[README:SCRIPTS]
+### `profile_workload.py`
+
+Runs small performance profiling workloads against the route service so you can
+measure datasource initialization, route generation, or repeated distance
+calculations from the command line.
+
+Usage:
+- `python scripts/profile_workload.py init`
+- `python scripts/profile_workload.py path --initial Sol --destination "Ross 248"`
+- `python scripts/profile_workload.py distance_loop --iterations 5000`
+
+Arguments:
+- `mode`: Required positional argument. Choose one of `init`, `path`, or
+  `distance_loop`.
+- `--import_dir`: Path to the import data directory. Defaults to `./init`.
+- `--db`: Temporary database path to use for the profiling run. Defaults to
+  `/tmp/ed_profile.db`.
+- `--initial`: Starting system name for `path` and `distance_loop`. Defaults to
+  `Sol`.
+- `--destination`: Destination system name for `path` and `distance_loop`.
+  Defaults to `Ross 248`.
+- `--max_systems`: Maximum number of systems to visit during `path`. Defaults to
+  `1000`.
+- `--min_distance`: Minimum jump distance filter for `path`. Defaults to `0`.
+- `--max_distance`: Maximum jump distance filter for `path`. Defaults to `10000`.
+- `--iterations`: Number of repeated calculations for `distance_loop`. Defaults
+  to `1000`.
+
+[/README]
+"""
+
 import argparse
 import os
 import time
