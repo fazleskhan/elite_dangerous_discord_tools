@@ -11,6 +11,8 @@ def run_async_from_sync(coro: Any, *, value_key: str) -> Any:
     except RuntimeError:
         return asyncio.run(coro)
 
+    # When a caller is already inside an event loop, hop to a worker thread so
+    # the synchronous API can still wait for the coroutine result safely.
     output: dict[str, Any] = {}
     error: dict[str, BaseException] = {}
 

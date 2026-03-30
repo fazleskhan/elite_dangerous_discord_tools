@@ -171,6 +171,8 @@ def configure_logging(
     global _WATCHER
     with _WATCHER_LOCK:
         if _WATCHER is None:
+            # Logging is configured once per process; subsequent callers only
+            # ensure env vars were loaded and reuse the existing watcher.
             watcher = _LoguruConfigWatcher(resolved_path)
             _WATCHER = watcher
             watcher.start()
@@ -206,6 +208,8 @@ class _LoguruConfigWatcher:
             self._apply_if_needed(force=False)
 
     def _event_targets_config(self, event: FileSystemEvent) -> bool:
+        # Watchdog may report either the source or destination path depending on
+        # the filesystem event type, so we treat either side as a config hit.
         src_path = Path(os.fsdecode(event.src_path)).resolve()
         if src_path == self.config_path:
             return True
@@ -225,6 +229,8 @@ class _LoguruConfigWatcher:
 
         config = self._load_config()
         with self._apply_lock:
+            # Re-checking under the lock prevents overlapping watchdog events
+            # from interleaving Loguru reconfiguration work.
             self._configure_logger(config)
             self._config_mtime_ns = current_mtime_ns
             _logger.debug("Reloaded Loguru configuration from {}", self.config_path)
