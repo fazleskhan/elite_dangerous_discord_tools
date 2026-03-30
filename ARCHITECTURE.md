@@ -20,9 +20,11 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Depend on protocols rather than concrete implementations.
 - `main.py` owns application wiring and top-level configuration.
 - Maintain `requirements.txt` for Python dependencies needed in deployed production environments.
-- Maintain `dev-requirements.txt` for Python dependencies needed only for local development, testing, linting, typing, profiling, or other non-production workflows.
-- When reloading Python dependencies in a development environment, install both `requirements.txt` and `dev-requirements.txt`.
-- Add new Python dependencies to `dev-requirements.txt` by default unless they are required while the application is deployed in production, in which case add them to `requirements.txt`.
+- Keep the libraries listed in `requirements.txt` in alphabetical order.
+- Keep local-development-only Python dependencies separate from deployed runtime dependencies.
+- Add a short comment for every listed dependency manifest entry describing what the library does and how the project uses it.
+- When reloading Python dependencies in a development environment, install both the runtime dependency manifest and the local-development dependency manifest.
+- Add new Python dependencies to the local-development dependency manifest by default unless they are required while the application is deployed in production, in which case add them to the runtime dependency manifest.
 - Always make changes on the branch currently active in the user's workspace unless the user explicitly asks to switch branches.
 
 ## 3. Null Safety

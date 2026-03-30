@@ -90,6 +90,11 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Keep shared cross-project rules in [ARCHITECTURE.md](ARCHITECTURE.md).
 - Keep repository-specific infrastructure prompts in [ARCHITECTURE.project.md](ARCHITECTURE.project.md).
 - Keep feature and business behavior in [BUSINESS.md](BUSINESS.md).
+- Use [dev-requirements.txt](dev-requirements.txt) as this repository's local-development dependency manifest for testing, linting, typing, profiling, and formatting tools.
+- Keep the libraries listed in [dev-requirements.txt](dev-requirements.txt) in alphabetical order.
+- When reloading Python dependencies in a development environment for this repository, install both [requirements.txt](requirements.txt) and [dev-requirements.txt](dev-requirements.txt).
+- Add new Python dependencies to [dev-requirements.txt](dev-requirements.txt) by default unless they are required while the application is deployed in production, in which case add them to [requirements.txt](requirements.txt).
+- In [dev-requirements.txt](dev-requirements.txt), keep a short comment above every listed library describing what the library does and how this project uses it.
 
 ## Script Documentation
 - Keep a dedicated scripts section in [README.md](README.md) that documents the files in the `scripts/` directory.

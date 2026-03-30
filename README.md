@@ -330,6 +330,43 @@ Key methods:
 * `create`: Build a bulk loader from a cache object and shared logger.
 * `load`: Preload cache data by walking outward from seed systems.
 
+## Libraries
+
+### Runtime Libraries
+
+Install with: `pip install -r requirements.txt`
+
+* `aiohttp`: HTTP client for EDGIS API requests in `src/ed_edgis.py`.
+* `aiotinydb`: Async TinyDB helper dependency retained for TinyDB-related runtime compatibility.
+* `autologging`: Lightweight tracing decorator used where available in runtime modules.
+* `discord`: Discord bot framework used by `src/ed_discord_bot.py` and `src/discord_runner.py`.
+* `loguru`: Primary logging library configured through `src/ed_app_logging.py`.
+* `loguru-config`: Optional Loguru config loader used when reading external logging configuration.
+* `psutil`: System metrics helper used for worker-count and connection-pool sizing.
+* `python-dotenv`: Loads `.env` configuration for CLI, Discord, datasource, and logging setup.
+* `redis[hiredis]`: Redis client with hiredis acceleration for the Redis datasource in `src/ed_redis.py`.
+* `tinydb`: Local document database backing the TinyDB datasource in `src/ed_tinydb.py`.
+* `tinydb-smartcache`: Smart-cache table implementation used by `SmartCacheTinyDB` in `src/ed_tinydb.py`.
+* `ujson`: Fast JSON helper used by project dependencies and retained in the runtime image.
+* `watchdog`: File watching library used for hot-reloading `config/loguru.json`.
+
+### Development Libraries
+
+Install with: `pip install -r dev-requirements.txt`
+
+* `austin-python`: Sampling profiler used by local workload profiling and performance debugging.
+* `black`: Code formatter used as the repository's canonical Python formatting pass.
+* `coverage`: Coverage engine used underneath coverage reports and pytest coverage runs.
+* `mypy`: Optional static type checker kept for development workflows that prefer mypy alongside pyright.
+* `pyright`: Static type checker run against the repository as a required quality gate.
+* `pytest`: Test runner used for the project's unit and integration-style test suite.
+* `pytest-asyncio`: Async test support for Discord, logging, and sync/async bridge tests.
+* `pytest-cov`: Pytest plugin used to collect test coverage metrics during development checks.
+* `pyupgrade`: Modernizes Python syntax during post-change cleanup passes.
+* `refurb`: Suggests more idiomatic Python refactors across the codebase.
+* `ruff`: Primary lint tool used to catch style, correctness, and simplification issues.
+* `tuna`: Browser-based profiler used during optional local performance inspection.
+
 ## Business Rules
 
 Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINESS.md).
