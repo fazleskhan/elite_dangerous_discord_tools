@@ -2,6 +2,7 @@
 actor User
 participant "main.py" as Main
 participant Parser
+participant "ed_cli_command_runner.py" as CommandRunner
 participant EDMain
 participant EDRouteService as RouteService
 participant ILogger as Logger
@@ -10,12 +11,13 @@ User -> Main: bulk_load_cache --initial_systems --max_nodes_visited
 Main -> Parser: parse_args()
 Main -> Logger: info("CLI parameters")
 Main -> EDMain: create(shared logger)
-Main -> Logger: info("CLI command received")
-Main -> Main: trim comma-separated seed names
-Main -> EDMain: bulk_load_cache(seed_names, max_nodes_visited)
+Main -> CommandRunner: run_command(args, parser, ed_main)
+CommandRunner -> Logger: info("CLI command received")
+CommandRunner -> CommandRunner: trim comma-separated seed names
+CommandRunner -> EDMain: bulk_load_cache(seed_names, max_nodes_visited)
 EDMain -> RouteService: bulk_load_cache(..., progress_callback=logger.info)
 RouteService --> EDMain: loaded systems
 EDMain --> Main: loaded systems
-Main -> Logger: info("Loaded N systems from seeds ...")
-Main -> Logger: info("Execution time")
+CommandRunner -> Logger: info("Loaded N systems from seeds ...")
+CommandRunner -> Logger: info("Execution time")
 @enduml

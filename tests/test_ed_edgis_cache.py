@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-import edgis_cache
+import ed_edgis_cache
 from tests.helpers import ThreadSafeLogger
 
 
@@ -43,29 +43,31 @@ def test_edgis_cache_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
     with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
-        edgis_cache.EDGisCache(
+        ed_edgis_cache.EDGisCache(
             datasource, lambda _name: None, lambda _x, _y, _z: None, logger=None
         )
     with pytest.raises(
         ValueError, match="datasource of type DatasourceProtocol is required"
     ):
-        edgis_cache.EDGisCache(
+        ed_edgis_cache.EDGisCache(
             None, lambda _name: None, lambda _x, _y, _z: None, logger=logger
         )
     with pytest.raises(
         ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"
     ):
-        edgis_cache.EDGisCache(datasource, None, lambda _x, _y, _z: None, logger=logger)
+        ed_edgis_cache.EDGisCache(
+            datasource, None, lambda _x, _y, _z: None, logger=logger
+        )
     with pytest.raises(
         ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"
     ):
-        edgis_cache.EDGisCache(datasource, lambda _name: None, None, logger=logger)
+        ed_edgis_cache.EDGisCache(datasource, lambda _name: None, None, logger=logger)
 
 
 def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
-    cache = edgis_cache.EDGisCache.create(
+    cache = ed_edgis_cache.EDGisCache.create(
         datasource,
         logger,
         lambda system_name: sample_system() if system_name == "Sol" else None,
@@ -87,7 +89,7 @@ def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:
 
 def test_edgis_cache_logs_failures() -> None:
     logger = ThreadSafeLogger()
-    cache = edgis_cache.EDGisCache.create(
+    cache = ed_edgis_cache.EDGisCache.create(
         FakeDatasource(),
         logger,
         lambda _system_name: None,

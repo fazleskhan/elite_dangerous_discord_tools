@@ -42,7 +42,7 @@ This document captures the current behavior that the application enforces. It is
 - The CLI bulk-load command reports how many systems were loaded from the cleaned seed list.
 - The Discord bulk-load command announces the cleaned seed list before loading and reports the loaded-system count after completion.
 - The Discord cache-dump command announces that cache inspection may take a while, sends cached system names in batches of 10, and finishes with the total count.
-- The reusable Discord chunking helper defaults to batches of 5 items when a caller does not override the chunk size.
+- The reusable Discord chunking helper ed_defaults to batches of 5 items when a caller does not override the chunk size.
 
 ## Datasource Import And Export
 - `init_datasource` initializes the configured datasource from the import directory.

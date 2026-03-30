@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from constants import default_init_dir
+from ed_constants import default_init_dir
 from ed_protocols import (
     BfsProtocol,
     BulkLoadProtocol,
@@ -22,7 +22,7 @@ from ed_protocols import (
 
 
 class EDRouteService:
-    """Thin shim layer over delegate service classes."""
+    """Thin facade over delegate service classes."""
 
     def __init__(
         self,

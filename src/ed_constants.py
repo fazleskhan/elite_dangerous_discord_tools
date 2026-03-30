@@ -1,6 +1,6 @@
-"""Shared constant keys, defaults, and legacy aliases."""
+"""Shared constant keys, ed_defaults, and legacy aliases."""
 
-from defaults import (
+from ed_defaults import (
     DEFAULT_DISCORD_LOG_NAME,
     DEFAULT_EXPORT_DIR,
     DEFAULT_INIT_DIR,

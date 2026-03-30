@@ -19,6 +19,7 @@ callables
 capsys
 coords
 coro
+Chunker
 ctx
 datestamped
 dedupe

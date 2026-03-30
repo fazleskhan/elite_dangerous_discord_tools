@@ -2,7 +2,7 @@ import argparse
 import time
 from typing import TYPE_CHECKING
 
-from protocols import ILogger
+from ed_protocols import ILogger
 
 if TYPE_CHECKING:
     from main import EDMain

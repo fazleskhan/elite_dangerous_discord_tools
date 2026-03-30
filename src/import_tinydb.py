@@ -23,8 +23,8 @@ filesystem and datasource backends.
 
 import argparse
 
-from constants import default_export_dir, import_dir_arg
-from app_logging import configure_logging
+from ed_constants import default_export_dir, import_dir_arg
+from ed_app_logging import configure_logging
 from loguru import logger
 
 from ed_tinydb import EDTinyDB

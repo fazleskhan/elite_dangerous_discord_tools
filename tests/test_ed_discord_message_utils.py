@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-import discord_message_utils
+import ed_discord_message_utils
 from tests.helpers import ThreadSafeLogger
 
 
@@ -20,13 +20,13 @@ class FakeContext:
 async def test_send_chunked_text_splits_long_messages() -> None:
     ctx = FakeContext()
 
-    await discord_message_utils.send_chunked_text(ctx, "abcdef", chunk_size=2)
+    await ed_discord_message_utils.send_chunked_text(ctx, "abcdef", chunk_size=2)
 
     assert ctx.messages == ["ab", "cd", "ef"]
 
 
 def test_chunked_sequence_returns_expected_slices() -> None:
-    assert list(discord_message_utils.chunked_sequence(list(range(7)), size=3)) == [
+    assert list(ed_discord_message_utils.chunked_sequence(list(range(7)), size=3)) == [
         [0, 1, 2],
         [3, 4, 5],
         [6],
@@ -40,7 +40,7 @@ async def test_discord_progress_reporter_logs_and_schedules_send(
     logger = ThreadSafeLogger()
     ctx = FakeContext()
     loop = asyncio.get_running_loop()
-    reporter = discord_message_utils.DiscordProgressReporter(
+    reporter = ed_discord_message_utils.DiscordProgressReporter(
         ctx=ctx,
         logger=logger,
         loop=loop,
@@ -62,7 +62,7 @@ async def test_discord_progress_reporter_logs_and_schedules_send(
         return future
 
     monkeypatch.setattr(
-        discord_message_utils.asyncio,
+        ed_discord_message_utils.asyncio,
         "run_coroutine_threadsafe",
         fake_run_coroutine_threadsafe,
     )
@@ -78,7 +78,7 @@ async def test_discord_progress_reporter_logs_and_schedules_send(
 
 def test_discord_progress_reporter_logs_send_failures() -> None:
     logger = ThreadSafeLogger()
-    reporter = discord_message_utils.DiscordProgressReporter(
+    reporter = ed_discord_message_utils.DiscordProgressReporter(
         ctx=FakeContext(),
         logger=logger,
         loop=asyncio.new_event_loop(),

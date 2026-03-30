@@ -23,8 +23,8 @@ from ed_route_services import (
     EDPathService,
 )
 from ed_datasource_factory import EDDatasourceFactory
-from edgis_cache import EDGisCache
-from edgis import EDGis
+from ed_edgis_cache import EDGisCache
+from ed_edgis import EDGis
 
 
 class EDRouteServiceFactory:
@@ -52,12 +52,12 @@ class EDRouteServiceFactory:
             init_datasource_service
             or EDInitDatasourceService(resolved_datasource, logger)
         )
-        edgis = EDGis(logger)
+        ed_edgis = EDGis(logger)
         resolved_cache = cache or EDGisCache.create(
             resolved_datasource,
             logger,
-            edgis.fetch_system_info,
-            edgis.fetch_neighbors,
+            ed_edgis.fetch_system_info,
+            ed_edgis.fetch_neighbors,
         )
         resolved_get_system_info_service = (
             get_system_info_service or EDGetSystemInfoService(resolved_cache, logger)

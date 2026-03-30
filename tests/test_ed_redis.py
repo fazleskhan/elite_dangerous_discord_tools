@@ -10,7 +10,7 @@ import pytest
 
 import ed_redis
 from tests.helpers import ThreadSafeLogger
-from constants import (
+from ed_constants import (
     default_redis_store_name,
     redis_app_name_env,
     redis_max_connections_env,

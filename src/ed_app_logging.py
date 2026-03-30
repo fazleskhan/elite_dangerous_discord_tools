@@ -1,7 +1,7 @@
 """Project-specific logging setup and runtime configuration support.
 
 [README:LOGGING]
-* Logging uses Loguru via `src/app_logging.py`.
+* Logging uses Loguru via `src/ed_app_logging.py`.
 * Runtime configuration is externalized in `config/loguru.json`.
 * Config changes are hot-reloaded via watchdog file events.
 * Default behavior writes datestamped file logs under `logs/`,
@@ -34,13 +34,13 @@ except ImportError:
 
 from dotenv import load_dotenv
 from loguru import logger as _logger
-from loguru_config_loader import load_config_file, merge_nested_dicts
-from loguru_runtime import apply_runtime_config, make_min_level_filter
+from ed_loguru_config_loader import load_config_file, merge_nested_dicts
+from ed_loguru_runtime import apply_runtime_config, make_min_level_filter
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.api import BaseObserver
 
-from defaults import (
+from ed_defaults import (
     DEFAULT_APPLICATION_LOG_PATH,
     DEFAULT_LOGURU_CONFIG,
     DEFAULT_LOGURU_CONFIG_PATH,

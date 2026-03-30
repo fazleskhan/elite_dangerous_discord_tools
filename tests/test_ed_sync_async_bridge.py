@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-import sync_async_bridge
+import ed_sync_async_bridge
 
 
 def test_run_async_from_sync_handles_plain_calls_and_existing_event_loop() -> None:
@@ -11,12 +11,12 @@ def test_run_async_from_sync_handles_plain_calls_and_existing_event_loop() -> No
         return "ok"
 
     assert (
-        sync_async_bridge.run_async_from_sync(returns_value(), value_key="result")
+        ed_sync_async_bridge.run_async_from_sync(returns_value(), value_key="result")
         == "ok"
     )
 
     async def run_inside_loop() -> str:
-        return sync_async_bridge.run_async_from_sync(
+        return ed_sync_async_bridge.run_async_from_sync(
             returns_value(), value_key="result"
         )
 
@@ -29,7 +29,7 @@ def test_run_async_from_sync_propagates_worker_thread_exceptions() -> None:
         raise RuntimeError("boom")
 
     async def run_inside_loop() -> None:
-        sync_async_bridge.run_async_from_sync(raises(), value_key="result")
+        ed_sync_async_bridge.run_async_from_sync(raises(), value_key="result")
 
     with pytest.raises(RuntimeError, match="boom"):
         asyncio.run(run_inside_loop())

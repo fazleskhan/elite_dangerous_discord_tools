@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from constants import default_init_dir
+from ed_constants import default_init_dir
 from ed_protocols import DiscordBotProtocol, DiscordContextProtocol
 
 

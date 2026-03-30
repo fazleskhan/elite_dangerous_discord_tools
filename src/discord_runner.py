@@ -23,7 +23,7 @@ Run the Discord bot process via:
 
 from ed_discord_bot import EDDiscordBot
 from loguru import logger
-from app_logging import configure_logging
+from ed_app_logging import configure_logging
 
 
 def main() -> None:

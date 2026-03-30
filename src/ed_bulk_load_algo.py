@@ -10,7 +10,7 @@ from ed_protocols import (
     ProgressFn,
     SystemInfo,
 )
-from constants import (
+from ed_constants import (
     system_info_coords_field,
     system_info_name_field,
     system_info_x_field,

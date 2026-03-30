@@ -2,6 +2,7 @@
 actor User
 participant "main.py" as Main
 participant Parser
+participant "ed_cli_command_runner.py" as CommandRunner
 participant EDMain
 participant EDRouteService as RouteService
 participant ILogger as Logger
@@ -10,11 +11,12 @@ User -> Main: init_datasource --import_dir
 Main -> Parser: parse_args()
 Main -> Logger: info("CLI parameters")
 Main -> EDMain: create(shared logger)
-Main -> Logger: info("CLI command received")
-Main -> EDMain: init_datasource(import_dir)
+Main -> CommandRunner: run_command(args, parser, ed_main)
+CommandRunner -> Logger: info("CLI command received")
+CommandRunner -> EDMain: init_datasource(import_dir)
 EDMain -> RouteService: init_datasource(import_dir)
 RouteService --> EDMain: done
 EDMain --> Main: done
-Main -> Logger: info("Datasource initialized from ...")
-Main -> Logger: info("Execution time")
+CommandRunner -> Logger: info("Datasource initialized from ...")
+CommandRunner -> Logger: info("Execution time")
 @enduml

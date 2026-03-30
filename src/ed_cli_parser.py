@@ -1,6 +1,6 @@
 import argparse
 
-from constants import default_init_dir
+from ed_constants import default_init_dir
 
 
 def build_cli_parser() -> argparse.ArgumentParser:

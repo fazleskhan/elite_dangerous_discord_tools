@@ -19,7 +19,7 @@ Commands and available arguments:
 * `!path <initial_system_name> <destination_system_name> [max_system_count=100] [min_distance=0] [max_distance=10000]`
   * Overview: runs route search with progress updates and returns
     route/no-route result.
-  * Arguments: first two required, remaining optional with defaults shown.
+  * Arguments: first two required, remaining optional with ed_defaults shown.
 * `!calc_systems_distance <system_name_one> <system_name_two>`
   * Overview: computes and reports distance between two systems.
   * Arguments: both required.
@@ -48,15 +48,15 @@ from typing import TypeVar
 from collections.abc import Awaitable, Sequence
 
 import ed_datasource_factory
-import edgis_cache
-from constants import default_init_dir, discord_token_env
-from discord_command_registry import register_discord_commands
-from discord_message_utils import (
+import ed_edgis_cache
+from ed_constants import default_init_dir, discord_token_env
+from ed_discord_command_registry import register_discord_commands
+from ed_discord_message_utils import (
     DiscordProgressReporter,
     chunked_sequence,
     send_chunked_text,
 )
-from edgis import EDGis
+from ed_edgis import EDGis
 from ed_route_service_factory import EDRouteServiceFactory
 from ed_protocols import (
     CacheProtocol,
@@ -131,7 +131,7 @@ class EDDiscordBot:
                 logger=logger,
             )
             gis = EDGis(logger)
-            cache = edgis_cache.EDGisCache.create(
+            cache = ed_edgis_cache.EDGisCache.create(
                 datasource,
                 logger=logger,
                 fetch_system_info_fn=gis.fetch_system_info,

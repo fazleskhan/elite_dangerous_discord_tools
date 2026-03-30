@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-from constants import default_init_dir
+from ed_constants import default_init_dir
 from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 
