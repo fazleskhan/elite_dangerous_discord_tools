@@ -8,16 +8,21 @@
 #
 # Usage:
 # - `bash scripts/build_and_push.sh`
+# - `bash scripts/build_and_push.sh -e dev`
+# - `bash scripts/build_and_push.sh docker_env test`
 # - `DOCKER_ENV=dev bash scripts/build_and_push.sh`
 # - `DOCKER_ENV=test bash scripts/build_and_push.sh`
 # - `DOCKER_ENV=prod bash scripts/build_and_push.sh`
 #
 # Arguments:
-# - This script takes no positional command-line arguments.
+# - `docker_env <value>`: Optional command-line override for the deployment
+#   environment. Supported values are `dev`, `test`, and `prod`.
+# - `-e <value>`: Short form of the same deployment-environment override.
 #
 # Environment variables:
 # - `DOCKER_ENV`: Selects the image tag to build and push. Supported values are
-#   `dev`, `test`, and `prod`. If unset, the script defaults to `dev`.
+#   `dev`, `test`, and `prod`. The command-line override wins when both are
+#   provided. If neither is set, the script defaults to `dev`.
 # [/README]
 
 # Exit immediately if a command exits with a non-zero status
@@ -26,6 +31,31 @@ set -euo pipefail
 # Define variables
 IMAGE_NAME="public-images"
 DOCKER_ENV="${DOCKER_ENV:-dev}"
+
+while (($# > 0)); do
+  case "$1" in
+    -e)
+      if (($# < 2)); then
+        echo "Error: -e requires one of: dev, test, prod." >&2
+        exit 1
+      fi
+      DOCKER_ENV="$2"
+      shift 2
+      ;;
+    docker_env)
+      if (($# < 2)); then
+        echo "Error: docker_env requires one of: dev, test, prod." >&2
+        exit 1
+      fi
+      DOCKER_ENV="$2"
+      shift 2
+      ;;
+    *)
+      echo "Error: unsupported argument '$1'. Use -e <dev|test|prod> or docker_env <dev|test|prod>." >&2
+      exit 1
+      ;;
+  esac
+done
 
 case "${DOCKER_ENV}" in
   prod)

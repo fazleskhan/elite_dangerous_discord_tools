@@ -426,16 +426,21 @@ registry namespace.
 
 Usage:
 - `bash scripts/build_and_push.sh`
+- `bash scripts/build_and_push.sh -e dev`
+- `bash scripts/build_and_push.sh docker_env test`
 - `DOCKER_ENV=dev bash scripts/build_and_push.sh`
 - `DOCKER_ENV=test bash scripts/build_and_push.sh`
 - `DOCKER_ENV=prod bash scripts/build_and_push.sh`
 
 Arguments:
-- This script takes no positional command-line arguments.
+- `docker_env <value>`: Optional command-line override for the deployment
+  environment. Supported values are `dev`, `test`, and `prod`.
+- `-e <value>`: Short form of the same deployment-environment override.
 
 Environment variables:
 - `DOCKER_ENV`: Selects the image tag to build and push. Supported values are
-  `dev`, `test`, and `prod`. If unset, the script defaults to `dev`.
+  `dev`, `test`, and `prod`. The command-line override wins when both are
+  provided. If neither is set, the script defaults to `dev`.
 
 ### `postCreateCommand.sh`
 
