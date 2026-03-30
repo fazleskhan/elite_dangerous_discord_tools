@@ -71,7 +71,7 @@ class EDGis:
             return EDGis._run_async(
                 EDGis._fetch_json(EDGis._fetch_coords_uri, {query_param_q: system_name})
             )
-        except (aiohttp.ClientError, asyncio.TimeoutError):
+        except (aiohttp.ClientError, TimeoutError):
             self._logger.exception(
                 "Failed to fetch system info for system={}", system_name
             )
@@ -93,7 +93,7 @@ class EDGis:
                     },
                 )
             )
-        except (aiohttp.ClientError, asyncio.TimeoutError):
+        except (aiohttp.ClientError, TimeoutError):
             self._logger.exception(
                 "Failed to fetch neighbors for coordinates x={} y={} z={}", x, y, z
             )

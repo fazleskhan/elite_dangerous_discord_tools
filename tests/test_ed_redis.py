@@ -4,7 +4,7 @@ import json
 import threading
 import time
 from pathlib import Path
-from typing import Any, Set
+from typing import Any
 
 import pytest
 
@@ -51,7 +51,7 @@ class FakeRedisStore:
             members.add(member)
             return len(members) - size_before
 
-    def smembers(self, key: str) -> Set[str]:
+    def smembers(self, key: str) -> set[str]:
         with self._lock:
             return set(self.sets.get(key, set()))
 
@@ -77,7 +77,7 @@ class FakeRedisClient:
     async def sadd(self, key: str, member: str) -> int:
         return self._store.sadd(key, member)
 
-    async def smembers(self, key: str) -> Set[str]:
+    async def smembers(self, key: str) -> set[str]:
         return self._store.smembers(key)
 
     async def mget(self, keys: list[str]) -> list[str | None]:

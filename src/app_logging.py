@@ -48,7 +48,7 @@ from defaults import (
     DEFAULT_LOG_TEXT_FORMAT,
 )
 
-_WATCHER: "_LoguruConfigWatcher | None" = None
+_WATCHER: _LoguruConfigWatcher | None = None
 _WATCHER_LOCK = threading.Lock()
 
 

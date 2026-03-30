@@ -145,6 +145,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 ## 15. Static Analysis
 - Use `pyright` as the project-level static analysis guardrail and fix the issues it reports before finishing a task unless explicitly approved otherwise.
 - After source files are added, changed, or removed from the project, run `ruff check .` from the repository root and fix the issues it identifies before finishing the task.
+- After source files are added, changed, or removed from the project, run `pyupgrade` across the Python source files and keep the resulting modernizations unless there is a clear project-specific reason not to.
 - Do not leave unresolved type, import, symbol, or unused-import warnings.
 - Keep null guards and type signatures aligned so impossible-condition warnings are avoided.
 - After introducing new symbols or moving imports or constants, run a quick import and symbol sanity pass in addition to tests, `pyright`, and mypy.

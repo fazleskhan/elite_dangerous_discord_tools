@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Protocol, Sequence
+from typing import Any, Protocol
+from collections.abc import Awaitable, Callable, Sequence
 
 from defaults import DEFAULT_INIT_DIR
 
