@@ -44,7 +44,7 @@ def main() -> None:
     # Reuse shared logging singleton and backend factory composition.
     configure_logging()
     logger.info("import_tinydb args: import_dir={}", args.import_dir)
-    tinydb = EDTinyDB.create(logging_utils=logger)
+    tinydb = EDTinyDB.create(logger=logger)
     tinydb.import_datasource(args.import_dir)
 
 

@@ -15,9 +15,7 @@ def test_import_redis_delegates_to_backend(tmp_path, monkeypatch):
     monkeypatch.setattr(
         import_redis,
         "EDRedis",
-        type(
-            "FakeEDRedis", (), {"create": staticmethod(lambda logging_utils=None: fake)}
-        ),
+        type("FakeEDRedis", (), {"create": staticmethod(lambda logger=None: fake)}),
     )
     fake_logger = type("Logger", (), {"info": lambda self, *args, **kwargs: None})()
     monkeypatch.setattr(import_redis, "configure_logging", lambda: None)

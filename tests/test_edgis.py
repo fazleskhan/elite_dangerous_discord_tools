@@ -51,11 +51,9 @@ async def test_edgis_fetch_json_uses_client_session(
 
 
 def test_edgis_validates_dependencies_and_create() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         edgis.EDGis(None)
-    assert isinstance(edgis.EDGis.create(ThreadSafeLogger()), edgis.EDGis)
+    assert isinstance(edgis.EDGis(ThreadSafeLogger()), edgis.EDGis)
 
 
 def test_run_async_handles_plain_and_event_loop_paths() -> None:
@@ -103,7 +101,3 @@ def test_fetch_system_info_and_neighbors_handle_success_and_errors(
     assert gis.fetch_system_info("Sol") is None
     assert gis.fetch_neighbors(1, 2, 3) is None
     assert logger.messages("exception")
-
-
-def test_edgis_main_is_a_noop() -> None:
-    assert edgis.main() is None

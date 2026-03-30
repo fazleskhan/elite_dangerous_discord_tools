@@ -23,7 +23,7 @@ def main() -> None:
     # Reuse shared logging singleton and backend factory composition.
     configure_logging()
     logger.info("export_redis args: export_dir={}", args.export_dir)
-    database = EDRedis.create(logging_utils=logger)
+    database = EDRedis.create(logger=logger)
     database.export_datasource(args.export_dir)
 
 

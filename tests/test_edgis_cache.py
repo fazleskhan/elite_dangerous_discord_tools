@@ -42,30 +42,24 @@ def sample_system() -> dict[str, object]:
 def test_edgis_cache_validates_dependencies() -> None:
     logger = ThreadSafeLogger()
     datasource = FakeDatasource()
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         edgis_cache.EDGisCache(
-            datasource, lambda _name: None, lambda _x, _y, _z: None, logging_utils=None
+            datasource, lambda _name: None, lambda _x, _y, _z: None, logger=None
         )
     with pytest.raises(
         ValueError, match="datasource of type DatasourceProtocol is required"
     ):
         edgis_cache.EDGisCache(
-            None, lambda _name: None, lambda _x, _y, _z: None, logging_utils=logger
+            None, lambda _name: None, lambda _x, _y, _z: None, logger=logger
         )
     with pytest.raises(
         ValueError, match="fetch_system_info_fn of type FetchSystemInfoFn is required"
     ):
-        edgis_cache.EDGisCache(
-            datasource, None, lambda _x, _y, _z: None, logging_utils=logger
-        )
+        edgis_cache.EDGisCache(datasource, None, lambda _x, _y, _z: None, logger=logger)
     with pytest.raises(
         ValueError, match="fetch_neighbors_fn of type FetchNeighborsFn is required"
     ):
-        edgis_cache.EDGisCache(
-            datasource, lambda _name: None, None, logging_utils=logger
-        )
+        edgis_cache.EDGisCache(datasource, lambda _name: None, None, logger=logger)
 
 
 def test_edgis_cache_fetches_and_caches_system_info_and_neighbors() -> None:
@@ -103,7 +97,3 @@ def test_edgis_cache_logs_failures() -> None:
     assert cache.find_system_info("Missing") is None
     assert cache.find_system_neighbors(sample_system()) is None
     assert logger.messages("warning")
-
-
-def test_edgis_cache_main_is_a_noop() -> None:
-    assert edgis_cache.main() is None

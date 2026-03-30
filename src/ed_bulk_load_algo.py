@@ -21,9 +21,6 @@ from constants import (
 """Cache bulk-load helpers shared by CLI and Discord entrypoints."""
 
 
-def main() -> None: ...
-
-
 class EDBulkLoadAlgo:
     """Bulk loader with injected cache functions for IoC-friendly composition."""
 
@@ -31,30 +28,25 @@ class EDBulkLoadAlgo:
         self,
         fetch_system_info_fn: FetchInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self._logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
         if fetch_system_info_fn is None:
             raise ValueError("fetch_system_info_fn of type FetchInfoFn is required")
-        else:
-            self.fetch_system_info_fn = fetch_system_info_fn
+        self.fetch_system_info_fn = fetch_system_info_fn
         if fetch_neighbors_fn is None:
             raise ValueError("fetch_neighbors_fn of type FetchNeighborsFn is required")
-        else:
-            self.fetch_neighbors_fn = fetch_neighbors_fn
-        self._logging_utils.debug("EDBulkLoadAlgo initialized")
+        self.fetch_neighbors_fn = fetch_neighbors_fn
+        self._logger.debug("EDBulkLoadAlgo initialized")
 
     @staticmethod
-    def create(
-        cache: CacheProtocol, logging_utils: LoggingProtocol
-    ) -> "EDBulkLoadAlgo":
+    def create(cache: CacheProtocol, logger: LoggingProtocol) -> "EDBulkLoadAlgo":
         return EDBulkLoadAlgo(
             fetch_system_info_fn=cache.find_system_info,
             fetch_neighbors_fn=cache.find_system_neighbors,
-            logging_utils=logging_utils,
+            logger=logger,
         )
 
     def load(
@@ -65,13 +57,13 @@ class EDBulkLoadAlgo:
     ) -> list[str]:
         # Entry point used by CLI and Discord: walk neighbor graph and return
         # deterministic visit order up to the caller-provided node limit.
-        self._logging_utils.debug(
+        self._logger.debug(
             "EDBulkLoadAlgo.load called initial_system_count={} max_nodes_visited={}",
             len(initial_system_names),
             max_nodes_visited,
         )
         if max_nodes_visited <= 0:
-            self._logging_utils.warning(
+            self._logger.warning(
                 "Skipping bulk load due to non-positive max_nodes_visited={}",
                 max_nodes_visited,
             )
@@ -88,7 +80,7 @@ class EDBulkLoadAlgo:
         for system_name in initial_system_names:
             normalized = system_name.strip()
             if not normalized or normalized in visited:
-                self._logging_utils.debug(
+                self._logger.debug(
                     "Skipping duplicate/blank seed system={}", system_name
                 )
                 continue
@@ -97,19 +89,17 @@ class EDBulkLoadAlgo:
             system_info = self.fetch_system_info_fn(normalized)
             if system_info is not None:
                 queue.append(system_info)
-                self._logging_utils.debug(
-                    "Seeded initial system={} into frontier", normalized
-                )
+                self._logger.debug("Seeded initial system={} into frontier", normalized)
             else:
-                self._logging_utils.debug(
+                self._logger.debug(
                     "Seed system info not found for system={}", normalized
                 )
             if len(visited) >= max_nodes_visited:
-                self._logging_utils.debug("Reached max_nodes_visited during seed phase")
+                self._logger.debug("Reached max_nodes_visited during seed phase")
                 return visit_order
 
         worker_count = self._physical_core_count()
-        self._logging_utils.debug("Using bulk load worker pool size={}", worker_count)
+        self._logger.debug("Using bulk load worker pool size={}", worker_count)
 
         # Expand outward one hop at a time until queue is exhausted or max cap is hit.
         # Frontier items are fetched in parallel, but yielded in frontier order.
@@ -117,7 +107,7 @@ class EDBulkLoadAlgo:
             while queue and len(visited) < max_nodes_visited:
                 frontier = list(queue)
                 queue.clear()
-                self._logging_utils.debug(
+                self._logger.debug(
                     "Processing frontier_size={} visited_count={}",
                     len(frontier),
                     len(visited),
@@ -126,26 +116,24 @@ class EDBulkLoadAlgo:
                 # map() runs frontier expansion across the worker pool and
                 # yields in input order so traversal remains predictable.
                 for neighbors in executor.map(self._fetch_neighbors, frontier):
-                    self._logging_utils.debug(
-                        "Fetched neighbor_count={}", len(neighbors)
-                    )
+                    self._logger.debug("Fetched neighbor_count={}", len(neighbors))
                     for neighbor in neighbors:
                         neighbor_name = neighbor.get(system_info_name_field)
                         if not isinstance(neighbor_name, str):
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Skipping neighbor with invalid name payload={}",
                                 neighbor,
                             )
                             continue
                         if neighbor_name in visited:
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Skipping already-visited neighbor={}", neighbor_name
                             )
                             continue
 
                         visited.add(neighbor_name)
                         visit_order.append(neighbor_name)
-                        self._logging_utils.debug(
+                        self._logger.debug(
                             "Visited neighbor={} visited_count={}",
                             neighbor_name,
                             len(visited),
@@ -157,23 +145,23 @@ class EDBulkLoadAlgo:
                             # Some backends return light neighbor records; resolve to a
                             # full system payload only when needed for subsequent expansion.
                             queued_neighbor = self.fetch_system_info_fn(neighbor_name)
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Neighbor payload incomplete; fetched full system info for {}",
                                 neighbor_name,
                             )
 
                         if queued_neighbor is not None:
                             queue.append(queued_neighbor)
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Queued neighbor={} for expansion", neighbor_name
                             )
                         else:
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Skipping enqueue; system info unavailable for {}",
                                 neighbor_name,
                             )
                         if len(visited) >= max_nodes_visited:
-                            self._logging_utils.debug(
+                            self._logger.debug(
                                 "Reached max_nodes_visited during traversal"
                             )
                             break
@@ -187,7 +175,7 @@ class EDBulkLoadAlgo:
                         f"Loaded {len(visited)} of {max_nodes_visited} systems"
                     )
 
-        self._logging_utils.debug(
+        self._logger.debug(
             "EDBulkLoadAlgo.load completed visited_count={}", len(visit_order)
         )
         return visit_order
@@ -209,7 +197,7 @@ class EDBulkLoadAlgo:
     def _fetch_neighbors(self, system_info: SystemInfo) -> list[SystemInfo]:
         # Worker task: isolate neighbor expansion call for thread pool mapping.
         system_name = system_info.get(system_info_name_field)
-        self._logging_utils.debug("Fetching neighbors for system={}", system_name)
+        self._logger.debug("Fetching neighbors for system={}", system_name)
         return self.fetch_neighbors_fn(system_info) or []
 
     @staticmethod
@@ -219,7 +207,3 @@ class EDBulkLoadAlgo:
             return detected
         # Fallback: logical core count when physical count isn't available.
         return max(1, psutil.cpu_count(logical=True) or 1)
-
-
-if __name__ == "__main__":
-    main()

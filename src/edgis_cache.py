@@ -17,9 +17,6 @@ from ed_protocols import (
 """Caching wrapper around EDGIS fetchers backed by the local datasource."""
 
 
-def main() -> None: ...
-
-
 class EDGisCache:
     """Cache layer with injected fetchers for easier testing."""
 
@@ -29,31 +26,27 @@ class EDGisCache:
         fetch_system_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
         *,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self.logger = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self.logger = logger
         if datasource is None:
             raise ValueError("datasource of type DatasourceProtocol is required")
-        else:
-            self.datasource = datasource
+        self.datasource = datasource
         if fetch_system_info_fn is None:
             raise ValueError(
                 "fetch_system_info_fn of type FetchSystemInfoFn is required"
             )
-        else:
-            self.fetch_system_info_fn = fetch_system_info_fn
+        self.fetch_system_info_fn = fetch_system_info_fn
         if fetch_neighbors_fn is None:
             raise ValueError("fetch_neighbors_fn of type FetchNeighborsFn is required")
-        else:
-            self.fetch_neighbors_fn = fetch_neighbors_fn
+        self.fetch_neighbors_fn = fetch_neighbors_fn
 
     @staticmethod
     def create(
         datasource: DatasourceProtocol,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
         fetch_system_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
     ) -> "EDGisCache":
@@ -61,7 +54,7 @@ class EDGisCache:
             datasource,
             fetch_system_info_fn,
             fetch_neighbors_fn,
-            logging_utils=logging_utils,
+            logger=logger,
         )
 
     # Cache-through read for system metadata.
@@ -113,7 +106,3 @@ class EDGisCache:
         else:
             self.logger.debug("Neighbor cache hit for system={}", system_name)
         return neighbors
-
-
-if __name__ == "__main__":
-    main()

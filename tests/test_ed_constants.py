@@ -11,7 +11,3 @@ def test_constants_export_expected_values() -> None:
     assert constants.redis_scheme == "redis"
     assert constants.rediss_scheme == "rediss"
     assert constants.unix_scheme == "unix"
-
-
-def test_constants_main_is_a_noop() -> None:
-    assert constants.main() is None

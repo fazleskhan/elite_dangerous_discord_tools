@@ -15,31 +15,20 @@ class EDPathService:
         self,
         bfs: BfsProtocol,
         calc_distance_service: CalcSystemsDistanceProtocol,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self._logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
         if bfs is None:
             raise ValueError("bfs of type BfsProtocol is required")
-        else:
-            self._bfs = bfs
+        self._bfs = bfs
         if calc_distance_service is None:
             raise ValueError(
                 "calc_distance_service of type CalcSystemsDistanceProtocol is required"
             )
-        else:
-            self._calc_distance_service = calc_distance_service
-        self._logging_utils.debug("EDPathService initialized")
-
-    @staticmethod
-    def create(
-        bfs: BfsProtocol,
-        calc_distance_service: CalcSystemsDistanceProtocol,
-        logging_utils: LoggingProtocol,
-    ) -> "EDPathService":
-        return EDPathService(bfs, calc_distance_service, logging_utils)
+        self._calc_distance_service = calc_distance_service
+        self._logger.debug("EDPathService initialized")
 
     async def run(
         self,
@@ -60,7 +49,5 @@ class EDPathService:
             max_distance,
             progress_callback,
         )
-        self._logging_utils.info(
-            "Path calculation complete found={}", route is not None
-        )
+        self._logger.info("Path calculation complete found={}", route is not None)
         return route

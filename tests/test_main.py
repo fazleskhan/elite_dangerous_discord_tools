@@ -57,7 +57,7 @@ class FakeRouteService:
 
 def build_main() -> main.EDMain:
     return main.EDMain.create(
-        logging_utils=ThreadSafeLogger(),
+        logger=ThreadSafeLogger(),
         route_service=FakeRouteService(),
     )
 
@@ -65,7 +65,7 @@ def build_main() -> main.EDMain:
 def test_edmain_validates_constructor_and_create(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    with pytest.raises(ValueError, match="logging_utils must not be null"):
+    with pytest.raises(ValueError, match="logger must not be null"):
         main.EDMain(FakeRouteService(), None)
     with pytest.raises(ValueError, match="route_service must not be null"):
         main.EDMain(None, ThreadSafeLogger())
@@ -73,10 +73,10 @@ def test_edmain_validates_constructor_and_create(
     monkeypatch.setattr(
         main.EDRouteServiceFactory,
         "create",
-        staticmethod(lambda logging_utils: "route"),
+        staticmethod(lambda logger: "route"),
     )
-    created = main.EDMain.create(logging_utils="logger")
-    assert created.logging_utils == "logger"
+    created = main.EDMain.create(logger="logger")
+    assert created.logger == "logger"
     assert created.route_service == "route"
 
 
@@ -100,7 +100,7 @@ def test_main_commands(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     ed_main = build_main()
-    logger = ed_main.logging_utils
+    logger = ed_main.logger
     assert isinstance(logger, ThreadSafeLogger)
     configure_calls = 0
     create_args: list[ThreadSafeLogger] = []
@@ -113,13 +113,12 @@ def test_main_commands(
         configure_calls += 1
 
     def fake_create(
-        logging_utils: ThreadSafeLogger | None = None,
+        logger: ThreadSafeLogger | None = None,
         route_service: FakeRouteService | None = None,
     ) -> main.EDMain:
         assert route_service is None
-        assert logging_utils is logger
-        assert logging_utils is not None
-        create_args.append(logging_utils)
+        assert logger is not None
+        create_args.append(logger)
         return ed_main
 
     monkeypatch.setattr(main.EDMain, "create", staticmethod(fake_create))
@@ -183,12 +182,12 @@ def test_main_argument_validation_paths(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     ed_main = build_main()
-    logger = ed_main.logging_utils
+    logger = ed_main.logger
     assert isinstance(logger, ThreadSafeLogger)
     monkeypatch.setattr(main, "configure_logging", lambda: None)
     monkeypatch.setattr(main, "logger", logger)
     monkeypatch.setattr(
-        main.EDMain, "create", staticmethod(lambda logging_utils=None: ed_main)
+        main.EDMain, "create", staticmethod(lambda logger=None: ed_main)
     )
 
     invalid_argvs = [

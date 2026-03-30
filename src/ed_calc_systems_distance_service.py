@@ -16,31 +16,22 @@ class EDCalcSystemsDistanceService:
     def __init__(
         self,
         get_system_info_service: GetSystemInfoProtocol,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self._logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self._logger = logger
         if get_system_info_service is None:
             raise ValueError(
                 "get_system_info_service of type GetSystemInfoProtocol is required"
             )
-        else:
-            self._get_system_info_service = get_system_info_service
+        self._get_system_info_service = get_system_info_service
         self._coords_cache: dict[str, tuple[float, float, float]] = {}
         self._coords_cache_lock = threading.Lock()
-        self._logging_utils.debug("EDCalcSystemsDistanceService initialized")
-
-    @staticmethod
-    def create(
-        get_system_info_service: GetSystemInfoProtocol,
-        logging_utils: LoggingProtocol,
-    ) -> "EDCalcSystemsDistanceService":
-        return EDCalcSystemsDistanceService(get_system_info_service, logging_utils)
+        self._logger.debug("EDCalcSystemsDistanceService initialized")
 
     def run(self, system_name_one: str, system_name_two: str) -> float:
-        self._logging_utils.debug(
+        self._logger.debug(
             "Calculating distance between systems: {} and {}",
             system_name_one,
             system_name_two,
@@ -55,14 +46,14 @@ class EDCalcSystemsDistanceService:
             if coords_two is None:
                 missing_systems.append(system_name_two)
             message = f"Could not load system info for: {', '.join(missing_systems)}"
-            self._logging_utils.error(message)
+            self._logger.error(message)
             raise ValueError(message)
         distance = math.sqrt(
             (coords_two[0] - coords_one[0]) ** 2
             + (coords_two[1] - coords_one[1]) ** 2
             + (coords_two[2] - coords_one[2]) ** 2
         )
-        self._logging_utils.debug(
+        self._logger.debug(
             "Distance calculated for {} -> {}: {}",
             system_name_one,
             system_name_two,

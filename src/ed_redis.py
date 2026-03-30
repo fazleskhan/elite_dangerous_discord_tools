@@ -33,13 +33,10 @@ from constants import (
 """Redis persistence helpers for cached system records."""
 
 
-def main() -> None: ...
-
-
 class EDRedis:
     @staticmethod
     def create(
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
         datasource_name: str | None = None,
         redis_url: str | None = None,
         max_connections: int | None = None,
@@ -63,7 +60,7 @@ class EDRedis:
         return EDRedis(
             resolved_datasource_name,
             redis_url=resolved_redis_url,
-            logging_utils=logging_utils,
+            logger=logger,
             max_connections=resolved_max_connections,
         )
 
@@ -71,21 +68,18 @@ class EDRedis:
         self,
         datasource_name: str,
         redis_url: str,
-        logging_utils: LoggingProtocol,
+        logger: LoggingProtocol,
         max_connections: int | None,
     ):
         if redis_url is None:
             raise ValueError("Redis URL of type str is a required argument")
-        else:
-            self._redis_url = redis_url
-        if logging_utils is None:
-            raise ValueError("logging_utils of type LoggingProtocol is required")
-        else:
-            self.logger = logging_utils
+        self._redis_url = redis_url
+        if logger is None:
+            raise ValueError("logger of type LoggingProtocol is required")
+        self.logger = logger
         if datasource_name is None:
             raise ValueError("datasource_name of type str is required")
-        else:
-            self.datasource_name = datasource_name
+        self.datasource_name = datasource_name
 
         self._write_lock = threading.Lock()
         self._close_lock = threading.Lock()
@@ -360,7 +354,3 @@ class EDRedis:
             if self._closed:
                 return
             self._closed = True
-
-
-if __name__ == "__main__":
-    main()

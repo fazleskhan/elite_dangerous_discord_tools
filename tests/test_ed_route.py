@@ -61,7 +61,7 @@ def build_route_service() -> ed_route.EDRouteService:
         datasource=cast(Any, object()),
         cache=cast(Any, object()),
         bfs=cast(Any, object()),
-        logging_utils=ThreadSafeLogger(),
+        logger=ThreadSafeLogger(),
         init_datasource_service=FakeInitService(),
         get_system_info_service=FakeSystemInfoService(),
         get_all_system_names_service=FakeSystemNamesService(),
@@ -72,9 +72,7 @@ def build_route_service() -> ed_route.EDRouteService:
 
 
 def test_route_service_validates_constructor_args() -> None:
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_route.EDRouteService(
             None, None, None, None, None, None, None, None, None, None
         )
@@ -95,7 +93,3 @@ async def test_route_service_delegates_to_subservices() -> None:
     ]
     assert service.calc_systems_distance("Sol", "Lave") == 5.0
     assert progress == ["loaded", "path"]
-
-
-def test_route_service_main_is_a_noop() -> None:
-    assert ed_route.main() is None

@@ -106,16 +106,14 @@ def discord_bot(logger: ThreadSafeLogger) -> ed_discord_bot.EDDiscordBot:
         ed_route_service=cast(Any, FakeRouteService()),
         token="token",
         bot=FakeBot(),
-        logging_utils=logger,
+        logger=logger,
     )
 
 
 def test_discord_bot_validates_dependencies(logger: ThreadSafeLogger) -> None:
     route = cast(Any, FakeRouteService())
     bot = FakeBot()
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_discord_bot.EDDiscordBot(route, "token", bot, None)
     with pytest.raises(
         ValueError, match="ed_route_service of type RouteServiceProtocol is required"
@@ -140,7 +138,7 @@ def test_create_uses_injected_route_and_bot(
     bot = FakeBot("?")
     monkeypatch.setattr(ed_discord_bot, "load_dotenv", lambda: None)
     created = ed_discord_bot.EDDiscordBot.create(
-        route_service=route, logging_utils=logger, token="token", bot=bot
+        route_service=route, logger=logger, token="token", bot=bot
     )
     assert created.ed_route is route
     assert created.bot is bot
@@ -156,33 +154,31 @@ def test_create_builds_default_dependencies(
     monkeypatch.setattr(
         ed_discord_bot.ed_datasource_factory,
         "create_datasource",
-        lambda logging_utils=None: datasource,
+        lambda logger=None: datasource,
     )
     monkeypatch.setattr(
-        ed_discord_bot.EDGis,
-        "create",
-        staticmethod(
-            lambda logging_utils: type(
-                "GIS",
-                (),
-                {
-                    "fetch_system_info": lambda self, name: {"name": name},
-                    "fetch_neighbors": lambda self, x, y, z: [],
-                },
-            )()
-        ),
+        ed_discord_bot,
+        "EDGis",
+        lambda logger: type(
+            "GIS",
+            (),
+            {
+                "fetch_system_info": lambda self, name: {"name": name},
+                "fetch_neighbors": lambda self, x, y, z: [],
+            },
+        )(),
     )
     monkeypatch.setattr(
         ed_discord_bot.edgis_cache.EDGisCache,
         "create",
         staticmethod(
-            lambda datasource, logging_utils, fetch_system_info_fn, fetch_neighbors_fn: cache
+            lambda datasource, logger, fetch_system_info_fn, fetch_neighbors_fn: cache
         ),
     )
     monkeypatch.setattr(
         ed_discord_bot.EDRouteServiceFactory,
         "create",
-        staticmethod(lambda datasource=None, cache=None, logging_utils=None: route),
+        staticmethod(lambda datasource=None, cache=None, logger=None: route),
     )
     monkeypatch.setattr(
         ed_discord_bot.commands,
@@ -190,7 +186,7 @@ def test_create_builds_default_dependencies(
         lambda command_prefix, intents: FakeBot(command_prefix),
     )
 
-    created = ed_discord_bot.EDDiscordBot.create(logging_utils=logger, token="token")
+    created = ed_discord_bot.EDDiscordBot.create(logger=logger, token="token")
 
     assert created.ed_route is route
     assert created.bot.command_prefix == "!"
@@ -321,12 +317,8 @@ def test_run_requires_token(logger: ThreadSafeLogger) -> None:
         ed_route_service=cast(Any, FakeRouteService()),
         token="token",
         bot=FakeBot(),
-        logging_utils=logger,
+        logger=logger,
     )
     bot.token = None
     with pytest.raises(RuntimeError, match="DISCORD_TOKEN is not configured"):
         bot.run()
-
-
-def test_ed_discord_bot_main_is_a_noop() -> None:
-    assert ed_discord_bot.main() is None

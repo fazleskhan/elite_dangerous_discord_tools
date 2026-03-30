@@ -23,7 +23,7 @@ def main() -> None:
     # Reuse shared logging singleton and backend factory composition.
     configure_logging()
     logger.info("import_redis args: import_dir={}", args.import_dir)
-    redis_db = EDRedis.create(logging_utils=logger)
+    redis_db = EDRedis.create(logger=logger)
     redis_db.import_datasource(args.import_dir)
 
 

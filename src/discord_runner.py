@@ -30,7 +30,7 @@ def main() -> None:
     logger.info("Starting Discord runner")
     try:
         # Build the fully wired bot from environment/default composition.
-        bot = EDDiscordBot.create(logging_utils=logger)
+        bot = EDDiscordBot.create(logger=logger)
         logger.debug("EDDiscordBot instance created")
         bot.run()
     except Exception:

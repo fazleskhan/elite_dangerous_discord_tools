@@ -171,7 +171,7 @@ def fake_redis(monkeypatch: pytest.MonkeyPatch) -> FakeRedisFactory:
 def redis_backend(
     logger: ThreadSafeLogger, fake_redis: FakeRedisFactory
 ) -> ed_redis.EDRedis:
-    return ed_redis.EDRedis.create(logging_utils=logger)
+    return ed_redis.EDRedis.create(logger=logger)
 
 
 @pytest.mark.asyncio
@@ -215,7 +215,7 @@ def test_create_uses_explicit_name_then_env_then_default(
     fake_redis: FakeRedisFactory,
 ) -> None:
     explicit = ed_redis.EDRedis.create(
-        logging_utils=logger,
+        logger=logger,
         datasource_name="explicit-app",
         redis_url="redis://explicit:6379/0",
         max_connections=7,
@@ -225,11 +225,11 @@ def test_create_uses_explicit_name_then_env_then_default(
     assert explicit._max_connections == 7
 
     monkeypatch.setenv(redis_app_name_env, "env-app")
-    from_env = ed_redis.EDRedis.create(logging_utils=logger)
+    from_env = ed_redis.EDRedis.create(logger=logger)
     assert from_env.datasource_name == "env-app"
 
     monkeypatch.delenv(redis_app_name_env, raising=False)
-    defaulted = ed_redis.EDRedis.create(logging_utils=logger)
+    defaulted = ed_redis.EDRedis.create(logger=logger)
     assert defaulted.datasource_name == default_redis_store_name
 
 
@@ -241,9 +241,7 @@ def test_constructor_validates_inputs_and_logs_backend(
     ):
         ed_redis.EDRedis("test", None, logger, 1)
 
-    with pytest.raises(
-        ValueError, match="logging_utils of type LoggingProtocol is required"
-    ):
+    with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
         ed_redis.EDRedis("test", "redis://localhost:6379/0", None, 1)
 
     with pytest.raises(ValueError, match="datasource_name of type str is required"):
@@ -590,7 +588,3 @@ def test_run_async_rejects_calls_after_close(redis_backend: ed_redis.EDRedis) ->
     with pytest.raises(RuntimeError, match="Redis client is closed"):
         redis_backend._run_async(coro)
     coro.close()
-
-
-def test_module_main_is_a_noop() -> None:
-    assert ed_redis.main() is None

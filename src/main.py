@@ -84,33 +84,32 @@ class EDMain:
     def __init__(
         self,
         route_service: EDRouteService | None,
-        logging_utils: ILogger | None,
+        logger: ILogger | None,
     ) -> None:
-        if logging_utils is None:
-            raise ValueError("logging_utils must not be null")
+        if logger is None:
+            raise ValueError("logger must not be null")
         if route_service is None:
             raise ValueError("route_service must not be null")
         self.route_service = route_service
-        self.logging_utils = logging_utils
+        self.logger = logger
 
     @staticmethod
     def create(
-        logging_utils: ILogger | None = None,
+        logger: ILogger | None = None,
         route_service: EDRouteService | None = None,
     ) -> "EDMain":
-        if logging_utils is None:
-            raise ValueError("logging_utils must not be null")
-        resolved_logging_utils = logging_utils
+        if logger is None:
+            raise ValueError("logger must not be null")
         resolved_route_service = route_service
 
         if resolved_route_service is None:
             resolved_route_service = EDRouteServiceFactory.create(
-                logging_utils=resolved_logging_utils,
+                logger=logger,
             )
 
         return EDMain(
             route_service=resolved_route_service,
-            logging_utils=resolved_logging_utils,
+            logger=logger,
         )
 
     def ping(self) -> str:
@@ -134,7 +133,7 @@ class EDMain:
                 max_systems=i_max_systems,
                 min_distance=min_distance,
                 max_distance=max_distance,
-                progress_callback=lambda message: self.logging_utils.info(message),
+                progress_callback=lambda message: self.logger.info(message),
             )
         )
 
@@ -158,7 +157,7 @@ class EDMain:
         return self.route_service.bulk_load_cache(
             initial_system_names,
             max_nodes_visited,
-            progress_callback=lambda message: self.logging_utils.info(message),
+            progress_callback=lambda message: self.logger.info(message),
         )
 
 
@@ -201,16 +200,16 @@ def _raise_usage_error(message: str) -> None:
 
 def _log_handled_error(
     parser: argparse.ArgumentParser,
-    logging_utils: ILogger,
+    logger: ILogger,
     error: CLIHandledError,
 ) -> None:
-    logging_utils.error("{}", str(error))
+    logger.error("{}", str(error))
     if error.show_help:
-        logging_utils.info(parser.format_help())
+        logger.info(parser.format_help())
 
 
-def _log_execution_time(logging_utils: ILogger, start: float) -> None:
-    logging_utils.info("Execution time: {} ms", _elapsed_ms(start))
+def _log_execution_time(logger: ILogger, start: float) -> None:
+    logger.info("Execution time: {} ms", _elapsed_ms(start))
 
 
 def _run_command(
@@ -218,28 +217,26 @@ def _run_command(
     parser: argparse.ArgumentParser,
     ed_main: EDMain,
 ) -> None:
-    ed_main.logging_utils.info("CLI command received: {}", args.command)
+    ed_main.logger.info("CLI command received: {}", args.command)
 
     match args.command:
         case "ping":
-            ed_main.logging_utils.info(ed_main.ping())
+            ed_main.logger.info(ed_main.ping())
         case "all_loaded_systems":
             start = time.perf_counter()
-            ed_main.logging_utils.info(
+            ed_main.logger.info(
                 "All Loaded Systems: {}", ed_main.get_all_system_names()
             )
-            _log_execution_time(ed_main.logging_utils, start)
+            _log_execution_time(ed_main.logger, start)
         case "system_info":
             start = time.perf_counter()
             if args.system_name is None:
                 _raise_usage_error(
                     "The --system_name argument is required with system_info command"
                 )
-            ed_main.logging_utils.info("{}", args.system_name)
-            ed_main.logging_utils.info(
-                "{}", ed_main.get_system_info([args.system_name])
-            )
-            _log_execution_time(ed_main.logging_utils, start)
+            ed_main.logger.info("{}", args.system_name)
+            ed_main.logger.info("{}", ed_main.get_system_info([args.system_name]))
+            _log_execution_time(ed_main.logger, start)
         case "path":
             start = time.perf_counter()
             if args.initial is None:
@@ -265,8 +262,8 @@ def _run_command(
                 args.max_distance,
             )
             if route:
-                ed_main.logging_utils.info("{}", " -> ".join(route))
-            _log_execution_time(ed_main.logging_utils, start)
+                ed_main.logger.info("{}", " -> ".join(route))
+            _log_execution_time(ed_main.logger, start)
         case "calc_systems_distance":
             start = time.perf_counter()
             if args.initial is None:
@@ -277,21 +274,19 @@ def _run_command(
                 _raise_usage_error(
                     "The --destination argument is required with calc_systems_distance command"
                 )
-            ed_main.logging_utils.info(
+            ed_main.logger.info(
                 "{}",
                 ed_main.calc_systems_distance(
                     source_system=args.initial,
                     target_system=args.destination,
                 ),
             )
-            _log_execution_time(ed_main.logging_utils, start)
+            _log_execution_time(ed_main.logger, start)
         case "init_datasource":
             start = time.perf_counter()
             ed_main.init_datasource(args.import_dir)
-            ed_main.logging_utils.info(
-                "Datasource initialized from {}", args.import_dir
-            )
-            _log_execution_time(ed_main.logging_utils, start)
+            ed_main.logger.info("Datasource initialized from {}", args.import_dir)
+            _log_execution_time(ed_main.logger, start)
         case "bulk_load_cache":
             start = time.perf_counter()
             if args.initial_systems is None:
@@ -311,25 +306,25 @@ def _run_command(
                 initial_system_names,
                 args.max_nodes_visited,
             )
-            ed_main.logging_utils.info(
+            ed_main.logger.info(
                 "Loaded {} systems from seeds {}",
                 len(loaded_systems),
                 initial_system_names,
             )
-            _log_execution_time(ed_main.logging_utils, start)
+            _log_execution_time(ed_main.logger, start)
 
 
 def main() -> None:
     parser = _build_parser()
     configure_logging()
-    logging_utils = logger
+    app_logger = logger
     args = parser.parse_args()
-    logging_utils.info("CLI parameters: {}", vars(args))
-    ed_main = EDMain.create(logging_utils=logging_utils)
+    app_logger.info("CLI parameters: {}", vars(args))
+    ed_main = EDMain.create(logger=app_logger)
     try:
         _run_command(args, parser, ed_main)
     except CLIHandledError as error:
-        _log_handled_error(parser, logging_utils, error)
+        _log_handled_error(parser, app_logger, error)
         raise SystemExit(1) from None
 
 
