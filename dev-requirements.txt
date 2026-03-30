@@ -5,3 +5,7 @@ austin-python
 coverage
 pytest-cov
 pyright
+ruff
+pyupgrade
+refurb
+black
