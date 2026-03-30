@@ -1,3 +1,11 @@
-# Codex Permission
-Because the bot is working in an isolated dev container giving full permission should .be fine type "/permission" a the code prompt to give full permissions
+# Codex
+Codex config.toml configuration 
+https://developers.openai.com/codex/config-basic
 
+```
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+```
+
+sample config
+https://developers.openai.com/codex/config-sample

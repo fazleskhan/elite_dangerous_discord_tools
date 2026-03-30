@@ -13,6 +13,10 @@ sudo apt upgrade -y
 
 sudo apt install austin -y
 
+# production/runtime requirements
+pip install -r requirements.txt
+
+# development environments must load both runtime and development requirements
 pip install -r dev-requirements.txt
 
 

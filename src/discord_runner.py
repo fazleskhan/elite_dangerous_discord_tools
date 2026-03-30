@@ -22,6 +22,12 @@ Run the Discord bot process via:
 Run the CLI entrypoint via:
 
 `python ./src/main.py <command> [options]`
+
+When loading Python dependencies for a development environment, install both:
+
+`pip install -r requirements.txt`
+
+`pip install -r dev-requirements.txt`
 [/README]
 """
 
