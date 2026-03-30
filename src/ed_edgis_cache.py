@@ -28,6 +28,12 @@ class EDGisCache:
         *,
         logger: LoggingProtocol,
     ) -> None:
+        """Store the datasource and fetchers used for cache-through reads.
+
+        The cache coordinates local persistence with remote EDGIS fetchers so
+        it can satisfy reads from storage when possible and only hit the network
+        when cached data is missing.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self.logger = logger
@@ -50,6 +56,11 @@ class EDGisCache:
         fetch_system_info_fn: FetchSystemInfoFn,
         fetch_neighbors_fn: FetchNeighborsFn,
     ) -> "EDGisCache":
+        """Build a cache wrapper from explicit datasource and fetcher dependencies.
+
+        The factory keeps composition call sites concise while still requiring
+        all collaborators to be passed explicitly for testability.
+        """
         return EDGisCache(
             datasource,
             fetch_system_info_fn,
@@ -59,6 +70,12 @@ class EDGisCache:
 
     # Cache-through read for system metadata.
     def find_system_info(self, system_name: str) -> SystemInfo | None:
+        """Return system metadata from cache, fetching and persisting on misses.
+
+        The lookup checks the local datasource first. On a miss it uses the
+        injected EDGIS fetcher, stores any successful result, and returns the
+        cached-or-fetched payload.
+        """
         # Reuse cached entries before making a network call.
         system_info = self.datasource.get_system(system_name)
 
@@ -79,6 +96,12 @@ class EDGisCache:
 
     # Cache-through read for neighboring systems.
     def find_system_neighbors(self, system_info: SystemInfo) -> list[SystemInfo] | None:
+        """Return cached neighbors for a system, populating them on demand.
+
+        The method re-reads the stored system payload, checks for existing
+        neighbors, and only calls the remote neighbor fetcher when the datasource
+        does not already have a populated neighbor list.
+        """
         system_name = system_info[system_info_name_field]
         # Always re-read from DB in case neighbors were populated by a prior call.
         db_system_info = self.datasource.get_system(system_name)

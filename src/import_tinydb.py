@@ -31,6 +31,12 @@ from ed_tinydb import EDTinyDB
 
 
 def main() -> None:
+    """Import per-system JSON exports into the TinyDB backend.
+
+    The entrypoint parses the import directory, configures project logging,
+    constructs the TinyDB datasource, and forwards every discovered JSON record
+    into that backend's import flow.
+    """
     parser = argparse.ArgumentParser(
         description="Import system JSON files into the TinyDB datastore."
     )

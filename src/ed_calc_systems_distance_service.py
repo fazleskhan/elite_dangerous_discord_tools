@@ -13,11 +13,24 @@ from ed_protocols import GetSystemInfoProtocol, LoggingProtocol
 
 
 class EDCalcSystemsDistanceService:
+    """Compute Euclidean distance between two named systems.
+
+    The service resolves both systems through the injected system-info service,
+    caches coordinate triplets for repeat lookups, and applies the standard
+    three-dimensional distance formula to produce the final result.
+    """
+
     def __init__(
         self,
         get_system_info_service: GetSystemInfoProtocol,
         logger: LoggingProtocol,
     ) -> None:
+        """Store collaborators and initialize the coordinate memoization cache.
+
+        Distance calculations often revisit the same systems, so the service
+        keeps a small in-memory coordinate cache behind a lock to avoid
+        repeated datasource and cache lookups across calls.
+        """
         if logger is None:
             raise ValueError("logger of type LoggingProtocol is required")
         self._logger = logger
@@ -31,6 +44,12 @@ class EDCalcSystemsDistanceService:
         self._logger.debug("EDCalcSystemsDistanceService initialized")
 
     def run(self, system_name_one: str, system_name_two: str) -> float:
+        """Return the straight-line distance between two systems.
+
+        The method resolves both systems to coordinate triplets, raises a clear
+        error if either lookup fails, and then computes the Euclidean distance
+        in three dimensions.
+        """
         self._logger.debug(
             "Calculating distance between systems: {} and {}",
             system_name_one,
@@ -62,6 +81,12 @@ class EDCalcSystemsDistanceService:
         return distance
 
     def _get_system_coords(self, system_name: str) -> tuple[float, float, float] | None:
+        """Resolve and cache the coordinate triplet for a system.
+
+        The helper first checks the shared in-memory cache under a lock and
+        falls back to the injected system-info service only on a miss.
+        Successful lookups are normalized to floats and stored for reuse.
+        """
         # Coordinate cache is shared by calls, so read/write under a lock.
         with self._coords_cache_lock:
             cached = self._coords_cache.get(system_name)

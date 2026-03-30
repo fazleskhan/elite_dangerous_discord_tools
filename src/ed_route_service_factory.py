@@ -28,6 +28,13 @@ from ed_edgis import EDGis
 
 
 class EDRouteServiceFactory:
+    """Compose a fully wired route service from project collaborators.
+
+    The factory centralizes the application's default wiring so CLI and Discord
+    entrypoints can construct the route layer without duplicating datasource,
+    cache, algorithm, and service-composition logic.
+    """
+
     @staticmethod
     def create(
         logger: LoggingProtocol | None,
@@ -41,6 +48,12 @@ class EDRouteServiceFactory:
         path_service: PathProtocol | None = None,
         calc_systems_distance_service: CalcSystemsDistanceProtocol | None = None,
     ) -> EDRouteService:
+        """Build an `EDRouteService`, filling in omitted collaborators with defaults.
+
+        The method preserves any caller-supplied collaborators, constructs the
+        missing ones in dependency order, and returns a ready-to-use route
+        service backed by the configured datasource and cache stack.
+        """
         if logger is None:
             raise ValueError("logger must not be null")
         resolved_datasource = datasource

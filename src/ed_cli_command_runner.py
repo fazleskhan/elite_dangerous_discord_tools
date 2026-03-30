@@ -9,16 +9,38 @@ if TYPE_CHECKING:
 
 
 class CLIHandledError(ValueError):
+    """User-facing CLI failure that the entrypoint can handle cleanly.
+
+    The exception carries whether parser help should also be shown, which lets
+    command validation stay simple while the top-level error handler controls
+    final presentation.
+    """
+
     def __init__(self, message: str, *, show_help: bool = False) -> None:
+        """Capture the failure message and help-display preference.
+
+        Call sites use this for recoverable command errors so `main` can log the
+        message and exit consistently without printing a Python traceback.
+        """
         super().__init__(message)
         self.show_help = show_help
 
 
 def elapsed_ms(start: float) -> int:
+    """Measure elapsed wall-clock time in integer milliseconds.
+
+    The helper subtracts a `perf_counter` start value from the current counter
+    so command handlers can report timing with one shared format.
+    """
     return int((time.perf_counter() - start) * 1000)
 
 
 def raise_usage_error(message: str) -> None:
+    """Raise a handled usage error that also requests parser help text.
+
+    Command branches call this helper when required arguments are missing or
+    invalid so the top-level handler can append usage information.
+    """
     raise CLIHandledError(message, show_help=True)
 
 
@@ -27,12 +49,23 @@ def log_handled_error(
     logger: ILogger,
     error: CLIHandledError,
 ) -> None:
+    """Log a handled CLI error and optional parser help.
+
+    The function writes the user-facing error through the shared logger and
+    includes generated parser help when the exception indicates the user needs
+    command guidance.
+    """
     logger.error("{}", str(error))
     if error.show_help:
         logger.info(parser.format_help())
 
 
 def log_execution_time(logger: ILogger, start: float) -> None:
+    """Log a standardized execution-time message for a completed command.
+
+    This keeps timing output consistent across every command branch without
+    duplicating formatting logic in the dispatcher.
+    """
     logger.info("Execution time: {} ms", elapsed_ms(start))
 
 
@@ -41,6 +74,12 @@ def run_command(
     parser: argparse.ArgumentParser,
     ed_main: "EDMain",
 ) -> None:
+    """Dispatch parsed CLI arguments to the matching application method.
+
+    The dispatcher validates command-specific inputs, delegates the actual work
+    to `EDMain`, and logs both command results and execution timing for every
+    supported CLI command.
+    """
     ed_main.logger.info("CLI command received: {}", args.command)
 
     match args.command:

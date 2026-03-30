@@ -27,6 +27,12 @@ from ed_app_logging import configure_logging
 
 
 def main() -> None:
+    """Start the standalone Discord bot process.
+
+    The runner builds the fully wired bot from environment-backed defaults and
+    then hands control to Discord.py. Any startup failure is logged and
+    re-raised so process supervisors can treat it as a hard failure.
+    """
     logger.info("Starting Discord runner")
     try:
         # Build the fully wired bot from environment/default composition.

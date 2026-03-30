@@ -10,6 +10,12 @@ from ed_redis import EDRedis
 
 
 def main() -> None:
+    """Import per-system JSON exports into the Redis backend.
+
+    The entrypoint parses the import directory, configures project logging,
+    constructs the Redis datasource, and forwards every discovered JSON record
+    into that backend's import flow.
+    """
     parser = argparse.ArgumentParser(
         description="Import system JSON files into the Redis datastore."
     )

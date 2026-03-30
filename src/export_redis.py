@@ -10,6 +10,12 @@ from ed_redis import EDRedis
 
 
 def main() -> None:
+    """Export all Redis-backed system records into JSON files.
+
+    The entrypoint parses the output directory, configures project logging,
+    constructs the Redis backend with shared defaults, and writes one JSON file
+    per stored system.
+    """
     parser = argparse.ArgumentParser(
         description="Export Redis system records into per-system JSON files."
     )
