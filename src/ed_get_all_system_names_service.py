@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import threading
 
-from constants import system_info_name_field
+from ed_constants import system_info_name_field
 from ed_protocols import DatasourceProtocol, LoggingProtocol
 
 

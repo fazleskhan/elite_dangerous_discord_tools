@@ -2,11 +2,23 @@
 class EDMain
 class EDRouteService
 class EDRouteServiceFactory
-class EDLoggingUtils
+class EDDatasourceFactory
+class EDGis
+class EDGisCache
+class EDTinyDB
+class EDRedis
 interface ILogger
+interface DatasourceProtocol
+interface CacheProtocol
 
 EDMain --> EDRouteService
 EDMain --> ILogger
 EDRouteServiceFactory --> EDRouteService
-EDLoggingUtils ..|> ILogger
+EDRouteServiceFactory --> EDDatasourceFactory
+EDRouteServiceFactory --> EDGis
+EDRouteServiceFactory --> EDGisCache
+EDRouteService --> DatasourceProtocol
+EDRouteService --> CacheProtocol
+EDDatasourceFactory --> EDTinyDB
+EDDatasourceFactory --> EDRedis
 @enduml

@@ -4,7 +4,7 @@ import asyncio
 import aiohttp
 import pytest
 
-import edgis
+import ed_edgis
 from tests.helpers import ThreadSafeLogger
 
 
@@ -42,8 +42,8 @@ async def test_edgis_fetch_json_uses_client_session(
             captured["params"] = params
             return FakeResponse()
 
-    monkeypatch.setattr(edgis.aiohttp, "ClientSession", FakeSession)
-    result = await edgis.EDGis._fetch_json("https://example", {"q": "Sol"})
+    monkeypatch.setattr(ed_edgis.aiohttp, "ClientSession", FakeSession)
+    result = await ed_edgis.EDGis._fetch_json("https://example", {"q": "Sol"})
 
     assert result == {"name": "Sol"}
     assert captured["url"] == "https://example"
@@ -52,8 +52,8 @@ async def test_edgis_fetch_json_uses_client_session(
 
 def test_edgis_validates_dependencies_and_create() -> None:
     with pytest.raises(ValueError, match="logger of type LoggingProtocol is required"):
-        edgis.EDGis(None)
-    assert isinstance(edgis.EDGis(ThreadSafeLogger()), edgis.EDGis)
+        ed_edgis.EDGis(None)
+    assert isinstance(ed_edgis.EDGis(ThreadSafeLogger()), ed_edgis.EDGis)
 
 
 def test_run_async_handles_plain_and_event_loop_paths() -> None:
@@ -61,10 +61,10 @@ def test_run_async_handles_plain_and_event_loop_paths() -> None:
         await asyncio.sleep(0)
         return "ok"
 
-    assert edgis.EDGis._run_async(returns_value()) == "ok"
+    assert ed_edgis.EDGis._run_async(returns_value()) == "ok"
 
     async def run_inside_loop() -> str:
-        return edgis.EDGis._run_async(returns_value())
+        return ed_edgis.EDGis._run_async(returns_value())
 
     assert asyncio.run(run_inside_loop()) == "ok"
 
@@ -74,7 +74,7 @@ def test_run_async_propagates_exceptions() -> None:
         raise RuntimeError("boom")
 
     async def run_inside_loop() -> None:
-        edgis.EDGis._run_async(raises())
+        ed_edgis.EDGis._run_async(raises())
 
     with pytest.raises(RuntimeError, match="boom"):
         asyncio.run(run_inside_loop())
@@ -84,9 +84,9 @@ def test_fetch_system_info_and_neighbors_handle_success_and_errors(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     logger = ThreadSafeLogger()
-    gis = edgis.EDGis(logger)
+    gis = ed_edgis.EDGis(logger)
     monkeypatch.setattr(
-        edgis.EDGis,
+        ed_edgis.EDGis,
         "_run_async",
         staticmethod(lambda coro: (coro.close(), {"name": "Sol"})[1]),
     )
@@ -97,7 +97,7 @@ def test_fetch_system_info_and_neighbors_handle_success_and_errors(
         coro.close()
         raise aiohttp.ClientError("boom")
 
-    monkeypatch.setattr(edgis.EDGis, "_run_async", staticmethod(raise_client_error))
+    monkeypatch.setattr(ed_edgis.EDGis, "_run_async", staticmethod(raise_client_error))
     assert gis.fetch_system_info("Sol") is None
     assert gis.fetch_neighbors(1, 2, 3) is None
     assert logger.messages("exception")

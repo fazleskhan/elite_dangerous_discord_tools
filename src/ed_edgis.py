@@ -5,7 +5,7 @@ from typing import Any
 import aiohttp
 from ed_protocols import LoggingProtocol
 
-from constants import (
+from ed_constants import (
     query_param_q,
     system_info_x_field,
     system_info_y_field,
@@ -19,12 +19,12 @@ from constants import (
 class EDGis:
     """OO gateway wrapper around EDGIS HTTP lookups."""
 
-    # https://github.com/elitedangereuse/edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L515
-    # https://edgis.elitedangereuse.fr/neighbors?x=<x_value>&y=<y_value>&z=<z_value>&radius=20
-    _fetch_neighbors_uri: str = r"https://edgis.elitedangereuse.fr/neighbors"
-    # https://github.com/elitedangereuse/edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L1078
-    # https://edgis.elitedangereuse.fr/coords?q=<url_encoded_system_name>
-    _fetch_coords_uri: str = r"https://edgis.elitedangereuse.fr/coords"
+    # https://github.com/elitedangereuse/ed_edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L515
+    # https://ed_edgis.elitedangereuse.fr/neighbors?x=<x_value>&y=<y_value>&z=<z_value>&radius=20
+    _fetch_neighbors_uri: str = r"https://ed_edgis.elitedangereuse.fr/neighbors"
+    # https://github.com/elitedangereuse/ed_edgis/blob/c7f98f266a7536530232a9946268bbb0dd77b63c/api/systems.py#L1078
+    # https://ed_edgis.elitedangereuse.fr/coords?q=<url_encoded_system_name>
+    _fetch_coords_uri: str = r"https://ed_edgis.elitedangereuse.fr/coords"
 
     def __init__(self, logger: LoggingProtocol):
         if logger is None:
@@ -82,7 +82,7 @@ class EDGis:
     ) -> list[dict[str, Any]] | None:
         self._logger.debug("Fetching neighbors for coordinates x={} y={} z={}", x, y, z)
         try:
-            # EDGIS defaults to a 20ly radius when radius is omitted.
+            # EDGIS ed_defaults to a 20ly radius when radius is omitted.
             return EDGis._run_async(
                 EDGis._fetch_json(
                     EDGis._fetch_neighbors_uri,

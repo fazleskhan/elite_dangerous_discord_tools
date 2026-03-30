@@ -13,8 +13,8 @@ from watchdog.events import (
     FileMovedEvent,
 )
 
-import app_logging
-import defaults
+import ed_app_logging
+import ed_defaults
 
 
 def main() -> None: ...
@@ -91,14 +91,14 @@ class FakeObserver:
 
 @pytest.fixture(autouse=True)
 def reset_singletons(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(app_logging, "_WATCHER", None)
+    monkeypatch.setattr(ed_app_logging, "_WATCHER", None)
 
 
 @pytest.fixture()
 def fake_logger(monkeypatch: pytest.MonkeyPatch) -> FakeSinkLogger:
     logger = FakeSinkLogger()
-    monkeypatch.setattr(app_logging, "_logger", logger)
-    monkeypatch.setattr(app_logging, "_logger", logger)
+    monkeypatch.setattr(ed_app_logging, "_logger", logger)
+    monkeypatch.setattr(ed_app_logging, "_logger", logger)
     return logger
 
 
@@ -112,7 +112,7 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
         "watch": {"enabled": False},
     }
 
-    merged = app_logging._LoguruConfigWatcher._merge_dict(base, override)
+    merged = ed_app_logging._LoguruConfigWatcher._merge_dict(base, override)
 
     assert merged == {
         "console": {"enabled": True, "level": "DEBUG"},
@@ -122,16 +122,18 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
 
 
 def test_load_config_returns_defaults_and_ignores_invalid_json(tmp_path: Path) -> None:
-    loaded_defaults = app_logging._LoguruConfigWatcher(
+    loaded_defaults = ed_app_logging._LoguruConfigWatcher(
         tmp_path / "missing.json"
     )._load_config()
     assert loaded_defaults["stdout"]["level"] == "INFO"
-    assert loaded_defaults["file"]["path"] == str(defaults.DEFAULT_APPLICATION_LOG_PATH)
+    assert loaded_defaults["file"]["path"] == str(
+        ed_defaults.DEFAULT_APPLICATION_LOG_PATH
+    )
 
     invalid_path = tmp_path / "invalid.json"
     invalid_path.write_text("{ invalid", encoding="utf-8")
     assert (
-        app_logging._LoguruConfigWatcher(invalid_path)._load_config()["file"]["path"]
+        ed_app_logging._LoguruConfigWatcher(invalid_path)._load_config()["file"]["path"]
         == "logs/application.log"
     )
 
@@ -148,7 +150,7 @@ def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    loaded = app_logging._LoguruConfigWatcher(config_path)._load_config()
+    loaded = ed_app_logging._LoguruConfigWatcher(config_path)._load_config()
 
     assert loaded["stdout"]["level"] == "DEBUG"
     assert loaded["stdout"]["enabled"] is True
@@ -167,9 +169,9 @@ def test_archive_stale_logs_moves_old_rotated_logs_to_archive(tmp_path: Path) ->
     now = 30 * 24 * 60 * 60
     old_time = now - (8 * 24 * 60 * 60)
 
-    app_logging.os.utime(rotated_log, (old_time, old_time))
+    ed_app_logging.os.utime(rotated_log, (old_time, old_time))
 
-    app_logging._archive_stale_logs(log_path, archive_dir, 7, now=now)
+    ed_app_logging._archive_stale_logs(log_path, archive_dir, 7, now=now)
 
     archived_log = archive_dir / f"{rotated_log.name}.gz"
     assert not rotated_log.exists()
@@ -189,10 +191,10 @@ def test_delete_expired_archives_removes_old_archives(tmp_path: Path) -> None:
     stale_time = now - (31 * 24 * 60 * 60)
     fresh_time = now - (5 * 24 * 60 * 60)
 
-    app_logging.os.utime(stale_archive, (stale_time, stale_time))
-    app_logging.os.utime(fresh_archive, (fresh_time, fresh_time))
+    ed_app_logging.os.utime(stale_archive, (stale_time, stale_time))
+    ed_app_logging.os.utime(fresh_archive, (fresh_time, fresh_time))
 
-    app_logging._delete_expired_archives(archive_dir, 30, now=now)
+    ed_app_logging._delete_expired_archives(archive_dir, 30, now=now)
 
     assert not stale_archive.exists()
     assert fresh_archive.exists()
@@ -201,7 +203,7 @@ def test_delete_expired_archives_removes_old_archives(tmp_path: Path) -> None:
 def test_configure_logger_adds_console_and_file_sinks(
     tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     log_path = tmp_path / "logs" / "app.log"
 
     watcher._configure_logger(
@@ -234,14 +236,14 @@ def test_configure_logger_adds_console_and_file_sinks(
     assert len(fake_logger.add_calls) == 3
 
     stdout_call = fake_logger.add_calls[0]
-    assert stdout_call["sink"] is app_logging.sys.stdout
+    assert stdout_call["sink"] is ed_app_logging.sys.stdout
     assert stdout_call["level"] == "DEBUG"
     assert stdout_call["colorize"] is False
     assert stdout_call["format"] == "stdout-format"
     assert stdout_call["enqueue"] is True
 
     stderr_call = fake_logger.add_calls[1]
-    assert stderr_call["sink"] is app_logging.sys.stderr
+    assert stderr_call["sink"] is ed_app_logging.sys.stderr
     assert stderr_call["level"] == "ERROR"
 
     file_call = fake_logger.add_calls[2]
@@ -256,7 +258,7 @@ def test_configure_logger_adds_console_and_file_sinks(
 def test_configure_logger_can_disable_console_and_file(
     tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     watcher._configure_logger(
         {
             "stdout": {"enabled": False},
@@ -272,20 +274,20 @@ def test_configure_logger_can_disable_console_and_file(
 def test_configure_logger_runs_archive_housekeeping(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "config.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "config.json")
     log_path = tmp_path / "logs" / "app.log"
     archive_calls: list[tuple[Path, Path, int]] = []
     delete_calls: list[tuple[Path, int]] = []
 
     monkeypatch.setattr(
-        app_logging,
+        ed_app_logging,
         "_archive_stale_logs",
         lambda log_path_arg, archive_dir_arg, archive_after_days: archive_calls.append(
             (log_path_arg, archive_dir_arg, archive_after_days)
         ),
     )
     monkeypatch.setattr(
-        app_logging,
+        ed_app_logging,
         "_delete_expired_archives",
         lambda archive_dir_arg, archive_retention_days: delete_calls.append(
             (archive_dir_arg, archive_retention_days)
@@ -325,7 +327,7 @@ def test_configure_logger_runs_archive_housekeeping(
 
 def test_event_targets_config_checks_source_and_dest_paths(tmp_path: Path) -> None:
     config_path = tmp_path / "loguru.json"
-    watcher = app_logging._LoguruConfigWatcher(config_path)
+    watcher = ed_app_logging._LoguruConfigWatcher(config_path)
 
     assert watcher._event_targets_config(FileModifiedEvent(str(config_path))) is True
     assert (
@@ -343,7 +345,7 @@ def test_event_targets_config_checks_source_and_dest_paths(tmp_path: Path) -> No
 def test_event_targets_config_returns_false_when_event_has_no_dest_path(
     tmp_path: Path,
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
 
     class Event:
         src_path = str(tmp_path / "other.json")
@@ -355,7 +357,7 @@ def test_handle_fs_event_applies_only_for_targeted_config(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     config_path = tmp_path / "loguru.json"
-    watcher = app_logging._LoguruConfigWatcher(config_path)
+    watcher = ed_app_logging._LoguruConfigWatcher(config_path)
     apply_calls: list[bool] = []
 
     def record_apply(force: bool) -> None:
@@ -374,7 +376,7 @@ def test_apply_if_needed_skips_when_mtime_is_unchanged(
 ) -> None:
     config_path = tmp_path / "loguru.json"
     config_path.write_text("{}", encoding="utf-8")
-    watcher = app_logging._LoguruConfigWatcher(config_path)
+    watcher = ed_app_logging._LoguruConfigWatcher(config_path)
     watcher._config_mtime_ns = config_path.stat().st_mtime_ns
     configure_calls: list[dict[str, Any]] = []
 
@@ -389,7 +391,7 @@ def test_apply_if_needed_skips_when_mtime_is_unchanged(
 def test_apply_if_needed_handles_missing_config_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
     configured: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
@@ -412,7 +414,7 @@ def test_apply_if_needed_reloads_and_updates_mtime(
 ) -> None:
     config_path = tmp_path / "loguru.json"
     config_path.write_text("{}", encoding="utf-8")
-    watcher = app_logging._LoguruConfigWatcher(config_path)
+    watcher = ed_app_logging._LoguruConfigWatcher(config_path)
     configured: list[dict[str, Any]] = []
 
     monkeypatch.setattr(
@@ -434,7 +436,7 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_logger: FakeSinkLogger
 ) -> None:
     config_path = tmp_path / "config" / "loguru.json"
-    watcher = app_logging._LoguruConfigWatcher(config_path)
+    watcher = ed_app_logging._LoguruConfigWatcher(config_path)
     observer = FakeObserver()
     apply_calls: list[bool] = []
 
@@ -447,14 +449,14 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
         "_load_config",
         lambda: {"watch": {"enabled": True}, "stdout": {}, "stderr": {}, "file": {}},
     )
-    monkeypatch.setattr(app_logging, "Observer", lambda: observer)
+    monkeypatch.setattr(ed_app_logging, "Observer", lambda: observer)
 
     watcher.start()
 
     assert apply_calls == [True]
     assert len(observer.schedule_calls) == 1
     handler, path, recursive = observer.schedule_calls[0]
-    assert isinstance(handler, app_logging._ConfigFileEventHandler)
+    assert isinstance(handler, ed_app_logging._ConfigFileEventHandler)
     assert path == str(config_path.parent.resolve())
     assert not recursive
     assert observer.started
@@ -468,7 +470,7 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
 def test_start_skips_observer_when_watch_disabled(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
     apply_calls: list[bool] = []
 
     def record_apply(force: bool) -> None:
@@ -490,7 +492,7 @@ def test_start_skips_observer_when_watch_disabled(
 def test_start_does_not_create_duplicate_observers(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
+    watcher = ed_app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
     watcher._observer = FakeObserver()
     observer_factory_calls = 0
 
@@ -505,7 +507,7 @@ def test_start_does_not_create_duplicate_observers(
         "_load_config",
         lambda: {"watch": {"enabled": True}, "stdout": {}, "stderr": {}, "file": {}},
     )
-    monkeypatch.setattr(app_logging, "Observer", fake_observer)
+    monkeypatch.setattr(ed_app_logging, "Observer", fake_observer)
 
     watcher.start()
 
@@ -520,7 +522,7 @@ def test_config_file_event_handler_forwards_all_event_types(tmp_path: Path) -> N
         def handle_fs_event(self, event: Any) -> None:
             handled.append(type(event).__name__)
 
-    handler = app_logging._ConfigFileEventHandler(Watcher())
+    handler = ed_app_logging._ConfigFileEventHandler(Watcher())
     handler.on_modified(FileModifiedEvent(str(config_path)))
     handler.on_created(FileCreatedEvent(str(config_path)))
     handler.on_deleted(FileDeletedEvent(str(config_path)))
@@ -553,12 +555,12 @@ def test_initialize_watcher_loads_env_and_starts_once(
         nonlocal load_dotenv_calls
         load_dotenv_calls += 1
 
-    monkeypatch.setattr(app_logging, "load_dotenv", _count)
-    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
+    monkeypatch.setattr(ed_app_logging, "load_dotenv", _count)
+    monkeypatch.setattr(ed_app_logging, "_LoguruConfigWatcher", FakeWatcher)
 
     config_path = tmp_path / "loguru.json"
-    app_logging.configure_logging(config_path)
-    app_logging.configure_logging(tmp_path / "other.json")
+    ed_app_logging.configure_logging(config_path)
+    ed_app_logging.configure_logging(tmp_path / "other.json")
 
     assert created_paths == [config_path]
     assert start_calls == 1
@@ -581,12 +583,12 @@ def test_configure_logging_is_thread_safe(
         def start(self) -> None:
             return None
 
-    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
-    monkeypatch.setattr(app_logging, "load_dotenv", lambda: None)
+    monkeypatch.setattr(ed_app_logging, "_LoguruConfigWatcher", FakeWatcher)
+    monkeypatch.setattr(ed_app_logging, "load_dotenv", lambda: None)
 
     def worker(index: int) -> None:
         barrier.wait()
-        app_logging.configure_logging(tmp_path / f"{index}.json")
+        ed_app_logging.configure_logging(tmp_path / f"{index}.json")
 
     threads = [threading.Thread(target=worker, args=(index,)) for index in range(6)]
     for thread in threads:

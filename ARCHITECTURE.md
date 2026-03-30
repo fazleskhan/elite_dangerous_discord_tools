@@ -62,11 +62,14 @@ Apply this contract to new Python code and refactors in this repository unless e
 
 ## 8. Diagrams
 - When application behavior changes, update the related PlantUML sequence diagrams or create them if they do not exist.
+- Treat diagram maintenance as mandatory for source additions, deletions, renames, wiring changes, collaborator changes, control-flow changes, entrypoint changes, logging/configuration flow changes, and structural refactors, even when the user-facing behavior is intended to stay the same.
 - Every user-facing or externally triggered entry point must have its own sequence diagram source rather than relying only on a shared summary diagram. Identify entry points by analyzing the current code rather than maintaining a hard-coded list in this contract.
 - Shared overview diagrams may exist in addition to per-entrypoint diagrams, but they do not replace entrypoint-specific sequence diagrams.
 - Distinct entry-point variations and code paths should be diagrammed in their own sequence diagrams whenever the behavior, collaborators, or observable outcomes differ in a meaningful way.
 - When class structure changes, update the PlantUML class diagram.
+- A task that changes relevant code is incomplete until the affected `.puml` sources have been reviewed and updated to match the current code, and any stale diagrams have been removed or replaced.
 - After diagram updates, generate fresh PNG outputs for every updated PlantUML source (`.puml`) before finishing the task.
+- Do not defer diagram rendering; generate the PNGs in the same task immediately after updating the `.puml` files.
 - Write each PNG next to its source file with the same basename (for example `foo.puml` -> `foo.png`).
 - Use a local PlantUML renderer when available; otherwise render through the official PlantUML server.
 - Treat missing or stale diagram PNG generation as an incomplete task state.

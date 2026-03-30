@@ -169,7 +169,7 @@ def test_create_builds_default_dependencies(
         )(),
     )
     monkeypatch.setattr(
-        ed_discord_bot.edgis_cache.EDGisCache,
+        ed_discord_bot.ed_edgis_cache.EDGisCache,
         "create",
         staticmethod(
             lambda datasource, logger, fetch_system_info_fn, fetch_neighbors_fn: cache

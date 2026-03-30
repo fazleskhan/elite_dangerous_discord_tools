@@ -2,6 +2,7 @@
 actor User
 participant "main.py" as Main
 participant Parser
+participant "ed_cli_command_runner.py" as CommandRunner
 participant EDMain
 participant EDRouteService as RouteService
 participant ILogger as Logger
@@ -10,11 +11,12 @@ User -> Main: all_loaded_systems
 Main -> Parser: parse_args()
 Main -> Logger: info("CLI parameters")
 Main -> EDMain: create(shared logger)
-Main -> Logger: info("CLI command received")
-Main -> EDMain: get_all_system_names()
+Main -> CommandRunner: run_command(args, parser, ed_main)
+CommandRunner -> Logger: info("CLI command received")
+CommandRunner -> EDMain: get_all_system_names()
 EDMain -> RouteService: get_all_system_names()
 RouteService --> EDMain: names
 EDMain --> Main: names
-Main -> Logger: info("All Loaded Systems")
-Main -> Logger: info("Execution time")
+CommandRunner -> Logger: info("All Loaded Systems")
+CommandRunner -> Logger: info("Execution time")
 @enduml

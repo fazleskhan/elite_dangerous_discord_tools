@@ -56,19 +56,19 @@ except ImportError:
         return target
 
 
-from app_logging import configure_logging
-from cli_command_runner import (
+from ed_app_logging import configure_logging
+from ed_cli_command_runner import (
     CLIHandledError,
     elapsed_ms,
     log_handled_error as _log_handled_error,
     run_command as _run_command,
 )
-from cli_parser import build_cli_parser as _build_parser
-from defaults import DEFAULT_INIT_DIR
+from ed_cli_parser import build_cli_parser as _build_parser
+from ed_defaults import DEFAULT_INIT_DIR
 from ed_route import EDRouteService
 from ed_route_service_factory import EDRouteServiceFactory
 from loguru import logger
-from protocols import ILogger
+from ed_protocols import ILogger
 
 _elapsed_ms = elapsed_ms
 

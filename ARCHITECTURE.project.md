@@ -7,6 +7,13 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Treat these entries as concise implementation prompts for local infrastructure code.
 - If a prompt here conflicts with `ARCHITECTURE.md`, this file wins for this repository.
 
+## Source Module Naming
+- Keep the CLI command entrypoint modules [src/main.py](src/main.py), [src/discord_runner.py](src/discord_runner.py), [src/import_tinydb.py](src/import_tinydb.py), [src/import_redis.py](src/import_redis.py), [src/export_tinydb.py](src/export_tinydb.py), and [src/export_redis.py](src/export_redis.py) without adding an `ed_` filename prefix.
+- For every other top-level Python source file in `src/`, prepend `ed_` to the filename when it does not already start with `ed_`.
+- If a top-level Python source filename in `src/` already starts with `ed_`, keep that filename unchanged.
+- Preserve [src/__init__.py](src/__init__.py) as the package marker file required by Python packaging semantics.
+- Rename tests under `tests/` so their filenames continue to reflect the source modules they primarily cover.
+
 ## Entry Points
 - Keep [src/main.py](src/main.py) as the synchronous CLI entry point.
 - Keep [src/ed_discord_bot.py](src/ed_discord_bot.py) as the Discord-triggered entry point module.
@@ -21,7 +28,7 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Remove stale diagrams when a clearer authoritative source replaces them.
 
 ## Config Watching
-- Implement logging config watching in [src/app_logging.py](src/app_logging.py).
+- Implement logging config watching in [src/ed_app_logging.py](src/ed_app_logging.py).
 - Use `_LoguruConfigWatcher` as the single process-wide watcher for loading, applying, and reloading Loguru config.
 - Watch the parent directory of `config/loguru.json` with `watchdog` and ignore unrelated filesystem events.
 - Guard reloads with file-mtime checks and locking so duplicate events do not cause overlapping reconfiguration.
@@ -63,7 +70,7 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 ## TinyDB Integration
 - Implement TinyDB datasource behavior in [src/ed_tinydb.py](src/ed_tinydb.py).
 - Use TinyDB as the local file-backed persistence backend for cached system records.
-- Resolve the datasource path from constructor input first, then environment-backed defaults, and create parent directories before use.
+- Resolve the datasource path from constructor input first, then environment-backed ed_defaults, and create parent directories before use.
 - Use `SmartCacheTinyDB` with `SmartCacheTable` and `JSONStorage`.
 - Wrap TinyDB access in `AIOTinyDB` for async-compatible usage, then bridge back to sync-friendly methods in `EDTinyDB`.
 - Maintain in-memory per-system caching and all-systems caching for hot lookup paths.
@@ -71,7 +78,7 @@ Use this file with [ARCHITECTURE.md](ARCHITECTURE.md) as the repository-specific
 - Keep import/export behavior aligned with per-system JSON files.
 
 ## EDGIS Webservice Integration
-- Implement EDGIS HTTP access in [src/edgis.py](src/edgis.py).
+- Implement EDGIS HTTP access in [src/ed_edgis.py](src/ed_edgis.py).
 - Use `EDGis` as the only direct HTTP gateway for EDGIS-backed lookups.
 - Use `aiohttp` with a bounded total timeout.
 - Bridge async HTTP work back to synchronous callers with `asyncio.run(...)` or a worker thread when a loop already exists.

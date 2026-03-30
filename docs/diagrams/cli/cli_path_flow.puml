@@ -2,6 +2,7 @@
 actor User
 participant "main.py" as Main
 participant Parser
+participant "ed_cli_command_runner.py" as CommandRunner
 participant EDMain
 participant EDRouteService as RouteService
 participant ILogger as Logger
@@ -10,15 +11,16 @@ User -> Main: path --initial --destination --max_systems
 Main -> Parser: parse_args()
 Main -> Logger: info("CLI parameters")
 Main -> EDMain: create(shared logger)
-Main -> Logger: info("CLI command received")
-Main -> EDMain: calc_route(...)
+Main -> CommandRunner: run_command(args, parser, ed_main)
+CommandRunner -> Logger: info("CLI command received")
+CommandRunner -> EDMain: calc_route(...)
 EDMain -> RouteService: path(..., progress_callback=logger.info)
 RouteService --> EDMain: route or none
 EDMain --> Main: route or none
 alt route found
-  Main -> Logger: info("A -> B -> C")
+  CommandRunner -> Logger: info("A -> B -> C")
 else no route found
-  Main -> Logger: info(progress only)
+  CommandRunner -> Logger: info(progress only)
 end
-Main -> Logger: info("Execution time")
+CommandRunner -> Logger: info("Execution time")
 @enduml

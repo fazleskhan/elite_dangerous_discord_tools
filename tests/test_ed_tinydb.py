@@ -10,7 +10,7 @@ import pytest
 
 import ed_tinydb
 from tests.helpers import ThreadSafeLogger
-from constants import (
+from ed_constants import (
     default_tinydb_name,
     system_info_neighbors_field,
     tinydb_name_env,

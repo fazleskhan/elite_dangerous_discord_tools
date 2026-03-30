@@ -13,9 +13,9 @@ provides GIS-oriented tools backed by EDGIS plus local datasource caching.
 
 https://www.spansh.co.uk/dumps
 
-https://edgis.elitedangereuse.fr/
+https://ed_edgis.elitedangereuse.fr/
 
-https://github.com/elitedangereuse/edgis
+https://github.com/elitedangereuse/ed_edgis
 
 ### Docker Image
 
@@ -60,7 +60,7 @@ To enable repository spell checking with `cspell`, run:
 
 ### Logging
 
-* Logging uses Loguru via `src/app_logging.py`.
+* Logging uses Loguru via `src/ed_app_logging.py`.
 * Runtime configuration is externalized in `config/loguru.json`.
 * Config changes are hot-reloaded via watchdog file events.
 * Default behavior writes datestamped file logs under `logs/`,
@@ -136,7 +136,7 @@ Commands and available arguments:
 * `!path <initial_system_name> <destination_system_name> [max_system_count=100] [min_distance=0] [max_distance=10000]`
   * Overview: runs route search with progress updates and returns
     route/no-route result.
-  * Arguments: first two required, remaining optional with defaults shown.
+  * Arguments: first two required, remaining optional with ed_defaults shown.
 * `!calc_systems_distance <system_name_one> <system_name_two>`
   * Overview: computes and reports distance between two systems.
   * Arguments: both required.

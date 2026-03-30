@@ -4,12 +4,12 @@ from typing import Any
 
 import pytest
 
-import datasource_json_io
+import ed_datasource_json_io
 from tests.helpers import ThreadSafeLogger
 
 
 def test_safe_filename_replaces_unsafe_characters() -> None:
-    assert datasource_json_io.safe_filename("Alpha/Beta:*?") == "Alpha_Beta___"
+    assert ed_datasource_json_io.safe_filename("Alpha/Beta:*?") == "Alpha_Beta___"
 
 
 def test_import_json_records_loads_sorted_json_payloads(tmp_path: Path) -> None:
@@ -24,7 +24,7 @@ def test_import_json_records_loads_sorted_json_payloads(tmp_path: Path) -> None:
     logger = ThreadSafeLogger()
     inserted: list[dict[str, Any]] = []
 
-    datasource_json_io.import_json_records(
+    ed_datasource_json_io.import_json_records(
         import_dir=import_dir,
         json_extension=".json",
         logger=logger,
@@ -41,7 +41,7 @@ def test_import_json_records_loads_sorted_json_payloads(tmp_path: Path) -> None:
 
 def test_import_json_records_requires_existing_directory(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="Import directory does not exist"):
-        datasource_json_io.import_json_records(
+        ed_datasource_json_io.import_json_records(
             import_dir=tmp_path / "missing",
             json_extension=".json",
             logger=ThreadSafeLogger(),
@@ -59,7 +59,7 @@ def test_export_json_records_writes_safe_sorted_files(tmp_path: Path) -> None:
     ]
     full_record = {"name": "Alpha/Beta", "id64": 1, "neighbors": []}
 
-    datasource_json_io.export_json_records(
+    ed_datasource_json_io.export_json_records(
         export_dir=export_dir,
         json_extension=".json",
         systems=exported_systems,
