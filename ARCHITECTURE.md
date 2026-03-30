@@ -108,7 +108,7 @@ Apply this contract to new Python code and refactors in this repository unless e
 - Add concise code comments when they clarify what the code is doing and why, especially around non-obvious logic or integration boundaries.
 
 ## 12. Formatting
-- Run `black .` from the repository root whenever project contents are updated.
+- After source files are added, changed, or removed from the project, run `black .` from the repository root before finishing the task.
 - Treat formatter output as part of the required final state.
 - When adding a VS Code extension for the workspace, add it to the `.devcontainer/devcontainer.json` `customizations.vscode.extensions` array.
 
