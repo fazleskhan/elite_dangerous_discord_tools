@@ -239,6 +239,19 @@ def configure_standard_logging_intercept() -> None:
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO, force=True)
 
 
+def configure_logging(
+    config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH,
+) -> None:
+    load_dotenv()
+    resolved_path = Path(config_path)
+    global _WATCHER
+    with _WATCHER_LOCK:
+        if _WATCHER is None:
+            watcher = _LoguruConfigWatcher(resolved_path)
+            _WATCHER = watcher
+            watcher.start()
+
+
 @traced
 class _LoguruConfigWatcher:
     def __init__(self, config_path: Path):
@@ -320,62 +333,3 @@ class _ConfigFileEventHandler(FileSystemEventHandler):
 
     def on_moved(self, event: FileSystemEvent) -> None:
         self._watcher.handle_fs_event(event)
-
-
-@traced
-class EDLoggingUtils:
-    """OO logging utility facade for IoC composition."""
-
-    _instance: "EDLoggingUtils | None" = None
-    _instance_lock = threading.Lock()
-
-    def __init__(self, config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH):
-        self.config_path = Path(config_path)
-
-    @staticmethod
-    def create(
-        config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH,
-    ) -> "EDLoggingUtils":
-        with EDLoggingUtils._instance_lock:
-            if EDLoggingUtils._instance is None:
-                logging_utils = EDLoggingUtils(config_path)
-                EDLoggingUtils._initialize_watcher(logging_utils.config_path)
-                EDLoggingUtils._instance = logging_utils
-        return EDLoggingUtils._instance
-
-    @staticmethod
-    def _initialize_watcher(
-        config_path: str | Path = DEFAULT_LOGURU_CONFIG_PATH,
-    ) -> None:
-        load_dotenv()
-        resolved_path = Path(config_path)
-        global _WATCHER
-        with _WATCHER_LOCK:
-            if _WATCHER is None:
-                watcher = _LoguruConfigWatcher(resolved_path)
-                _WATCHER = watcher
-                watcher.start()
-
-    def trace(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.trace(message, *args, **kwargs)
-
-    def debug(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.debug(message, *args, **kwargs)
-
-    def info(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.info(message, *args, **kwargs)
-
-    def warn(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.warning(message, *args, **kwargs)
-
-    def warning(self, message: str, *args: Any, **kwargs: Any) -> None:
-        self.warn(message, *args, **kwargs)
-
-    def error(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.error(message, *args, **kwargs)
-
-    def exception(self, message: str, *args: Any, **kwargs: Any) -> None:
-        _logger.exception(message, *args, **kwargs)
-
-    def opt(self, *args: Any, **kwargs: Any) -> Any:
-        return _logger.opt(*args, **kwargs)

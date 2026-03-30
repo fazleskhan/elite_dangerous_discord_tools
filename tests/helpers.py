@@ -21,11 +21,8 @@ class ThreadSafeLogger:
     def info(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("info", message, args)
 
-    def warn(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self._record("warning", message, args)
-
     def warning(self, message: str, *args: Any, **_kwargs: Any) -> None:
-        self.warn(message, *args, **_kwargs)
+        self._record("warning", message, args)
 
     def error(self, message: str, *args: Any, **_kwargs: Any) -> None:
         self._record("error", message, args)

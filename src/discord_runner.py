@@ -23,14 +23,14 @@ Run the Discord bot process via:
 
 from ed_discord_bot import EDDiscordBot
 from loguru import logger
-from app_logging import EDLoggingUtils
+from app_logging import configure_logging
 
 
 def main() -> None:
     logger.info("Starting Discord runner")
     try:
         # Build the fully wired bot from environment/default composition.
-        bot = EDDiscordBot.create()
+        bot = EDDiscordBot.create(logging_utils=logger)
         logger.debug("EDDiscordBot instance created")
         bot.run()
     except Exception:
@@ -39,5 +39,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    EDLoggingUtils.create()
+    configure_logging()
     main()

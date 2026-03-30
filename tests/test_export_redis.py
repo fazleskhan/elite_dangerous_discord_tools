@@ -19,11 +19,9 @@ def test_export_redis_delegates_to_backend(tmp_path, monkeypatch):
             "FakeEDRedis", (), {"create": staticmethod(lambda logging_utils=None: fake)}
         ),
     )
-    monkeypatch.setattr(
-        export_redis.EDLoggingUtils,
-        "create",
-        lambda: type("Logger", (), {"info": lambda self, *args, **kwargs: None})(),
-    )
+    fake_logger = type("Logger", (), {"info": lambda self, *args, **kwargs: None})()
+    monkeypatch.setattr(export_redis, "configure_logging", lambda: None)
+    monkeypatch.setattr(export_redis, "logger", fake_logger)
     monkeypatch.setattr(sys, "argv", ["export_redis.py", "--export-dir", str(tmp_path)])
 
     export_redis.main()

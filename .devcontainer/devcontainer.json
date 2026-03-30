@@ -7,10 +7,15 @@
 	 "runArgs": ["--name", "Elite_Dangerous_Discord_Tools"],
 	  
   	"features": {
-    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+ 		// Add the first feature (e.g., Node.js)
     	"ghcr.io/devcontainers/features/node:1": {
-      	"version": "latest"		
-  	},
+      	"version": "lts",
+      	"installIds": [
+        "node"
+      		]	
+    	},		
+    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
 
   	// Optional: Mount the host Docker socket into the container
   	"mounts": [

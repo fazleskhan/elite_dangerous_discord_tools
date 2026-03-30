@@ -3,7 +3,8 @@
 import argparse
 
 from constants import default_export_dir, import_dir_arg
-from app_logging import EDLoggingUtils
+from app_logging import configure_logging
+from loguru import logger
 
 from ed_redis import EDRedis
 
@@ -20,9 +21,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # Reuse shared logging singleton and backend factory composition.
-    logging_utils = EDLoggingUtils.create()
-    logging_utils.info("import_redis args: import_dir={}", args.import_dir)
-    redis_db = EDRedis.create(logging_utils=logging_utils)
+    configure_logging()
+    logger.info("import_redis args: import_dir={}", args.import_dir)
+    redis_db = EDRedis.create(logging_utils=logger)
     redis_db.import_datasource(args.import_dir)
 
 

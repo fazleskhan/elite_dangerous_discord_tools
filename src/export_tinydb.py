@@ -3,7 +3,8 @@
 import argparse
 
 from constants import default_export_dir, export_dir_arg
-from app_logging import EDLoggingUtils
+from app_logging import configure_logging
+from loguru import logger
 
 from ed_tinydb import EDTinyDB
 
@@ -20,9 +21,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # Reuse shared logging singleton and backend factory composition.
-    logging_utils = EDLoggingUtils.create()
-    logging_utils.info("export_tinydb args: export_dir={}", args.export_dir)
-    database = EDTinyDB.create(logging_utils=logging_utils)
+    configure_logging()
+    logger.info("export_tinydb args: export_dir={}", args.export_dir)
+    database = EDTinyDB.create(logging_utils=logger)
     database.export_datasource(args.export_dir)
 
 

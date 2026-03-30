@@ -70,13 +70,12 @@ def test_edmain_validates_constructor_and_create(
     with pytest.raises(ValueError, match="route_service must not be null"):
         main.EDMain(None, ThreadSafeLogger())
 
-    monkeypatch.setattr(main.EDLoggingUtils, "create", staticmethod(lambda: "logger"))
     monkeypatch.setattr(
         main.EDRouteServiceFactory,
         "create",
         staticmethod(lambda logging_utils: "route"),
     )
-    created = main.EDMain.create()
+    created = main.EDMain.create(logging_utils="logger")
     assert created.logging_utils == "logger"
     assert created.route_service == "route"
 
@@ -103,18 +102,15 @@ def test_main_commands(
     ed_main = build_main()
     logger = ed_main.logging_utils
     assert isinstance(logger, ThreadSafeLogger)
-    created_loggers: list[ThreadSafeLogger] = []
+    configure_calls = 0
     create_args: list[ThreadSafeLogger] = []
 
-    def create_logger() -> ThreadSafeLogger:
-        created_loggers.append(logger)
-        return logger
+    monkeypatch.setattr(main, "configure_logging", lambda: _configured())
+    monkeypatch.setattr(main, "logger", logger)
 
-    monkeypatch.setattr(
-        main.EDLoggingUtils,
-        "create",
-        staticmethod(create_logger),
-    )
+    def _configured() -> None:
+        nonlocal configure_calls
+        configure_calls += 1
 
     def fake_create(
         logging_utils: ThreadSafeLogger | None = None,
@@ -167,7 +163,7 @@ def test_main_commands(
 
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert len(created_loggers) == len(command_sets)
+    assert configure_calls == len(command_sets)
     assert len(create_args) == len(command_sets)
     assert ("info", "Pong", ()) in logger.calls
     assert ("info", "All Loaded Systems: {}", (["Sol", "Lave"],)) in logger.calls
@@ -189,7 +185,8 @@ def test_main_argument_validation_paths(
     ed_main = build_main()
     logger = ed_main.logging_utils
     assert isinstance(logger, ThreadSafeLogger)
-    monkeypatch.setattr(main.EDLoggingUtils, "create", staticmethod(lambda: logger))
+    monkeypatch.setattr(main, "configure_logging", lambda: None)
+    monkeypatch.setattr(main, "logger", logger)
     monkeypatch.setattr(
         main.EDMain, "create", staticmethod(lambda logging_utils=None: ed_main)
     )

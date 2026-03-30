@@ -21,11 +21,9 @@ def test_import_tinydb_delegates_to_backend(tmp_path, monkeypatch):
             {"create": staticmethod(lambda logging_utils=None: fake)},
         ),
     )
-    monkeypatch.setattr(
-        import_tinydb.EDLoggingUtils,
-        "create",
-        lambda: type("Logger", (), {"info": lambda self, *args, **kwargs: None})(),
-    )
+    fake_logger = type("Logger", (), {"info": lambda self, *args, **kwargs: None})()
+    monkeypatch.setattr(import_tinydb, "configure_logging", lambda: None)
+    monkeypatch.setattr(import_tinydb, "logger", fake_logger)
     monkeypatch.setattr(
         sys, "argv", ["import_tinydb.py", "--import-dir", str(tmp_path)]
     )

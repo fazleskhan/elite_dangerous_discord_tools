@@ -58,11 +58,12 @@ except ImportError:
         return target
 
 
-from app_logging import EDLoggingUtils
+from app_logging import configure_logging
 from constants import default_init_dir
 from defaults import DEFAULT_INIT_DIR
 from ed_route import EDRouteService
 from ed_route_service_factory import EDRouteServiceFactory
+from loguru import logger
 from protocols import ILogger
 
 
@@ -97,7 +98,9 @@ class EDMain:
         logging_utils: ILogger | None = None,
         route_service: EDRouteService | None = None,
     ) -> "EDMain":
-        resolved_logging_utils = logging_utils or EDLoggingUtils.create()
+        if logging_utils is None:
+            raise ValueError("logging_utils must not be null")
+        resolved_logging_utils = logging_utils
         resolved_route_service = route_service
 
         if resolved_route_service is None:
@@ -318,7 +321,8 @@ def _run_command(
 
 def main() -> None:
     parser = _build_parser()
-    logging_utils = EDLoggingUtils.create()
+    configure_logging()
+    logging_utils = logger
     args = parser.parse_args()
     logging_utils.info("CLI parameters: {}", vars(args))
     ed_main = EDMain.create(logging_utils=logging_utils)

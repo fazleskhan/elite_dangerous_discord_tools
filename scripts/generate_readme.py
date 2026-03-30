@@ -66,7 +66,9 @@ def _extract_sections(source_path: Path) -> dict[str, list[str]]:
             current_body.append(_normalize_readme_line(raw_line))
 
     if current_key is not None:
-        raise ValueError(f"Unterminated README section '{current_key}' in {source_path}")
+        raise ValueError(
+            f"Unterminated README section '{current_key}' in {source_path}"
+        )
 
     return sections
 
@@ -91,7 +93,10 @@ def _collect_sections() -> dict[str, str]:
         for key, bodies in source_sections.items():
             collected.setdefault(key, []).extend(bodies)
 
-    return {key: "\n\n".join(body for body in bodies if body) for key, bodies in collected.items()}
+    return {
+        key: "\n\n".join(body for body in bodies if body)
+        for key, bodies in collected.items()
+    }
 
 
 def _render_template(template: str, sections: dict[str, str]) -> str:
