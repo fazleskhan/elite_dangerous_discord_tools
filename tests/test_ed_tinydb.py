@@ -188,7 +188,7 @@ def test_insert_system_ignores_missing_name_and_cached_entries(
     tinydb_backend._cache_set("Sol", {"name": "Sol"})
     tinydb_backend.insert_system({"name": "Sol", "id64": 1})
 
-    assert run_async_calls == []
+    assert not run_async_calls
 
 
 def test_get_system_returns_none_and_logs_exception_on_lookup_failure(
@@ -251,7 +251,7 @@ def test_init_and_import_datasource_load_sorted_json_records(
     assert [entry["name"] for entry in inserted] == ["Sol", "Achenar", "Lave"]
     assert (
         "Importing TinyDB datasource from {} JSON files in {}",
-        (2, str(import_dir)),
+        (2, import_dir),
     ) in logger.messages("info")
 
 
@@ -334,10 +334,7 @@ def test_write_lock_serializes_concurrent_insert_and_neighbor_updates(
     cached_sol = tinydb_backend.get_system("Sol")
     assert cached_sol in (
         sample_system,
-        {
-            **sample_system,
-            system_info_neighbors_field: sample_neighbors,
-        },
+        sample_system | {system_info_neighbors_field: sample_neighbors},
     )
 
 
@@ -362,7 +359,7 @@ def test_logging_remains_consistent_under_multithreaded_reads(
         thread.join()
 
     assert results == [sample_system] * 40
-    assert cast(ThreadSafeLogger, tinydb_backend.logger).messages("exception") == []
+    assert not cast(ThreadSafeLogger, tinydb_backend.logger).messages("exception")
 
 
 if __name__ == "__main__":

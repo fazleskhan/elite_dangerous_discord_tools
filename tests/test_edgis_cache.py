@@ -23,13 +23,13 @@ class FakeDatasource:
 
     def insert_system(self, system_info: dict[str, object]) -> None:
         system_name = str(system_info["name"])
-        self.systems[system_name] = dict(system_info)
+        self.systems[system_name] = system_info.copy()
 
     def add_neighbors(
         self, system_info: dict[str, object], new_neighbors: list[dict[str, object]]
     ) -> None:
         system_name = str(system_info["name"])
-        entry = dict(self.systems.get(system_name, system_info))
+        entry = self.systems.get(system_name, system_info).copy()
         entry["neighbors"] = new_neighbors
         self.systems[system_name] = entry
         self.added_neighbors.append((system_name, new_neighbors))

@@ -34,13 +34,14 @@ Arguments:
 import argparse
 import os
 import time
+from pathlib import Path
 
 import ed_route
 
 
 def run_init(import_dir: str, db_path: str) -> None:
-    if os.path.exists(db_path):
-        os.remove(db_path)
+    if Path(db_path).exists():
+        Path(db_path).unlink()
     service = ed_route.EDRouteService.create(script_file="src/main.py")
     start = time.perf_counter()
     service.init_datasource(import_dir)
@@ -57,8 +58,8 @@ def run_path(
     min_distance: int,
     max_distance: int,
 ) -> None:
-    if os.path.exists(db_path):
-        os.remove(db_path)
+    if Path(db_path).exists():
+        Path(db_path).unlink()
     service = ed_route.EDRouteService.create(script_file="src/main.py")
     service.init_datasource(import_dir)
 
@@ -86,8 +87,8 @@ def run_distance_loop(
     destination: str,
     iterations: int,
 ) -> None:
-    if os.path.exists(db_path):
-        os.remove(db_path)
+    if Path(db_path).exists():
+        Path(db_path).unlink()
     service = ed_route.EDRouteService.create(script_file="src/main.py")
     service.init_datasource(import_dir)
 

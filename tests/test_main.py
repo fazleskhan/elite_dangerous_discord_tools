@@ -105,12 +105,12 @@ def test_main_commands(
     configure_calls = 0
     create_args: list[ThreadSafeLogger] = []
 
-    monkeypatch.setattr(main, "configure_logging", lambda: _configured())
-    monkeypatch.setattr(main, "logger", logger)
-
     def _configured() -> None:
         nonlocal configure_calls
         configure_calls += 1
+
+    monkeypatch.setattr(main, "configure_logging", _configured)
+    monkeypatch.setattr(main, "logger", logger)
 
     def fake_create(
         logger: ThreadSafeLogger | None = None,

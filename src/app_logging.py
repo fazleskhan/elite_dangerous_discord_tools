@@ -22,6 +22,7 @@ import shutil
 import sys
 import threading
 import time
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, cast
 
@@ -73,7 +74,7 @@ class InterceptHandler(logging.Handler):
 
 
 def _merge_dict(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
-    merged: dict[str, Any] = dict(base)
+    merged: dict[str, Any] = base.copy()
     for key, value in override.items():
         if isinstance(value, dict) and isinstance(merged.get(key), dict):
             merged[key] = _merge_dict(merged[key], value)
@@ -87,7 +88,7 @@ def load_loguru_config(config_path: Path) -> dict[str, Any]:
     if not config_path.exists():
         return config
 
-    try:
+    with suppress(Exception):
         import loguru_config
 
         loader = getattr(loguru_config, "LoguruConfig", None)
@@ -95,8 +96,6 @@ def load_loguru_config(config_path: Path) -> dict[str, Any]:
             loaded = loader.load(str(config_path))
             if isinstance(loaded, dict):
                 return _merge_dict(DEFAULT_LOGURU_CONFIG, loaded)
-    except Exception:
-        pass
 
     try:
         raw = json.loads(config_path.read_text(encoding="utf-8"))

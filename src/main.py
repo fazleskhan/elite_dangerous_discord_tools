@@ -133,7 +133,7 @@ class EDMain:
                 max_systems=i_max_systems,
                 min_distance=min_distance,
                 max_distance=max_distance,
-                progress_callback=lambda message: self.logger.info(message),
+                progress_callback=self.logger.info,
             )
         )
 
@@ -157,7 +157,7 @@ class EDMain:
         return self.route_service.bulk_load_cache(
             initial_system_names,
             max_nodes_visited,
-            progress_callback=lambda message: self.logger.info(message),
+            progress_callback=self.logger.info,
         )
 
 

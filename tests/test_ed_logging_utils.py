@@ -38,7 +38,7 @@ class FakeSinkLogger:
 
     def add(self, sink: Any, **kwargs: Any) -> int:
         with self._lock:
-            self.add_calls.append({"sink": sink, **kwargs})
+            self.add_calls.append({"sink": sink} | kwargs)
             return len(self.add_calls)
 
     def level(self, name: str):
@@ -122,16 +122,18 @@ def test_merge_dict_recursively_merges_nested_values() -> None:
 
 
 def test_load_config_returns_defaults_and_ignores_invalid_json(tmp_path: Path) -> None:
-    missing_watcher = app_logging._LoguruConfigWatcher(tmp_path / "missing.json")
-    loaded_defaults = missing_watcher._load_config()
+    loaded_defaults = app_logging._LoguruConfigWatcher(
+        tmp_path / "missing.json"
+    )._load_config()
     assert loaded_defaults["stdout"]["level"] == "INFO"
     assert loaded_defaults["file"]["path"] == str(defaults.DEFAULT_APPLICATION_LOG_PATH)
 
     invalid_path = tmp_path / "invalid.json"
     invalid_path.write_text("{ invalid", encoding="utf-8")
-    invalid_watcher = app_logging._LoguruConfigWatcher(invalid_path)
-
-    assert invalid_watcher._load_config()["file"]["path"] == "logs/application.log"
+    assert (
+        app_logging._LoguruConfigWatcher(invalid_path)._load_config()["file"]["path"]
+        == "logs/application.log"
+    )
 
 
 def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
@@ -146,8 +148,7 @@ def test_load_config_merges_user_overrides(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    watcher = app_logging._LoguruConfigWatcher(config_path)
-    loaded = watcher._load_config()
+    loaded = app_logging._LoguruConfigWatcher(config_path)._load_config()
 
     assert loaded["stdout"]["level"] == "DEBUG"
     assert loaded["stdout"]["enabled"] is True
@@ -171,8 +172,8 @@ def test_archive_stale_logs_moves_old_rotated_logs_to_archive(tmp_path: Path) ->
     app_logging._archive_stale_logs(log_path, archive_dir, 7, now=now)
 
     archived_log = archive_dir / f"{rotated_log.name}.gz"
-    assert rotated_log.exists() is False
-    assert archived_log.exists() is True
+    assert not rotated_log.exists()
+    assert archived_log.exists()
     with gzip.open(archived_log, "rt", encoding="utf-8") as handle:
         assert handle.read() == "rotated"
 
@@ -193,8 +194,8 @@ def test_delete_expired_archives_removes_old_archives(tmp_path: Path) -> None:
 
     app_logging._delete_expired_archives(archive_dir, 30, now=now)
 
-    assert stale_archive.exists() is False
-    assert fresh_archive.exists() is True
+    assert not stale_archive.exists()
+    assert fresh_archive.exists()
 
 
 def test_configure_logger_adds_console_and_file_sinks(
@@ -265,7 +266,7 @@ def test_configure_logger_can_disable_console_and_file(
     )
 
     assert fake_logger.remove_calls == 1
-    assert fake_logger.add_calls == []
+    assert not fake_logger.add_calls
 
 
 def test_configure_logger_runs_archive_housekeeping(
@@ -357,9 +358,10 @@ def test_handle_fs_event_applies_only_for_targeted_config(
     watcher = app_logging._LoguruConfigWatcher(config_path)
     apply_calls: list[bool] = []
 
-    monkeypatch.setattr(
-        watcher, "_apply_if_needed", lambda force: apply_calls.append(force)
-    )
+    def record_apply(force: bool) -> None:
+        apply_calls.append(force)
+
+    monkeypatch.setattr(watcher, "_apply_if_needed", record_apply)
 
     watcher.handle_fs_event(FileDeletedEvent(str(tmp_path / "other.json")))
     watcher.handle_fs_event(FileModifiedEvent(str(config_path)))
@@ -377,13 +379,11 @@ def test_apply_if_needed_skips_when_mtime_is_unchanged(
     configure_calls: list[dict[str, Any]] = []
 
     monkeypatch.setattr(watcher, "_load_config", lambda: {"console": {}, "file": {}})
-    monkeypatch.setattr(
-        watcher, "_configure_logger", lambda config: configure_calls.append(config)
-    )
+    monkeypatch.setattr(watcher, "_configure_logger", configure_calls.append)
 
     watcher._apply_if_needed(force=False)
 
-    assert configure_calls == []
+    assert not configure_calls
 
 
 def test_apply_if_needed_handles_missing_config_file(
@@ -395,9 +395,7 @@ def test_apply_if_needed_handles_missing_config_file(
     monkeypatch.setattr(
         watcher, "_load_config", lambda: {"console": {}, "file": {}, "watch": {}}
     )
-    monkeypatch.setattr(
-        watcher, "_configure_logger", lambda config: configured.append(config)
-    )
+    monkeypatch.setattr(watcher, "_configure_logger", configured.append)
 
     watcher._apply_if_needed(force=True)
 
@@ -420,9 +418,7 @@ def test_apply_if_needed_reloads_and_updates_mtime(
     monkeypatch.setattr(
         watcher, "_load_config", lambda: {"console": {}, "file": {}, "watch": {}}
     )
-    monkeypatch.setattr(
-        watcher, "_configure_logger", lambda config: configured.append(config)
-    )
+    monkeypatch.setattr(watcher, "_configure_logger", configured.append)
 
     watcher._apply_if_needed(force=True)
 
@@ -442,9 +438,10 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     observer = FakeObserver()
     apply_calls: list[bool] = []
 
-    monkeypatch.setattr(
-        watcher, "_apply_if_needed", lambda force: apply_calls.append(force)
-    )
+    def record_apply(force: bool) -> None:
+        apply_calls.append(force)
+
+    monkeypatch.setattr(watcher, "_apply_if_needed", record_apply)
     monkeypatch.setattr(
         watcher,
         "_load_config",
@@ -459,8 +456,8 @@ def test_start_configures_and_starts_observer_when_watch_enabled(
     handler, path, recursive = observer.schedule_calls[0]
     assert isinstance(handler, app_logging._ConfigFileEventHandler)
     assert path == str(config_path.parent.resolve())
-    assert recursive is False
-    assert observer.started is True
+    assert not recursive
+    assert observer.started
     assert watcher._observer is observer
     assert (
         ("Started watchdog observer for {}", watcher.config_path),
@@ -474,9 +471,10 @@ def test_start_skips_observer_when_watch_disabled(
     watcher = app_logging._LoguruConfigWatcher(tmp_path / "loguru.json")
     apply_calls: list[bool] = []
 
-    monkeypatch.setattr(
-        watcher, "_apply_if_needed", lambda force: apply_calls.append(force)
-    )
+    def record_apply(force: bool) -> None:
+        apply_calls.append(force)
+
+    monkeypatch.setattr(watcher, "_apply_if_needed", record_apply)
     monkeypatch.setattr(
         watcher,
         "_load_config",
@@ -551,12 +549,12 @@ def test_initialize_watcher_loads_env_and_starts_once(
             nonlocal start_calls
             start_calls += 1
 
-    monkeypatch.setattr(app_logging, "load_dotenv", lambda: _count())
-    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
-
     def _count() -> None:
         nonlocal load_dotenv_calls
         load_dotenv_calls += 1
+
+    monkeypatch.setattr(app_logging, "load_dotenv", _count)
+    monkeypatch.setattr(app_logging, "_LoguruConfigWatcher", FakeWatcher)
 
     config_path = tmp_path / "loguru.json"
     app_logging.configure_logging(config_path)
