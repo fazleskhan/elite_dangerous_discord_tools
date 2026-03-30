@@ -41,6 +41,9 @@ sudo apt upgrade -y
 
 sudo apt install austin -y
 
+# used to generate diagrams
+sudo apt install graphviz plantuml -y
+
 # production/runtime requirements
 pip install -r requirements.txt
 

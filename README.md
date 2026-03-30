@@ -442,6 +442,23 @@ Environment variables:
   `dev`, `test`, and `prod`. The command-line override wins when both are
   provided. If neither is set, the script defaults to `dev`.
 
+### `generate_plantuml_local.sh`
+
+Regenerates PlantUML diagram PNGs locally from the repository's `.puml` sources
+under `docs/diagrams` using the local Java and `plantuml.jar` installation.
+
+Usage:
+- `bash scripts/generate_plantuml_local.sh`
+- `bash scripts/generate_plantuml_local.sh docs/diagrams/class_structure.puml`
+
+Arguments:
+- Optional `.puml` file paths under `docs/diagrams`. When omitted, the script
+  regenerates every diagram PNG in the repository.
+
+Environment variables:
+- `JAVA_BIN`: Path to the Java executable used to run PlantUML.
+- `PLANTUML_JAR`: Path to the local `plantuml.jar` file.
+
 ### `postCreateCommand.sh`
 
 Prepares a development container or workstation by refreshing the Yarn apt key,
