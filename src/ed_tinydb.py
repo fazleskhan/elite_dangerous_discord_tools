@@ -1,15 +1,15 @@
-import asyncio
-import json
 import os
 import threading
 from pathlib import Path
 from typing import Any, cast
 
+from datasource_json_io import export_json_records, import_json_records, safe_filename
 from tinydb import Query, TinyDB
 from tinydb.storages import JSONStorage
 from tinydb_smartcache import SmartCacheTable
 
 from ed_protocols import LoggingProtocol, SystemInfo
+from sync_async_bridge import run_async_from_sync
 from constants import (
     default_init_dir,
     default_tinydb_name,
@@ -104,86 +104,28 @@ class EDTinyDB:
         self.import_datasource(import_dir)
 
     def import_datasource(self, import_dir: str | Path) -> None:
-        import_dir_path = Path(import_dir)
-        if not import_dir_path.is_dir():
-            raise FileNotFoundError(f"Import directory does not exist: {import_dir}")
-        json_filenames = sorted(
-            filename
-            for filename in os.listdir(import_dir_path)
-            if filename.endswith(json_extension)
+        import_json_records(
+            import_dir=import_dir,
+            json_extension=json_extension,
+            logger=self.logger,
+            log_message="Importing TinyDB datasource from {} JSON files in {}",
+            insert_record=self.insert_system,
         )
-        self.logger.info(
-            "Importing TinyDB datasource from {} JSON files in {}",
-            len(json_filenames),
-            import_dir_path,
-        )
-        for filename in json_filenames:
-            json_path = import_dir_path / filename
-            with json_path.open(encoding="utf-8") as json_file:
-                payload = json.load(json_file)
-
-            file_records = payload if isinstance(payload, list) else [payload]
-            for record in file_records:
-                if isinstance(record, dict):
-                    self.insert_system(record)
 
     def export_datasource(self, export_dir: str) -> None:
-        Path(export_dir).mkdir(parents=True, exist_ok=True)
-        systems = self.get_all_systems()
-        for system in systems:
-            system_name = system.get(system_info_name_field)
-            if not isinstance(system_name, str) or not system_name:
-                continue
-            full_system = self.get_system(system_name)
-            if full_system is None:
-                continue
-            output_file = os.path.join(
-                export_dir,
-                f"{self._safe_filename(system_name)}{json_extension}",
-            )
-            with open(output_file, "w", encoding="utf-8") as file_handle:
-                json.dump(
-                    full_system,
-                    file_handle,
-                    indent=2,
-                    ensure_ascii=False,
-                    sort_keys=True,
-                )
-                file_handle.write("\n")
+        export_json_records(
+            export_dir=export_dir,
+            json_extension=json_extension,
+            systems=self.get_all_systems(),
+            system_name_field=system_info_name_field,
+            get_full_system=self.get_system,
+        )
 
     def _safe_filename(self, system_name: str) -> str:
-        return "".join(
-            (
-                character
-                if character.isalnum() or character in (" ", "-", "_", ".")
-                else "_"
-            )
-            for character in system_name
-        ).strip()
+        return safe_filename(system_name)
 
     def _run_async(self, coro: Any) -> Any:
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            return asyncio.run(coro)
-
-        output: dict[str, Any] = {}
-        error: dict[str, BaseException] = {}
-
-        def _worker() -> None:
-            try:
-                output[value_key] = asyncio.run(coro)
-            except BaseException as exc:
-                error[value_key] = exc
-
-        worker = threading.Thread(target=_worker, daemon=True)
-        worker.start()
-        worker.join()
-
-        if value_key in error:
-            raise error[value_key]
-
-        return output.get(value_key)
+        return run_async_from_sync(coro, value_key=value_key)
 
     def _cache_get(self, system_name: str) -> SystemInfo | None:
         with self._cache_lock:
