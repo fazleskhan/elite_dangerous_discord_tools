@@ -41,6 +41,10 @@
 
 {{README:CODE_OVERVIEW}}
 
+## Libraries
+
+{{README:LIBRARIES}}
+
 ## Business Rules
 
 Business behavior and user-visible rules are documented in [BUSINESS.md](BUSINESS.md).

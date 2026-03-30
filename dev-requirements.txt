@@ -1,11 +1,24 @@
-pytest
-pytest-asyncio
-tuna
+# Sampling profiler used by local workload profiling and performance debugging.
 austin-python
-coverage
-pytest-cov
-pyright
-ruff
-pyupgrade
-refurb
+# Code formatter used as the repository's canonical Python formatting pass.
 black
+# Coverage engine used underneath coverage reports and pytest coverage runs.
+coverage
+# Optional static type checker kept for development workflows that prefer mypy alongside pyright.
+mypy
+# Static type checker run against the repository as a required quality gate.
+pyright
+# Test runner used for the project's unit and integration-style test suite.
+pytest
+# Async test support for Discord, logging, and sync/async bridge tests.
+pytest-asyncio
+# Pytest plugin used to collect test coverage metrics during development checks.
+pytest-cov
+# Modernizes Python syntax during post-change cleanup passes.
+pyupgrade
+# Suggests more idiomatic Python refactors across the codebase.
+refurb
+# Primary lint tool used to catch style, correctness, and simplification issues.
+ruff
+# Browser-based profiler used during optional local performance inspection.
+tuna

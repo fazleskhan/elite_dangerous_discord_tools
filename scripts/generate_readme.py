@@ -44,6 +44,8 @@ README_CLASS_DOC_ORDER: list[tuple[str, str]] = [
     ("ed_bfs_algo.py", "EDBfsAlgo"),
     ("ed_bulk_load_algo.py", "EDBulkLoadAlgo"),
 ]
+REQUIREMENTS_PATH = ROOT / "requirements.txt"
+DEV_REQUIREMENTS_PATH = ROOT / "dev-requirements.txt"
 
 
 def _docstring_summary(docstring: str | None) -> str:
@@ -122,6 +124,62 @@ def _collect_docstring_sections() -> dict[str, str]:
     return {"CODE_OVERVIEW": "\n\n".join(rendered_sections)}
 
 
+def _parse_requirements_with_comments(requirements_path: Path) -> list[tuple[str, str]]:
+    entries: list[tuple[str, str]] = []
+    pending_comment: str | None = None
+
+    for raw_line in requirements_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line:
+            pending_comment = None
+            continue
+        if line.startswith("#"):
+            comment = line[1:].strip()
+            if not comment:
+                raise ValueError(f"Empty dependency comment in {requirements_path}")
+            pending_comment = comment
+            continue
+        if pending_comment is None:
+            raise ValueError(
+                f"Missing descriptive comment for dependency '{line}' in {requirements_path}"
+            )
+        entries.append((line, pending_comment))
+        pending_comment = None
+
+    if pending_comment is not None:
+        raise ValueError(f"Dangling dependency comment at end of {requirements_path}")
+
+    return entries
+
+
+def _render_requirements_group(
+    title: str, requirements_path: Path, install_command: str
+) -> str:
+    entries = _parse_requirements_with_comments(requirements_path)
+    lines = [
+        f"### {title}",
+        "",
+        f"Install with: `{install_command}`",
+        "",
+    ]
+    lines.extend(f"* `{package}`: {description}" for package, description in entries)
+    return "\n".join(lines)
+
+
+def _collect_dependency_sections() -> dict[str, str]:
+    runtime_group = _render_requirements_group(
+        "Runtime Libraries",
+        REQUIREMENTS_PATH,
+        "pip install -r requirements.txt",
+    )
+    development_group = _render_requirements_group(
+        "Development Libraries",
+        DEV_REQUIREMENTS_PATH,
+        "pip install -r dev-requirements.txt",
+    )
+    return {"LIBRARIES": "\n\n".join([runtime_group, development_group])}
+
+
 def _normalize_readme_line(line: str) -> str:
     stripped = line.rstrip("\n")
     if stripped.startswith("# "):
@@ -190,6 +248,7 @@ def _collect_sections() -> dict[str, str]:
         for key, bodies in collected.items()
     }
     sections.update(_collect_docstring_sections())
+    sections.update(_collect_dependency_sections())
     return sections
 
 

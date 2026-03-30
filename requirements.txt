@@ -1,14 +1,26 @@
+# HTTP client for EDGIS API requests in `src/ed_edgis.py`.
 aiohttp
-ujson
-tinydb
-tinydb-smartcache
+# Async TinyDB helper dependency retained for TinyDB-related runtime compatibility.
 aiotinydb
-mypy
-discord
-python-dotenv
-loguru
-watchdog
-redis[hiredis]
-psutil
-loguru-config
+# Lightweight tracing decorator used where available in runtime modules.
 autologging
+# Discord bot framework used by `src/ed_discord_bot.py` and `src/discord_runner.py`.
+discord
+# Primary logging library configured through `src/ed_app_logging.py`.
+loguru
+# Optional Loguru config loader used when reading external logging configuration.
+loguru-config
+# System metrics helper used for worker-count and connection-pool sizing.
+psutil
+# Loads `.env` configuration for CLI, Discord, datasource, and logging setup.
+python-dotenv
+# Redis client with hiredis acceleration for the Redis datasource in `src/ed_redis.py`.
+redis[hiredis]
+# Local document database backing the TinyDB datasource in `src/ed_tinydb.py`.
+tinydb
+# Smart-cache table implementation used by `SmartCacheTinyDB` in `src/ed_tinydb.py`.
+tinydb-smartcache
+# Fast JSON helper used by project dependencies and retained in the runtime image.
+ujson
+# File watching library used for hot-reloading `config/loguru.json`.
+watchdog
