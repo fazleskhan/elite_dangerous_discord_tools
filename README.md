@@ -42,6 +42,10 @@ When loading Python dependencies for a development environment, install both:
 
 `pip install -r dev-requirements.txt`
 
+To enable repository spell checking with `cspell`, run:
+
+`npm run spellcheck`
+
 ### Configuration
 
 #### Environment Variables

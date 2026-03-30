@@ -15,6 +15,18 @@
 # Environment variables:
 # - This script does not currently read any custom environment variables.
 # [/README]
+#
+# [README:STARTING]
+# When loading Python dependencies for a development environment, install both:
+#
+# `pip install -r requirements.txt`
+#
+# `pip install -r dev-requirements.txt`
+#
+# To enable repository spell checking with `cspell`, run:
+#
+# `npm run spellcheck`
+# [/README]
 
 echo "Executing ./scripts/postCreateCommand.sh"
 
@@ -34,4 +46,3 @@ pip install -r requirements.txt
 
 # development environments must load both runtime and development requirements
 pip install -r dev-requirements.txt
-

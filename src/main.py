@@ -36,6 +36,12 @@ Commands and available arguments:
   * Arguments: `--initial_systems` (required, comma-separated seeds),
     `--max_nodes_visited` (required).
 [/README]
+
+[README:STARTING]
+Run the CLI entrypoint via:
+
+`python ./src/main.py <command> [options]`
+[/README]
 """
 
 import argparse

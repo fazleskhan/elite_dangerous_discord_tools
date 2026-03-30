@@ -7,7 +7,9 @@
 	 "runArgs": ["--name", "Elite_Dangerous_Discord_Tools"],
 	  
   	"features": {
-    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    	"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    	"ghcr.io/devcontainers/features/node:1": {
+      	"version": "latest"		
   	},
 
   	// Optional: Mount the host Docker socket into the container
@@ -35,7 +37,7 @@
 				"ms-python.vscode-pylance",
 				"ms-python.debugpy",
 				"ms-python.vscode-python-envs",
-				"elijah-potter.harper",
+				"streetsidesoftware.code-spell-checker",
 				"Gruntfuggly.todo-tree",
 				"openai.chatgpt"
 			],
